@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
+
+<section class="content">
+
+  
+
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-12">
+            <br />
+            <div class="card">
+                <div class="card-header">
+                    <h3 style="color:#268aab">Recive Medicine</h3>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="inputState" class="form-label">Select Supplier</label>
+                                <select id="inputState" class="form-select form-control ">
+                                    <option selected>Joe Distributors</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Medicine Name</label>
+                                <input type="text" class="form-control" placeholder="Analgesics">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" placeholder="07/07/2025">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Available Qty</label>
+                                <input type="date" class="form-control" placeholder="0">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Qty</label>
+                                <input type="date" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <br />
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <button class="btn btn-info" type="button">Order Medicine</button>
+                            <button class="btn btn-danger" type="button">Cancel</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>

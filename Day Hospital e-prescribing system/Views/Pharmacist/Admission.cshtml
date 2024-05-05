@@ -15,39 +15,12 @@
                     *@
                 </div>
                 <br />
-                <h4 class="display-6  text-center text-bold" style="color: #268aab">MEDICINE lIST</h4>
+                <h4 class="display-6  text-center text-bold" style="color: #268aab">Admission Record</h4>
             </div>
         </div>
     </div>
     <br />
-    <div class="row">
-        <div class="col-md-4">
-            <!-- Calendar to select date -->
-            <br />
-            <div class="card">
-                <div class="card-body">
-                    <div class="dropdown">
-                        <button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Medicine Type
-                        </button>
-                        <button>Filter</button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="#">Tablet</a></li>
-                            <li><a class="dropdown-item" href="#">Capsules</a></li>
-                            <li><a class="dropdown-item" href="#">Liquid</a></li>
-                            <li><a class="dropdown-item" href="#">Suppositories</a></li>
-                            <li><a class="dropdown-item" href="#">Drops</a></li>
-                            <li><a class="dropdown-item" href="#">Inhalers</a></li>
-                            <li><a class="dropdown-item" href="#">Injections</a></li>
-                            <li><a class="dropdown-item" href="#">Implants </a></li>
-                            <li><a class="dropdown-item" href="#">Patches </a></li>
-                        </ul>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- Display patients -->
     <div class="row">
@@ -55,11 +28,11 @@
             <br />
             <div class="card">
                 <div class="card-header">
-                    
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-info">Recive Medicine</button>
-                        </div>
-                    
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-info">Joe Doe Admissin Record</button>
+                    </div>
+
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -68,37 +41,48 @@
                                 <tr>
 
 
-                                    <th>Medicine Info</th>
-                                    <th>Type</th>
+                                    <th>Patient</th>
+                                    <th>Gender</th>
 
-                                    <th>Strength </th>
-                                    <th>Quantity</th>
-                                    
+                                    <th>Addmission Date </th>
+                                    <th>Admission Time</th>
+                                    <th>Ward</th>
+                                    <th>Bed</th>
+                                    <th>Nurse</th>
+                                    <th></th>
+
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>MID: 1
-                                        <br />
-                                        Name: Brufen
-                                        <br />
-                                        Expiry Date: 2025-06-06
+                                    <td>
+                                        Joe Doe
                                     </td>
-                                    <td>Tablet</td>
-                                    <td>10</td>
-                                    <td>1000</td>
+                                    <td>Male</td>
+                                    <td>01-05-2024</td>
+                                    <td>08:00</td>
+                                    <td>A</td>
+                                    <td>1</td>
+                                    <td>John Doe</td>
+                                    <td><button class="bg-info">
+                                        Contact nurse
+                                    </button></td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        MID: 2
-                                        <br />
-                                        Name: Anxiolytics
-                                        <br />
-                                        Expiry Date: 2025-06-06
+                                        Joe Doe
                                     </td>
-                                    <td>Liquid</td>
-                                    <td>50mg</td>
-                                    <td>400</td>
+                                    <td>Male</td>
+                                    <td>01-05-2023</td>
+                                    <td>08:00</td>
+                                    <td>A</td>
+                                    <td>1</td>
+                                    <td>John Doe</td>
+                                    <td>
+                                        <button class="bg-info">
+                                            Contact nurse
+                                        </button>
+                                    </td>
                                 </tr>
                                 <!-- Patient data will be populated here -->
                             </tbody>
@@ -108,7 +92,7 @@
             </div>
         </div>
     </div>
-   
+
 </section>
 
 <script>
@@ -119,7 +103,7 @@
             var patientsData = [
                 { info: "2024-05-01 08:30", medication: "Anxiolytics", strength: "50mg", quantity: "100mg", status: "Ordered" },
                 {
-                     info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
+                    info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
                 },
                 // Add more patient data as needed
             ];
