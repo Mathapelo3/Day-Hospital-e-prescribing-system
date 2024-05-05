@@ -1,0 +1,244 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+</style>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Calendar to select date -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title ">Jane Doe</h3>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-primary" id="prescriptionsButton">Prescriptions</button>
+                        <button type="button" class="btn btn-primary" id="ordersButton">Orders</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Medical History</h3>
+            </div>
+        <!-- Display patients -->
+
+               </div>
+                    <div class="col-md-14">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Vitals</h3>
+                            </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="patientsTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+
+                                        <th>Height</th>
+                                        <th>Weight</th>
+                                        <th>Temperature</th>
+                                        <th>Blood Pressure</th>
+                                        <th>Pluse Rate</th>
+                                        <th>Respiratory Rate </th>
+                                        <th>Blood Oxygen</th>
+                                        <th>Blood Glucose Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Patient data will be populated here -->
+                                </tbody>
+                            </table>
+                            </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <!-- Allergies -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Allergies</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="allergiesTable" class="table table-bordered table-striped">
+                                                <thead></thead>
+                                                <tbody>
+                                                    <!-- Allergy data will be populated here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <!-- Current Medication -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Current Medication</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="medicationTable" class="table table-bordered table-striped">
+                                                <thead></thead>
+                                                <tbody>
+                                                    <!-- Medication data will be populated here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <!-- Conditions -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Conditions</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table id="conditionsTable" class="table table-bordered table-striped">
+                                                <thead></thead>
+                                                <tbody>
+                                                    <!-- Condition data will be populated here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        // Function to populate patients data based on selected date
+        function populatePatients() {
+            // Dummy data (replace with actual data retrieval logic)
+            var patientsData = [
+                { height: "160cm", weight: "70kg", temperature: " 35°C", blood: "120 bpm", pulse: "8 bpm", respiratory: "100%", oxygen: "60%", glucose: "180/120 mmHg" },
+                { height: "165cm", weight: "80kg", temperature: "35°C", blood: "40 bpm", pulse: "10 bpm", respiratory: "70%A", oxygen: "80%", glucose: "180/120 mmHg" },
+                // Add more patient data as needed
+            ];
+
+            // Clear previous data
+            $("#patientsTable tbody").empty();
+
+            // Populate table with patient data
+            patientsData.forEach(function (patient) {
+                $("#patientsTable tbody").append(
+                    "<tr>" +
+                    "<td>" + patient.height + "</td>" +
+                    "<td>" + patient.weight + "</td>" +
+                    "<td>" + patient.temperature + "</td>" +
+                    "<td>" + patient.blood + "</td>" +
+                    "<td>" + patient.pulse + "</td>" +
+                    "<td>" + patient.respiratory + "</td>" +
+                    "<td>" + patient.oxygen + "</td>" +
+                    "<td>" + patient.glucose + "</td>" +
+                    "</tr>"
+                );
+            });
+        }
+
+        // Function to populate allergies table
+        function populateAllergies() {
+            // Dummy data (replace with actual data retrieval logic)
+            var allergiesData = [
+                { allergy: "Peanuts" },
+                { allergy: "Penicillin" },
+                // Add more allergy data as needed
+            ];
+
+            // Clear previous data
+            $("#allergiesTable tbody").empty();
+
+            // Populate table with allergy data
+            allergiesData.forEach(function (allergy) {
+                $("#allergiesTable tbody").append(
+                    "<tr>" +
+                    "<td>" + allergy.allergy + "</td>" +
+                    "</tr>"
+                );
+            });
+        }
+
+        // Function to populate current medication table
+        function populateMedication() {
+            // Dummy data (replace with actual data retrieval logic)
+            var medicationData = [
+                { medication: "Aspirin" },
+                { medication: "Amoxicillin" },
+                // Add more medication data as needed
+            ];
+
+            // Clear previous data
+            $("#medicationTable tbody").empty();
+
+            // Populate table with medication data
+            medicationData.forEach(function (medication) {
+                $("#medicationTable tbody").append(
+                    "<tr>" +
+                    "<td>" + medication.medication + "</td>" +
+                    "</tr>"
+                );
+            });
+        }
+
+        // Function to populate conditions table
+        function populateConditions() {
+            // Dummy data (replace with actual data retrieval logic)
+            var conditionsData = [
+                { condition: "Diabetes" },
+                { condition: "Asthma" },
+                // Add more condition data as needed
+            ];
+
+            // Clear previous data
+            $("#conditionsTable tbody").empty();
+
+            // Populate table with condition data
+            conditionsData.forEach(function (condition) {
+                $("#conditionsTable tbody").append(
+                    "<tr>" +
+                    "<td>" + condition.condition + "</td>" +
+                    "</tr>"
+                );
+            });
+        }
+
+        // Call the functions to populate the tables
+        populatePatients();
+        populateAllergies();
+        populateMedication();
+        populateConditions();
+
+        // Event listener for Prescriptions button
+        $("#prescriptionsButton").click(function () {
+            // Call function to populate prescriptions data
+            // Here, you can add logic to show prescriptions data
+            // For example:
+            alert("Displaying prescriptions data");
+        });
+
+        // Event listener for Orders button
+        $("#ordersButton").click(function () {
+            // Call function to populate orders data
+            // Here, you can add logic to show orders data
+            // For example:
+            alert("Displaying orders data");
+        });
+    });
+</script>
+
+

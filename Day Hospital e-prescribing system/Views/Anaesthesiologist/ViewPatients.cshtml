@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+</style>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Calendar to select date -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Select Date</h3>
+                    </div>
+                    <div class="card-body">
+                        <input type="date" id="selectedDate" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display patients -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Scheduled Patients</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="patientsTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        
+                                        <th>Surname</th>
+                                        <th>Name</th>
+                                         <th>Gender</th>
+                                        <th>Treatment Code</th>
+                                        <th>Surgery </th>
+                                        <th>Ward</th>
+                                        <th>Bed</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Patient data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        // Function to populate patients data based on selected date
+        function populatePatients(selectedDate) {
+            // Dummy data (replace with actual data retrieval logic)
+            var patientsData = [
+                { surname: "Doe", name: "John", gender: "Male", treatment: "gwm456", surgery: "2024-05-01 08:30", ward: "Ward A", bed: "Bed 1" },
+                { surname: "Smith", name: "Alice", gender: "Female", treatment: "Cxs764", surgery: "2024-05-01 09:15", ward: "---", bed: "---" },
+                // Add more patient data as needed
+            ];
+
+            // Clear previous data
+            $("#patientsTable tbody").empty();
+
+            // Populate table with patient data
+            patientsData.forEach(function (patient) {
+                $("#patientsTable tbody").append(
+                    "<tr>" +
+                    
+                    "<td>" + patient.surname + "</td>" +
+                    "<td>" + patient.name + "</td>" +
+                "<td>" + patient.gender + "</td>" +
+                "<td>" + patient.treatment+ "</td>" +
+                
+                "<td>" + patient.surgery + "</td>" +
+                    "<td>" + patient.ward + "</td>" +
+                    "<td>" + patient.bed + "</td>" +
+                   
+                    "</tr>"
+                );
+            });
+        }
+
+        // Event listener for date selection
+        $("#selectedDate").change(function () {
+            var selectedDate = $(this).val();
+            // Call function to populate patients data based on selected date
+            populatePatients(selectedDate);
+        });
+
+        // Initial population of patients data based on current date
+        var currentDate = new Date().toISOString().split('T')[0];
+        populatePatients(currentDate);
+    });
+</script>

@@ -1,0 +1,291 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<style>
+    /*.card-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; 
+    }
+
+    /*.card {
+        width: 70%; 
+        padding: 20px; 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        border-radius: 10px; 
+        overflow-y: auto; 
+    }*/
+
+    table {
+        border-collapse: collapse; 
+        width: 100%; 
+    }
+
+    th, td {
+        border: 1px solid #ddd; 
+        padding: 8px; 
+        text-align: center; 
+    }
+
+    th {
+        background-color: #f2f2f2; 
+    }
+
+    select {
+        width: calc(100% - 10px); 
+        padding: 3px; 
+        margin: 3px 0; 
+    }
+
+    /*.btn-save {
+        background-color: #007bff; 
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+    }*/
+    
+
+
+    .card-title {
+        font-weight: bold;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-center align-items-center">
+                        <h3 class="card-title">Maintain Vitals</h3>
+                    </div>
+
+                    <div class="card-body">
+
+                    </div>
+                    <div class="table-responsive">
+                        <table id="patientsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="7" class="text-left">Current Normal Vitals</th>
+                                </tr>
+                                <tr>
+                                    <th>Vitals</th>
+                                    <th>Temperature</th>
+                                    <th>Blood Pressure</th>
+                                    <th>Pulse Rate</th>
+                                    <th>Respiratory Rate</th>
+                                    <th>Blood Oxygen</th>
+                                    <th>Blood Glucose Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                                <tr>
+                                    <th>Min</th>
+                                    <td>70°F</td>
+                                    <td>70/40 mmHg</td>
+                                    <td>40 bpm</td>
+                                    <td>8 bpm</td>
+                                    <td>70%</td>
+                                    <td>70 mg/dL</td>
+                                </tr>
+                                <tr>
+                                    <th>Max</th>
+                                    <td>110°F</td>
+                                    <td>180/120 mmHg</td>
+                                    <td>120 bpm</td>
+                                    <td>30 bpm</td>
+                                    <td>100%</td>
+                                    <td>200 mg/dL</td>
+                                </tr><!-- Patient data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th colspan="7" class="text-left">Update Vitals</th>
+                            </tr>
+                                <tr>
+                                    <th>Vitals</th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Add rows for each vital sign -->
+                                <tr>
+                                    <td>Temperature</td>
+                                    <td>
+                                        <select id="temperature_min">
+                                            @for (int i = 0; i <= 100; i++)
+                                            {
+                                                <option value="@i">@i</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select id="temperature_max">
+                                            @for (int i = 0; i <= 100; i++)
+                                            {
+                                                <option value="@i">@i</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            
+                            <tr>
+                                <td>Blood pressure</td>
+                                <td>
+                                    <select id="bloodpressure_min">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="bloodpressure_max">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pulse rate</td>
+                                <td>
+                                    <select id="temperature_min">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="temperature_max">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Respiratory rate</td>
+                                <td>
+                                    <select id="temperature_min">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="temperature_max">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Blood oxygen</td>
+                                <td>
+                                    <select id="temperature_min">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="temperature_max">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Blood glucose level </td>
+                                <td>
+                                    <select id="temperature_min">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="temperature_max">
+                                        @for (int i = 0; i <= 100; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                                <!-- Add other rows similarly -->
+                            </tbody>
+                        </table>
+                        <br />
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->
+<!-- Implement JavaScript to detect changes in vital signs -->
+<script>
+    $(document).ready(function () {
+        // Listen for changes in vital signs
+        $('input[type="number"]').change(function () {
+            var vital = $(this).attr('name').split('_')[0]; // Extract the vital sign name
+            var value = $(this).val();
+            var min = $('#' + vital + '_min').val();
+            var max = $('#' + vital + '_max').val();
+            // Check if the value is outside the normal range
+            if (value < min || value > max) {
+                // Trigger notification
+                alert('Vital ' + vital + ' is outside the normal range!');
+                // Send email notification to all nurses
+                $.ajax({
+                    url: '/Nurse/SendVitalNotification',
+                    type: 'POST',
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
+
+    // Function to save changes
+    function saveChanges() {
+        // Add your save logic here
+    }
+</script>

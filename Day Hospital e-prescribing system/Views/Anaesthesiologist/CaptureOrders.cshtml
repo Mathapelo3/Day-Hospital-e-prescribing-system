@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Medication Order Form</h3>
+                    </div>
+                    <div class="card-body">
+                       
+                    </div>
+                        <form id="orderForm">
+                        <div class="form-group">
+                            <label for="surgeon">Patient:</label>
+                            <select class="form-control" id="patient" name="surgeon">
+                                <option value="surgeon1">---</option>
+                                <option value="surgeon2">50mg</option>
+                                <option value="surgeon3">Surgeon 3</option>
+                            </select>
+
+                        </div>
+                            <div class="form-group">
+                                <label for="surgeon">Surgeon:</label>
+                                <select class="form-control" id="surgeon" name="surgeon">
+                                    <option value="surgeon1">Lee</option>
+                                    <option value="surgeon2">Surgeon 2</option>
+                                    <option value="surgeon3">Surgeon 3</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="date">Date:</label>
+                                <input type="date" class="form-control" id="date" name="date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="surgeon">Medication:</label>
+                                    <select class="form-control" id="surgeon" name="surgeon">
+                                    <option value="surgeon1">Sedatives</option>
+                                        <option value="surgeon2">Pain Reliver</option>
+                                        <option value="surgeon3">Surgeon 3</option>
+                                    </select>
+                                <select class="form-control" id="surgeon" name="surgeon">
+                                    <option value="surgeon1">Pain Reliever</option>
+                                    <option value="surgeon2">Surgeon 2</option>
+                                    <option value="surgeon3">Surgeon 3</option>
+                                </select>
+                                <select class="form-control" id="surgeon" name="surgeon">
+                                    <option value="surgeon1">Anesthetics</option>
+                                    <option value="surgeon2">Surgeon 2</option>
+                                    <option value="surgeon3">Surgeon 3</option>
+                                </select>
+                                </div>
+                            <div class="form-group">
+                                <label for="surgeon">Strength:</label>
+                                <select class="form-control" id="surgeon" name="surgeon">
+                                    <option value="surgeon1">20mg</option>
+                                    <option value="surgeon2">50mg</option>
+                                    <option value="surgeon3">Surgeon 3</option>
+                                </select>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity">
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status:</label>
+                                <input type="text" class="form-control" id="status" name="status" value="Ordered" readonly>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->
