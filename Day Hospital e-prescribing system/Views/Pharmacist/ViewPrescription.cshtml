@@ -1,0 +1,157 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
+
+<section class="content">
+
+
+
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-12">
+            <br />
+            <div class="card">
+                <div class="card-header">
+                    <h3 style="color:#268aab">Patient Prescription</h3>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="inputState" class="form-label">Prescription No: </label>
+                                <lable type="text">Pres2024043020</lable>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="inputState" class="form-label">Date</label>
+                                <lable type="date">07/04/2027</lable>
+                            </div>
+
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-mb-8">
+                                <label  form-label">Patient Id: </label>
+                                <lable>IPD-202404303</lable>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Patient Name: </label>
+                                <labe>Shaiur</labe>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">Age: </label>
+                                <lable >30</lable>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">Gender</label>
+                                <lable >Female</lable>
+                            </div>
+                        </div>
+                    </form>
+                        <div class="row">
+                            <h5 class="card-title">Dispense Medicine</h5>
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Medicine Code</th>
+                                        <th scope="col">Medicine Name</th>
+                                        <th scope="col">Feeding Rules</th>
+                                        <th scope="col">Feed Days</th>
+                                        <th scope="col">Feed Medicine</th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>27127</td>
+                                        <td>Napa</td>
+                                        <td>1+1+1(After Meal)</td>
+                                        <td>7 Days</td>
+                                        <td>21 PCS.</td>
+                                        <td><button class="bg-success">Accept</button></td>
+                                        <td><button class="bg-danger">Reject</button></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">2</th>
+                                        <td>94171</td>
+                                        <td>Finix</td>
+                                        <td>1+0+1(Before Meal)</td>
+                                        <td>7 Days</td>
+                                        <td>14 PCS.</td>
+                                        <td><button class="bg-success">Accept</button></td>
+                                        <td><button class="bg-danger">Reject</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <br />
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                <button class="btn btn-info" type="button">Accept Prescription</button>
+                                <button class="btn btn-danger" type="button">Reject Prescription</button>
+                            </div>
+                        </div>
+                        
+                    
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<section>
+    <div class="row">
+        <div class="col-md-12">
+            <br />
+            <div class="card">
+                <div class="card-header">
+                    <h3 style="color:#268aab">Dispense Medicine</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    
+                                    <th scope="col">Medicine Name</th>
+                                    <th scope="col">Stock</th>
+                                    <th scope="col">Quantity</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td><input type="text" class="form-control" id="inputName5"></td>
+                                    <td><input type="text" class="form-control" id="inputName5"></td>
+                                    <td><input type="text" class="form-control" id="inputName5"></td>
+                                    <td><button class="bg-gradient-danger">Remove</button></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td><input type="text" class="form-control" id="inputName5"></td>
+                                    <td><input type="text" class="form-control" id="inputName5"></td>
+                                    <td><input type="text" class="form-control" id="inputName5"></td>
+                                    <td><button class="bg-gradient-danger">Remove</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <button class="btn btn-info" type="button">Dispense</button>
+                            <button class="btn btn-danger" type="button">Cancel</button>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</section>

@@ -1,4 +1,6 @@
-﻿@{
+﻿
+
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
@@ -15,51 +17,23 @@
                     *@
                 </div>
                 <br />
-                <h4 class="display-6  text-center text-bold" style="color: #268aab">MEDICINE lIST</h4>
+                <h4 class="display-center  text-center text-bold" style="color: #268aab">Top Up Medicine</h4>
             </div>
         </div>
     </div>
     <br />
-    <div class="row">
-        <div class="col-md-4">
-            <!-- Calendar to select date -->
-            <br />
-            <div class="card">
-                <div class="card-body">
-                    <div class="dropdown">
-                        <button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Medicine Type
-                        </button>
-                        <button>Filter</button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="#">Tablet</a></li>
-                            <li><a class="dropdown-item" href="#">Capsules</a></li>
-                            <li><a class="dropdown-item" href="#">Liquid</a></li>
-                            <li><a class="dropdown-item" href="#">Suppositories</a></li>
-                            <li><a class="dropdown-item" href="#">Drops</a></li>
-                            <li><a class="dropdown-item" href="#">Inhalers</a></li>
-                            <li><a class="dropdown-item" href="#">Injections</a></li>
-                            <li><a class="dropdown-item" href="#">Implants </a></li>
-                            <li><a class="dropdown-item" href="#">Patches </a></li>
-                        </ul>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
     <!-- Display patients -->
     <div class="row">
         <div class="col-md-12">
             <br />
             <div class="card">
                 <div class="card-header">
-                    
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-info">Recive Medicine</button>
-                        </div>
-                    
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-info">Recieve Medicine</button>
+                    </div>
+
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -68,37 +42,46 @@
                                 <tr>
 
 
-                                    <th>Medicine Info</th>
-                                    <th>Type</th>
+                                    <th>Medicine Name</th>
+                                    <th>Stock Available</th>
 
-                                    <th>Strength </th>
-                                    <th>Quantity</th>
-                                    
+                                    <th>Expiry Date </th>
+                                    <th>Action</th>
+
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>MID: 1
-                                        <br />
-                                        Name: Brufen
-                                        <br />
-                                        Expiry Date: 2025-06-06
+                                    <td>
+                                         Brufen 
                                     </td>
-                                    <td>Tablet</td>
-                                    <td>10</td>
                                     <td>1000</td>
+                                    <td>2025-06-06</td>
+                                    <td>
+                                        <button type="submit" class="btn btn-info">Receive </button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        MID: 2
-                                        <br />
-                                        Name: Anxiolytics
-                                        <br />
-                                        Expiry Date: 2025-06-06
+                                         Anxiolytics
+                                         
                                     </td>
-                                    <td>Liquid</td>
-                                    <td>50mg</td>
                                     <td>400</td>
+                                    <td>2025-06-06</td>
+                                    <td>
+                                        <button type="submit" class="btn btn-info">Receive </button>
+                                     </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Analgesics
+
+                                    </td>
+                                    <td class="bg-danger text-white">0</td>
+                                    <td>2025-06-06</td>
+                                    <td>
+                                        <button type="submit" class="btn btn-info">Receive </button>
+                                    </td>
                                 </tr>
                                 <!-- Patient data will be populated here -->
                             </tbody>
@@ -108,7 +91,7 @@
             </div>
         </div>
     </div>
-   
+
 </section>
 
 <script>
@@ -119,7 +102,7 @@
             var patientsData = [
                 { info: "2024-05-01 08:30", medication: "Anxiolytics", strength: "50mg", quantity: "100mg", status: "Ordered" },
                 {
-                     info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
+                    info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
                 },
                 // Add more patient data as needed
             ];
@@ -163,3 +146,4 @@
 
 
 </section>
+
