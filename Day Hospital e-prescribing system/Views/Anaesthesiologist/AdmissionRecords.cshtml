@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<section class="content">
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-14">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">ADMITTED PATIENTS</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Search bar and filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <!-- Search bar -->
+                            <div class="input-group">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                       @* <div class="col-md-4">
+                            <!-- Gender filter -->
+                            <select class="form-control" id="genderFilter">
+                                <option value="">All Genders</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>*@
+                        <div class="col-md-4">
+                            <!-- Admission date filter -->
+                            <div class="input-group">
+                                <input type="date" id="admissionDateFilter" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="patientsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    
+                                    <th>Surname</th>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Contact Number</th>
+                                    <th>Email</th>
+                                    <th>Admission</th>
+                                    <th>Ward</th>
+                                    <th>Bed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Patient data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        // Dummy data (replace with actual data retrieval logic)
+        var patientsData = [
+            { surname: "Doe", name: "John", gender: "Male", contact: "065 789 256", email: "janedoe@gmail.com", admission: "2024-05-01 08:30", ward: "Ward A", bed: "Bed 1" },
+            { surname: "Smith", name: "Alice", gender: "Female", contact: "074 853 946", email: "aliceamith@gmail.com", admission: "2024-05-01 09:15", ward: "Ward A", bed: "Bed 1" },
+            // Add more patient data as needed
+        ];
+
+        // Function to populate patients table
+        function populatePatientsTable(data) {
+            $("#patientsTable tbody").empty();
+            data.forEach(function (patient) {
+                $("#patientsTable tbody").append(
+                    "<tr>" +
+                    
+                    "<td>" + patient.surname + "</td>" +
+                    "<td>" + patient.name + "</td>" +
+                    "<td>" + patient.gender + "</td>" +
+                    "<td>" + patient.contact + "</td>" +
+                    "<td>" + patient.email + "</td>" +
+                    "<td>" + patient.admission + "</td>" +
+                    "<td>" + patient.ward + "</td>" +
+                    "<td>" + patient.bed + "</td>" +
+                    "</tr>"
+                );
+            });
+        }
+
+        // Initial population of patients table
+        populatePatientsTable(patientsData);
+
+        // Search functionality
+        $("#searchButton").click(function () {
+            var searchText = $("#searchInput").val().toLowerCase();
+            var filteredData = patientsData.filter(function (patient) {
+                return patient.surname.toLowerCase().includes(searchText) ||
+                    patient.name.toLowerCase().includes(searchText) ||
+                    patient.contact.includes(searchText) ||
+                    patient.admission.includes(searchText);
+                patient.ward.includes(searchText);
+                patient.bed.includes(searchText);
+            });
+            populatePatientsTable(filteredData);
+        });
+
+        //// Gender filter functionality
+        //$("#genderFilter").change(function () {
+        //    var selectedGender = $(this).val();
+        //    if (selectedGender) {
+        //        var filteredData = patientsData.filter(function (patient) {
+        //            return patient.gender === selectedGender;
+        //        });
+        //        populatePatientsTable(filteredData);
+        //    } else {
+        //        populatePatientsTable(patientsData);
+        //    }
+        //});
+
+        // Admission date filter functionality
+        $("#admissionDateFilter").change(function () {
+            var selectedDate = $(this).val();
+            var filteredData = patientsData.filter(function (patient) {
+                return patient.admission.includes(selectedDate);
+            });
+            populatePatientsTable(filteredData);
+        });
+
+    });
+</script>
+

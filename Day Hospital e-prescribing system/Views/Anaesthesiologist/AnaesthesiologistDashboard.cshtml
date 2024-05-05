@@ -1,0 +1,73 @@
+﻿
+@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/AnaDash.cshtml";
+}
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card text-center" style="height:200px">
+            <div>
+                <br />
+            </div>
+            <div class="card-body text-purple">
+                <img src="~/Images//Cities.png" width="100" />
+                <div>
+                    <br />
+                </div>
+                <h4>View Patients</h4>
+                @* <p class="card-text text-secondary text-bold">Assign Educator to a Subject.</p>*@
+                <button type="button" onclick="location.href = '@Url.Action("SelectSuburb","Nurse")'" class="btn btn-outline-secondary">View</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card text-center" style="height:200px">
+
+            <div class="card-body text-purple">
+                <img src="~/Images//Patient.png" width="100" />
+                <div>
+                    <br />
+                </div>
+                <h4>Admission Records</h4>
+                @* <p class="card-text text-secondary text-bold">Assign Educator to a Subject.</p>*@
+                <button type="button" onclick="location.href = '@Url.Action("Create","AssignSubHeads")'" class="btn btn-outline-secondary">VIEW</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card text-center" style="height:210px">
+
+            <div class="card-body text-purple">
+                <img src="~/Images/CareVisit.png" width="100" />
+                <div>
+                    <br />
+                </div>
+                <h4>Capture Orders</h4>
+                @*<p class="card-text text-bold text-secondary">Schedule a Meeting.</p>*@
+                <button type="button" onclick="location.href = '@Url.Action("Index","SendMailer")'" class="btn btn-outline-secondary">Capture</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card text-center" style="height:210px">
+            <div>
+                <br />
+            </div>
+            <div class="card-body text-purple">
+                <img src="~/Images/Contracts.png" width="100" />
+                <div>
+                    <br />
+                </div>
+                <h4>Medication Records</h4>
+                @*<p class="card-text text-secondary text-bold">Download student uploads</p>*@
+                <button type="button" onclick="location.href = '@Url.Action("Index","ViewDocuments")'" class="btn btn-outline-secondary">UPDATE</button>
+            </div>
+        </div>
+        </div>
+        
+           
+
+
+
+</div>
