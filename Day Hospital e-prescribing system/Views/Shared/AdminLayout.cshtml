@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CyberMed</title>
+    <title>AdminProject | Admin</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -60,8 +60,8 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="../../index3.html" class="brand-link">
-                <img src="~/Images/CyberMedLogo.png" alt="CyberMed Logo" class="brand-image img-circle" style="opacity: .8">
-                <span class="brand-text font-weight-light">CyberMed</span>
+                @*                <img src="~/Images/LogoIcon(white).png" alt="AcademicHub Logo" class="brand-image img-circle" style="opacity: .8">
+                *@                <span class="brand-text font-weight-light">CyberMed</span>
             </a>
 
             <!-- Sidebar -->
@@ -73,7 +73,7 @@
                         *@
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block text-warning">Welcome Username</a>
+                        <a href="#" class="d-block text-warning">Username</a>
                     </div>
                 </div>
 
@@ -107,7 +107,7 @@
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","YearPlan")'">
                                 <i class="nav-icon fas fa-copy"></i>
                                 <p>
-                                    VIEW PATIENTS
+                                    DAY HOSPITAL RECORDS
                                     <i class="fas fa-angle-left right"></i>
                                 </p>
                             </a>
@@ -116,7 +116,7 @@
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'">
                                 <i class="nav-icon fas fa-chart-pie"></i>
                                 <p>
-                                    BOOK SURGERY
+                                    MEDICAL PROFFESIONALS
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
@@ -125,7 +125,7 @@
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'">
                                 <i class="nav-icon fas fa-tree"></i>
                                 <p>
-                                    ADMISSION RECORDS
+                                    WARD RECORDS
                                     <i class="fas fa-angle-left right"></i>
                                 </p>
                             </a>
@@ -134,7 +134,7 @@
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","StudyMaterial")'">
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>
-                                    VIEW PRESCRIPTIONS
+                                    OPERATING THEATRES
                                     <i class="fas fa-angle-left right"></i>
                                 </p>
                             </a>
@@ -143,7 +143,43 @@
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>
-                                    DISCHARGE PATIENTS
+                                    CONDITION DIAGNOSIS 
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                                <i class="nav-icon fas fa-table"></i>
+                                <p>
+                                    ACTIVE INGREDIENTS 
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                                <i class="nav-icon fas fa-table"></i>
+                                <p>
+                                    CONTRA-INDICATIONS
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                                <i class="nav-icon fas fa-table"></i>
+                                <p>
+                                    MEDICATION INTERACTIVES
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                                <i class="nav-icon fas fa-table"></i>
+                                <p>
+                                    TREATMENT RECORDS
                                     <i class="fas fa-angle-left right"></i>
                                 </p>
                             </a>
@@ -164,17 +200,17 @@
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             @*<section class="content-header">
-                    <div class="container-fluid">
-                        <div class="row mb-0">
-                            <div class="col-sm-12">
-                                <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active">Subject Year Plan</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div><!-- /.container-fluid -->
-                </section>*@
+            <div class="container-fluid">
+            <div class="row mb-0">
+            <div class="col-sm-12">
+            <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active">Subject Year Plan</li>
+            </ol>
+            </div>
+            </div>
+            </div><!-- /.container-fluid -->
+            </section>*@
 
             <!-- Main content -->
             <section class="content">
