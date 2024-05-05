@@ -1,0 +1,153 @@
+﻿<section class="content">
+
+    <!-- Default box -->
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <div class="text-center ">
+                    @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                    *@
+                </div>
+                <br />
+                <h4 class="display-6  text-center text-bold" style="color: #268aab">MEDICINE lIST</h4>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Calendar to select date -->
+            <br />
+            <div class="card">
+                <div class="card-body">
+                    <div class="dropdown">
+                        <button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            Medicine Type
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li><a class="dropdown-item" href="#">Tablet</a></li>
+                            <li><a class="dropdown-item" href="#">Capsules</a></li>
+                            <li><a class="dropdown-item" href="#">Liquid</a></li>
+                            <li><a class="dropdown-item" href="#">Suppositories</a></li>
+                            <li><a class="dropdown-item" href="#">Drops</a></li>
+                            <li><a class="dropdown-item" href="#">Inhalers</a></li>
+                            <li><a class="dropdown-item" href="#">Injections</a></li>
+                            <li><a class="dropdown-item" href="#">Implants </a></li>
+                            <li><a class="dropdown-item" href="#">Patches </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-12">
+            <br />
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-2 text-right">
+                            <button type="submit" class="btn btn-primary">Medicine List</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="patientsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+
+
+                                    <th>Medicine Info</th>
+                                    <th>Type</th>
+
+                                    <th>Strength </th>
+                                    <th>Quantity</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>MID: 1
+                                        Name: Brufen
+                                        Expiry Date: 2025-06-06
+                                    </td>
+                                    <td>Tablet</td>
+                                    <td>10</td>
+                                    <td>1000</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        MID: 2
+                                        Name: Anxiolytics
+                                        Expiry Date: 2025-06-06
+                                    </td>
+                                    <td>Liquid</td>
+                                    <td>50mg</td>
+                                    <td>400</td>
+                                </tr>
+                                <!-- Patient data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+</section>
+
+<script>
+    $(document).ready(function () {
+        // Function to populate patients data based on selected date
+        function populatePatients(selectedDate) {
+            // Dummy data (replace with actual data retrieval logic)
+            var patientsData = [
+                { info: "2024-05-01 08:30", medication: "Anxiolytics", strength: "50mg", quantity: "100mg", status: "Ordered" },
+                {
+                     info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
+                },
+                // Add more patient data as needed
+            ];
+
+            // Clear previous data
+            $("#patientsTable tbody").empty();
+
+            // Populate table with patient data
+            patientsData.forEach(function (patient) {
+                $("#patientsTable tbody").append(
+                    "<tr>" +
+
+
+                    "<td>" + patient.date + "</td>" +
+                    "<td>" + patient.medication + "</td>" +
+
+
+                    "<td>" + patient.strength + "</td>" +
+                    "<td>" + patient.quantity + "</td>" +
+                    "<td>" + patient.status + "</td>" +
+
+                    "</tr>"
+                );
+            });
+        }
+
+        // Event listener for date selection
+        $("#selectedDate").change(function () {
+            var selectedDate = $(this).val();
+            // Call function to populate patients data based on selected date
+            populatePatients(selectedDate);
+        });
+
+        // Initial population of patients data based on current date
+        var currentDate = new Date().toISOString().split('T')[0];
+        populatePatients(currentDate);
+    });
+</script>
+
+
+
+
+</section>
