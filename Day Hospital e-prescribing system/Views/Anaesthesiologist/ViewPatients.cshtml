@@ -9,6 +9,19 @@
     }
 </style>
 <section class="content">
+    <section class="content">
+
+        <!-- Default box -->
+        <div class="card">
+            <div class="card-header">
+                <div class="text-center ">
+                    @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                    *@
+                </div>
+                <br />
+                <h4 class="display-6 text-purple text-center text-bold">SCHEDULED PATIENTS</h4>
+            </div>
+        </div>
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-6">
@@ -29,7 +42,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Scheduled Patients</h3>
+                        <h3 class="card-title">BOOKED SURGERIES</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -41,9 +54,12 @@
                                         <th>Name</th>
                                          <th>Gender</th>
                                         <th>Treatment Code</th>
-                                        <th>Surgery </th>
+                                        <th>Date </th>
+                                        <th>Time </th>
                                         <th>Ward</th>
                                         <th>Bed</th>
+                                        <th>Theatre</th>
+                                        <th>Nurse</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -64,8 +80,8 @@
         function populatePatients(selectedDate) {
             // Dummy data (replace with actual data retrieval logic)
             var patientsData = [
-                { surname: "Doe", name: "John", gender: "Male", treatment: "gwm456", surgery: "2024-05-01 08:30", ward: "Ward A", bed: "Bed 1" },
-                { surname: "Smith", name: "Alice", gender: "Female", treatment: "Cxs764", surgery: "2024-05-01 09:15", ward: "---", bed: "---" },
+                    { surname: "Doe", name: "John", gender: "Male", treatment: "gwm456", date: "2024-05-01", time: "AM", ward: "Ward A", bed: "Bed 1", theatre: "----", nurse: "--- 1" },
+                    { surname: "Smith", name: "Alice", gender: "Female", treatment: "Cxs764", date: "2024-05-01 ", time: "PM", ward: "Ward A", bed: "-- - ", theatre: "-- - ", nurse: "-- - " },
                 // Add more patient data as needed
             ];
 
@@ -82,9 +98,12 @@
                 "<td>" + patient.gender + "</td>" +
                 "<td>" + patient.treatment+ "</td>" +
                 
-                "<td>" + patient.surgery + "</td>" +
+                "<td>" + patient.date+ "</td>" +
+                        "<td>" + patient.time + "</td>" +
                     "<td>" + patient.ward + "</td>" +
                     "<td>" + patient.bed + "</td>" +
+                        "<td>" + patient.theatre + "</td>" +
+                        "<td>" + patient.nurse + "</td>" +
                    
                     "</tr>"
                 );
