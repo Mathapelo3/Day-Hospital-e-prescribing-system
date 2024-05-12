@@ -10,29 +10,73 @@
 </style>
 
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">MEDICAL HISTORY</h4>
+        </div>
+    </div>
+    <div><br></div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6">
-                <!-- Calendar to select date -->
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title ">Jane Doe</h3>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3 class="card-title"> Patient: John Doe</h3><div></br></div>
+                                <h4 class="card-title"> Date: 2024-05-01</h4>
+                                
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="submit" class="btn btn-primary">Prescriptions</button>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="submit" class="btn btn-primary">Orders</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <button type="button" class="btn btn-primary" id="prescriptionsButton">Prescriptions</button>
-                        <button type="button" class="btn btn-primary" id="ordersButton">Orders</button>
                     </div>
-                </div>
-            </div>
         </div>
         <div class="row">
-        <div class="card">
+        @*<div class="card">
             <div class="card-header">
                 <h3 class="card-title">Medical History</h3>
-            </div>
+            </div>*@
         <!-- Display patients -->
 
                </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Height and Weight -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"></h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="heightWeightTable" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+
+                                            <th>Height</th>
+                                            <th>Weight</th>
+                                    
+                                        </tr></thead>
+                                    <tbody>
+                                        <!-- Height and weight data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Other columns and tables -->
+            </div>
                     <div class="col-md-14">
                         <div class="card">
                             <div class="card-header">
@@ -41,11 +85,20 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="patientsTable" class="table table-bordered table-striped">
+                                <colgroup>
+                                    <!-- Adjust the width as needed -->
+                                    <col> <!-- This col element will automatically adjust to the remaining width -->
+                                    <col> <!-- Add more col elements for other columns if needed -->
+                                    <col>
+                                    <col>
+                                    <col>
+                                    <col>
+                                    <col>
+                                </colgroup>
                                 <thead>
                                     <tr>
 
-                                        <th>Height</th>
-                                        <th>Weight</th>
+                                        <th>Time</th>
                                         <th>Temperature</th>
                                         <th>Blood Pressure</th>
                                         <th>Pluse Rate</th>
@@ -118,16 +171,19 @@
             </div>
         </div>
     </div>
+    </div>
+    </div>
 </section>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function () { 
+
         // Function to populate patients data based on selected date
         function populatePatients() {
             // Dummy data (replace with actual data retrieval logic)
             var patientsData = [
-                { height: "160cm", weight: "70kg", temperature: " 35°C", blood: "120 bpm", pulse: "8 bpm", respiratory: "100%", oxygen: "60%", glucose: "180/120 mmHg" },
-                { height: "165cm", weight: "80kg", temperature: "35°C", blood: "40 bpm", pulse: "10 bpm", respiratory: "70%A", oxygen: "80%", glucose: "180/120 mmHg" },
+                { time: "10:00", temperature: " 35°C", blood: "120 bpm", pulse: "60bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l"},
+                { time: "10:30", temperature: "35°C", blood: "40 bpm", pulse: "100bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l" },
                 // Add more patient data as needed
             ];
 
@@ -138,8 +194,8 @@
             patientsData.forEach(function (patient) {
                 $("#patientsTable tbody").append(
                     "<tr>" +
-                    "<td>" + patient.height + "</td>" +
-                    "<td>" + patient.weight + "</td>" +
+                   
+                    "<td>" + patient.time + "</td>" +
                     "<td>" + patient.temperature + "</td>" +
                     "<td>" + patient.blood + "</td>" +
                     "<td>" + patient.pulse + "</td>" +
@@ -216,12 +272,35 @@
                 );
             });
         }
+        function populateHeightWeight() {
+            // Dummy data (replace with actual data retrieval logic)
+            var heightWeightData = [
+                { label: "170cm", value: "80 kg" },
+                
+                // Add more height and weight data as needed
+            ];
+
+            // Clear previous data
+            $("#heightWeightTable tbody").empty();
+
+            // Populate table with height and weight data
+            heightWeightData.forEach(function (data) {
+                $("#heightWeightTable tbody").append(
+                    "<tr>" +
+                    "<td>" + data.label + "</td>" +
+                    "<td>" + data.value + "</td>" +
+                    "</tr>"
+                );
+            });
+        }
+
 
         // Call the functions to populate the tables
         populatePatients();
         populateAllergies();
         populateMedication();
         populateConditions();
+        populateHeightWeight();
 
         // Event listener for Prescriptions button
         $("#prescriptionsButton").click(function () {

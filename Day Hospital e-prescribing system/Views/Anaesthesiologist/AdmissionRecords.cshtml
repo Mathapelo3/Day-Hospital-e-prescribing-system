@@ -9,17 +9,24 @@
     }
 </style>
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">ADMISSION RECORDS</h4>
+        </div>
+    </div>
+    <div><br /></div>
     <!-- Display patients -->
-    <div class="row">
-        <div class="col-md-14">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">ADMITTED PATIENTS</h3>
-                </div>
+   
+                
                 <div class="card-body">
                     <!-- Search bar and filters -->
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <!-- Search bar -->
                             <div class="input-group">
                                 <input type="text" id="searchInput" class="form-control" placeholder="Search...">
@@ -38,27 +45,29 @@
                                 <option value="Female">Female</option>
                             </select>
                         </div>*@
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <!-- Admission date filter -->
                             <div class="input-group">
                                 <input type="date" id="admissionDateFilter" class="form-control">
                             </div>
                         </div>
                     </div>
-
+                     <div class="row">
+            <div class="col-md-12">
+                <div class="card">
                     <div class="table-responsive">
                         <table id="patientsTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
                                     
-                                    <th>Surname</th>
-                                    <th>Name</th>
-                                    <th>Gender</th>
-                                    <th>Contact Number</th>
-                                    <th>Email</th>
-                                    <th>Admission</th>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                 
+                                   
+                                    <th>Time</th>
                                     <th>Ward</th>
                                     <th>Bed</th>
+                                    <th>Nurse</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -70,14 +79,15 @@
             </div>
         </div>
     </div>
+           
 </section>
 
 <script>
     $(document).ready(function () {
         // Dummy data (replace with actual data retrieval logic)
         var patientsData = [
-            { surname: "Doe", name: "John", gender: "Male", contact: "065 789 256", email: "janedoe@gmail.com", admission: "2024-05-01 08:30", ward: "Ward A", bed: "Bed 1" },
-            { surname: "Smith", name: "Alice", gender: "Female", contact: "074 853 946", email: "aliceamith@gmail.com", admission: "2024-05-01 09:15", ward: "Ward A", bed: "Bed 1" },
+            { patient: " Alice Smith" , date: "2024-05-01 ",time :"08:30", ward: "Ward A", bed: "Bed 1",nurse:"Paul Lee" },
+            { patient: "Joe Doe", date: "2024-05-01 ",time:"09:30", ward: "Ward A", bed: "Bed 2",nurse: "Paul Lee" },
             // Add more patient data as needed
         ];
 
@@ -88,14 +98,14 @@
                 $("#patientsTable tbody").append(
                     "<tr>" +
                     
-                    "<td>" + patient.surname + "</td>" +
-                    "<td>" + patient.name + "</td>" +
-                    "<td>" + patient.gender + "</td>" +
-                    "<td>" + patient.contact + "</td>" +
-                    "<td>" + patient.email + "</td>" +
-                    "<td>" + patient.admission + "</td>" +
+                    "<td>" + patient.patient + "</td>" +
+                    "<td>" + patient.date + "</td>" +
+                  
+                    
+                    "<td>" + patient.time + "</td>" +
                     "<td>" + patient.ward + "</td>" +
                     "<td>" + patient.bed + "</td>" +
+                    "<td>" + patient.nurse + "</td>" +
                     "</tr>"
                 );
             });

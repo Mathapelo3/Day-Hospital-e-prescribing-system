@@ -8,18 +8,26 @@
         font-weight: bold;
     }
 </style>
-<div class="text">
-    <button type="submit" class="btn btn-primary">Admission Records</button>
-</div>
+
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">ORDERS</h4>
+        </div>
+    </div>
+    <div><br /></div>
+   
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <!-- Calendar to select date -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Select Date</h3>
-                    </div>
+                    
                     <div class="card-body">
                         <input type="date" id="selectedDate" class="form-control">
                     </div>
@@ -33,11 +41,14 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-md-10">
-                                <h3 class="card-title">John Doe - Orders</h3>
+                            <div class="col-md-7">
+                                <h3 class="card-title">Patient: John Doe </h3>
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <button type="submit" class="btn btn-primary">View Prescriptions</button>
                             </div>
                             <div class="col-md-2 text-right">
-                                <button type="submit" class="btn btn-primary">View Prescriptions</button>
+                                <button type="submit" class="btn btn-primary">Order Form</button>
                             </div>
                         </div>
                     </div>
@@ -51,68 +62,40 @@
                                         <th>Date</th>
                                         <th>Medication</th>
                                         
-                                        <th>Strength </th>
+                                       
                                         <th>Quantity</th>
                                         <th>Status</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Patient data will be populated here -->
+                                    
+                                    <tr>
+                                        
+                                        <td>2024-05-01</td>
+                                        <td>Anxiolytics 20mg</td>
+                                        <td>10</td>
+                                        <td>Ordered</td>
+                                        <td width="10%">
+                                            <div class="w-100 btn-group" role="group">
+                                                <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                   
+                                    <!-- Add more rows dynamically based on data -->
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-success">Save</button>
+                        </div>
+                    </div>  <!-- Patient data will be populated here -->
+                             
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+     
 </section>
-
-<script>
-    $(document).ready(function () {
-        // Function to populate patients data based on selected date
-        function populatePatients(selectedDate) {
-            // Dummy data (replace with actual data retrieval logic)
-            var patientsData = [
-                {  date: "2024-05-01 08:30", medication: "Anxiolytics", strength: "50mg", quantity: "100mg", status: "Ordered" },
-        {
-            date: "2024-05-01 08:30", medication: "Analgesics",  strength: "100mg", quantity: "200mg", status: "Dispensed" },
-                // Add more patient data as needed
-            ];
-
-            // Clear previous data
-            $("#patientsTable tbody").empty();
-
-            // Populate table with patient data
-            patientsData.forEach(function (patient) {
-                $("#patientsTable tbody").append(
-                    "<tr>" +
-
-                    
-                    "<td>" + patient.date + "</td>" +
-                    "<td>" + patient.medication + "</td>" +
-                   
-
-                    "<td>" + patient.strength + "</td>" +
-                    "<td>" + patient.quantity + "</td>" +
-                    "<td>" + patient.status + "</td>" +
-
-                    "</tr>"
-                );
-            });
-        }
-
-        // Event listener for date selection
-        $("#selectedDate").change(function () {
-            var selectedDate = $(this).val();
-            // Call function to populate patients data based on selected date
-            populatePatients(selectedDate);
-        });
-
-        // Initial population of patients data based on current date
-        var currentDate = new Date().toISOString().split('T')[0];
-        populatePatients(currentDate);
-    });
-</script>
-
 

@@ -10,13 +10,24 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Main content -->
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">MEDICATION ORDER FORM</h4>
+        </div>
+    </div>
+    <div><br</div>
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">
+                   @* <div class="card-header">
                         <h3 class="card-title">Medication Order Form</h3>
-                    </div>
+                    </div>*@
                     <div class="card-body">
                        
                     </div>
@@ -31,48 +42,45 @@
 
                         </div>
                             <div class="form-group">
-                                <label for="surgeon">Surgeon:</label>
-                                <select class="form-control" id="surgeon" name="surgeon">
-                                    <option value="surgeon1">Lee</option>
-                                    <option value="surgeon2">Surgeon 2</option>
-                                    <option value="surgeon3">Surgeon 3</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label for="date">Date:</label>
                                 <input type="date" class="form-control" id="date" name="date">
                                 </div>
-                                <div class="form-group">
-                                    <label for="surgeon">Medication:</label>
-                                    <select class="form-control" id="surgeon" name="surgeon">
-                                    <option value="surgeon1">Sedatives</option>
-                                        <option value="surgeon2">Pain Reliver</option>
-                                        <option value="surgeon3">Surgeon 3</option>
-                                    </select>
-                                <select class="form-control" id="surgeon" name="surgeon">
-                                    <option value="surgeon1">Pain Reliever</option>
-                                    <option value="surgeon2">Surgeon 2</option>
-                                    <option value="surgeon3">Surgeon 3</option>
+                        <div class="form-row">
+                            <div class="form-group col-md-5">
+                                <label for="medication">Medication:</label>
+                                <select class="form-control" id="medication">
+                                    <option value="sedatives"> Anxiolytics 20mg</option>
+                                    <option value="pain_reliever"></option>
+                                    <!-- Add more medication options here -->
                                 </select>
-                                <select class="form-control" id="surgeon" name="surgeon">
-                                    <option value="surgeon1">Anesthetics</option>
-                                    <option value="surgeon2">Surgeon 2</option>
-                                    <option value="surgeon3">Surgeon 3</option>
-                                </select>
-                                </div>
-                            <div class="form-group">
-                                <label for="surgeon">Strength:</label>
-                                <select class="form-control" id="surgeon" name="surgeon">
-                                    <option value="surgeon1">20mg</option>
-                                    <option value="surgeon2">50mg</option>
-                                    <option value="surgeon3">Surgeon 3</option>
-                                </select>
-
                             </div>
-                            <div class="form-group">
+                           
+                            <div class="form-group col-md-4">
                                 <label for="quantity">Quantity:</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity">
+                                <select class="form-control" id="quantity">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <!-- Add more quantity options here -->
+                                </select>
                             </div>
+
+                            <div class="form-group col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn btn-primary form-control" id="addMedication">Add</button>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="medicationList">Medication List:</label>
+                            <select multiple class="form-control" id="medicationList">
+                                <!-- Medication will be populated here -->
+                            </select>
+                        </div>
+
+                          
+                           
                             <div class="form-group">
                                 <label for="status">Status:</label>
                                 <input type="text" class="form-control" id="status" name="status" value="Ordered" readonly>
@@ -85,6 +93,16 @@
                 </div>
             </div>
         </div>
-    </div>
+    
 </section>
 <!-- /.content -->
+<script>
+    $(document).ready(function () {
+        $("#addMedication").click(function () {
+            var medication = $("#medication option:selected").text();
+            var quantity = $("#quantity").val();
+            var listItem = medication + " - Quantity: " + quantity;
+            $("#medicationList").append("<option>" + listItem + "</option>");
+        });
+    });
+</script>
