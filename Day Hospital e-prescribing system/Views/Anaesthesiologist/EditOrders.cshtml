@@ -9,26 +9,40 @@
 </style>
 <!-- Main content -->
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">ORDER LIST</h4>
+        </div>
+    </div>
+    <div><br></div>
     <div class="container-fluid">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Order List</h3>
-                        <button type="button" class="btn btn-primary">Order Form</button>
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h3 class="card-title"> </h3>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <button type="submit" class="btn btn-primary">Order Form</button>
+                        </div>
                     </div>
                 </div>
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th>Patient</th>
-                                    <th>Surgeon</th>
                                     <th>Date</th>
                                     <th>Medication</th>
-                                    <th>Strength</th>
-                                    <th>Quantity</th>
+                                <th>Quantity</th>
                                     <th>Status</th>
                                     <th></th>
                                 </tr>
@@ -36,14 +50,28 @@
                             <tbody>
                                 <!-- Sample row, replace with actual data -->
                                 <tr>
-                                    <td>Alice Lee</td>
-                                    <td>Surgeon 1</td>
+                                    <td>Joe Doe</td>
                                     <td>2024-05-10</td>
-                                    <td>Anxiolytics</td>
-                                    <td>20mg</td>
+                                    <td>Anxiolytics 20mg</td>
                                     <td>10</td>
                                     <td>Ordered</td>
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td width="10%">
+                                        <div class="w-100 btn-group" role="group">
+                                            <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Alice Lee</td>
+                                    <td>2024-05-15</td>
+                                    <td>Anxiolytics 20mg</td>
+                                    <td>20</td>
+                                    <td>Dispensed</td>
+                                    <td width="10%">
+                                        <div class="w-100 btn-group" role="group">
+                                            <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center"></a><pre></pre>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <!-- Add more rows dynamically based on data -->
                             </tbody>

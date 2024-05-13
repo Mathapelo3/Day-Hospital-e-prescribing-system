@@ -1,23 +1,31 @@
 ﻿
 @{
     ViewData["Title"] = "Index1";
-    Layout = "~/Views/Shared/AnaDash.cshtml";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
+<section class="content">
 
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">ANAESTHESIOLOGIST DASHBOARD</h4>
+        </div>
+    </div>
 <div class="row">
     <div class="col-sm-6">
         <div class="card text-center" style="height:200px">
-            <div>
-                <br />
-            </div>
+           
             <div class="card-body text-purple">
-                <img src="~/Images//Cities.png" width="100" />
-                <div>
-                    <br />
-                </div>
-                <h4>View Patients</h4>
-                @* <p class="card-text text-secondary text-bold">Assign Educator to a Subject.</p>*@
-                <button type="button" onclick="location.href = '@Url.Action("SelectSuburb","Nurse")'" class="btn btn-outline-secondary">View</button>
+                <img src="~/Images/Anaesthesiologist/BookedPatients.png" width="100" />
+              
+                <h4> Booked Patients</h4>
+                @* p class="card-text text-secondary text-bold">Assign Educator to a Subject.</p>*@
+                    <button type="button" onclick="location.href = '@Url.Action("SelectSuburb","Nurse")'" class="btn btn-outline-secondary">VIEW</button>
             </div>
         </div>
     </div>
@@ -25,10 +33,8 @@
         <div class="card text-center" style="height:200px">
 
             <div class="card-body text-purple">
-                <img src="~/Images//Patient.png" width="100" />
-                <div>
-                    <br />
-                </div>
+                <img src="~/Images/Anaesthesiologist/AdmittedPatients.png" width="100" />
+              
                 <h4>Admission Records</h4>
                 @* <p class="card-text text-secondary text-bold">Assign Educator to a Subject.</p>*@
                 <button type="button" onclick="location.href = '@Url.Action("Create","AssignSubHeads")'" class="btn btn-outline-secondary">VIEW</button>
@@ -36,29 +42,23 @@
         </div>
     </div>
     <div class="col-sm-6">
-        <div class="card text-center" style="height:210px">
+        <div class="card text-center" style="height:200px">
 
             <div class="card-body text-purple">
-                <img src="~/Images/CareVisit.png" width="100" />
-                <div>
-                    <br />
-                </div>
+                <img src="~/Images/Anaesthesiologist/OrderForm.jpg" width="100" />
+               
                 <h4>Capture Orders</h4>
                 @*<p class="card-text text-bold text-secondary">Schedule a Meeting.</p>*@
-                <button type="button" onclick="location.href = '@Url.Action("Index","SendMailer")'" class="btn btn-outline-secondary">Capture</button>
+                <button type="button" onclick="location.href = '@Url.Action("Index","SendMailer")'" class="btn btn-outline-secondary">CAPTURE</button>
             </div>
         </div>
     </div>
     <div class="col-sm-6">
-        <div class="card text-center" style="height:210px">
-            <div>
-                <br />
-            </div>
+        <div class="card text-center" style="height:200px">
+           
             <div class="card-body text-purple">
-                <img src="~/Images/Contracts.png" width="100" />
-                <div>
-                    <br />
-                </div>
+                <img src="~/Images/Anaesthesiologist/MedicationRecords.png" width="100" />
+               
                 <h4>Medication Records</h4>
                 @*<p class="card-text text-secondary text-bold">Download student uploads</p>*@
                 <button type="button" onclick="location.href = '@Url.Action("Index","ViewDocuments")'" class="btn btn-outline-secondary">UPDATE</button>
@@ -71,3 +71,4 @@
 
 
 </div>
+</section>

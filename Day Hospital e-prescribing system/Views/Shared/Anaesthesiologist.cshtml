@@ -61,7 +61,7 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="../../index3.html" class="brand-link">
-                <img src="~/Images/LogoIcon(white).png" alt="AcademicHub Logo" class="brand-image img-circle" style="opacity: .8">
+                <img src="~/Images/CyberMedLogo.png" alt="CyberMed" class="brand-image img-circle" style="opacity: .8">
                 <span class="brand-text font-weight-light">CyberMed</span>
             </a>
 
@@ -69,9 +69,9 @@
             <div class="sidebar">
                 <!-- Sidebar user (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
+                   @* <div class="image">
                         <img src="~/Images/user-icon.jpeg" class="img-circle" alt="User Image">
-                    </div>
+                    </div>*@
                     <div class="info">
                         <span class="d-block text-white">
                             Welcome,Williams @ViewBag.Username
@@ -110,7 +110,7 @@
                             <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('profileDropdown');">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
-                                    VIEW PATIENTS
+                                    BOOKED PATIENTS
                                     <i class="right fas fa-angle-down"></i>
                                 </p>
                             </a>
@@ -176,7 +176,7 @@
                         @using (Html.BeginForm("Logout", "Nurse", FormMethod.Post, new { @class = "logout-form" }))
                         {
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-red logout-button">Logout</button>
+                            <button type="submit" class="btn btn-link text-purple logout-button">Logout</button>
                         }
                     </ul>
                 </nav>
@@ -204,17 +204,7 @@
             <section class="content">
 
                 <!-- Default box -->
-                <div class="card">
-                    <div class="card-header">
-                        <div class="user-panel mt-0 pb-0 mb-0 d-flex">
-                            <div class="image">
-                                <img src="~/Images/home.png" class="img-circle" alt="Home Image">
-                            </div>
-                            <div class="info">
-                                <a href="#" class="d-block text-purple text-bold">Anaesthesiologist</a>
-                            </div>
-                        </div>
-                    </div>
+                 <div class="card">
                     <div class="card-body">
                         @RenderBody()
                     </div>
@@ -227,7 +217,7 @@
         <!-- /.content-wrapper -->
 
         <footer class="main-footer">
-            <strong>&copy; 2024 -  </strong> All rights reserved.
+            <strong>&copy; 2024 -CyberMed  </strong> All rights reserved.
         </footer>
 
         <!-- Control Sidebar -->

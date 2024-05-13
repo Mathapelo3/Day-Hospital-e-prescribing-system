@@ -64,13 +64,24 @@
 
 <!-- Main content -->
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">MAINTAIN VITALS</h4>
+        </div>
+    </div>
+    
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-12">
-                <div class="card">
+               @* <div class="card">
                     <div class="card-header d-flex justify-content-center align-items-center">
                         <h3 class="card-title">Maintain Vitals</h3>
-                    </div>
+                    </div>*@
 
                     <div class="card-body">
 
@@ -79,7 +90,7 @@
                         <table id="patientsTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th colspan="7" class="text-left">Current Normal Vitals</th>
+                                    <th colspan="8" class="text-left">Current Normal Vitals</th>
                                 </tr>
                                 <tr>
                                     <th>Vitals</th>
@@ -89,162 +100,43 @@
                                     <th>Respiratory Rate</th>
                                     <th>Blood Oxygen</th>
                                     <th>Blood Glucose Level</th>
+                                   <th></th>
                                 </tr>
-                            </thead>
+                            </thead> 
                             <tbody>
-                               
-                                <tr>
-                                    <th>Min</th>
-                                    <td>70°F</td>
-                                    <td>70/40 mmHg</td>
-                                    <td>40 bpm</td>
-                                    <td>8 bpm</td>
-                                    <td>70%</td>
-                                    <td>70 mg/dL</td>
-                                </tr>
-                                <tr>
-                                    <th>Max</th>
-                                    <td>110°F</td>
-                                    <td>180/120 mmHg</td>
-                                    <td>120 bpm</td>
-                                    <td>30 bpm</td>
-                                    <td>100%</td>
-                                    <td>200 mg/dL</td>
-                                </tr><!-- Patient data will be populated here -->
+             
+                            <tr>
+                                <th>Min</th>
+                                <td><select id="temperature_min"><option>36.5°C</option></select></td>
+                                <td><select id="blood_pressure_min"><option>90/60mmHg</option></select></td>
+                                <td><select id="pulse_rate_min"><option>60 bpm</option></select></td>
+                                <td><select id="respiratory_rate_min"><option>12 bpm</option></select></td>
+                                <td><select id="blood_oxygen_min"><option>  95%</option></select></td>
+                                <td><select id="blood_glucose_min"><option>70 mmol/l</option></select></td>
+                                <td width="10%">
+                                        <div class="w-100 btn-group" role="group">
+                                        <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
+                                        </div>
+                                    </td>
+                            </tr>
+                            <tr>
+                                <th>Max</th>
+                                <td><select id="temperature_max"><option>37°C</option></select></td>
+                                <td><select id="blood_pressure_max"><option> 120/80mmHg</option></select></td>
+                                <td><select id="pulse_rate_max"><option>100 bpm</option></select></td>
+                                <td><select id="respiratory_rate_max"><option>16bpm</option></select></td>
+                                <td><select id="blood_oxygen_max"><option>100%</option></select></td>
+                                <td><select id="blood_glucose_max"><option>100mmol/l</option></select></td>
+                                <td width="10%">
+                                    <div class="w-100 btn-group" role="group">
+                                        <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
+                                    </div>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
-                        <table>
-                            <thead>
-                            <tr>
-                                <th colspan="7" class="text-left">Update Vitals</th>
-                            </tr>
-                                <tr>
-                                    <th>Vitals</th>
-                                    <th>Min</th>
-                                    <th>Max</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Add rows for each vital sign -->
-                                <tr>
-                                    <td>Temperature</td>
-                                    <td>
-                                        <select id="temperature_min">
-                                            @for (int i = 0; i <= 100; i++)
-                                            {
-                                                <option value="@i">@i</option>
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select id="temperature_max">
-                                            @for (int i = 0; i <= 100; i++)
-                                            {
-                                                <option value="@i">@i</option>
-                                            }
-                                        </select>
-                                    </td>
-                                </tr>
-                            
-                            <tr>
-                                <td>Blood pressure</td>
-                                <td>
-                                    <select id="bloodpressure_min">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="bloodpressure_max">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Pulse rate</td>
-                                <td>
-                                    <select id="temperature_min">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="temperature_max">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Respiratory rate</td>
-                                <td>
-                                    <select id="temperature_min">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="temperature_max">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Blood oxygen</td>
-                                <td>
-                                    <select id="temperature_min">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="temperature_max">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Blood glucose level </td>
-                                <td>
-                                    <select id="temperature_min">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="temperature_max">
-                                        @for (int i = 0; i <= 100; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                                <!-- Add other rows similarly -->
-                            </tbody>
-                        </table>
+                        
                         <br />
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">Save</button>
@@ -252,37 +144,50 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+       
 </section>
 <!-- /.content -->
 <!-- Implement JavaScript to detect changes in vital signs -->
-<script>
-    $(document).ready(function () {
-        // Listen for changes in vital signs
-        $('input[type="number"]').change(function () {
-            var vital = $(this).attr('name').split('_')[0]; // Extract the vital sign name
-            var value = $(this).val();
-            var min = $('#' + vital + '_min').val();
-            var max = $('#' + vital + '_max').val();
-            // Check if the value is outside the normal range
-            if (value < min || value > max) {
-                // Trigger notification
-                alert('Vital ' + vital + ' is outside the normal range!');
-                // Send email notification to all nurses
-                $.ajax({
-                    url: '/Nurse/SendVitalNotification',
-                    type: 'POST',
-                    success: function (response) {
-                        console.log(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(xhr.responseText);
-                    }
-                });
-            }
-        });
-    });
+
+    <script>
+        // Dynamically populate dropdown options from 0 to 150
+        for (let i = 0; i <= 150; i++) {
+        $('#temperature_min, #temperature_max, #blood_pressure_min, #blood_pressure_max, #blood_oxygen_min, #blood_oxygen_max, #blood_glucose_min, #blood_glucose_max').append($('<option>', {
+            value: i,
+            text: i
+        }));
+    }
+    // Dynamically populate pulse rate dropdown with specified ranges
+    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
+        value: '0-59',
+        text: '0-59 bpm'
+    }));
+    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
+        value: '60-100',
+        text: '60-100 bpm'
+    }));
+    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
+        value: '101-150',
+        text: '101-150 bpm'
+    }));
+    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
+        value: '151-200',
+        text: '151-200 bpm'
+    }));
+    $('#respiratory_rate_min, #respiratory_rate_max').append($('<option>', {
+        value: '0-6',
+        text: '0-6bpm'
+    }));
+    $('#respiratory_rate_min, #respiratory_rate_max').append($('<option>', {
+        value: '6-10',
+        text: '6-12bpm'
+    }));
+    $('#respiratory_rate_min, #respiratory_rate_max').append($('<option>', {
+        value: '13-18
+        text: '13-18bpm
+    }));
+   
+
 
     // Function to save changes
     function saveChanges() {

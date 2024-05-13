@@ -8,24 +8,36 @@
     }
 </style>
 <section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">MEDICATION RECORDS </h4>
+        </div>
+    </div>
+    <div></br</div>
     <div class="container-fluid">
         <div class="row ">
             <div class="col-md-12">
-                <div class="card">
+               @* <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Medication Records</h3>
-                    </div>
+                    </div>*@
                     <div class="card-body">
                         <!-- Display orders with checkboxes -->
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
+                                    <th style="width: 120px;">Date</th>
                                         <th>Patient</th>
                                         <th>Surgeon</th>
-                                        <th style="width: 120px;">Date</th>
+                                       
                                         <th>Medication</th>
-                                        <th>Strength</th>
+                                       
                                         <th>Quantity</th>
                                         <th>Status</th>
                                         <th>Administered</th>
@@ -35,24 +47,66 @@
                                 <tbody>
                                     <!-- Sample row with multiple medications, replace with actual data -->
                                     <tr>
+                                    <td rowspan="2">2024-05-10</td>
                                         <td>Jane Doe</td>
                                         <td>Jackson</td>
-                                        <td rowspan="2">2024-05-10</td>
-                                        <td>Anxiolytics,<br > Pain Reliever</td>
-                                        <td>20mg, 50mg</td>
-                                        <td>10,<br > 5</td>
-                                        <td>Ordered,<br > Received</td>
-                                        <td><input type="checkbox" ><br ><input type="checkbox"></td>
-                                        <td rowspan="2"><textarea class="form-control" style="height: 100px;"></textarea></td>
+                                       
+                                        <td>Anxiolytics 20mg</td>
+                                       
+                                        <td>10</td>
+                                    <td>
+                                        <!-- Dropdown menu for status -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Received
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="statusDropdown">
+
+                                                <a class="dropdown-item" href="#">Received</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                      <td>
+                                            <input type="checkbox">
+                                            <select>
+                                                @for (int i = 0; i <= 50; i++)
+                                                {
+                                                    <option>@i</option>
+                                                }
+                                            </select>
+                                        
+                                        </td>
+                                    <td> <textarea class="form-control" style="height: 100px;"></textarea></td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Anesthetics</td>
-                                        <td>30mg</td>
-                                        <td>8</td>
-                                        <td>Ordered</td>
-                                        <td><input type="checkbox"></td>
+                                   
+                                        <td>Anesthetics 20mg</td>
+                                        <td>10</td>
+
+                                    <td>
+                                        <!-- Dropdown menu for status -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Received
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="statusDropdown">
+
+                                                <a class="dropdown-item" href="#">Received</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox">
+                                        <select>
+                                            @for (int i = 0; i <= 50; i++)
+                                            {
+                                                <option>@i</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td rowspan="2"><textarea class="form-control" style="height: 100px;"></textarea></td>
                                     </tr>
                                     <!-- Add more rows dynamically based on data -->
                                 </tbody>
