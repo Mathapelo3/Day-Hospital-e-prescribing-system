@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "AdmissionRecord";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 
@@ -48,11 +48,11 @@
                     <td width="20%">Pain Reliver</td>
                     <td width="20%">Stomach Ache</td>
                     <td width="20%">None</td>
-                    @* <td width="10%">
+                    <td width="5%">
                         <div class="w-100 btn-group" role="group">
-                             <a asp-controller="Surgeon" asp-action="Update" class="btn btn-warning text-bold">Edit</a>
+                            <a asp-controller="Surgeon" asp-action="BookSurgery"><img src="~/Images/Surgeon/edit.png" width="25" /></a><pre></pre>
                         </div>
-                    </td> *@
+                    </td>
                 </tr>
             </tbody>
         </table>
