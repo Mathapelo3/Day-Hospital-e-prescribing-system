@@ -56,9 +56,9 @@
                                     <td>10</td>
                                     <td>Ordered</td>
                                     <td width="10%">
-                                        <div class="w-100 btn-group" role="group">
-                                            <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
-                                        </div>
+                                        <div <button type="button" class="btn btn-primary" onclick="editVital()"><i class="bi bi-pencil"></i></button>
+
+                                            </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -68,9 +68,9 @@
                                     <td>20</td>
                                     <td>Dispensed</td>
                                     <td width="10%">
-                                        <div class="w-100 btn-group" role="group">
-                                            <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center"></a><pre></pre>
-                                        </div>
+                                       @* <div <button type="button" class="btn btn-primary" onclick="editVital()"></></button>
+
+                                            </div>*@
                                     </td>
                                 </tr>
                                 <!-- Add more rows dynamically based on data -->
