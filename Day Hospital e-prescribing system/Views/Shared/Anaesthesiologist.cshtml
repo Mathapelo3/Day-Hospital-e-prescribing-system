@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    
 
      <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -91,84 +91,77 @@
                         </div>
                     </div>
                 </div>
-
+                </br>
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                              with font-awesome or any other icon font library -->
-                        <li class="nav-item ">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                        </li>
-
+                        
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('profileDropdown');">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
+                             
                                 <p>
                                     BOOKED PATIENTS
-                                    <i class="right fas fa-angle-down"></i>
+                                   
                                 </p>
                             </a>
 
                         </li>
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('preferredsuburbDropdown');">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
+
                                 <p>
                                     ADMISSION RECORDS
-                                    <i class="right fas fa-angle-down"></i>
+                                    
                                 </p>
                             </a>
 
                         </li>
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('carecontractsDropdown');">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
+
                                 <p>
                                     VIEW ORDERS
-                                    <i class="right fas fa-angle-down"></i>
+                                    
                                 </p>
                             </a>
 
                         </li>
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('carevisitDropdown');">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
+
                                 <p>
                                     CAPTURE ORDERS
-                                    <i class="right fas fa-angle-down"></i>
+                                   
                                 </p>
                             </a>
 
                         </li>
-
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('reportDropdown');">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
+
                                 <p>
                                     MEDICATION RECORDS
-                                    <i class="right fas fa-angle-down"></i>
+                                    
                                 </p>
                             </a>
 
                         </li>
                         <li class="nav-item">
-                            <a href="javascript:void(0);" class="nav-link" onclick="toggleDropdown('reportDropdown');">
-                                <i class="nav-icon fas fa-cog"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
+
                                 <p>
                                     MAINTIAN VITALS
-                                    <i class="right fas fa-angle-down"></i>
+                                   
                                 </p>
                             </a>
 
                         </li>
+
+
                         </br>
+                        
                         @*<li class="nav-item">
                         <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                         <button type="submit" class="nav-link btn btn-link text-red">Logout</button>
