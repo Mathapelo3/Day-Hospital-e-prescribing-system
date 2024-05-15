@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Admissions";
+    ViewData["Title"] = "AdmissionRecord";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 
@@ -8,7 +8,7 @@
 <section class="content">
 
     <h4 class="display-6 text-warning text-center text-bold">ADMISSION RECORD</h4>
-    <h6 class="display-6 text-bold">Patient Name: Jane Smith</h6>
+    <h5 class="display-6 text-bold">Patient Name: Jane Smith</h5>
 
     <div class="container p-3 text-md-center text-bold">
         @*<a class="nav-link" href="javascript:window.print()">
@@ -18,49 +18,111 @@
 
         @* @if (Model.Count() > 0)
             {*@
-        <table class="table table-bordered table stripaccent-red" style="width:100%">
+        <table class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
+                    <th>
+                        Date of Birth
+                    </th>
+                    <th>
+                        Gender
+                    </th>
+                    <th>
+                        Age
+                    </th>
                     <th>
                         Admission Date
                     </th>
                     <th>
                         Vitals
                     </th>
-                    <th>
-                        Allergies
-                    </th>
-                    <th>
-                        Current Medication
-                    </th>
-                    <th>
-                        Conditions
-                    </th>
-                    <th>
-                        Current Prescriptions
-                    </th>
                 </tr>
             </thead>
 
             <tbody>
                 <tr>
-                    <td width="15%">2024-07-09</td>
+                    <td width="20%">1994-04-01</td>
+                    <td width="10%">F</td>
+                    <td width="10%">30</td>
+                    <td width="20%">2024-07-09</td>
                     <td width="10%">Min</td>
-                    <td width="30%">None</td>
-                    <td width="20%">Pain Reliver</td>
-                    <td width="20%">Stomach Ache</td>
-                    <td width="20%">None</td>
-                    <td width="10%">
-                        <div class="text-center">
-                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                            </button>
-                        </div>
-
-                    </td>
                 </tr>
             </tbody>
         </table>
+        <div class="col-md-14">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title text-bold">Patient History</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <!-- Allergies -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-bold">Allergies</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="allergiesTable" class="table table-bordered table-striped">
+                                            <thead></thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Peanuts</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- Current Medication -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-bold">Current Medication</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="medicationTable" class="table table-bordered table-striped">
+                                            <thead></thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Asthavent</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- Conditions -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-bold">Conditions</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="conditionsTable" class="table table-bordered table-striped">
+                                            <thead></thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Asthma</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Eczema</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         @*}*@
         @*else
             {
