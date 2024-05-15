@@ -27,21 +27,28 @@
             <div class="card">
                 <div class="card-body">
                     <div class="dropdown">
-                        <button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Medicine Type
-                        </button>
-                        <button>Filter</button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a class="dropdown-item" href="#">Tablet</a></li>
-                            <li><a class="dropdown-item" href="#">Capsules</a></li>
-                            <li><a class="dropdown-item" href="#">Liquid</a></li>
-                            <li><a class="dropdown-item" href="#">Suppositories</a></li>
-                            <li><a class="dropdown-item" href="#">Drops</a></li>
-                            <li><a class="dropdown-item" href="#">Inhalers</a></li>
-                            <li><a class="dropdown-item" href="#">Injections</a></li>
-                            <li><a class="dropdown-item" href="#">Implants </a></li>
-                            <li><a class="dropdown-item" href="#">Patches </a></li>
-                        </ul>
+                        <div class="row mb-3">
+                            <label class="col-sm-4 col-form-label">Medicine Type</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-control" aria-label="Default select example">
+                                    <option selected></option>
+                                    <option value="1">Tablet</option>
+                                    <option value="2">Capsule</option>
+                                    <option value="3">Liquid</option>
+                                    <option value="3">Suppositories</option>
+                                    <option value="3">Drops</option>
+                                    <option value="3">Inhalers</option>
+                                    <option value="3">Injections</option>
+                                    <option value="3">Implants</option>
+                                    <option value="3">Patches</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <button class="form-control " style="background-color: #268aab; color:#ffffff">Filter</button>
+                            </div>
+                        </div>
+                        
+                        
                         
                     </div>
                 </div>
@@ -55,11 +62,11 @@
             <br />
             <div class="card">
                 <div class="card-header">
+                    <div class="row" style="justify-content:space-between" >
+                        <button type="submit" class="d-grid gap-1 d-md-flex justify-content-md-start btn" style="background-color:#268aab; color:#ffffff">Add Medicine</button>
                     
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-info">Recive Medicine</button>
-                        </div>
-                    
+                        <button type="submit" class="d-grid gap-2 d-md-flex justify-content-md-end btn" style="background-color:#268aab; color:#ffffff">Top up Medicine</button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -70,10 +77,8 @@
 
                                     <th>Medicine Info</th>
                                     <th>Type</th>
-
-                                    <th>Strength </th>
                                     <th>Quantity</th>
-                                    
+                                    <th>Active Ingridients</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -81,24 +86,21 @@
                                     <td>MID: 1
                                         <br />
                                         Name: Brufen
-                                        <br />
-                                        Expiry Date: 2025-06-06
+                                        
                                     </td>
                                     <td>Tablet</td>
-                                    <td>10</td>
                                     <td>1000</td>
+                                    <td><button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingridients</button></td>
                                 </tr>
                                 <tr>
                                     <td>
                                         MID: 2
                                         <br />
                                         Name: Anxiolytics
-                                        <br />
-                                        Expiry Date: 2025-06-06
                                     </td>
                                     <td>Liquid</td>
-                                    <td>50mg</td>
                                     <td>400</td>
+                                    <td><button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingridients</button></td>
                                 </tr>
                                 <!-- Patient data will be populated here -->
                             </tbody>
@@ -106,6 +108,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">Back</button>
         </div>
     </div>
    
