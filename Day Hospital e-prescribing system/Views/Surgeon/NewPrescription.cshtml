@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "NewPrescription";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 
@@ -8,7 +8,7 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header text-center">
+                    <div class="card-header">
                         <h3 class="card-title text-warning text-bold">PRESCRIPTION FORM</h3>
                     </div>
                     <div class="card-body">
@@ -26,30 +26,22 @@
                                 <input type="date" class="form-control" id="date" name="date">
                             </div>
                             <div class="form-group">
-                                <label for="surgeon">Medication:</label>
-                                <select class="form-control" id="surgeon" name="surgeon">
+                                <label for="medication">Medication:</label>
+                                <select class="form-control" id="medication" name="medication">
                                     <option value="medication1">Pain Reliver</option>
                                     <option value="medication2">Surgeon 3</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="surgeon">Strength:</label>
-                                <select class="form-control" id="surgeon" name="surgeon">
-                                    <option value="strength1">20mg</option>
-                                    <option value="strength2">50mg</option>
-                                </select>
-
+                                <label for="instruction">Instruction:</label>
+                                <input class="form-control" id="instruction" name="instruction" />
                             </div>
                             <div class="form-group">
                                 <label for="quantity">Quantity:</label>
                                 <input type="number" class="form-control" id="quantity" name="quantity">
                             </div>
-                            <div class="form-group">
-                                <label for="status">Status:</label>
-                                <input type="text" class="form-control" id="status" name="status" value="Ordered" readonly>
-                            </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-warning text-bold">Submit</button>
+                                <button type="submit" class="btn btn-success">Submit</button>
                             </div>
                         </form>
                     </div>

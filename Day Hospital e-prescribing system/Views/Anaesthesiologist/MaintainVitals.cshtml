@@ -2,6 +2,8 @@
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 <style>
     /*.card-container {
         display: flex;
@@ -59,6 +61,8 @@
         font-weight: bold;
     }
 </style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -83,9 +87,7 @@
                         <h3 class="card-title">Maintain Vitals</h3>
                     </div>*@
 
-                    <div class="card-body">
-
-                    </div>
+                <div class="card-body">
                     <div class="table-responsive">
                         <table id="patientsTable" class="table table-bordered table-striped">
                             <thead>
@@ -94,100 +96,113 @@
                                 </tr>
                                 <tr>
                                     <th>Vitals</th>
-                                    <th>Temperature</th>
-                                    <th>Blood Pressure</th>
-                                    <th>Pulse Rate</th>
-                                    <th>Respiratory Rate</th>
-                                    <th>Blood Oxygen</th>
-                                    <th>Blood Glucose Level</th>
-                                   <th></th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                   
                                 </tr>
-                            </thead> 
-                            <tbody>
-             
-                            <tr>
-                                <th>Min</th>
-                                <td><select id="temperature_min"><option>36.5°C</option></select></td>
-                                <td><select id="blood_pressure_min"><option>90/60mmHg</option></select></td>
-                                <td><select id="pulse_rate_min"><option>60 bpm</option></select></td>
-                                <td><select id="respiratory_rate_min"><option>12 bpm</option></select></td>
-                                <td><select id="blood_oxygen_min"><option>  95%</option></select></td>
-                                <td><select id="blood_glucose_min"><option>70 mmol/l</option></select></td>
-                                <td width="10%">
-                                        <div class="w-100 btn-group" role="group">
-                                        <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
-                                        </div>
-                                    </td>
-                            </tr>
-                            <tr>
-                                <th>Max</th>
-                                <td><select id="temperature_max"><option>37°C</option></select></td>
-                                <td><select id="blood_pressure_max"><option> 120/80mmHg</option></select></td>
-                                <td><select id="pulse_rate_max"><option>100 bpm</option></select></td>
-                                <td><select id="respiratory_rate_max"><option>16bpm</option></select></td>
-                                <td><select id="blood_oxygen_max"><option>100%</option></select></td>
-                                <td><select id="blood_glucose_max"><option>100mmol/l</option></select></td>
-                                <td width="10%">
-                                    <div class="w-100 btn-group" role="group">
-                                        <a asp-controller="Anaesthesiologist" asp-action="Update" class="text-sm-center">Edit</a><pre></pre>
-                                    </div>
-                                </td>
-                            </tr>
+                            </thead>
+
+
+
+                            <tbody id="vitalRows">
+                                <tr>
+                                    <td>Temperature (°C)</td>
+                                    <td><input type="number" class="form-control" placeholder="36"></td>
+                                    <td><input type="number" class="form-control" placeholder="37.5"></td>
+                                </tr>
+                                <tr>
+                                    <td>Blood Pressure (mmHg)</td>
+                                    <td><input type="number" class="form-control" placeholder="80"></td>
+                                    <td><input type="number" class="form-control" placeholder="120"></td>
+                                </tr>
+                                <tr>
+                                    <td>Pulse Rate (bpm)</td>
+                                    <td><input type="number" class="form-control" placeholder="60"></td>
+                                    <td><input type="number" class="form-control" placeholder="100"></td>
+                                </tr>
+                                <tr>
+                                    <td>Respiratory Rate (bpm)</td>
+                                    <td><input type="number" class="form-control" placeholder="12"></td>
+                                    <td><input type="number" class="form-control" placeholder="16"></td>
+                                </tr>
+                                <tr>
+                                    <td>Blood Oxygen Level (%)</td>
+                                    <td><input type="number" class="form-control" placeholder="95"></td>
+                                    <td><input type="number" class="form-control" placeholder="100"></td>
+                                </tr>
+                                <tr>
+                                    <td>Blood Glucose Level (mmol/L)</td>
+                                    <td><input type="number" class="form-control" placeholder="3.9"></td>
+                                    <td><input type="number" class="form-control" placeholder="5.5"></td>
+                                </tr>
+                                <!-- Add other vital categories similarly -->
                             </tbody>
+                                    
+                                   
+                            
                         </table>
                     </div>
-                        
-                        <br />
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
+
+                    <br />
+                    <div class="text-center">
+                        <button type="button" class="btn btn-primary" id="addMedication">
+                            <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                        </button>
+
+                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                        </button>
+
+
+                        <button type="button" class="btn btn-success" onclick="saveChanges()">Save</button>
                     </div>
+
                 </div>
             </div>
        
 </section>
+
+            
+
+
+
 <!-- /.content -->
 <!-- Implement JavaScript to detect changes in vital signs -->
 
     <script>
-        // Dynamically populate dropdown options from 0 to 150
-        for (let i = 0; i <= 150; i++) {
-        $('#temperature_min, #temperature_max, #blood_pressure_min, #blood_pressure_max, #blood_oxygen_min, #blood_oxygen_max, #blood_glucose_min, #blood_glucose_max').append($('<option>', {
-            value: i,
-            text: i
-        }));
-    }
-    // Dynamically populate pulse rate dropdown with specified ranges
-    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
-        value: '0-59',
-        text: '0-59 bpm'
-    }));
-    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
-        value: '60-100',
-        text: '60-100 bpm'
-    }));
-    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
-        value: '101-150',
-        text: '101-150 bpm'
-    }));
-    $('#pulse_rate_min, #pulse_rate_max').append($('<option>', {
-        value: '151-200',
-        text: '151-200 bpm'
-    }));
-    $('#respiratory_rate_min, #respiratory_rate_max').append($('<option>', {
-        value: '0-6',
-        text: '0-6bpm'
-    }));
-    $('#respiratory_rate_min, #respiratory_rate_max').append($('<option>', {
-        value: '6-10',
-        text: '6-12bpm'
-    }));
-    $('#respiratory_rate_min, #respiratory_rate_max').append($('<option>', {
-        value: '13-18
-        text: '13-18bpm
-    }));
-   
 
+    // Function to add a new vital category row
+    function addVital() {
+        $('#vitalRows').append(`
+            <tr>
+                <td><input type="text" class="form-control" placeholder="Enter Vital"></td>
+                <td><input type="number" class="form-control" placeholder="Min"></td>
+                <td><input type="number" class="form-control" placeholder="Max"></td>
+            </tr>
+        `);
+    }
+
+    // Function to delete the last vital category row
+    function deleteVital() {
+        $('#vitalRows tr:last').remove();
+    }
+
+    // Function to save changes
+    function saveChanges() {
+        var vitals = [];
+        $('#vitalRows tr').each(function () {
+            var vital = {
+                name: $(this).find('input:eq(0)').val(),
+                min: $(this).find('input:eq(1)').val(),
+                max: $(this).find('input:eq(2)').val()
+            };
+            vitals.push(vital);
+        });
+        console.log(vitals); // Here you can send the data to the server for saving
+    }
+
+     
+    
 
     // Function to save changes
     function saveChanges() {

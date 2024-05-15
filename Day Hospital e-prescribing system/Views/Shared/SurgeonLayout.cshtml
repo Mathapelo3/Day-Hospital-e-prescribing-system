@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -73,7 +75,9 @@
                         *@
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block text-warning">Welcome Username</a>
+                        <span class="d-block text-white">
+                            Welcome,Adams @ViewBag.Username
+                        </span>
                     </div>
                 </div>
 
@@ -93,9 +97,9 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
-                             with font-awesome or any other icon font library -->
+         with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadDashboard")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Dashboard","Surgeon")'">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     DASHBOARD
@@ -104,7 +108,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","YearPlan")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Patients","Surgeon")'">
                                 <i class="nav-icon fas fa-copy"></i>
                                 <p>
                                     VIEW PATIENTS
@@ -113,7 +117,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NewSurgery","Surgeon")'">
                                 <i class="nav-icon fas fa-chart-pie"></i>
                                 <p>
                                     BOOK SURGERY
@@ -122,7 +126,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AdmissionRecord","Surgeon")'">
                                 <i class="nav-icon fas fa-tree"></i>
                                 <p>
                                     ADMISSION RECORDS
@@ -131,7 +135,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","StudyMaterial")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Surgeon")'">
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>
                                     VIEW PRESCRIPTIONS
@@ -140,7 +144,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("DischargePatient","Surgeon")'">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>
                                     DISCHARGE PATIENTS
