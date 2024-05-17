@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "NewSurgery";
+    Layout = "~/Views/Shared/SurgeonLayout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<div class="card">
+    <div class="card-header">
+        <div class="text-center ">
+            @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+            *@
+        </div>
+        <br />
+        <h4 class="display-6 text-warning text-center text-bold">ADD NEW PATIENT</h4>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="orderForm">
+                            <div class="form-group">
+                                <label for="patient">Patient:</label>
+                                <select class="form-control" id="patient" name="patient">
+                                    <option value="patient">---</option>
+                                    <option value="patient">Abby Jones</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address:</label>
+                                <input asp-for="email" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="cell">Cell Number:</label>
+                                <input asp-for="cell" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select class="form-control" id="gender" name="gender">
+                                    <option value="gender">---</option>
+                                    <option value="gender">F</option>
+                                    <option value="gender">M</option>
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
+                            </div>
+                            <br />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
