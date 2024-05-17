@@ -2,6 +2,7 @@
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
     .card-title {
@@ -59,11 +60,8 @@
                         <table id="patientsTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    
-                                    <th>Patient</th>
                                     <th>Date</th>
-                                 
-                                   
+                                    <th>Patient</th>
                                     <th>Time</th>
                                     <th>Ward</th>
                                     <th>Bed</th>
@@ -86,8 +84,8 @@
     $(document).ready(function () {
         // Dummy data (replace with actual data retrieval logic)
         var patientsData = [
-            { patient: " Alice Smith" , date: "2024-05-01 ",time :"08:30", ward: "Ward A", bed: "Bed 1",nurse:"Paul Lee" },
-            { patient: "Joe Doe", date: "2024-05-01 ",time:"09:30", ward: "Ward A", bed: "Bed 2",nurse: "Paul Lee" },
+            { date: "2024-05-01 ", patient: " Alice Smith", time: "08:30", ward: "Ward A", bed: "Bed 1", nurse: "Paul Lee" },
+            { date: "2024-05-01 ", patient: "Joe Doe", time: "09:30", ward: "Ward A", bed: "Bed 2", nurse: "Paul Lee" },
             // Add more patient data as needed
         ];
 
@@ -97,9 +95,9 @@
             data.forEach(function (patient) {
                 $("#patientsTable tbody").append(
                     "<tr>" +
-                    
-                    "<td>" + patient.patient + "</td>" +
                     "<td>" + patient.date + "</td>" +
+                    "<td>" + patient.patient + "</td>" +
+                   
                   
                     
                     "<td>" + patient.time + "</td>" +
