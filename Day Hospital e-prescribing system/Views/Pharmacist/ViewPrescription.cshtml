@@ -3,21 +3,30 @@
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
+<html>
+    <head>
+        <link rel="stylesheet" href="print.css" type="text/css" media="print" />
+         <!-- Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 
-<section class="content">
+    </head>
+
+    <body>
+    <section class="content">
 
 
 
-    <!-- Display patients -->
-    <div class="row">
-        <div class="col-md-12">
-            <br />
-            <div class="card">
-                <div class="card-header">
-                    <h3 style="color:#268aab">Patient Prescription</h3>
-                </div>
-                <div class="card-body">
-                    <form>
+        <!-- Display patients -->
+        <div class="row">
+            <div  class="col-md-8">
+                <img src="~/images/cybermedlogo.png" style="display:none" alt="Company Logo" id="logo" />
+                <hr style="display:none" id="logo" />
+                <br />
+                <div class="card" id="container">
+                    <div class="card-header">
+                        <h5 style="color:#268aab">Patient Prescription</h5>
+                    </div>
+                    <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="inputState" class="form-label">Prescription No: </label>
@@ -29,129 +38,294 @@
                             </div>
 
                         </div>
+                        
                         <br />
-                        <div class="row">
-                            <div class="col-mb-8">
-                                <label  form-label">Patient Id: </label>
-                                <lable>IPD-202404303</lable>
-                            </div>
-                            <div class="col-md-2">
+                        <div class="row" style="justify-content:space-between">
+                            
+                            <div class="col-md-4">
                                 <label class="form-label">Patient Name: </label>
-                                <labe>Shaiur</labe>
+                                <lable>Shaiur</lable>
                             </div>
                             <div class="col-md-1">
                                 <label class="form-label">Age: </label>
-                                <lable >30</lable>
+                                <lable>30</lable>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <label class="form-label">Gender</label>
-                                <lable >Female</lable>
+                                <lable>Female</lable>
                             </div>
                         </div>
-                    </form>
+                        <hr />
+                        <br />
                         <div class="row">
-                            <h5 class="card-title">Dispense Medicine</h5>
+
                             <table class="table table-borderless">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
-                                        <th scope="col">Medicine Code</th>
-                                        <th scope="col">Medicine Name</th>
-                                        <th scope="col">Feeding Rules</th>
-                                        <th scope="col">Feed Days</th>
-                                        <th scope="col">Feed Medicine</th>
-                                        <th scope="col"></th>
-                                        <th scope="col"></th>
+                                        <th scope="col">Drug</th>
+                                        <th scope="col">Dosage</th>
+                                        <th scope="col">Units</th>
+                                        <th scope="col">Dispense</th>
+                                        <th scope="col">Avail. Qty</th>
+                                        <th scope="col">Refills</th>
+                                       
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <th scope="row">1</th>
-                                        <td>27127</td>
-                                        <td>Napa</td>
-                                        <td>1+1+1(After Meal)</td>
-                                        <td>7 Days</td>
-                                        <td>21 PCS.</td>
-                                        <td><button class="bg-success">Accept</button></td>
-                                        <td><button class="bg-danger">Reject</button></td>
+                                        <td>Napa Rapid 500mg oral tablet</td>
+                                        <td>2 Morning, 2 Night
+                                            <br />
+                                            (Before Meal)
+                                        </td>
+                                        <td>tablet</td>
+                                        <td>20(twenty)</td>
+                                        <td class="bg-success">500</td>
+                                        <td>0</td>
+
                                     </tr>
                                     <tr>
                                         <th scope="row">2</th>
-                                        <td>94171</td>
-                                        <td>Finix</td>
-                                        <td>1+0+1(Before Meal)</td>
-                                        <td>7 Days</td>
-                                        <td>14 PCS.</td>
-                                        <td><button class="bg-success">Accept</button></td>
-                                        <td><button class="bg-danger">Reject</button></td>
+                                        <td>Finix 20mg oral tablet</td>
+                                        <td>
+                                            1 tablet/ day
+                                            <br />
+                                            (With Meal)
+                                        </td>
+                                        <td>tablet</td>
+                                        <td>20(twenty)</td>
+                                        <td class="bg-success">400</td>
+                                        <td>0</td>
+
                                     </tr>
                                 </tbody>
                             </table>
                             <br />
                             <div class="d-grid gap-2 col-6 mx-auto">
-                                <button class="btn btn-info" type="button">Accept Prescription</button>
-                                <button class="btn btn-danger" type="button">Reject Prescription</button>
+                                <button class="btn btn-info" type="button" >Dispense Prescription</button>
+                                <button class="btn btn-danger " type="button">Reject Prescription</button>
+                            </div>
+
+                            <div class="modal fade" id="backdropModal" tabindex="-1" role="dialog" aria-labelledby="backdropModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="backdropModalLabel">Prescription Action</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Content to display in the modal body -->
+                                            <p>This is a static backdrop modal.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        
-                    
-
+                    </div>
                 </div>
+                @*<button onclick="window.print();return false;">Print this page</button>*@
+
             </div>
-        </div>
-    </div>
 
-</section>
-<section>
-    <div class="row">
-        <div class="col-md-12">
-            <br />
-            <div class="card">
-                <div class="card-header">
-                    <h3 style="color:#268aab">Dispense Medicine</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <table class="table table-borderless">
+            <div class="col-md-4">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <h5 style="color:#268aab">Patient Allergies</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th scope="col">#</th>
-                                    
-                                    <th scope="col">Medicine Name</th>
-                                    <th scope="col">Stock</th>
-                                    <th scope="col">Quantity</th>
-                                    
+
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Serverity</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <th scope="row">1</th>
-                                    <td><input type="text" class="form-control" id="inputName5"></td>
-                                    <td><input type="text" class="form-control" id="inputName5"></td>
-                                    <td><input type="text" class="form-control" id="inputName5"></td>
-                                    <td><button class="bg-gradient-danger">Remove</button></td>
+                                    <td>Penicilin</td>
+                                    <td class="bg-gradient-warning">Morderate</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">1</th>
-                                    <td><input type="text" class="form-control" id="inputName5"></td>
-                                    <td><input type="text" class="form-control" id="inputName5"></td>
-                                    <td><input type="text" class="form-control" id="inputName5"></td>
-                                    <td><button class="bg-gradient-danger">Remove</button></td>
+                                    <td>Ibuprofen</td>
+                                    <td class="bg-gradient-success">Mild</td>
+                                </tr>
+                                <tr>
+                                    <td>Carbamazepine</td>
+                                    <td class="bg-gradient-danger">Server</td>
                                 </tr>
                             </tbody>
                         </table>
-                        <br />
-                        <div class="d-grid gap-2 col-6 mx-auto">
-                            <button class="btn btn-info" type="button">Dispense</button>
-                            <button class="btn btn-danger" type="button">Cancel</button>
-                        </div>
                     </div>
-
-
-
                 </div>
             </div>
         </div>
-    </div>
-    
-</section>
+
+
+        <div class="row">
+            <div class="col-md-8">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <h5 style="color:#268aab"> Patient's Vitals</h5>
+
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Time</th>
+                                    <th scope="col">hgt.(cm)</th>
+                                    <th scope="col">wgt.(kg)</th>
+                                    <th scope="col">
+                                        TEMP
+                                        <br />(°C)
+                                    </th>
+                                    <th scope="col">
+                                        BP
+                                        <br />(bpm)
+                                    </th>
+                                    <th scope="col">
+                                        bpm.
+                                        <br />(bpm)
+                                    </th>
+                                    <th scope="col">
+                                        RR
+                                        <br />(%)
+                                    </th>
+                                    <th scope="col">
+                                        sO2
+                                        <br />(%)
+                                    </th>
+                                    <th scope="col">
+                                        BG
+                                        <br />(mmHg)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>23-04-2024</td>
+                                    <td>10:00</td>
+                                    <td>160</td>
+                                    <td>70</td>
+                                    <td>35</td>
+                                    <td>120</td>
+                                    <td>8b</td>
+                                    <td>100</td>
+                                    <td>60</td>
+                                    <td>180/120</td>
+                                </tr>
+                                <tr>
+                                    <td>23-04-2024</td>
+                                    <td>15:00</td>
+                                    <td>160</td>
+                                    <td>71</td>
+                                    <td>35</td>
+                                    <td>40</td>
+                                    <td>10</td>
+                                    <td>70</td>
+                                    <td>80</td>
+                                    <td>180/120</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <h5 style="color:#268aab"> Conditions</h5>
+
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+
+                            <tbody>
+                                <tr>
+                                    <td>Diabetes</td>
+                                </tr>
+                                <tr>
+                                    <td>Asthma</td>
+                                </tr>
+                                <tr>
+                                    <td>Carbamazepine</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <h5 style="color:#268aab">Current Medication</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+
+                            <tbody>
+                                <tr>
+                                    <td>Asprin</td>
+                                </tr>
+                                <tr>
+                                    <td>Amoxicillin</td>
+                                </tr>
+                                <tr>
+                                    <td>Carbamazepine</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+    </body>
+</html>
+
+<script>
+    //document.addEventListener("DOMContentLoaded", () => {
+    //    let printLink = document.getElementById("print");
+    //    let container = document.getElementById("container");
+
+    //    printLink.addEventListener("click", event => {
+    //        event.preventDefault();
+    //        printLink.style.display = "none";
+    //        window.print();
+    //    }, false);
+
+    //    container.addEventListener("click", event => {
+    //        printLink.style.display = "flex";
+    //    }, false);
+    //}, false);
+
+    $(document).ready(function () {
+        $('.btn').on('click', function () {
+            $('#backdropModal').modal('show');
+        });
+    });
+</script>
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+

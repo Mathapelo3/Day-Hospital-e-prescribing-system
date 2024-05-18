@@ -20,3 +20,24 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+@media print {
+    @page {
+        margin-left: 0.8in;
+        margin-right: 0.8in;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+@media print {
+    #logo {
+        display: block;
+    }
+}
+
+
+#container {
+    width: 800px;
+    margin: 0 auto;
+}
