@@ -19,6 +19,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
+        public IActionResult AddPatients()
+        {
+            return View();
+        }
+
         public IActionResult Surgeries()
         {
             return View();
@@ -39,17 +44,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult BookedPatients()
-        {
-            return View();
-        }
-
-        public IActionResult AdmissionRecord()
-        {
-            return View();
-        }
-
-        public IActionResult PatientRecovery()
+        public IActionResult PatientRecord()
         {
             return View();
         }

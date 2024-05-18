@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
+@*     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+ *@
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -19,9 +21,9 @@
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <!-- Left navbar links -->
             <ul class="navbar-nav">
-                <li class="nav-item">
+                @* <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                </li>
+                </li> *@
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="../../index3.html" class="nav-link">Home</a>
                 </li>
@@ -31,7 +33,7 @@
             </ul>
 
             <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
+            @* <ul class="navbar-nav ml-auto">
                 <!-- Navbar Search -->
                 <li class="nav-item">
                     <a class="nav-link" data-widget="navbar-search" href="#" role="button">
@@ -53,7 +55,7 @@
                         </form>
                     </div>
                 </li>
-            </ul>
+            </ul> *@
         </nav>
         <!-- /.navbar -->
         <!-- Main Sidebar Container -->
@@ -73,7 +75,9 @@
                         *@
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block text-warning">Welcome Username</a>
+                        <span class="d-block text-white">
+                            Welcome, Username @ViewBag.Username
+                        </span>
                     </div>
                 </div>
 
@@ -93,60 +97,66 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
-                             with font-awesome or any other icon font library -->
+         with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadDashboard")'">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Dashboard","Surgeon")'">
+
                                 <p>
                                     DASHBOARD
-                                    <i class="right fas fa-angle-left"></i>
+
                                 </p>
                             </a>
+
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","YearPlan")'">
-                                <i class="nav-icon fas fa-copy"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Patients","Surgeon")'">
+
                                 <p>
                                     VIEW PATIENTS
-                                    <i class="fas fa-angle-left right"></i>
+
                                 </p>
                             </a>
+
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'">
-                                <i class="nav-icon fas fa-chart-pie"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NewSurgery","Surgeon")'">
+
                                 <p>
-                                    BOOK SURGERY
-                                    <i class="right fas fa-angle-left"></i>
+                                    NEW SURGERY
+
                                 </p>
                             </a>
+
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'">
-                                <i class="nav-icon fas fa-tree"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("PatientRecord","Surgeon")'">
+
                                 <p>
-                                    ADMISSION RECORDS
-                                    <i class="fas fa-angle-left right"></i>
+                                    PATIENT MEDICAL RECORDS
+
                                 </p>
                             </a>
+
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","StudyMaterial")'">
-                                <i class="nav-icon fas fa-edit"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Surgeon")'">
+
                                 <p>
                                     VIEW PRESCRIPTIONS
-                                    <i class="fas fa-angle-left right"></i>
+
                                 </p>
                             </a>
+
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
-                                <i class="nav-icon fas fa-table"></i>
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("DischargePatient","Surgeon")'">
+
                                 <p>
                                     DISCHARGE PATIENTS
-                                    <i class="fas fa-angle-left right"></i>
+
                                 </p>
                             </a>
+
                         </li>
                         <li class="nav-item">
                             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
