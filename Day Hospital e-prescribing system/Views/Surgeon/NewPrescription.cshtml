@@ -2,21 +2,31 @@
     ViewData["Title"] = "NewPrescription";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<div class="card">
+    <div class="card-header">
+        <div class="text-center ">
+            @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+            *@
+        </div>
+        <br />
+        <h4 class="display-6 text-warning text-center text-bold">PRESCRIPTION FORM </h4>
+    </div>
+</div>
 
 <section class="content">
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title text-warning text-bold">PRESCRIPTION FORM</h3>
-                    </div>
                     <div class="card-body">
                         <form id="orderForm">
                             <div class="form-group">
                                 <label for="surgeon">Patient:</label>
                                 <select class="form-control" id="patient" name="surgeon">
                                     <option value="patient">---</option>
+                                    <option value="patient">John Doe</option>
                                     <option value="patient">Jane Smith</option>
                                 </select>
 
@@ -25,23 +35,57 @@
                                 <label for="date">Date:</label>
                                 <input type="date" class="form-control" id="date" name="date">
                             </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="medication">Medication:</label>
+                                    <select class="form-control" id="medication">
+                                        <option value="sedatives"> Anxiolytics 20mg</option>
+                                        <option value="pain_reliever"></option>
+                                        <!-- Add more medication options here -->
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label for="medication">Instruction:</label>
+                                    <select class="form-control" id="medication">
+                                        <option value="sedatives"> One tablet three times a day after meal</option>
+                                        <option value="pain_reliever"></option>
+                                        <!-- Add more medication options here -->
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="quantity">Quantity:</label>
+                                    <select class="form-control" id="quantity">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <!-- Add more quantity options here -->
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-1">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-primary form-control" id="addMedication">
+                                        <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                                    </button>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="medicationList">Medication List:</label>
+                                    <select multiple class="form-control" id="medicationList">
+                                        <!-- Medication will be populated here -->
+                                    </select>
+                                </div>
+                            </div>
                             <div class="form-group">
-                                <label for="medication">Medication:</label>
-                                <select class="form-control" id="medication" name="medication">
-                                    <option value="medication1">Pain Reliver</option>
-                                    <option value="medication2">Surgeon 3</option>
+                                <label for="urgency">Urgency:</label>
+                                <select class="form-control" id="urgency" name="urgency">
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="urgent">Urgent</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="instruction">Instruction:</label>
-                                <input class="form-control" id="instruction" name="instruction" />
-                            </div>
-                            <div class="form-group">
-                                <label for="quantity">Quantity:</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity">
-                            </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-success">Submit</button>
+                                <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
                             </div>
                         </form>
                     </div>
