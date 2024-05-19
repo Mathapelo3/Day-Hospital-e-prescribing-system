@@ -22,11 +22,14 @@
                     <div class="card-body">
                         <form id="orderForm">
                             <div class="form-group">
-                                <label for="patient">Patient:</label>
-                                <select class="form-control" id="patient" name="patient">
-                                    <option value="patient">---</option>
-                                    <option value="patient">Abby Jones</option>
-                                </select>
+                                <label for="patient">First Name:</label>
+                                <input asp-for="firstName" class="form-control" />
+
+                            </div>
+                            <div class="form-group">
+                                <label for="patient">Last Name:</label>
+                                <input asp-for="lastName" class="form-control" />
+
                             </div>
                             <div class="form-group">
                                 <label for="email">Email Address:</label>
