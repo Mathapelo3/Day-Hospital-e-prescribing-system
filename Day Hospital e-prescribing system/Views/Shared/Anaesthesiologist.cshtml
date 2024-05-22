@@ -171,16 +171,12 @@
 
                         </br>
                         
-                        @*<li class="nav-item">
+                        <li class="nav-item">
                         <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                        <button type="submit" class="nav-link btn btn-link text-red">Logout</button>
+                        <button type="submit" class="nav-link btn btn-link text-purple">Logout</button>
                         </form>
-                        </li>*@
-                        @using (Html.BeginForm("Logout", "Nurse", FormMethod.Post, new { @class = "logout-form" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-purple logout-button">Logout</button>
-                        }
+                        </li>
+                       
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
