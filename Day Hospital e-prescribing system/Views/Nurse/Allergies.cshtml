@@ -1,0 +1,91 @@
+﻿
+@{
+    ViewData["Title"] = "Allergies";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+
+<form>
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h3 class="display-6 text-info text-center text-bold">CONDITIONS, ALLERGIES, MEDICATION</h3>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header text-bold">
+            Jesse Littleton
+        </div>
+        <div class="card-body">
+    <ul class="nav nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link" href="#">Chronic Conditions</a>
+            <div class="mt-5">
+
+
+                @*<div class="alert">
+                You dont have any chronic conditions, please add one
+                </div>*@
+
+
+                @*<table class="table table-striped table-bordered" id="myTable">
+                    <thead>
+
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <tr>
+                            <td>Hyperthyroidism</td>
+                            <td>A condition that occurs when the thyroid gland makes more thyroid hormones than the body needs</td>
+                        </tr>
+
+                    </tbody>
+                </table>*@
+
+
+            </div>
+            <div class="mt-1">
+                <div class="d-flex">
+
+                    @*  <h6 class="fw-bold">My Chronic Conditions</h6>*@
+
+                   @* <div class="ms-auto">
+                        <button  class="btn btn-primary btn-sm">Add Conditions</button>
+                    </div>*@
+                </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Allergies</a>
+            <table class="table table-striped table-bordered" id="myTable">
+                <thead>
+
+                    <tr>
+                        @*<th>Name</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>Antihistamine</td>
+                       @* <td>A condition that occurs when the thyroid gland makes more thyroid hormones than the body needs</td>*@
+                    </tr>
+
+                </tbody>
+            </table>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Current Medications</a>
+        </li>
+       
+    </ul>
+</form>
+
+
