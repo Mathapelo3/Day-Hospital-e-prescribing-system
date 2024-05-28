@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,6 +12,15 @@
     <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
+    <style>
+        .text-dark-green {
+            color: #006400 !important; /* Dark green color */
+        }
+
+        .bg-dark-green {
+            background-color: #006400 !important; /* Dark green background */
+        }
+    </style>
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -182,7 +192,7 @@
                         </li>
                         <li class="nav-item">
                             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                <button type="submit" class="nav-link btn btn-link text-orange">Logout</button>
+                                <button type="submit" class="nav-link btn btn-link text-dark-green">Logout</button>
                             </form>
                         </li>
                     </ul>
