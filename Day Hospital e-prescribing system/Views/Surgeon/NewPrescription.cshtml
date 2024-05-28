@@ -47,11 +47,7 @@
 
                                 <div class="form-group col-md-4">
                                     <label for="medication">Instruction:</label>
-                                    <select class="form-control" id="medication">
-                                        <option value="sedatives"> One tablet three times a day after meal</option>
-                                        <option value="pain_reliever"></option>
-                                        <!-- Add more medication options here -->
-                                    </select>
+                                    <input type="text" class="form-control" id="instruction" name="instruction">
                                 </div>
 
                                 <div class="form-group col-md-3">
@@ -79,10 +75,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="urgency">Urgency:</label>
-                                <select class="form-control" id="urgency" name="urgency">
-                                    <option value="normal" selected>Normal</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
+                                <input type="checkbox">
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>

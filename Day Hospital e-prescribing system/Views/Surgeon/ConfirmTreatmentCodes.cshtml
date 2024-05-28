@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Surgeries";
+    ViewData["Title"] = "TreatmentCodes";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 
@@ -14,7 +14,7 @@
                 *@
             </div>
             <br />
-            <h4 class="display-6 text-warning text-center text-bold">BOOKED SURGERIES</h4>
+            <h4 class="display-6 text-warning text-center text-bold">CONFIRM TREATMENT CODES FOR BOOKED SURGERIES</h4>
         </div>
     </div>    <br />
     <div class="row mb-3">
@@ -26,13 +26,12 @@
         </div>
     </div>
     <div style="text-align:end">
-        <button class="btn btn-warning text-sm text-bold">Add New Surgery</button>
-        <button class="btn btn-warning text-sm text-bold">Confirm Treatment Codes</button>
+        <button class="btn btn-warning text-sm text-bold">View Surgeries</button>
     </div>
     <div class="container p-3 text-md-center">
 
         @* @if (Model.Count() > 0)
-            {*@
+        {*@
         <table id="patientsTable" class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -49,19 +48,7 @@
                         Treatment Code
                     </th>
                     <th>
-                        Ward
-                    </th>
-                    <th>
-                        Bed
-                    </th>
-                    <th>
-                        Nurse
-                    </th>
-                    <th>
-                        Theatre
-                    </th>
-                    <th>
-                        Anesthesiologist
+                        Action
                     </th>
                 </tr>
             </thead>
@@ -72,31 +59,25 @@
                     <td>AM</td>
                     <td>John Doe</td>
                     <td>gwm456</td>
-                    <td>Ward A</td>
-                    <td>Bed 2</td>
-                    <td>Paul Lee</td>
-                    <td>OR002</td>
-                    <td>Dr Anne Doe</td>
                     <td>
                         <div class="text-center">
-                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                            <button type="button" class="btn">
+                                <img src="~/images/Surgeon/discharge.jpg" width="30"/>
                             </button>
                         </div>
-
                     </td>
                 </tr>
             </tbody>
         </table>
         @*}*@
         @*else
-            {
-            <p>No assignment has been added yet.</p>
-            }*@
+        {
+        <p>No assignment has been added yet.</p>
+        }*@
         @*<div class="col-7 text-right">
-            <a asp-controller="TutorAssignReport" asp-action="Create" class="btn btn-outline-warning">Add Assignment</a>
-            <button type="submit" class="btn btn-md btn-outline-danger" onclick="location.href = '@Url.Action("Index","TutorAssign")'">BACK</button>
-            </div>*@
+        <a asp-controller="TutorAssignReport" asp-action="Create" class="btn btn-outline-warning">Add Assignment</a>
+        <button type="submit" class="btn btn-md btn-outline-danger" onclick="location.href = '@Url.Action("Index","TutorAssign")'">BACK</button>
+        </div>*@
     </div>
     <div class="row">
     </div>

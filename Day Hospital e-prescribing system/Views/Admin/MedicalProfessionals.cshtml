@@ -7,19 +7,44 @@
     .card-title {
         font-weight: bold;
     }
+
+    .btn-orange {
+        color: black;
+        background-color: orange;
+        border-color: orange;
+        font-weight: bold;
+    }
 </style>
 <!-- Main content -->
 <section class="content">
-    <div class="container-fluid">
-        <div class="col-md-14">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Medical Professionals</h3>
-                        <button type="button" class="btn btn-primary">Registration Form</button>
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-orange text-center text-bold">MEDICAL PROFFESIONAL FORM</h4>
+        </div>
+    </div>
+                <div class="card-body">
+        <!-- Search bar and filters -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <!-- Search bar -->
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="card-body">
+            </div>
+            
+        </div>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
@@ -45,8 +70,11 @@
                                     <td>*******</td>
                                     <td>surgeon</td>
                                     <td>546798</td>
-                                   
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <tr>
                                     <td>Mack</td>
@@ -56,8 +84,11 @@
                                     <td>*******</td>
                                     <td>nurse</td>
                                     <td>546798</td>
-
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <tr>
                                     <td>Mack</td>
@@ -67,8 +98,11 @@
                                     <td>*******</td>
                                     <td>pharmacist</td>
                                     <td>546798</td>
-
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <tr>
                                     <td>Mack</td>
@@ -78,19 +112,20 @@
                                     <td>*******</td>
                                     <td>anaesthesiologist</td>
                                     <td>546798</td>
-
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <!-- Add more rows dynamically based on data -->
                             </tbody>
                         </table>
                     </div>
                     <div class="text-center">
-                        <button type="button" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-orange">Save</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+          
 </section>
 <!-- /.content -->

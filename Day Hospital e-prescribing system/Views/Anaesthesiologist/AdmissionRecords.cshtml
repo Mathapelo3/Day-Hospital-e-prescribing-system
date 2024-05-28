@@ -17,7 +17,7 @@
                 *@
             </div>
             <br />
-            <h4 class="display-6 text-purple text-center text-bold">ADMISSION RECORDS</h4>
+            <h4 class="display-6 text-purple text-center text-bold">PATIENT RECORDS</h4>
         </div>
     </div>
     <div><br /></div>
@@ -66,6 +66,7 @@
                                     <th>Ward</th>
                                     <th>Bed</th>
                                     <th>Nurse</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -84,8 +85,8 @@
     $(document).ready(function () {
         // Dummy data (replace with actual data retrieval logic)
         var patientsData = [
-            { date: "2024-05-01 ", patient: " Alice Smith", time: "AM", ward: "Ward A", bed: "Bed 1", nurse: "Paul Lee" },
-            { date: "2024-05-01 ", patient: "Joe Doe", time: "AM", ward: "Ward A", bed: "Bed 2", nurse: "Paul Lee" },
+            { date: "2024-05-01 ", patient: " Alice Smith", time: "AM", ward: "Ward A", bed: "Bed 1", nurse: "Paul Lee", status: "Admitted" },
+            { date: "2024-05-01 ", patient: "Joe Doe", time: "AM", ward: "Ward A", bed: "Bed 2", nurse: "Paul Lee", status: "Discharged" },
             // Add more patient data as needed
         ];
 
@@ -104,6 +105,7 @@
                     "<td>" + patient.ward + "</td>" +
                     "<td>" + patient.bed + "</td>" +
                     "<td>" + patient.nurse + "</td>" +
+                    "<td>" + patient.status + "</td>" +
                     "</tr>"
                 );
             });
