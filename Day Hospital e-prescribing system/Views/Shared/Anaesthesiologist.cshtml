@@ -34,9 +34,7 @@
             <ul class="navbar-nav ml-auto">
                 <!-- Navbar Search -->
                 <li class="nav-item">
-                    @*<a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
-                    </a>*@
+                   
                     <div class="navbar-search-block">
                         <form class="form-inline">
                             <div class="input-group input-group-sm">
@@ -68,9 +66,7 @@
             <div class="sidebar">
                 <!-- Sidebar user (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                   @* <div class="image">
-                        <img src="~/Images/user-icon.jpeg" class="img-circle" alt="User Image">
-                    </div>*@
+                   
                     <div class="info">
                         <span class="d-block text-white">
                             Welcome,Username @ViewBag.Username
@@ -89,12 +85,11 @@
                         </div>
                     </div>
                 </div>
-                </br>
+                <br/>
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-                             with font-awesome or any other icon font library -->
+                       
                           <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NurseDashboard","Nurse")'">
                              

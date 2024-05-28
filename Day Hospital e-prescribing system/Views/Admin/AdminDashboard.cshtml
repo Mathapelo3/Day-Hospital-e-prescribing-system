@@ -3,6 +3,22 @@
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+    .btn-outline-orange {
+    color: orange;
+    border-color: orange;
+}
+
+.btn-outline-orange:hover {
+    color: white;
+    background-color: orange;
+    border-color: orange;
+}
+
+    .text-dark-green {
+        color: darkgreen;
+    }
+</style>
 <section class="content">
 
     <!-- Default box -->
@@ -12,73 +28,64 @@
 @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
 *@            </div>
             <br />
-            <h4 class="display-6 text-warning text-center text-bold">ADMIN DASHBOARD</h4>
+            <h4 class="display-6 text-dark-green text-center text-bold">ADMIN DASHBOARD</h4>
         </div>
     </div>
     
     <div class="row">
         <div class="col-sm-6">
             <div class="card text-center" style="height:200px">
-                <div class="card-body text-warning">
-                    <img src="~/Images/Surgeon/admissions.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
+                <div class="card-body text-orange">
+                    <img src="~/Images/Surgeon/admissions.png" width="60" />
+                  
                     <h5 class="text-bold">MEDICAL PROFFESIONAL RECORDS</h5>
-                    <p class="card-text text-secondary">View Records details.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","YearPlan")'" class="btn btn-outline-warning">VIEW</button>
+                    
+                    <button type="button" onclick="location.href = '@Url.Action("Index","YearPlan")'" class="btn btn-outline-orange">VIEW</button>
                 </div>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="card text-center" style="height:200px">
-                <div class="card-body text-warning">
-                    <img src="~/Images/Admin/wardrecords.png width="100" />
-                    <div>
-                        <br />
-                    </div>
+                <div class="card-body text-orange">
+                    <img src="~/Images/Admin/wardrecords.png width="60" />
+                    
+               
                     <h5 class="text-bold">WARD RECORDS</h5>
-                    <p class="card-text text-secondary"></p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'" class="btn btn-outline-warning">VIEW</button>
+                   
+                    <button type="button" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'" class="btn btn-outline-orange">VIEW</button>
                 </div>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
-                <div class="card-body text-warning">
-                    <img src="~/Images/Admin/operatingtheatre.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
+                <div class="card-body text-orange">
+                    <img src="~/Images/Admin/operatingtheatre.png" width="60" />
+                 
                     <h5 class="text-bold">OPERATING THEATRE RECORDS</h5>
-                    <p class="card-text text-secondary">View records.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-warning">VIEW</button>
+                   
+                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-orange">VIEW</button>
                 </div>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
-                <div class="card-body text-warning">
-                    <img src="~/Images/study.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
+                <div class="card-body text-orange">
+                    <img src="~/Images/study.png" width="60" />
+                  
                     <h5 class="text-bold">TREATMENT RECORDS</h5>
-                    <p class="card-text text-secondary"></p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-warning">VIEW</button>
+                    
+                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-orange">VIEW</button>
                 </div>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
-                <div class="card-body text-warning">
-                    <img src="~/Images/tutor.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
+                <div class="card-body text-orange">
+                    <img src="~/Images/tutor.png" width="60" />
+                   
                     <h5 class="text-bold">CONDITION DIAGNOSIS RECORDS</h5>
-                    <p class="card-text text-secondary"></p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-warning">VIEW</button>
+                   
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-orange">VIEW</button>
                 </div>
             </div>
         </div>

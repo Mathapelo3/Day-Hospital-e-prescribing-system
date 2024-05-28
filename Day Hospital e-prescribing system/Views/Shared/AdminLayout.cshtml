@@ -55,21 +55,22 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
+            <!-- Brand Logo -->
             <a href="../../index3.html" class="brand-link">
-                @*                <img src="~/Images/LogoIcon(white).png" alt="AcademicHub Logo" class="brand-image img-circle" style="opacity: .8">
-                *@                <span class="brand-text font-weight-light">CyberMed</span>
+                <img src="~/Images/CyberMedLogo.png" alt="CyberMed" class="brand-image img-circle" style="opacity: .8">
+                <span class="brand-text font-weight-light">CyberMed</span>
             </a>
 
+            <!-- Sidebar -->
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar user (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        @*                        <img src="~/Images/subjectHead.png" class="img-circle" alt="User Image">
-                        *@
-                    </div>
+
                     <div class="info">
-                        <a href="#" class="d-block text-success text-orange">Username</a>
+                        <span class="d-block text-white">
+                            Welcome,Username @ViewBag.Username
+                        </span>
                     </div>
                 </div>
 
@@ -84,99 +85,98 @@
                         </div>
                     </div>
                 </div>
-
+                <br />
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-                             with font-awesome or any other icon font library -->
+                   
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadDashboard")'">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                
                                 <p>
                                     DASHBOARD
-                                    <i class="right fas fa-angle-left"></i>
+                                   
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","YearPlan")'">
-                                <i class="nav-icon fas fa-copy"></i>
+                               
                                 <p>
                                     DAY HOSPITAL RECORDS
-                                    <i class="fas fa-angle-left right"></i>
+                                    
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'">
-                                <i class="nav-icon fas fa-chart-pie"></i>
+                               
                                 <p>
                                     MEDICAL PROFFESIONALS
-                                    <i class="right fas fa-angle-left"></i>
+                                
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'">
-                                <i class="nav-icon fas fa-tree"></i>
+                                
                                 <p>
                                     WARD RECORDS
-                                    <i class="fas fa-angle-left right"></i>
+                                  
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","StudyMaterial")'">
-                                <i class="nav-icon fas fa-edit"></i>
+                               
                                 <p>
                                     OPERATING THEATRES
-                                    <i class="fas fa-angle-left right"></i>
+                                    
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
-                                <i class="nav-icon fas fa-table"></i>
+                             
                                 <p>
                                     CONDITION DIAGNOSIS 
-                                    <i class="fas fa-angle-left right"></i>
+                                   
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
-                                <i class="nav-icon fas fa-table"></i>
+                               
                                 <p>
                                     ACTIVE INGREDIENTS 
-                                    <i class="fas fa-angle-left right"></i>
+                                    
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
-                                <i class="nav-icon fas fa-table"></i>
+                               
                                 <p>
                                     CONTRA-INDICATIONS
-                                    <i class="fas fa-angle-left right"></i>
+                                 
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
-                                <i class="nav-icon fas fa-table"></i>
+                                
                                 <p>
                                     MEDICATION INTERACTIVES
-                                    <i class="fas fa-angle-left right"></i>
+                                 
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
-                                <i class="nav-icon fas fa-table"></i>
+                               
                                 <p>
                                     TREATMENT RECORDS
-                                    <i class="fas fa-angle-left right"></i>
+                                   
                                 </p>
                             </a>
                         </li>
