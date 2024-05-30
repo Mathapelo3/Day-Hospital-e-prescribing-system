@@ -8,12 +8,32 @@
         font-weight: bold;
     }
 
-    .btn-orange {
-        color: black;
-        background-color: orange;
-        border-color: orange;
-        font-weight: bold;
+    .text-dark-green {
+        color: darkgreen;
     }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
 </style>
 <!-- Main content -->
 <section class="content">
@@ -26,7 +46,7 @@
                 *@
             </div>
             <br />
-            <h4 class="display-6 text-orange text-center text-bold">MEDICAL PROFFESIONAL FORM</h4>
+            <h4 class="display-6 text-dark-green text-center text-bold">MEDICAL PROFFESIONALS</h4>
         </div>
     </div>
                 <div class="card-body">
@@ -63,12 +83,26 @@
                             <tbody>
                                 <!-- Sample row, replace with actual data -->
                                 <tr>
-                                    <td>Mack</td>
-                                    <td>Miller</td>
+                                    <td>Jack</td>
+                                    <td>Jacobs</td>
                                     <td>067 124 853</td>
-                                    <td>miller@gmail.com</td>
+                                    <td>jacobs@gmail.com</td>
                                     <td>*******</td>
-                                    <td>surgeon</td>
+                                    <td>Surgeon</td>
+                                    <td>546798</td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
+                                </tr>
+                                <tr>
+                                    <td>Adam</td>
+                                    <td>Abraham</td>
+                                    <td>067 124 853</td>
+                                    <td>abraham@gmail.com</td>
+                                    <td>*******</td>
+                                    <td>Nurse</td>
                                     <td>546798</td>
                                     <td>
                         <button type="button" class="btn  btn-primary" onclick="editVital()">
@@ -82,7 +116,7 @@
                                     <td>067 124 853</td>
                                     <td>miller@gmail.com</td>
                                     <td>*******</td>
-                                    <td>nurse</td>
+                                    <td>Pharmacist</td>
                                     <td>546798</td>
                                     <td>
                         <button type="button" class="btn  btn-primary" onclick="editVital()">
@@ -91,26 +125,12 @@
                         </td>
                                 </tr>
                                 <tr>
-                                    <td>Mack</td>
-                                    <td>Miller</td>
+                                    <td>Andy</td>
+                                    <td>Anderson</td>
                                     <td>067 124 853</td>
-                                    <td>miller@gmail.com</td>
+                                    <td>anderson@gmail.com</td>
                                     <td>*******</td>
-                                    <td>pharmacist</td>
-                                    <td>546798</td>
-                                    <td>
-                        <button type="button" class="btn  btn-primary" onclick="editVital()">
-                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                        </button>
-                        </td>
-                                </tr>
-                                <tr>
-                                    <td>Mack</td>
-                                    <td>Miller</td>
-                                    <td>067 124 853</td>
-                                    <td>miller@gmail.com</td>
-                                    <td>*******</td>
-                                    <td>anaesthesiologist</td>
+                                    <td>Anaesthesiologist</td>
                                     <td>546798</td>
                                     <td>
                         <button type="button" class="btn  btn-primary" onclick="editVital()">
@@ -121,11 +141,17 @@
                                 <!-- Add more rows dynamically based on data -->
                             </tbody>
                         </table>
-                    </div>
-                    <div class="text-center">
-                        <button type="button" class="btn btn-orange">Save</button>
-                    </div>
-                </div>
+                        </div>
+           <div class="text-center">
+           @* <div class="btn-group">*@
+                <button type="button" class="btn btn-primary" id="addMedication">
+                    <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                </button>
+
+                <button type="button" class="btn btn-dark-green" onclick="saveChanges()">Save</button>
+            </div>
+        </div>
+    
           
 </section>
 <!-- /.content -->

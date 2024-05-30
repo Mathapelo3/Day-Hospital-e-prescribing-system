@@ -34,9 +34,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                   @* <div class="card-header">
-                        <h3 class="card-title">Medication Order Form</h3>
-                    </div>*@
+                   
                     <div class="card-body">
                        
                    
@@ -45,7 +43,7 @@
                     </div>
                 </div>
                         <form id="orderForm">
-                        <div class="form-group">
+                        <div class="form-group col-md-12">
                             <label for="surgeon">Patient:</label>
                             <select class="form-control" id="patient" name="surgeon">
                                 <option value="surgeon1">Jane Doe</option>
@@ -54,12 +52,12 @@
                             </select>
 
                         </div>
-                            <div class="form-group">
+                        <div class="form-group col-md-12">
                                 <label for="date">Date:</label>
                                 <input type="date" class="form-control" id="date" name="date">
                                 </div>
                         <div class="form-row">
-                            <div class="form-group col-md-5">
+                            <div class="form-group col-md-6">
                                 <label for="medication">Medication:</label>
                                 <select class="form-control" id="medication">
                                     <option value="sedatives"> Anxiolytics 20mg</option>
@@ -68,7 +66,7 @@
                                 </select>
                             </div>
                            
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <label for="quantity">Quantity:</label>
                                 <select class="form-control" id="quantity">
                                     <option value="1">1</option>
@@ -88,7 +86,7 @@
                         </div>
 
 
-                        <div class="form-group">
+                        <div class="form-group col-md-12">
                             <label for="medicationList">Medication List:</label>
                             <select multiple class="form-control" id="medicationList">
                                 <!-- Medication will be populated here -->
@@ -98,7 +96,7 @@
                           
                            
                            
-                        <div class="form-group">
+                        <div class="form-group col-md-12">
                             <label for="urgency">Urgency:</label>
                             <input type="checkbox">
                         </div>

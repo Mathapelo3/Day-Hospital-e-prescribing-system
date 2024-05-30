@@ -17,7 +17,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
+        public IActionResult EditHospitalRecords()
+        {
+            return View();
+        }
         public IActionResult MedicalProfessionals()
+        {
+            return View();
+        }
+        public IActionResult AddMedicalProfessional()
         {
             return View();
         }
