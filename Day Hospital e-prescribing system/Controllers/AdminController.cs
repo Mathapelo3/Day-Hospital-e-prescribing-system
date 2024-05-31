@@ -29,6 +29,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
-
+        public IActionResult TheatreRecords()
+        {
+            return View();
+        }
+        public IActionResult WardRecords()
+        {
+            return View();
+        }
+        public IActionResult ChronicConditionRecords()
+        {
+            return View();
+        }
+        public IActionResult AddChronicCondition()
+        {
+            return View();
+        }
+        public IActionResult EditChronicCondition()
+        {
+            return View();
+        }
     }
 }
