@@ -1,0 +1,97 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+    .btn-purple {
+        background-color: purple;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">ADD VITAL</h4>
+        </div>
+    </div>
+    <div><br></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3 class="card-title"> </h3>
+                            </div>
+                            <div class="col-md-2 text-right">
+                                
+                            </div>
+                            <div class="col-md-2 text-right">
+                                
+                            </div>
+                            <div class="col-md-2 text-right">
+                                <button type="submit" class="btn btn-purple">View Vitals</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="patientsTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+
+
+                                        <th>Name</th>
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <tbody>
+                                    <tr>
+
+
+                                        <td>
+                                            <input type="text" class="form-control" id="medication" placeholder="Enter medication">
+                                            
+                                        </td>
+                                       <td> <select class="form-control" id="patient" name="surgeon">
+                                            <option value="surgeon1">0</option>
+                                            <option value="surgeon2">50mg</option>
+                                            <option value="surgeon3">Surgeon 3</option>
+                                        </select>
+                                        </td>
+                                        <td>
+                                        <select class="form-control" id="patient" name="surgeon">
+                                            <option value="surgeon1">200</option>
+                                            <option value="surgeon2">50mg</option>
+                                            <option value="surgeon3">Surgeon 3</option>
+                                        </select>
+                                        </td>
+                                       
+                                </tbody>
+                            </table>
+                            <br/>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-purple">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
