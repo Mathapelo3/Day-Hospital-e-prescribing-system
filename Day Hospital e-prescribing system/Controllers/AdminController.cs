@@ -49,5 +49,21 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
+        public IActionResult AddContraIndication()
+        {
+            return View();
+        }
+        public IActionResult ContraIndicationRecords()
+        {
+            return View();
+        }
+        public IActionResult AddMedicationInteraction()
+        {
+            return View();
+        }
+        public IActionResult MedicationInteractionRecords()
+        {
+            return View();
+        }
     }
 }
