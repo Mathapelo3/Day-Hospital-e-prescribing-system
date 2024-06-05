@@ -112,6 +112,7 @@
                                         <th>Respiratory Rate </th>
                                         <th>Blood Oxygen</th>
                                         <th>Blood Glucose Level</th>
+                                        <th>Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -189,8 +190,8 @@
         function populatePatients() {
             // Dummy data (replace with actual data retrieval logic)
             var patientsData = [
-                { time: "10:00", temperature: " 35°C", blood: "120 bpm", pulse: "60bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l"},
-                { time: "10:30", temperature: "35°C", blood: "40 bpm", pulse: "100bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l" },
+                { time: "10:00", temperature: " 35°C", blood: "120 bpm", pulse: "60bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l",notes: "---"},
+                { time: "10:30", temperature: "35°C", blood: "40 bpm", pulse: "100bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l",notes: "---" },
                 // Add more patient data as needed
             ];
 
@@ -209,6 +210,7 @@
                     "<td>" + patient.respiratory + "</td>" +
                     "<td>" + patient.oxygen + "</td>" +
                     "<td>" + patient.glucose + "</td>" +
+                    "<td>" + patient.notes + "</td>" +
                     "</tr>"
                 );
             });
