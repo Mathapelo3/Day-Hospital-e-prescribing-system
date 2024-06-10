@@ -5,20 +5,11 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <style>
-    /*.card-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh; 
-    }
 
-    /*.card {
-        width: 70%; 
-        padding: 20px; 
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-        border-radius: 10px; 
-        overflow-y: auto; 
-    }*/
+    .btn-purple {
+        background-color: purple;
+        color: white;
+        font-weight: bold;
 
     table {
         border-collapse: collapse; 
@@ -98,6 +89,8 @@
                                     <th>Vitals</th>
                                     <th>Min</th>
                                     <th>Max</th>
+                                    <th></th>
+                                    <th></th>
                                    
                                 </tr>
                             </thead>
@@ -109,31 +102,91 @@
                                     <td>Temperature (°C)</td>
                                     <td><input type="number" class="form-control" placeholder="36"></td>
                                     <td><input type="number" class="form-control" placeholder="37.5"></td>
+                                    <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Blood Pressure (mmHg)</td>
                                     <td><input type="number" class="form-control" placeholder="80"></td>
                                     <td><input type="number" class="form-control" placeholder="120"></td>
+                                    <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Pulse Rate (bpm)</td>
                                     <td><input type="number" class="form-control" placeholder="60"></td>
                                     <td><input type="number" class="form-control" placeholder="100"></td>
+                                    <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Respiratory Rate (bpm)</td>
                                     <td><input type="number" class="form-control" placeholder="12"></td>
                                     <td><input type="number" class="form-control" placeholder="16"></td>
+                                    <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Blood Oxygen Level (%)</td>
                                     <td><input type="number" class="form-control" placeholder="95"></td>
                                     <td><input type="number" class="form-control" placeholder="100"></td>
+                                    <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Blood Glucose Level (mmol/L)</td>
                                     <td><input type="number" class="form-control" placeholder="3.9"></td>
                                     <td><input type="number" class="form-control" placeholder="5.5"></td>
+                                    <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
+                                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
+                                        </button>
+                                    </td>
                                 </tr>
                                 <!-- Add other vital categories similarly -->
                             </tbody>
@@ -142,6 +195,7 @@
                             
                         </table>
                     </div>
+                    </div>
 
                     <br />
                     <div class="text-center">
@@ -149,15 +203,14 @@
                             <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
                         </button>
 
-                        <button type="button" class="btn btn-danger" onclick="deleteVital()">
-                            <i class="fas fa-trash"></i> <!-- Font Awesome delete icon -->
-                        </button>
+                       
 
 
-                        <button type="button" class="btn btn-success" onclick="saveChanges()">Save</button>
+                        <button type="button" class="btn btn-purple" onclick="saveChanges()">Save</button>
                     </div>
 
                 </div>
+            </div>
             </div>
        
 </section>

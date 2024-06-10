@@ -2,23 +2,69 @@
     ViewData["Title"] = "Order List";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <style>
     .card-title {
         font-weight: bold;
     }
+
+    .text-dark-green {
+        color: darkgreen;
+    }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
 </style>
 <!-- Main content -->
 <section class="content">
-    <div class="container-fluid">
-        <div class="col-md-14">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Medical Professionals</h3>
-                        <button type="button" class="btn btn-primary">Registration Form</button>
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-dark-green text-center text-bold">MEDICAL PROFFESIONALS</h4>
+        </div>
+    </div>
+                <div class="card-body">
+        <!-- Search bar and filters -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <!-- Search bar -->
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="card-body">
+            </div>
+            
+        </div>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
@@ -27,6 +73,7 @@
                                     <th>Surname</th>
                                     <th>Contact Number</th>
                                     <th>Email</th>
+                        <th>Username</th>
                                     <th>Password</th>
                                     <th>Specialization</th>
                                     <th>HCR Number</th>
@@ -37,59 +84,79 @@
                             <tbody>
                                 <!-- Sample row, replace with actual data -->
                                 <tr>
-                                    <td>Mack</td>
-                                    <td>Miller</td>
+                                    <td>Jack</td>
+                                    <td>Jacobs</td>
                                     <td>067 124 853</td>
-                                    <td>miller@gmail.com</td>
+                                    <td>jacobs@gmail.com</td>
+                        <td>J.Jacobs</td>
                                     <td>*******</td>
-                                    <td>surgeon</td>
+                                    <td>Surgeon</td>
                                     <td>546798</td>
-                                   
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
+                                </tr>
+                                <tr>
+                                    <td>Adam</td>
+                                    <td>Abraham</td>
+                                    <td>067 124 853</td>
+                                    <td>abraham@gmail.com</td>
+                        <td>A.Abraham</td>
+                                    <td>*******</td>
+                                    <td>Nurse</td>
+                                    <td>546798</td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <tr>
                                     <td>Mack</td>
                                     <td>Miller</td>
                                     <td>067 124 853</td>
                                     <td>miller@gmail.com</td>
+                        <td>M.Miller</td>
                                     <td>*******</td>
-                                    <td>nurse</td>
+                                    <td>Pharmacist</td>
                                     <td>546798</td>
-
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <tr>
-                                    <td>Mack</td>
-                                    <td>Miller</td>
+                                    <td>Andy</td>
+                                    <td>Anderson</td>
                                     <td>067 124 853</td>
-                                    <td>miller@gmail.com</td>
+                                    <td>anderson@gmail.com</td>
+                        <td>A.Anderson</td>
                                     <td>*******</td>
-                                    <td>pharmacist</td>
+                                    <td>Anaesthesiologist</td>
                                     <td>546798</td>
-
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Mack</td>
-                                    <td>Miller</td>
-                                    <td>067 124 853</td>
-                                    <td>miller@gmail.com</td>
-                                    <td>*******</td>
-                                    <td>anaesthesiologist</td>
-                                    <td>546798</td>
-
-                                    <td><a href="#" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</a></td>
+                                    <td>
+                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                            <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                        </button>
+                        </td>
                                 </tr>
                                 <!-- Add more rows dynamically based on data -->
                             </tbody>
                         </table>
-                    </div>
-                    <div class="text-center">
-                        <button type="button" class="btn btn-success">Save</button>
-                    </div>
-                </div>
+                        </div>
+           <div class="text-center">
+           @* <div class="btn-group">*@
+                <button type="button" class="btn btn-primary" id="addMedication">
+                    <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                </button>
+
+                <button type="button" class="btn btn-dark-green" onclick="saveChanges()">Save</button>
             </div>
         </div>
-    </div>
+    
+          
 </section>
 <!-- /.content -->
