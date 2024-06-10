@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-primary text-center text-bold">NURSE DASHBOARD</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:260px">
+                <div class="card-body text-primary">
+                    <img src="~/Images/Nurse/Booked.jpeg" width="90" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">BOOKED PATIENTS</h5>
+                    <p class="card-text text-secondary">View list of booked patients.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","YearPlan")'" class="btn btn-outline-primary">VIEW</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:260px">
+                <div class="card-body text-primary">
+                    <img src="~/Images/Nurse/AdmitPatient.png" width="100" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">WARD AND BED</h5>
+                    <p class="card-text text-secondary">Assign patient to ward.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'" class="btn btn-outline-primary">VIEW</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:260px">
+                <div class="card-body text-primary">
+                    <img src="~/Images/Nurse/cam1.jpeg" width="100" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">CONDITIONS, ALLERGIES, MEDICATION</h5>
+                    <p class="card-text text-secondary">Capture patients conditions, allergies, medication.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-primary">VIEW</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:260px">
+                <div class="card-body text-primary">
+                    <img src="~/Images/Nurse/V.jpeg" width="100" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">PATIENTS VITALS</h5>
+                    <p class="card-text text-secondary">Capture patient's vitals.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-primary">VIEW</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:260px">
+                <div class="card-body text-primary">
+                    <img src="~/Images/Nurse/Mds-removebg-preview.png" width="150" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">PRESCRIPTION</h5>
+                    <p class="card-text text-secondary">View patient's prescription.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-primary">VIEW</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:260px">
+                <div class="card-body text-primary">
+                    <img src="~/Images/Nurse/discharge2-removebg-preview.png" width="100" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">DISCHARGE PATIENTS</h5>
+                    <p class="card-text text-secondary">Capture discharged patients.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-primary">VIEW</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @* <div class="col-sm-4">
+    <div class="card text-center" style="height:200px">
+    <div class="card-body text-primary">
+    <img src="~/Images/tutor.png" width="100" />
+    <div>
+    <br />
+    </div>
+    <h5 class="text-bold">DISCHARGE PATIENT</h5>
+    <p class="card-text text-secondary">Provide details to discharge a patient.</p>
+    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">DISCHARGE</button>
+    </div>
+    </div>
+    </div>*@
+</section>
+
+
+

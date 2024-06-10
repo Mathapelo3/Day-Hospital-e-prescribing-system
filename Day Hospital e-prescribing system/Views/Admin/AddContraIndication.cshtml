@@ -1,0 +1,82 @@
+﻿
+@{
+    ViewData["Title"] = "AddContraIndication";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+<style>
+    .text-dark-green {
+        color: darkgreen;
+    }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+</style>
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center">
+                <!-- Place for the hospital logo if needed -->
+            </div>
+            <br />
+            <h4 class="display-6 text-dark-green text-center text-bold">ADD CONTRA-INDICATION</h4>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="orderForm">
+
+                            @*<p class="fw-bold">Personal Details:</p>*@
+                            <div class="form-group col-12">
+                                <label class="control-label required">ICD-10-CM Codes: </label>
+                                <select class="form-control" id="patient" name="active ingredient">
+                                    <option value="ingredient1"></option>
+                                </select>
+                                @*<span asp-validation-for="FirstName" class="text-danger"></span>*@
+                            </div>
+                            <div class="form-group col-12">
+                                <label class="control-label required">Active ingredient:</label>
+                                <select class="form-control" id="patient" name="active ingredient">
+                                    <option value="ingredient1"></option>
+                                </select>
+                                @*<span asp-validation-for="LastName" class="text-danger"></span>*@
+                            </div>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-dark-green">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+

@@ -9,76 +9,76 @@
     .card-title {
         font-weight: bold;
     }
+
+    .btn-view {
+        background-color: purple;
+        color: white;
+    }
 </style>
 
-    <section class="content">
-
-        <!-- Default box -->
-        <div class="card">
-            <div class="card-header">
-                <div class="text-center ">
-                    @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                    *@
-                </div>
-                <br />
-                <h4 class="display-6 text-purple text-center text-bold">BOOKED PATIENTS</h4>
+<section class="content">
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
             </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">BOOKED PATIENTS</h4>
         </div>
-        <div><br></div>
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <!-- Search bar -->
-                <div class="input-group">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search...">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <!-- Admission date filter -->
-                <div class="input-group">
-                    <input type="date" id="admissionDateFilter" class="form-control">
+    </div>
+    <div><br></div>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <!-- Search bar -->
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <!-- Admission date filter -->
+            <div class="input-group">
+                <input type="date" id="admissionDateFilter" class="form-control">
+            </div>
+        </div>
+    </div>
 
-        <!-- Display patients -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                   
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="patientsTable" class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        
-                                         <th>Date </th>
-                                        <th>Time </th>
-                                        <th>Patient</th>
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="patientsTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Patient</th>
                                     <th>Treatment Code</th>
-                                          <th>Ward</th>
-                                        <th>Bed</th>
+                                    <th>Ward</th>
+                                    <th>Bed</th>
                                     <th>Nurse</th>
-                                        <th>Theatre</th>
-                                        <th>Surgeon</th>
-                                       
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Patient data will be populated here -->
-                                </tbody>
-                            </table>
-                        </div>
+                                    <th>Theatre</th>
+                                    <th>Surgeon</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Patient data will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    
+    </div>
 </section>
 
 <script>
@@ -87,8 +87,8 @@
         function populatePatients(selectedDate) {
             // Dummy data (replace with actual data retrieval logic)
             var patientsData = [
-                { date: "2024-05-01", time: "AM", patient: "Alice Smith", treatment: "gwm456", ward: "Ward A", bed: "Bed 1", nurse: "Paul Lee ", theatre: "OR001", surgeon: "Wade Bale" },
-                { date: "2024-05-01", time: "AM", patient: "Joe Doe", treatment: "Cxs764", ward: "Ward A", bed: "Bed 2", nurse: "Paul Lee", theatre: "OR002", surgeon: "Wade Bale " },
+                { date: "2024-05-01", time: "AM", patient: "Alice Smith", treatment: "gwm456", ward: "Ward A", bed: "Bed 1", nurse: "Paul Lee", theatre: "OR001", surgeon: "Wade Bale" },
+                { date: "2024-05-01", time: "AM", patient: "Joe Doe", treatment: "Cxs764", ward: "Ward A", bed: "Bed 2", nurse: "Paul Lee", theatre: "OR002", surgeon: "Wade Bale" },
                 // Add more patient data as needed
             ];
 
@@ -99,17 +99,16 @@
             patientsData.forEach(function (patient) {
                 $("#patientsTable tbody").append(
                     "<tr>" +
-                    "<td>" + patient.date+ "</td>" +
-                        "<td>" + patient.time + "</td>" +
+                    "<td>" + patient.date + "</td>" +
+                    "<td>" + patient.time + "</td>" +
                     "<td>" + patient.patient + "</td>" +
                     "<td>" + patient.treatment + "</td>" +
                     "<td>" + patient.ward + "</td>" +
                     "<td>" + patient.bed + "</td>" +
                     "<td>" + patient.nurse + "</td>" +
-                        "<td>" + patient.theatre + "</td>" +
-                           "<td>" + patient.surgeon + "</td>" +
-                        
-                   
+                    "<td>" + patient.theatre + "</td>" +
+                    "<td>" + patient.surgeon + "</td>" +
+                    "<td><button class='btn btn-view'>View</button></td>" +
                     "</tr>"
                 );
             });

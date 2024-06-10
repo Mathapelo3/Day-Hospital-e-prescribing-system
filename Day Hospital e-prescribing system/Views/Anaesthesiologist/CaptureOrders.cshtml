@@ -6,6 +6,13 @@
 <style>
     .card-title {
         font-weight: bold;
+        
+    }
+
+    .btn-purple {
+        background-color: purple;
+        color: white;
+        font-weight: bold;
     }
 </style>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -19,35 +26,38 @@
             </div>
             <br />
             <h4 class="display-6 text-purple text-center text-bold">MEDICATION ORDER FORM</h4>
+
         </div>
     </div>
-    <div><br</div>
+
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                   @* <div class="card-header">
-                        <h3 class="card-title">Medication Order Form</h3>
-                    </div>*@
+                   
                     <div class="card-body">
                        
+                   
+                    <div class="text-right">
+                    <button class="btn btn-purple btn-medical-history">Medical History</button>
                     </div>
+                </div>
                         <form id="orderForm">
-                        <div class="form-group">
+                        <div class="form-group col-md-12">
                             <label for="surgeon">Patient:</label>
                             <select class="form-control" id="patient" name="surgeon">
-                                <option value="surgeon1">---</option>
+                                <option value="surgeon1">Jane Doe</option>
                                 <option value="surgeon2">50mg</option>
                                 <option value="surgeon3">Surgeon 3</option>
                             </select>
 
                         </div>
-                            <div class="form-group">
+                        <div class="form-group col-md-12">
                                 <label for="date">Date:</label>
                                 <input type="date" class="form-control" id="date" name="date">
                                 </div>
                         <div class="form-row">
-                            <div class="form-group col-md-5">
+                            <div class="form-group col-md-6">
                                 <label for="medication">Medication:</label>
                                 <select class="form-control" id="medication">
                                     <option value="sedatives"> Anxiolytics 20mg</option>
@@ -56,7 +66,7 @@
                                 </select>
                             </div>
                            
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <label for="quantity">Quantity:</label>
                                 <select class="form-control" id="quantity">
                                     <option value="1">1</option>
@@ -76,7 +86,7 @@
                         </div>
 
 
-                        <div class="form-group">
+                        <div class="form-group col-md-12">
                             <label for="medicationList">Medication List:</label>
                             <select multiple class="form-control" id="medicationList">
                                 <!-- Medication will be populated here -->
@@ -85,27 +95,22 @@
 
                           
                            
-                            <div class="form-group">
-                                <label for="status">Status:</label>
-                                <input type="text" class="form-control" id="status" name="status" value="Ordered" readonly>
-                            </div>
-                        <div class="form-group">
+                           
+                        <div class="form-group col-md-12">
                             <label for="urgency">Urgency:</label>
-                            <select class="form-control" id="urgency" name="urgency">
-                                <option value="normal" selected>Normal</option>
-                                <option value="urgent">Urgent</option>
-                            </select>
+                            <input type="checkbox">
                         </div>
 
 
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-purple">Submit</button>
                             </div>
                         </form>
+                </div>
                     </div>
                 </div>
             </div>
-        </div>
+       
     
 </section>
 <!-- /.content -->
