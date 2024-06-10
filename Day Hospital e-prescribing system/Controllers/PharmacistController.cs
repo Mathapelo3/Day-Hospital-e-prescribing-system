@@ -42,6 +42,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
+        public IActionResult ListDispensedPrescriptions()
+        {
+            return View();
+        }
+        public IActionResult OrderedMedicine()
+        {
+            return View();
+        }
+
+        public IActionResult NewStock()
+        {
+            return View();
+        }
+
+        public IActionResult PatientPrescriptions()
+        {
+            return View();
+        }
+
         public IActionResult Admission()
         {
             return View();

@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<section>
+    
+    
+        <div class="card">
+            <div class="card-header">
+                <div class="text-center ">
+                    @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                    *@
+                </div>
+                <br />
+                <h4 class=" display-6 text-center text-bold" style="color:#268aab">List of Dispensed Prescriptions</h4>
+            </div>
+        </div>
+        
+        <div><br /></div>
+   
+        <div class="card-body">
+
+            <div class="row">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <!-- Search bar -->
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Patient...">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @* <div class="col-md-4">
+                    <!-- Gender filter -->
+                    <select class="form-control" id="genderFilter">
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    </select>
+                    </div>*@
+                    <div class="col-md-6">
+                        <!-- Admission date filter -->
+                        <div class="input-group">
+                            <input type="date" id="admissionDateFilter" class="form-control">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <br />
+                </div>
+
+            </div>
+           
+            
+
+            <div class="row">
+                
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+
+                            <th scope="col">Date</th>
+                            <th scope="col">Patient Name</th>
+                            <th scope="col">Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>05-06-2024</td>
+                            <td>John Doe</td>
+                            <td><button class="btn btn-info ">View Details</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>05-06-2024</td>
+                            <td>Jane Doe</td>
+                            <td><button class="btn btn-info ">View Details</button></td>
+                        </tr>
+                        
+
+                    </tbody>
+                </table>
+                <div><br /></div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
+            </div>
+            </div>
+
+
+
+        </div>
+    
+     
+
+</section>
+
