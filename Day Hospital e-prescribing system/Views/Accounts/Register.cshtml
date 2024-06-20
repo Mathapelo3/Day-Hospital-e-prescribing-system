@@ -18,45 +18,58 @@
     </div>
 }
 
+<style>
+    .background {
+        background-color: hsl(156, 100%, 50%);
+        background-image: radial-gradient(650px circle at 0% 0%, 
+        hsl(156, 41%, 35%) 15%, 
+        hsl(156, 41%, 30%) 35%, 
+        hsl(156, 41%, 20%) 75%, 
+        hsl(156, 41%, 19%) 80%, transparent 100%), 
+        radial-gradient(1250px circle at 100% 100%, 
+        hsl(156, 41%, 45%) 15%, 
+        hsl(156, 41%, 30%) 35%, 
+        hsl(156, 41%, 20%) 75%, 
+        hsl(156, 41%, 19%) 80%, transparent 100%);
+    }
+</style>
 
-<h1>Register</h1>
-
-<h4>RegisterViewModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<body class="background overflow-hidden">
+    <div class="col-sm-6 col-sm offset-3" style="text-align:center">
+        <br />
+        <img src="~/images/logo(white).png" width="110" />
+        <br />
+        <br />
+        <h2 class="text-white font-weight-bold text-center">REGISTER ACCOUNT</h2>
+        <hr class="divider" style="color:white" />
         <form asp-action="Register">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
             <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
+                <label asp-for="Username" class="control-label text-white">Username</label>
                 <input asp-for="Username" class="form-control" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            <br />
+            <div class="row">
+                <div class="form-group col-6">
+                    <label asp-for="Password" class="control-label text-white">Password</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
             </div>
+            <br />
             <div class="form-group">
-                <label asp-for="ConfirmPassword" class="control-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="REGISTER" class="btn btn-success rounded-pill btn-lg w-50 text-bold" />
+                <a href="#" class="nav-link text-white text-bold text-decoration-underline" onclick="location.href = '@Url.Action("Login","Accounts")'">Been here before? Click to Login</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-<br/>
-
-
+</body>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

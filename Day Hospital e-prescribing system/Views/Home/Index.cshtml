@@ -1,8 +1,44 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<style>
+    .background {
+        background-color: hsl(156, 100%, 50%);
+        background-image: radial-gradient(650px circle at 0% 0%, hsl(156, 41%, 35%) 15%, 
+        hsl(156, 41%, 30%) 35%, 
+        hsl(156, 41%, 20%) 75%, 
+        hsl(156, 41%, 19%) 80%, transparent 100%), radial-gradient(1250px circle at 100% 100%, 
+        hsl(156, 41%, 45%) 15%, hsl(156, 41%, 30%) 35%, 
+        hsl(156, 41%, 20%) 75%, hsl(156, 41%, 19%) 80%, transparent 100%);
+    }
+</style>
+
+<body class="background overflow-hidden">
+    <div class="row">
+        <div class="col-8">
+            <div class="align-content-center text-center">
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <div class="align-self-end">
+                    <h1 class="text-white font-weight-bold">Digitally Prescribed: Cyber Med - Where Medicine Meets Technology</h1>
+                    <hr class="divider" style="color:white" />
+                </div>
+                <div class="align-self-baseline">
+                    <p class="text-white mb-5">At Cyber Med, we're dedicated to advancing healthcare delivery through the power of digital innovation, making medication management simpler, safer, and more effective for everyone involved. </p>
+                    <button type="button" onclick="location.href = '@Url.Action("Login","Accounts")'" class="btn btn-lg rounded-pill text-white text-bold btn-success w-50">CLICK TO START</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <img src="~/images/hospitalpic.png" width="430" />
+        </div>
+    </div>
+    <div>
+        <br />
+    </div>
+</body>
