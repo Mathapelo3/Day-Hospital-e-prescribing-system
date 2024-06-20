@@ -4,6 +4,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 {
     public class PharmacistController : Controller
     {
+        
         public IActionResult Index()
         {
             return View();
@@ -42,6 +43,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
+        public IActionResult RejectPrescription()
+        {
+            return PartialView("_RejectPrescriptionPartialView");
+        }
+
+        public IActionResult ListDispensedPrescriptions()
+        {
+            return View();
+        }
+        public IActionResult OrderedMedicine()
+        {
+            return View();
+        }
+
+        public IActionResult NewStock()
+        {
+            return View();
+        }
+
+        public IActionResult PatientPrescriptions()
+        {
+            return View();
+        }
+
         public IActionResult Admission()
         {
             return View();
@@ -51,5 +76,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
+
     }
 }

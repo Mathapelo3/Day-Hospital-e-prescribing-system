@@ -6,32 +6,43 @@
 <section class="content">
 
     <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-info text-center text-bold">PHARMACIST DASHBOARD</h4>
+        </div>
+    </div>
 
-    <section class="row">
+
+    <div class="row">
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
                 <div class="card-body " style="color: #268aab">
-                    <img src="~/Images//planner.png" width="100" />
+                    <img src="~/Images/Surgeon/prescription.png" width="40" />
                     <div>
                         <br />
                     </div>
                     <h5 class="text-bold">PRESCRIPTIONS</h5>
                     <p class="card-text text-secondary">View prescriptions.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","YearPlan")'" class="btn btn-outline-info" >PRESCRIPTIONS</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","YearPlan")'" class="btn btn-outline-info" >Views</button>
                 </div>
             </div>
         </div>
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
                 <div class="card-body" style="color: #268aab">
-                    <img src="~/Images/timetable.jpg" width="100" />
+                    <img src="~/images/pharmacist/prescription.png" width="40"/>
                     <div>
                         <br />
                     </div>
                     <h5 class="text-bold">URGENT PRESCRIPTIONS</h5>
                     <p class="card-text text-secondary">View urgent prescriptions.</p>
                     <button type="button" class="btn btn-outline-info position-relative" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'" class="btn btn-outline-info">
-                        Urgent prescriptions
+                        View
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             3
                         </span>
@@ -42,67 +53,69 @@
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
                 <div class="card-body" style="color: #268aab">
-                    <img src="~/Images/teach.png" width="100" />
+                    <img src="~/Images/Anaesthesiologist/AdmittedPatients.png" width="40" />
                     <div>
                         <br />
                     </div>
                     <h5 class="text-bold">DAILY ADMISSION RECORDS</h5>
                     <p class="card-text text-secondary">View daily admission records.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-info">DAILY ADMISSION RECORDS</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
         </div>
-        
-        
+    </div>
+    <div class="row">
+
         <div class="col-sm-4">
             <div class="card text-center" style="height:200px">
                 <div class="card-body" style="color: #268aab">
-                    <img src="~/Images/study.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
-                    <h5 class="text-bold">AVAILABLE STOCK </h5>
-                    <p class="card-text text-secondary">New prescription for a patient.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-info">AVAILABLE STOCK</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="card text-center" style="height:200px">
-                <div class="card-body" style="color: #268aab">
-                    <img src="~/Images/tutor.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
-                    <h5 class="text-bold">NEW STOCK</h5>
-                    <p class="card-text text-secondary">Recived Stock</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">NEW STOCK</button>
-                </div>
-            </div>
-        </div> 
-        <div class="col-sm-4">
-            <div class="card text-center" style="height:200px">
-                <div class="card-body" style="color: #268aab">
-                    <img src="~/Images/study.png" width="100" />
-                    <div>
-                        <br />
-                    </div>
-                    <h5 class="text-bold">STOCK REPORT</h5>
-                    <p class="card-text text-secondary">Inventory details</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-info">STOCK REPORT</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="card text-center" style="height:200px">
-                <div class="card-body" style="color: #268aab">
-                    <img src="~/Images/tutor.png" width="100" />
+                    <img src="~/Images/Anaesthesiologist/MedicationRecords.png" width="40" />
                     <div>
                         <br />
                     </div>
                     <h5 class="text-bold">MEDICINE lIST</h5>
                     <p class="card-text text-secondary">Manage types of medicine.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">MEDICINE LIST</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:200px">
+                <div class="card-body" style="color: #268aab">
+                    <img src="~/images/pharmacist/transport (1).png" width="40" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">Orderd Medicine</h5>
+                    <p class="card-text text-secondary">Recived Stock</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
+                </div>
+            </div>
+        </div> 
+
+        <div class="col-sm-4">
+            <div class="card text-center" style="height:200px">
+                <div class="card-body" style="color: #268aab">
+                    <img src="~/images/pharmacist/schedule (1).png" width="40"/>
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">STOCK REPORT</h5>
+                    <p class="card-text text-secondary">Inventory details</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-info">View</button>
+                </div>
+            </div>
+        </div>
+    @*    <div class="col-sm-4">
+            <div class="card text-center" style="height:200px">
+                <div class="card-body" style="color: #268aab">
+                    <img src="~/Images/Anaesthesiologist/MedicationRecords.png" width="40" />
+                    <div>
+                        <br />
+                    </div>
+                    <h5 class="text-bold">MEDICINE lIST</h5>
+                    <p class="card-text text-secondary">Manage types of medicine.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
         </div>
@@ -115,11 +128,11 @@
                     </div>
                     <h5 class="text-bold">DAILY lOGS</h5>
                     <p class="card-text text-secondary">Provide details to discharge a patient.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">DAILY LOGS</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-4">
+        </div>*@
+        @*<div class="col-sm-4">
             <div class="card text-center" style="height:200px">
                 <div class="card-body" style="color: #268aab">
                     <img src="~/Images/tutor.png" width="100" />
@@ -128,12 +141,12 @@
                     </div>
                     <h5 class="text-bold">MEDICINE REPORT</h5>
                     <p class="card-text text-secondary">Provide medicine report</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">MEDICINE REPORT</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
-        </div>
+        </div>*@
 
-        </div>
+    </div>
    
 
 </section>

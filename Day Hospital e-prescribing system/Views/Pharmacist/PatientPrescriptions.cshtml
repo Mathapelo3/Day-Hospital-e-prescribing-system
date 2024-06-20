@@ -1,0 +1,230 @@
+﻿@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<section>
+
+
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class=" display-6 text-center text-bold" style="color:#268aab">Patient's Prescription History</h4>
+        </div>
+    </div>
+
+    <div><br /></div>
+
+
+
+    <!--<div class="row">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <!-- Search bar -->
+    <!--<div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Patient...">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>-->
+    @* <div class="col-md-4">
+        <!-- Gender filter -->
+        <select class="form-control" id="genderFilter">
+        <option value="">All Genders</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        </select>
+        </div>*@
+    <div class="col-md-12 justify-content-md-center">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title text-bold">John Doe - Prescription History</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Allergies -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title text-bold">Prescription No:</h4>
+                                    <label for="inputState" class="form-label">Pres2024043020</label>
+                                </div>
+
+                                <div>
+                                    <h4 class="card-title text-bold">Prescription Status: </h4>
+                                    <label for="inputState" class="form-label"><a class="bg-gradient-green"> Dispensed</a></label>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <table class="table table-borderless">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Drug</th>
+                                                <th scope="col">Dosage</th>
+                                                <th scope="col">Units</th>
+                                                <th scope="col">Dispensed</th>
+
+                                                <th scope="col">Refills</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">1</th>
+                                                <td>Napa Rapid 500mg oral tablet</td>
+                                                <td>
+                                                    2 Morning, 2 Night
+                                                    <br />
+                                                    (Before Meal)
+                                                </td>
+                                                <td>tablet</td>
+                                                <td>20(twenty)</td>
+
+                                                <td>0</td>
+
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">2</th>
+                                                <td>Finix 20mg oral tablet</td>
+                                                <td>
+                                                    1 tablet/ day
+                                                    <br />
+                                                    (With Meal)
+                                                </td>
+                                                <td>tablet</td>
+                                                <td>20(twenty)</td>
+
+                                                <td>0</td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title text-bold">John Doe - Prescription History</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Allergies -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title text-bold">Prescription No:</h4>
+                                    <label for="inputState" class="form-label">Pres2024043020</label>
+                                </div>
+
+                                <div>
+                                    <h4 class="card-title text-bold">Prescription Status: </h4>
+                                    <label for="inputState" class="form-label"><a class="bg-gradient-red"> Rejected</a></label>
+                                </div>
+
+                                <div>
+                                    <h4 class="card-title text-bold">Reason: </h4>
+                                    <label for="inputState" class="form-label"><a class="bg-gradient-red"> Patient allergic to codeine phosphate</a></label>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <table class="table table-borderless">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Drug</th>
+                                                <th scope="col">Dosage</th>
+                                                <th scope="col">Units</th>
+                                                <th scope="col">Dispensed</th>
+
+                                                <th scope="col">Refills</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">1</th>
+                                                <td>Napa Rapid 500mg oral tablet</td>
+                                                <td>
+                                                    2 Morning, 2 Night
+                                                    <br />
+                                                    (Before Meal)
+                                                </td>
+                                                <td>tablet</td>
+                                                <td>20(twenty)</td>
+
+                                                <td>0</td>
+
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">2</th>
+                                                <td>Finix 20mg oral tablet</td>
+                                                <td>
+                                                    1 tablet/ day
+                                                    <br />
+                                                    (With Meal)
+                                                </td>
+                                                <td>tablet</td>
+                                                <td>20(twenty)</td>
+
+                                                <td>0</td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div><br /></div>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+        <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>   
+    </div>
+
+
+
+    <!-- Basic Pagination -->
+    <!-- End Basic Pagination -->
+    </div>
+
+
+
+</section>
+
