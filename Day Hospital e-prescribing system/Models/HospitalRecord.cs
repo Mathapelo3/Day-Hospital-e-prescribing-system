@@ -1,9 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    public class DayHospitalRecords
+    [Table("HospitalRecord")] // Specify the table name explicitly if it differs from the default
+    public class HospitalRecord
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

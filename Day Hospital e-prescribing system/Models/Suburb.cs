@@ -15,6 +15,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string SuburbName { get; set; }
 
         // Navigation property
-        public virtual ICollection<DayHospitalRecords> HospitalRecords { get; set; }
+        public virtual ICollection<HospitalRecord> HospitalRecords { get; set; }
     }
 }

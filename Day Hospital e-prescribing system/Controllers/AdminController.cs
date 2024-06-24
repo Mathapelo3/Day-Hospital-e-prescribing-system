@@ -1,9 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Day_Hospital_e_prescribing_system.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public AdminController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
         public IActionResult Index()
         {
             return View();
@@ -13,9 +22,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult DayHospitalRecords()
+        public async Task<IActionResult>  DayHospitalRecords()
         {
-            return View();
+            var hospitalRecords = await _context.HospitalRecords.ToListAsync();
+            return View(hospitalRecords);
         }
         public IActionResult EditHospitalRecords()
         {
