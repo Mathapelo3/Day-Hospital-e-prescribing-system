@@ -6,6 +6,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     {
         public DbSet<HospitalRecord> HospitalRecords { get; set; }
         public DbSet<Suburb> Suburbs { get; set; }
+        public DbSet<City> Cities { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

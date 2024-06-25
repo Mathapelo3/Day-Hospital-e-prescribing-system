@@ -57,58 +57,104 @@
                     <!-- mx-auto will center the column horizontally -->
                     <table class="table">
                         <tbody>
-                            <tr>
-                                <th>Name</th>
-                                @foreach (var record in Model)
-                                {
-                                    <td>@record.Name</td>
-                                }
-                            </tr>
-                            <tr>
-                                <th>Address Line 1</th>
-                                @foreach (var record in Model)
-                                {
-                                    <td>@record.AddressLine1</td>
-                                }
-                            </tr>
-                            <tr>
-                                <th>Address Line 2</th>
-                                @foreach (var record in Model)
-                                {
-                                    <td>@record.AddressLine2</td>
-                                }
-                            </tr>
-                            <tr>
-                                <th>Contact No</th>
-                                @foreach (var record in Model)
-                                {
-                                    <td>@record.ContactNo</td>
-                                }
-                            </tr>
-                            <tr>
-                                <th>Email</th>
-                                @foreach (var record in Model)
-                                {
-                                    <td>@record.Email</td>
-                                }
-                            </tr>
-                            <tr>
-                                <th>PM Contact No</th>
-                                @foreach (var record in Model)
-                                {
-                                    <td>@record.PMContactNo</td>
-                                }
-                            </tr>
+                            @foreach (var record in Model)
+                            {
+                                <tr>
+                                    <th>Name</th>
+                                    <td class="editable" data-field="Name" data-id="@record.HospitalRecordID">@record.Name</td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td class="editable" data-field="AddressLine1" data-id="@record.HospitalRecordID">@record.AddressLine1</td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td class="editable" data-field="AddressLine2" data-id="@record.HospitalRecordID">@record.AddressLine2</td>
+                                </tr>
+                                <tr>
+                                    <th>Suburb</th>
+                                    <td>
+                                        <select class="form-control suburb-dropdown" data-record-id="@record.HospitalRecordID">
+                                            @foreach (var suburb in ViewBag.Suburbs)
+                                            {
+                                                int suburbId;
+                                                int.TryParse(suburb.Value.ToString(), out suburbId);
+                                                <option value="@suburbId" @(suburbId == record.SuburbID ? "selected" : "")>@suburb.Text</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>City</th>
+                                    <td class="city-name" data-record-id="@record.HospitalRecordID">@record.Suburb?.City?.Name</td>
+                                </tr>
+                                <tr>
+                                    <th>Postal Code</th>
+                                    <td class="postal-code" data-record-id="@record.HospitalRecordID">@record.Suburb?.PostalCode</td>
+                                </tr>
+                                <tr>
+                                    <th>Contact No</th>
+                                    <td class="editable" data-field="ContactNo" data-id="@record.HospitalRecordID">@record.ContactNo</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td class="editable" data-field="Email" data-id="@record.HospitalRecordID">@record.Email</td>
+                                </tr>
+                                <tr>
+                                    <th>PM Contact No</th>
+                                    <td class="editable" data-field="PMContactNo" data-id="@record.HospitalRecordID">@record.PMContactNo</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
-                    <div class="text-center">
-                        <!-- Use ASP.NET Core Tag Helper to generate URL -->
-                        <a class="btn btn-primary" asp-area="" asp-controller="Admin" asp-action="EditHospitalRecords">
-                            <i class="fas fa-edit"></i>  <!-- Font Awesome edit icon -->
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.suburb-dropdown').on('change', function () {
+            var suburbId = $(this).val();
+            var recordId = $(this).data('record-id');
+            var row = $(this).closest('tr');
+
+            // Adjust the city name and postal code cell selection
+            var cityNameCell = $('td.city-name[data-record-id="' + recordId + '"]');
+            var postalCodeCell = $('td.postal-code[data-record-id="' + recordId + '"]');
+
+            $.ajax({
+                url: '@Url.Action("GetCityBySuburb", "Admin")/' + suburbId,
+                type: 'GET',
+                success: function (response) {
+                    cityNameCell.text(response.cityName);
+                    postalCodeCell.text(response.postalCode);
+                },
+                error: function () {
+                    // No explicit error message, but you can log errors for debugging purposes
+                    console.error('Error occurred while fetching city name and postal code.');
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("UpdateHospitalRecord", "Admin")/' + recordId,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ Field: 'SuburbID', Value: suburbId }),
+                success: function (response) {
+                    if (!response.success) {
+                        // No explicit error message, but you can log errors for debugging purposes
+                        console.error('Failed to update record.');
+                    }
+                },
+                error: function () {
+                    // No explicit error message, but you can log errors for debugging purposes
+                    console.error('Error occurred while updating record.');
+                }
+            });
+
+        });
+    });
+</script>

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
+    [Table("Suburb")]
     public class Suburb
     {
         [Key]
@@ -12,7 +13,17 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [StringLength(100)]
-        public string SuburbName { get; set; }
+        public string Name { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string PostalCode { get; set; }
+
+        [Required]
+        public int CityID { get; set; }
+
+        // Navigation property
+        [ForeignKey("CityID")]
+        public virtual City City { get; set; }
 
         // Navigation property
         public virtual ICollection<HospitalRecord> HospitalRecords { get; set; }
