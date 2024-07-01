@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard</title>
+    <title>Admin</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -101,7 +101,7 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                    
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadDashboard")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AdminDashboard","Admin")'">
                                 
                                 <p>
                                     DASHBOARD
@@ -110,7 +110,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","YearPlan")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("DayHospitalRecords","Admin")'">
                                
                                 <p>
                                     DAY HOSPITAL RECORDS
@@ -119,7 +119,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("MedicalProfessionals","Admin")'">
                                
                                 <p>
                                     MEDICAL PROFFESIONALS
@@ -146,7 +146,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("","Admin")'">
                              
                                 <p>
                                     CONDITION DIAGNOSIS 
@@ -155,7 +155,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AdminController","Admin")'">
                                
                                 <p>
                                     ACTIVE INGREDIENTS 
@@ -164,7 +164,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AdminController","Admin")'">
                                
                                 <p>
                                     CONTRA-INDICATIONS
@@ -173,7 +173,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("MedicationInteractionRecords","Admin")'">
                                 
                                 <p>
                                     MEDICATION INTERACTIVES
@@ -182,7 +182,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Index","TutorAssign")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AdminController","Admin")'">
                                
                                 <p>
                                     TREATMENT RECORDS
@@ -253,6 +253,7 @@
     <script src="../../dist/js/adminlte.min.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="../../dist/js/demo.js"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
 
