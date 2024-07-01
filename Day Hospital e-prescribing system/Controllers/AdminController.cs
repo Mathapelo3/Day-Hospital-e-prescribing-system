@@ -193,6 +193,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddContraIndication()
         {
+            var icd = _context.ICDCodes.ToList();
+
+            var selectList = new SelectList(icd, "ICD_ID", "Description");
+            ViewBag.ICDCodes = selectList;
+          
             return View();
         }
         public IActionResult ContraIndicationRecords()

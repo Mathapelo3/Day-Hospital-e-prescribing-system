@@ -14,6 +14,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Pharmacist> Pharmacists { get; set; }
         public DbSet<Anaesthesiologist> Anaesthesiologists { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
+        public DbSet<ICDCodes> ICDCodes { get; set; }
+        public DbSet<Active_Ingredient>Active_Ingredient { get; set; }
+        public DbSet<Medication_Interaction>Medication_Interaction { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
