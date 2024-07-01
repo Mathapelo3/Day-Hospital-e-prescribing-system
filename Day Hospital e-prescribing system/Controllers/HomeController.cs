@@ -18,7 +18,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult About()
         {
             return View();
         }

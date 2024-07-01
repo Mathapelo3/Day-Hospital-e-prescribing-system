@@ -55,73 +55,69 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <form id="orderForm">
-                            <div class=" justify-content-center">
-                                @*<p class="fw-bold">Personal Details:</p>*@
-                                <div class="form-group col-12">
-                                    <label class="control-label required">Name: </label>
-                                    <input class="form-control" placeholder="Adam" />
-                                    @*<span asp-validation-for="FirstName" class="text-danger"></span>*@
+                       <form asp-action="AddMedicalProfessional" method="post">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Name:</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Surname" class="control-label">Surname:</label>
+        <input asp-for="Surname" class="form-control" />
+        <span asp-validation-for="Surname" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ContactNo" class="control-label">Contact Number:</label>
+        <input asp-for="ContactNo" class="form-control" />
+        <span asp-validation-for="ContactNo" class="text-danger"></span>
+        </div>
+                                <div class="form-group">
+                                    <label asp-for="SpecializationID" class="control-label">Specialization:</label>
+                                    <select asp-for="SpecializationID" class="form-control" asp-items="Model.Specialization"></select>
+                                    <span asp-validation-for="SpecializationID" class="text-danger"></span>
                                 </div>
-                                <div class="form-group col-12">
-                                    <label class="control-label required">Surname:</label>
-                                    <input class="form-control" placeholder="Abrahams" />
-                                    @*<span asp-validation-for="LastName" class="text-danger"></span>*@
-                                </div>
-                            
-                                @*<p class="fw-bold">Personal Details:</p>*@
-                                <div class="form-group col-12">
-                                    <label class="control-label required">Contact Number: </label>
-                                    <input class="form-control" placeholder="067 124 853" />
-                                    @*<span asp-validation-for="FirstName" class="text-danger"></span>*@
-                                </div>
-                                <div class="form-group col-12">
-                                    <label class="control-label required">E-mail:</label>
-                                    <input class="form-control" placeholder="abrahams@gmail.com" />
-                                    @*<span asp-validation-for="LastName" class="text-danger"></span>*@
-                                </div>
-                                <div class="form-group col-12">
-                                    <label class="control-label required">Username:</label>
-                                    <input class="form-control" placeholder="A.Abrahams" />
-                                    @*<span asp-validation-for="LastName" class="text-danger"></span>*@
-                                </div>
-                                @*<p class="fw-bold">Personal Details:</p>*@
-                                <div class="form-group col-12">
-                                    <label class="control-label required">Password: </label>
-                                    <input class="form-control" placeholder="******" />
-                                    @*<span asp-validation-for="FirstName" class="text-danger"></span>*@
-                                </div>
-                                <div class="form-group col-12">
-                                    <label class="control-label required">Specialization:</label>
-                                    <select class="form-control" id="patient" name="surgeon">
-                                        <option value="surgeon1">Surgeon</option>
-                                        <option value="surgeon2">50mg</option>
-                                        <option value="surgeon3">Surgeon 3</option>
-                                    </select>
-                                    @*<span asp-validation-for="LastName" class="text-danger"></span>*@
-                                </div>
-                            
-                           
-                                @*<p class="fw-bold">Personal Details:</p>*@
-                                <div class="form-group col-12">
-                                    <label class="control-label required">HR Number: </label>
-                                    <input class="form-control" placeholder="546798" />
-                                    @*<span asp-validation-for="FirstName" class="text-danger"></span>*@
-                                </div>
-                                
-                            <div class="text-center">
-                                
-
-                                <button type="button" class="btn btn-dark-green" onclick="saveChanges()">Save</button>
+    </div>
+    <div class="form-group">
+        <label asp-for="HCRNo" class="control-label">HCR Number:</label>
+        <input asp-for="HCRNo" class="form-control" />
+        <span asp-validation-for="HCRNo" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Username" class="control-label">Username:</label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password" class="control-label">Password:</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+                            <div class="col text-center">
+                                <button type="submit" class="btn btn-dark-green">Save</button>
                             </div>
+   
+</form>
+
+                        @section Scripts {
+                            @{
+                                await Html.RenderPartialAsync("_ValidationScriptsPartial");
+                            }
+                        }
+
+                            
                             </div>
 
                            
-                        </form>
+                        
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+   
 </section>
 
