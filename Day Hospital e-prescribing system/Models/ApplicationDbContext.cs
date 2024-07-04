@@ -13,7 +13,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Surgeon> Surgeons { get; set; }
         public DbSet<Pharmacist> Pharmacists { get; set; }
         public DbSet<Anaesthesiologist> Anaesthesiologists { get; set; }
-        public DbSet<Specialization> Specializations { get; set; }
+        public DbSet<Vitals> Vitals { get; set; }
         public DbSet<Ward> Wards { get; set; }
         public DbSet<Theatre> Theatres { get; set; }
         public DbSet<Condition> Conditions { get; set; }
