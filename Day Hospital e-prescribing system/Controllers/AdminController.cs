@@ -169,19 +169,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }
                 return builder.ToString();
             }
-            }
+        }
             
 
-            public IActionResult TheatreRecords()
+        public IActionResult TheatreRecords()
         {
+            var theatre = _context.Theatres.ToList();
+            ViewBag.Theatre = theatre;
+
             return View();
         }
         public IActionResult WardRecords()
         {
+            var ward = _context.Wards.ToList();
+            ViewBag.Ward = ward;
+
             return View();
         }
         public IActionResult ChronicConditionRecords()
         {
+            var condition = _context.Conditions.ToList().OrderBy(c => c.Name);
+            ViewBag.Condition = condition;
+
             return View();
         }
         public IActionResult AddChronicCondition()

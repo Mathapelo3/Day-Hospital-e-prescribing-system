@@ -1,6 +1,11 @@
-﻿@{
+﻿@using Day_Hospital_e_prescribing_system.Models
+@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Theatre>
+
+@{
     ViewData["Title"] = "Hospital Theatre Records";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
+
+    var theatres = ViewBag.Theatre as IEnumerable<Theatre>;
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <style>
@@ -55,69 +60,24 @@
                                         <th style="width:20%"></th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- Sample row, replace with actual data -->
-                                    <tr>
-                                        <td>1</td>
-                                        <td>
-                                            OR001
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>
-                                            OR002
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>
-                                            OR003
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>
-                                            OR004
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>
-                                            OR005
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <!-- Add more rows dynamically based on data -->
-                                </tbody>
+                                @foreach (var theatre in theatres)
+                                {
+                                    <tbody>
+                                        <tr>
+                                            <td>@theatre.TheatreID</td>
+                                            <td>@theatre.Name</td>
+                                            <td>
+                                                <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                                    <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                }
                             </table>
                             <div class="text-center">
                                 @* <div class="btn-group">*@
-                                <button type="button" class="btn btn-primary" id="addMedication">
+                                <button type="button" class="btn btn-primary" id="addTheatre">
                                     <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
                                 </button>
 
