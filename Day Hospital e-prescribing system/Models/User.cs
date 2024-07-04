@@ -7,7 +7,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     public class User
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        
         public int UserID { get; set; }
 
         [Required]
@@ -39,7 +39,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [Required]
         [StringLength(50)]
 
-        public string Password { get; set; }
+        public string HashedPassword { get; set; }
 
        
 
@@ -49,11 +49,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("AdminID")]
         public virtual Admin Admin { get; set; }
-        [Required]
-        public int SpecializationID { get; set; }
-
-        // Navigation property
-        [ForeignKey("SpecializationID")]
-        public virtual Specialization Specialization { get; set; }
+        
     }
 }

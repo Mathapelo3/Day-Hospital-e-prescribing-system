@@ -6,7 +6,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Day_Hospital_e_prescribing_system.ViewModel;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -90,87 +91,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddMedicalProfessional()
         {
-            var specializations = _context.Specializations.Select(s => new SelectListItem
-            {
-                Value = s.SpecializationID.ToString(),
-                Text = s.Type
-            }).ToList();
-
-            var viewModel = new UserViewModel
-            {
-                Specializations = specializations
-            };
-
-            return View(viewModel);
+            return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AddMedicalProfessional(UserViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = new User
-                {
-                    Name = model.Name,
-                    Surname = model.Surname,
-                    Email = model.Email,
-                    ContactNo = model.ContactNo,
-                    HCRNo = model.HCRNo,
-                    Username = model.Username,
-                    Password = EncryptPassword(model.Password),
-                    AdminID = 1, // Assuming there is only one admin user
-                    SpecializationID = model.SpecializationID
-                };
+        
+        
+       
 
-                _context.Users.Add(user);
-                _context.SaveChanges();
-
-                // Add to specific specialization table
-                switch (model.SpecializationID)
-                {
-                    case 1: // Nurse
-                        _context.Nurses.Add(new Nurse { UserID = user.UserID });
-                        break;
-                    case 2: // Surgeon
-                        _context.Surgeons.Add(new Surgeon { UserID = user.UserID });
-                        break;
-                    case 3: // Pharmacist
-                        _context.Pharmacists.Add(new Pharmacist { UserID = user.UserID });
-                        break;
-                    case 4: // Anaesthesiologist
-                        _context.Anaesthesiologists.Add(new Anaesthesiologist { UserID = user.UserID });
-                        break;
-                }
-
-                _context.SaveChanges();
-                return RedirectToAction("Index"); // Redirect to a suitable page after success
-            }
-
-            // If we got this far, something failed, redisplay form
-            model.Specializations = _context.Specializations.Select(s => new SelectListItem
-            {
-                Value = s.SpecializationID.ToString(),
-                Text = s.Type
-            }).ToList();
-
-            return View(model);
-        }
-
-        private string EncryptPassword(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                var builder = new StringBuilder();
-                foreach (var b in bytes)
-                {
-                    builder.Append(b.ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
-            
+        
 
         public IActionResult TheatreRecords()
         {
