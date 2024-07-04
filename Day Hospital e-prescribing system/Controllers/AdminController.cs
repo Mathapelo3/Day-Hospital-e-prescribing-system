@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Day_Hospital_e_prescribing_system.ViewModel;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -194,18 +195,59 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult AddContraIndication()
         {
             var icd = _context.ICDCodes.ToList();
-           
+            var activeIngredients = _context.Active_Ingredient.ToList();
 
+            var icdselectList = new SelectList(icd, "ICD_ID", "Description");
+            ViewBag.ICDCodes = icdselectList;
 
-            var selectList = new SelectList(icd, "ICD_ID", "Description");
-            ViewBag.ICDCodes = selectList;
-
-           
+            var activeIngredientSelectList = new SelectList(activeIngredients, "Active_IngredientID", "Description");
+            ViewBag.ActiveIngredients = activeIngredientSelectList;
 
             return View();
         }
-        public IActionResult ContraIndicationRecords()
+        [HttpPost]
+        public async Task<IActionResult> SaveContraIndication(int[] selectedICD_ID, int[] selectedActive_IngredientID)
         {
+            var icd = await _context.ICDCodes.Where(g => selectedICD_ID.Contains(g.ICD_ID)).ToListAsync();
+            var activeIngredients = await _context.Active_Ingredient.Where(d => selectedActive_IngredientID.Contains(d.Active_IngredientID)).ToListAsync();
+
+            foreach (var icds in icd)
+            {
+                foreach (var ai in activeIngredients)
+                {
+                    var existingEntry = await _context.Medication_Interaction.FirstOrDefaultAsync(d => d.Active_IngredientID == ai.Active_IngredientID && d.ICD_ID == icds.ICD_ID);
+                    if (existingEntry != null)
+                    {
+                        // Update existing entry if needed
+                    }
+                    else
+                    {
+                        // Create new entry if not existent
+                        _context.Medication_Interaction.Add(new Medication_Interaction { Active_IngredientID = ai.Active_IngredientID, ICD_ID = icds.ICD_ID });
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("ContraIndicationRecords", new { selectedICD_ID, selectedActive_IngredientID});
+
+        }
+
+        public async Task<IActionResult> ContraIndicationRecords()
+        {
+
+            var icdWai = await _context.ICDCodes
+               .Include(icd => icd.Medication_Interaction)
+                .ThenInclude(medication_interaction => medication_interaction.Active_Ingredient)
+               .Select(icd => new ICD_CodesVM
+               {
+                   ICD_ID = icd.ICD_ID,
+                   Description = icd.Description,
+                   Active_Ingredient = icd.Medication_Interaction.Select(dxg => dxg.Active_Ingredient.Description).ToList()
+               })
+               .ToListAsync();
+
             return View();
         }
         public IActionResult AddMedicationInteraction()

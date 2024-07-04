@@ -27,6 +27,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         {
             base.OnModelCreating(modelBuilder);
             // Additional configurations if needed
+
+            modelBuilder.Entity<Medication_Interaction>()
+           .HasKey(m => new { m.ICD_ID, m.Active_IngredientID }); 
         }
     }
 }

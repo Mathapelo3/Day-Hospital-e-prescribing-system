@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.ICDCodes>
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Medication_Interaction>
 @{
     ViewData["Title"] = "AddContraIndication";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
@@ -60,9 +60,7 @@
                             </div>
                             <div class="form-group col-12">
                                 <label class="control-label required">Active ingredient:</label>
-                                <select class="form-control" id="patient" name="active ingredient">
-                                    <option value="ingredient1"></option>
-                                </select>
+                                    @Html.DropDownList("Active_IngredientID", ViewBag.ActiveIngredients as SelectList, new { @class = "form-control" })
                                 @*<span asp-validation-for="LastName" class="text-danger"></span>*@
                             </div>
                             <div class="row">
