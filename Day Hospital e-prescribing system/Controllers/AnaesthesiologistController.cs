@@ -10,6 +10,7 @@ using System.Data;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Data.SqlTypes;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -156,6 +157,36 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteVital(int id)
+        {
+            try
+            {
+                var vitals = await _context.Vitals.FindAsync(id);
+                if (vitals == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Vitals.Remove(vitals);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Vital record deleted successfully.");
+            }
+            catch (SqlNullValueException ex)
+            {
+                _logger.LogError(ex, "Null value encountered: {Message}", ex.Message);
+                ModelState.AddModelError("", "Null value encountered. Ensure all required fields are filled.");
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the vital record: {Message}", ex.Message);
+                ModelState.AddModelError("", "Unable to delete. Try again, and if the problem persists see your system administrator.");
+            }
+
+            return RedirectToAction(nameof(MaintainVitals));
         }
 
         public IActionResult AddVitals()

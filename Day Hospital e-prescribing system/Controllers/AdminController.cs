@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Day_Hospital_e_prescribing_system.Models;
-using Day_Hospital_e_prescribing_system.ViewModels;
+using Day_Hospital_e_prescribing_system.ViewModel;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
