@@ -186,18 +186,20 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View();
         }
-        public IActionResult ChronicConditionRecords()
+        public IActionResult ConditionRecords()
         {
             var condition = _context.Conditions.ToList().OrderBy(c => c.Name);
             ViewBag.Condition = condition;
 
             return View();
         }
-        public IActionResult AddChronicCondition()
+        public IActionResult AddCondition()
         {
+            var con = _context.Conditions.ToList();
+
             return View();
         }
-        public IActionResult EditChronicCondition()
+        public IActionResult EditCondition()
         {
             return View();
         }
