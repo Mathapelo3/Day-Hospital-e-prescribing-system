@@ -1,4 +1,4 @@
-﻿
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Medication_Interaction>
 @{
     ViewData["Title"] = "AddContraIndication";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
@@ -46,21 +46,21 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form id="orderForm">
-
+                        <form asp-action="SubmitSelected" asp-controller="Admin">
+                            @using (Html.BeginForm("AddContraIndication", "Admin", FormMethod.Post))
+                            {
                             @*<p class="fw-bold">Personal Details:</p>*@
                             <div class="form-group col-12">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                 <label class="control-label required">ICD-10-CM Codes: </label>
-                                <select class="form-control" id="patient" name="active ingredient">
-                                    <option value="ingredient1"></option>
-                                </select>
+                                    @Html.DropDownList("ICD_ID", ViewBag.ICDCodes as SelectList, new { @class = "form-control" })
+                                <div class="d-flex">
                                 @*<span asp-validation-for="FirstName" class="text-danger"></span>*@
+                            </div>
                             </div>
                             <div class="form-group col-12">
                                 <label class="control-label required">Active ingredient:</label>
-                                <select class="form-control" id="patient" name="active ingredient">
-                                    <option value="ingredient1"></option>
-                                </select>
+                                    @Html.DropDownList("Active_IngredientID", ViewBag.ActiveIngredients as SelectList, new { @class = "form-control" })
                                 @*<span asp-validation-for="LastName" class="text-danger"></span>*@
                             </div>
                             <div class="row">
@@ -68,6 +68,7 @@
                                     <button type="submit" class="btn btn-dark-green">Save</button>
                                 </div>
                             </div>
+                            }
                         </form>
                     </div>
                 </div>
