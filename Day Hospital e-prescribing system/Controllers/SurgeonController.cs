@@ -24,11 +24,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult Prescriptions()
         {
+            var prescription = _context.Prescriptions.ToList();
+            ViewBag.Prescription = prescription;
+
             return View();
         }
 
         public IActionResult Patients()
         {
+            var patients = _context.Patients.ToList();
+            ViewBag.Patient = patients;
+
             return View();
         }
 
@@ -39,6 +45,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult Surgeries()
         {
+            var surgery = _context.Surgeries.ToList();
+            ViewBag.Surgery = surgery;
+
             return View();
         }
 

@@ -21,6 +21,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<ICDCodes> ICDCodes { get; set; }
         public DbSet<Active_Ingredient>Active_Ingredient { get; set; }
         public DbSet<Medication_Interaction>Medication_Interaction { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
+        public DbSet<Patient> Patients { get; set; }
+        public DbSet<Surgery> Surgeries { get; set; }
+        public DbSet<Medication> Medications { get; set; }
+        public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
