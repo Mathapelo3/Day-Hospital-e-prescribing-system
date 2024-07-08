@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <style>
     .card-title {
@@ -77,11 +78,161 @@
                                         <select class="form-control suburb-dropdown" data-record-id="@record.HospitalRecordID">
                                             @foreach (var suburb in ViewBag.Suburbs)
                                             {
-                                                int suburbId;
-                                                int.TryParse(suburb.Value.ToString(), out suburbId);
-                                                <option value="@suburbId" @(suburbId == record.SuburbID ? "selected" : "")>@suburb.Text</option>
+                                                string isSelected = suburb.Value == record.SuburbID.ToString() ? "selected" : "";
+                                                <option value="@suburb.Value" selected="@isSelected">@suburb.Text</option>
                                             }
                                         </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>City</th>
+                                    <td class="city-name" data-record-id="@record.HospitalRecordID">@record.Suburb?.City?.Name</td>
+                                </tr>
+                                <tr>
+                                    <th>Postal Code</th>
+                                    <td class="postal-code" data-record-id="@record.HospitalRecordID">@record.Suburb?.PostalCode</td>
+                                </tr>
+                                <tr>
+                                    <th>Contact No</th>
+                                    <td class="editable" data-field="ContactNo" data-id="@record.HospitalRecordID">@record.ContactNo</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td class="editable" data-field="Email" data-id="@record.HospitalRecordID">@record.Email</td>
+                                </tr>
+                                <tr>
+                                    <th>PM Contact No</th>
+                                    <td class="editable" data-field="PMContactNo" data-id="@record.HospitalRecordID">@record.PMContactNo</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.suburb-dropdown').on('change', function () {
+            var suburbId = $(this).val();
+            var recordId = $(this).data('record-id');
+            var cityNameCell = $('td.city-name[data-record-id="' + recordId + '"]');
+            var postalCodeCell = $('td.postal-code[data-record-id="' + recordId + '"]');
+
+            // Get city and postal code by suburb
+            $.ajax({
+                url: '@Url.Action("GetCityBySuburb", "Admin")',
+                type: 'GET',
+                data: { id: suburbId },
+                success: function (response) {
+                    cityNameCell.text(response.cityName);
+                    postalCodeCell.text(response.postalCode);
+                },
+                error: function () {
+                    console.error('Error occurred while fetching city name and postal code.');
+                }
+            });
+
+            // Update hospital record
+            $.ajax({
+                url: '@Url.Action("UpdateHospitalRecord", "Admin")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: recordId, Field: 'SuburbID', Value: suburbId }),
+                success: function (response) {
+                    if (!response.success) {
+                        console.error('Failed to update record.');
+                    }
+                },
+                error: function () {
+                    console.error('Error occurred while updating record.');
+                }
+            });
+
+        });
+    });
+</script>
+
+@*<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+
+    .text-dark-green {
+        color: darkgreen;
+    }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+</style>
+
+<!-- Main content -->
+<section class="content d-flex justify-content-center align-items-center">
+    <!-- Center content horizontally and vertically -->
+    <div class="card" style="width: 100%;">
+        <div class="card-header">
+            <div class="text-center">
+                <!-- You can add an image or additional header content here -->
+                <!-- <img src="~/Images/zoomedLogo (2).png" width="200" /> -->
+            </div>
+            <br />
+            <h4 class="display-6 text-dark-green text-center font-weight-bold">DAY HOSPITAL RECORD</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <!-- mx-auto will center the column horizontally -->
+                    <table class="table">
+                        <tbody>
+                            @foreach (var record in Model)
+                            {
+                                <tr>
+                                    <th>Name</th>
+                                    <td class="editable" data-field="Name" data-id="@record.HospitalRecordID">@record.Name</td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td class="editable" data-field="AddressLine1" data-id="@record.HospitalRecordID">@record.AddressLine1</td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td class="editable" data-field="AddressLine2" data-id="@record.HospitalRecordID">@record.AddressLine2</td>
+                                </tr>
+                                <tr>
+                                    <th>Suburb</th>
+                                    <td>
+                                        <select class="form-control suburb-dropdown" data-record-id="@record.HospitalRecordID">
+                                            @foreach (var suburb in ViewBag.Suburbs)
+                                            {
+                                                string isSelected = suburb.Value == record.SuburbID.ToString() ? "selected" : "";
+                                                <option value="@suburb.Value" selected="@isSelected">@suburb.Text</option>
+                                            }
+                                        </select>
+                                       
                                     </td>
                                 </tr>
                                 <tr>
@@ -157,4 +308,4 @@
 
         });
     });
-</script>
+</script>*@
