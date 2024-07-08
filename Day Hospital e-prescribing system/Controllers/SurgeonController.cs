@@ -1,11 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Day_Hospital_e_prescribing_system.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     public class SurgeonController : Controller
     {
-        public IActionResult Dashboard()
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<SurgeonController> _logger;
+        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger)
         {
+            _context = context;
+            _logger = logger;
+        }
+
+        public ActionResult Dashboard()
+        {
+            string username = HttpContext.Session.GetString("UserName"); // Use HttpContext.Session
+
+            // Pass the username to the view
+            ViewBag.Username = username;
             return View();
         }
 

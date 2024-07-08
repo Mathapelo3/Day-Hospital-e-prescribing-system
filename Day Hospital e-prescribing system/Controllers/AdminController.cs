@@ -14,10 +14,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public AdminController(ApplicationDbContext context)
+        private readonly ILogger<AdminController> _logger;
+        public AdminController(ApplicationDbContext context, ILogger<AdminController> logger)
         {
             _context = context;
+            _logger = logger;
         }
         public IActionResult Index()
         {
@@ -83,8 +84,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return Json(new { cityName = "", postalCode = "" });
         }
 
-
-
         public IActionResult MedicalProfessionals()
         {
             return View();
@@ -93,13 +92,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
-
-        
-        
-       
-
-        
-
         public IActionResult TheatreRecords()
         {
             var theatre = _context.Theatres.ToList();
@@ -123,13 +115,102 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddCondition()
         {
-            var con = _context.Conditions.ToList();
-
             return View();
         }
-        public IActionResult EditCondition()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCondition(ConditionViewModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var condition = new Condition
+                    {
+                        Description = model.Description,
+                        Name = model.Name
+                    };
+
+                    _context.Add(condition);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Condition added successfully.");
+                    return RedirectToAction("ConditionRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while adding condition: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
+        }
+        public async Task<IActionResult> EditCondition(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var condition = await _context.Conditions.FindAsync(id);
+            if (condition == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ConditionViewModel
+            {
+                ConditionID = condition.ConditionID,
+                Description = condition.Description,
+                Name = condition.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCondition(int id, ConditionViewModel model)
+        {
+            if (id != model.ConditionID)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var condition = await _context.Conditions.FindAsync(id);
+                    if (condition == null)
+                    {
+                        return NotFound();
+                    }
+
+                    condition.Description = model.Description;
+                    condition.Name = model.Name;
+
+                    _context.Update(condition);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Condition record updated successfully.");
+                    return RedirectToAction("ConditionRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while updating the condition record: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
         }
         public IActionResult AddContraIndication()
         {
