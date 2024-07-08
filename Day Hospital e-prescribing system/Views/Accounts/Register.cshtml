@@ -44,6 +44,45 @@
         <hr class="divider" style="color:white" />
         <form asp-action="Register">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="form-group col-6">
+                    <label asp-for="Name" class="control-label text-white">Name & Surname; </label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="Email" class="control-label text-white">Email</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-6">
+                    <label asp-for="Password" class="control-label text-white">Password</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-6">
+                    <label asp-for="HCRNo" class="control-label text-white">HC Registration No.</label>
+                    <input asp-for="HCRNo" class="form-control" />
+                    <span asp-validation-for="HCRNo" class="text-danger"></span>
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="Username" class="control-label text-white">Username</label>
+                    <input asp-for="Username" class="form-control" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Username" class="control-label text-white">Username</label>
                 <input asp-for="Username" class="form-control" />
@@ -57,6 +96,25 @@
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="form-group col-6">
+                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+               @* <div class="form-group col-4">
+                    <label asp-for="RoleId" class="control-label text-white">Role</label>
+                    <select asp-for="RoleId" asp-items="@(new SelectList(ViewBag.Roles,"RoleId", "Name"))" class="form-control">
+                        <option>Select Role</option>
+                    </select> 
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>*@
+                <div class="form-group col-4">
+                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group col-4">
                     <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
                     <input asp-for="ConfirmPassword" class="form-control" />
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
