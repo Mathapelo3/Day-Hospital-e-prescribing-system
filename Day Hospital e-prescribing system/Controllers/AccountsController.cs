@@ -1,11 +1,14 @@
 ﻿using Day_Hospital_e_prescribing_system.Helper;
+using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.Utility;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
+
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -13,11 +16,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private IConfiguration _config;
         CommonHelper _helper;
+       
 
         public AccountsController(IConfiguration config)
         {
             _config = config;
             _helper = new CommonHelper(_config);
+            
         }
 
         public IActionResult Index()
@@ -29,6 +34,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult Register()
         {
+            //List<Role> roles = new List<Role>();
+            //roles =  (from x in _config.Roles select x).ToList();
+            //roles.Insert(0, new Role { RoleId = 0, Name = "Select Role" });
+
+            //ViewBag.Roles = roles;
             return View();
         }
 
@@ -62,24 +72,32 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             int roleId = vm.RoleId != 0 ? vm.RoleId : 6; // This is a correct statement
 
 
-            string query = "INSERT INTO [UserTbl](Username, Password, RoleId) VALUES (@Username, @Password, @RoleId)";
+            string query = "INSERT INTO [User](Name,Email,ContactNo,HCRNo,Username, Password,AdminID,SpecializationID, RoleId) VALUES (@Name,@Email,@ContactNo,@HCRNo,@Username, @Password,@AdminID,@SpecializationID, @RoleId)";
             using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
+                    command.Parameters.AddWithValue("@Name", vm.Name);
+                    command.Parameters.AddWithValue("@Email", vm.Email);
+                    command.Parameters.AddWithValue("@ContactNo", vm.ContactNo);
+                    command.Parameters.AddWithValue("@HCRNo", vm.HCRNo);
                     command.Parameters.AddWithValue("@Username", vm.Username);
                     command.Parameters.AddWithValue("@Password", hashedPassword);
+                    command.Parameters.AddWithValue("@AdminID", vm.AdminID);
+                    command.Parameters.AddWithValue("@SpecializationID", vm.SpecializationID);
                     command.Parameters.AddWithValue("@RoleId", roleId);
+                    
                     int result = command.ExecuteNonQuery();
                     if (result > 0)
                     {
                         EntryIntoSession(vm.Username);
-                        TempData["SuccessMessage"] = "Thanks for registering into the system";
+                        TempData["SuccessMessage"] = "User successfully added into the system";
                         return View();
                     }
                 }
             }
+
             return View();
         }
 
@@ -135,7 +153,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private bool SignInMethod(string username, string password)
         {
             bool isAuthenticated = false;
-            string userQuery = "SELECT * FROM [UserTbl] WHERE Username=@Username";
+            string userQuery = "SELECT * FROM [User] WHERE Username=@Username";
             var userDetails = _helper.GetUserByUsername(userQuery, username);
 
             if (userDetails != null && userDetails.Username != null)
