@@ -1,5 +1,6 @@
 ﻿using Day_Hospital_e_prescribing_system.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -43,6 +44,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
+
         public IActionResult Surgeries()
         {
             var surgery = _context.Surgeries.ToList();
@@ -73,6 +75,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult DischargePatient()
         {
+            var discharge = _context.Patients.Include(c => c.Status == "Discharged").ToList();
+            ViewBag.Patient = discharge;
+
             return View();
         }
 
