@@ -1,4 +1,4 @@
-﻿@model Day_Hospital_e_prescribing_system.Models.User
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.UserViewModel
 @{
     ViewData["Title"] = "Add Medical Professional";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
@@ -56,8 +56,68 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                       
-   
+
+                        <form asp-action="AddMedicalProfessional" method="post">
+                            <div class="form-group">
+                                <label asp-for="Name">Name:</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Surname">Surname:</label>
+                                <input asp-for="Surname" class="form-control" />
+                                <span asp-validation-for="Surname" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Email">Email:</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ContactNo">Contact Number:</label>
+                                <input asp-for="ContactNo" class="form-control" />
+                                <span asp-validation-for="ContactNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="HCRNo">HCR Number:</label>
+                                <input asp-for="HCRNo" class="form-control" />
+                                <span asp-validation-for="HCRNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Username">Username:</label>
+                                <input asp-for="Username" class="form-control" />
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Password">Password:</label>
+                                <input asp-for="Password" type="password" class="form-control" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <select asp-for="RoleId" class="form-control">
+                                    <option value="">Select Role</option>
+                                    @if (Model.Roles != null && Model.Roles.Any())
+                                    {
+                                        @foreach (var role in Model.Roles)
+                                        {
+                                            <option value="@role.RoleId">@role.Name</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">No roles available</option>
+                                    }
+                                </select>
+
+
+                            </div>
+                            <button type="submit" class="btn btn-dark-green">Save</button>
+                        </form>
+
+                        @section Scripts {
+                            <partial name="_ValidationScriptsPartial" />
+                        }
 
 
                         

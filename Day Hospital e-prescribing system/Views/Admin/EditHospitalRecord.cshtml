@@ -1,0 +1,133 @@
+﻿@model Day_Hospital_e_prescribing_system.Models.HospitalRecordViewModel
+
+@{
+    ViewData["Title"] = "Edit Hospital Record";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+
+    .text-dark-green {
+        color: darkgreen;
+    }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+        .form-group label {
+            font-weight: bold;
+        }
+</style>
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                <!-- Optional Logo -->
+            </div>
+            <br />
+            <h4 class="display-6 text-dark-green text-center text-bold">DAY HOSPITAL RECORD</h4>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card-body">
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                    }
+
+                    <form asp-action="EditHospitalRecord" method="post">
+                        <div class="form-group">
+                            <label asp-for="Name"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AddressLine1"></label>
+                            <input asp-for="AddressLine1" class="form-control" />
+                            <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AddressLine2"></label>
+                            <input asp-for="AddressLine2" class="form-control" />
+                            <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ContactNo"></label>
+                            <input asp-for="ContactNo" class="form-control" />
+                            <span asp-validation-for="ContactNo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Email"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="PMContactNo"></label>
+                            <input asp-for="PMContactNo" class="form-control" />
+                            <span asp-validation-for="PMContactNo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SuburbID"></label>
+                            <select asp-for="SuburbID" asp-items="Model.Suburbs" class="form-control"></select>
+                            <span asp-validation-for="SuburbID" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="PostalCode"></label>
+                            <input asp-for="PostalCode" class="form-control" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CityName"></label>
+                            <input asp-for="CityName" class="form-control" readonly />
+                        </div>
+                        <button type="submit" class="btn  btn-dark-green">Save</button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</section>
+<script>
+    $(document).ready(function () {
+        $('select[name="SuburbID"]').change(function () {
+            var suburbID = $(this).val();
+            $.get('/Hospital/GetSuburbDetails', { suburbID: suburbID }, function (data) {
+                $('input[name="PostalCode"]').val(data.postalCode);
+                $('input[name="CityName"]').val(data.cityName);
+            });
+        });
+    });
+</script>

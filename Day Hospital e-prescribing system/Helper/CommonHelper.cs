@@ -73,7 +73,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                     {
                         user = new UserViewModel
                         {
-                            UserId = dataReader["UserId"].ToString(),
+                            UserID = Convert.ToInt32 (dataReader["UserID"].ToString()),
                             Username = dataReader["Username"].ToString(),
                             Password = dataReader["Password"].ToString(),
                             RoleId = Convert.ToInt32(dataReader["RoleId"].ToString())

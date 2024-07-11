@@ -48,7 +48,16 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         // Navigation property
         [ForeignKey("AdminID")]
-        public virtual Admin Admin { get; set; }
-        
+        public virtual Admin Admins { get; set; }
+
+
+        [Required]
+        public int RoleId { get; set; }
+
+        // Navigation property
+        [ForeignKey("RoleId")]
+
+        public virtual Role Role { get; set; }
+
     }
 }

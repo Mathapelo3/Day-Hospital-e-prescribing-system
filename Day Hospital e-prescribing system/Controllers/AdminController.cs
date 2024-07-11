@@ -8,9 +8,15 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.CodeAnalysis.Scripting;
+using BCrypt.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
+    //Authorize
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -29,69 +35,235 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult DayHospitalRecords()
+        public async Task<IActionResult> DayHospitalRecords()
         {
-            var model = _context.HospitalRecords.Include(r => r.Suburb).ThenInclude(s => s.City).ToList();
-            var suburbs = _context.Suburbs.Include(s => s.City).ToList();
+            var hospitalRecords = await _context.HospitalRecords
+            .Include(hr => hr.Suburb)
+                .ThenInclude(s => s.City)
+            .ToListAsync();
 
-            ViewBag.Suburbs = new SelectList(suburbs, "SuburbID", "Name");
+            var viewModelList = hospitalRecords.Select(hr => new HospitalRecordViewModel
+            {
+                HospitalRecordID = hr.HospitalRecordID,
+                Name = hr.Name,
+                AddressLine1 = hr.AddressLine1,
+                AddressLine2 = hr.AddressLine2,
+                ContactNo = hr.ContactNo,
+                Email = hr.Email,
+                PMContactNo = hr.PMContactNo,
+                SuburbName = hr.Suburb.Name,
+                PostalCode = hr.Suburb.PostalCode,
+                CityName = hr.Suburb.City.Name
+            }).ToList();
 
-            return View(model);
+            return View(viewModelList);
         }
-       
-        private bool HospitalRecordExists(int id)
+        public async Task<IActionResult> EditHospitalRecord(int id)
         {
-            return _context.HospitalRecords.Any(e => e.HospitalRecordID == id);
+            var hospitalRecord = await _context.HospitalRecords
+            .Include(hr => hr.Suburb)
+                .ThenInclude(s => s.City)
+            .FirstOrDefaultAsync(hr => hr.HospitalRecordID == id);
+
+            if (hospitalRecord == null)
+            {
+                return NotFound();
+            }
+
+            var suburbs = await _context.Suburbs.ToListAsync();
+            var suburbList = suburbs.Select(s => new SelectListItem
+            {
+                Value = s.SuburbID.ToString(),
+                Text = s.Name
+            }).ToList();
+
+            var viewModel = new HospitalRecordViewModel
+            {
+                HospitalRecordID = hospitalRecord.HospitalRecordID,
+                Name = hospitalRecord.Name,
+                AddressLine1 = hospitalRecord.AddressLine1,
+                AddressLine2 = hospitalRecord.AddressLine2,
+                ContactNo = hospitalRecord.ContactNo,
+                Email = hospitalRecord.Email,
+                PMContactNo = hospitalRecord.PMContactNo,
+                SuburbID = hospitalRecord.SuburbID,
+                SuburbName = hospitalRecord.Suburb.Name,
+                PostalCode = hospitalRecord.Suburb.PostalCode,
+                CityName = hospitalRecord.Suburb.City.Name,
+                Suburbs = suburbList
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult UpdateHospitalRecord(int id, [FromBody] UpdateHospitalRecordModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditHospitalRecord(HospitalRecordViewModel viewModel)
         {
-            var record = _context.HospitalRecords.Find(id);
-            if (record != null)
+            if (ModelState.IsValid)
             {
-                if (model.Field == "SuburbID")
+                var hospitalRecord = await _context.HospitalRecords
+                    .Include(hr => hr.Suburb)
+                        .ThenInclude(s => s.City)
+                    .FirstOrDefaultAsync(hr => hr.HospitalRecordID == viewModel.HospitalRecordID);
+
+                if (hospitalRecord == null)
                 {
-                    if (int.TryParse(model.Value, out int suburbId))
-                    {
-                        var suburb = _context.Suburbs.Include(s => s.City).FirstOrDefault(s => s.SuburbID == suburbId);
-                        if (suburb != null)
-                        {
-                            record.SuburbID = suburb.SuburbID;
-                            record.Suburb = suburb;
-                        }
-                    }
-                }
-                else
-                {
-                    // Update other fields
-                    _context.Entry(record).Property(model.Field).CurrentValue = model.Value;
+                    return NotFound();
                 }
 
-                _context.SaveChanges();
-                return Json(new { success = true, suburb = record.Suburb });
-            }
-            return Json(new { success = false });
-        }
+                hospitalRecord.Name = viewModel.Name;
+                hospitalRecord.AddressLine1 = viewModel.AddressLine1;
+                hospitalRecord.AddressLine2 = viewModel.AddressLine2;
+                hospitalRecord.ContactNo = viewModel.ContactNo;
+                hospitalRecord.Email = viewModel.Email;
+                hospitalRecord.PMContactNo = viewModel.PMContactNo;
+                hospitalRecord.SuburbID = viewModel.SuburbID;
 
-        public JsonResult GetCityBySuburb(int id)
-        {
-            var suburb = _context.Suburbs.Include(s => s.City).FirstOrDefault(s => s.SuburbID == id);
-            if (suburb != null)
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Hospital record updated successfully!";
+                return RedirectToAction(nameof(DayHospitalRecords));
+            }
+
+            viewModel.Suburbs = await _context.Suburbs.Select(s => new SelectListItem
             {
-                return Json(new { cityName = suburb.City.Name, postalCode = suburb.PostalCode });
+                Value = s.SuburbID.ToString(),
+                Text = s.Name
+            }).ToListAsync();
+
+            return View(viewModel);
+        }
+        public async Task<IActionResult> GetSuburbDetails(int suburbID)
+        {
+            var suburb = await _context.Suburbs
+                .Include(s => s.City)
+                .FirstOrDefaultAsync(s => s.SuburbID == suburbID);
+
+            if (suburb == null)
+            {
+                return NotFound();
             }
-            return Json(new { cityName = "", postalCode = "" });
+
+            var suburbDetails = new
+            {
+                postalCode = suburb.PostalCode,
+                cityName = suburb.City.Name
+            };
+
+            return Json(suburbDetails);
         }
 
-        public IActionResult MedicalProfessionals()
+        public async Task<IActionResult> MedicalProfessionals(int id)
         {
-            return View();
+            var user = await _context.Users
+        .Include(u => u.Role)
+        .FirstOrDefaultAsync(u => u.UserID == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+           
+            return View(user);
         }
         public IActionResult AddMedicalProfessional()
         {
-            return View();
+            var viewModel = new UserViewModel
+            {
+                Roles = _context.Role
+                       .OrderBy(r => r.RoleId)
+                       .Skip(1)
+                       .ToList()
+            };
+
+            return View(viewModel);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddMedicalProfessional(UserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Repopulate Roles in case of a validation error
+                model.Roles = _context.Role
+                                      .OrderBy(r => r.RoleId)
+                                      .Skip(1)
+                                      .ToList();
+
+                return View(model);
+            }
+
+            // Hash the password
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+            // Create the user object
+            var user = new User
+            {
+                Name = model.Name,
+                Surname = model.Surname,
+                Email = model.Email,
+                ContactNo = model.ContactNo,
+                HCRNo = model.HCRNo,
+                Username = model.Username,
+                HashedPassword = hashedPassword,
+                RoleId = model.RoleId,
+                AdminID = GetCurrentAdminId()
+            };
+
+            // Add the user to the context
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            // Save to the specialization table based on role
+            switch (model.RoleId)
+            {
+                case 2: // Assuming 2 is the RoleId for Pharmacist
+                    var pharmacist = new Pharmacist { UserID = user.UserID };
+                    _context.Pharmacists.Add(pharmacist);
+                    break;
+                case 3: // Assuming 3 is the RoleId for Surgeon
+                    var surgeon = new Surgeon { UserID = user.UserID };
+                    _context.Surgeons.Add(surgeon);
+                    break;
+                case 4: // Assuming 4 is the RoleId for Nurse
+                    var nurse = new Nurse { UserID = user.UserID };
+                    _context.Nurses.Add(nurse);
+                    break;
+                case 5: // Assuming 5 is the RoleId for Anaesthesiologist
+                    var anaesthesiologist = new Anaesthesiologist { UserID = user.UserID };
+                    _context.Anaesthesiologists.Add(anaesthesiologist);
+                    break;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(MedicalProfessionals), new { id = user.UserID });
+        }
+
+        private int GetCurrentAdminId()
+        {
+            //var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); // Get the user ID from the claims
+            //var user = _context.Users.SingleOrDefault(u => u.UserID == userId); // Find the user with this user ID
+
+            //if (user != null && user.AdminID != 0)
+            //{
+            //    return user.AdminID; // Return the admin ID from the user
+            //}
+
+            //throw new Exception("Current user is not associated with an admin");
+            return 3;
+        }
+
+        private string HashPassword(string password)
+        {
+            var passwordHasher = new PasswordHasher<User>();
+            var dummyUser = new User(); // Create a dummy user object just to use the PasswordHasher
+            return passwordHasher.HashPassword(dummyUser, password);
+        }
+
         public IActionResult TheatreRecords()
         {
             var theatre = _context.Theatres.ToList();

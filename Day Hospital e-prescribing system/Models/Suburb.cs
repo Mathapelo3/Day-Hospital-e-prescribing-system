@@ -24,8 +24,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("CityID")]
         public virtual City City { get; set; }
-
-        // Navigation property
-        public virtual ICollection<HospitalRecord> HospitalRecords { get; set; }
+ 
     }
 }
