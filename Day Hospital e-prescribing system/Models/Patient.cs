@@ -60,7 +60,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual Ward Wards { get; set; }
 
         [Required]
-        public int TreatmentCode { get; set; }
+        public int TreatmentCodeID { get; set; }
+        // Navigation property
+        [ForeignKey("TreatmentCodeID")]
+        public virtual TreatmentCode TreatmentCodes { get; set; }
 
         [Required]
         public int SuburbID { get; set; }

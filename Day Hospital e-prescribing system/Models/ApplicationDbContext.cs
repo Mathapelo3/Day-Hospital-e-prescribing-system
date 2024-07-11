@@ -34,7 +34,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Role> Role { get; set; }
 
         public DbSet<Admission> Admissions { get; set; }
+        public DbSet<Allergy> Allergies { get; set; }
 
+        public DbSet<TreatmentCode> TreatmentCodes { get; set; }
+        public DbSet<Discharge> Discharges { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
