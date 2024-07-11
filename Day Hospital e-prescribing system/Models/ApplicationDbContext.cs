@@ -8,12 +8,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Suburb> Suburbs { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<User> Users { get; set; }
-<<<<<<< HEAD
+
         public DbSet<Role> Roles { get; set; }
         public DbSet<Admin> Admin { get; set; }
-=======
+
         public DbSet<Admin> Admins { get; set; }
->>>>>>> changed dayhospitalrecord view page
+
         public DbSet<Nurse> Nurses { get; set; }
         public DbSet<Surgeon> Surgeons { get; set; }
         public DbSet<Pharmacist> Pharmacists { get; set; }
@@ -32,6 +32,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
 
         public DbSet<Role> Role { get; set; }
+
+        public DbSet<Admission> Admissions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

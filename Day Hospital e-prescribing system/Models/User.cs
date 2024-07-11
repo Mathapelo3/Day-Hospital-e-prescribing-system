@@ -41,7 +41,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public string HashedPassword { get; set; }
 
-        public int RoleId { get; set; }
+        
 
         [Required]
         public int AdminID { get; set; }

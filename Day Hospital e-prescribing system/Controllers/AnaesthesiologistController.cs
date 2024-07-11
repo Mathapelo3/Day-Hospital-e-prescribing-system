@@ -38,9 +38,43 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = username;
             return View();
         }
-        public ActionResult ViewPatients()
+        public async Task<ActionResult> ViewPatients(string searchString,  DateTime? Date)
         {
-            return View();
+            ViewData["CurrentFilter"] = searchString;
+            
+            ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
+
+            var patientAdmissions = from p in _context.Patients
+                                    join a in _context.Admissions on p.PatientID equals a.PatientID
+                                    join w in _context.Wards on p.WardID equals w.WardID
+                                    join n in _context.Nurses on a.NurseID equals n.NurseID
+                                    join u in _context.Users on n.UserID equals u.UserID
+                                    select new PatientViewModel
+                                    {
+                                        PatientID = p.PatientID,
+                                        Patient = p.Name + " " + p.Surname,
+                                        Date = a.Date,
+                                        Time = a.Time,
+                                        Ward = w.Name,
+                                        Bed = w.Bed,  // Assuming Bed is a property in the Ward table
+                                        Nurse = u.Name + " " + u.Surname,  // Assuming Name is a property in the Nurse table
+                                        Status = p.Status
+                                    };
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                patientAdmissions = patientAdmissions.Where(pa => pa.Patient.Contains(searchString));
+            }
+
+
+            if (Date.HasValue)
+            {
+                patientAdmissions = patientAdmissions.Where(pa => pa.Date.Date == Date.Value.Date);
+            }
+
+            
+
+            return View(await patientAdmissions.ToListAsync());
         }
         public ActionResult AdmissionRecords()
         {
