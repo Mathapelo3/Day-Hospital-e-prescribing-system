@@ -57,7 +57,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                         Time = a.Time,
                                         Ward = w.Name,
                                         Bed = w.Bed,  // Assuming Bed is a property in the Ward table
-                                        Nurse = u.Name + " " + u.Surname,  // Assuming Name is a property in the Nurse table
+                                        Nurse = u.Name + " " + u.Surname,  
                                         Status = p.Status
                                     };
 
@@ -76,9 +76,50 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(await patientAdmissions.ToListAsync());
         }
-        public ActionResult AdmissionRecords()
+        public async Task<ActionResult> BookedPatients(string searchString, DateTime? Date)
         {
-            return View();
+            ViewData["CurrentFilter"] = searchString;
+
+            ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
+
+            var bookedPatients = from s in _context.Surgeries
+                                    join p in _context.Patients on s.PatientID equals p.PatientID
+                                    join w in _context.Wards on s.WardID equals w.WardID
+                                    join n in _context.Nurses on s.NurseID equals n.NurseID
+                                 join su in _context.Surgeons on s.SurgeonID equals su.SurgeonID
+                                 join t in _context.Theatres on s.TheatreID equals t.TheatreID
+                                 join c in _context.Surgery_TreatmentCodes on s.Surgery_TreatmentCodeID equals c.Surgery_TreatmentCodeID
+                                 join u in _context.Users on n.UserID equals u.UserID
+                                 join us in _context.Users on su.UserID equals us.UserID
+                                 select new BookedPatientsViewModel
+                                    {
+                                        SurgeryID = s.SurgeryID,
+                                        Patient = p.Name + " " + p.Surname,
+                                        Date = s.Date,
+                                        Time = s.Time,
+                                        Ward = w.Name,
+                                        Bed = w.Bed,  // Assuming Bed is a property in the Ward table
+                                        Nurse = u.Name + " " + u.Surname,
+                                     Theatre = t.Name,
+                                     Surgeon = u.Name + " " + u.Surname
+
+
+                                 };
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                bookedPatients = bookedPatients.Where(pa => pa.Patient.Contains(searchString));
+            }
+
+
+            if (Date.HasValue)
+            {
+                bookedPatients = bookedPatients.Where(pa => pa.Date.Date == Date.Value.Date);
+            }
+
+
+
+            return View(await bookedPatients.ToListAsync());
         }
         public ActionResult MedicalHistory()
         {

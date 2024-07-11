@@ -1,0 +1,93 @@
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.BookedPatientsViewModel>
+@{
+    ViewData["Title"] = "Index1";
+    Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .card-title {
+        font-weight: bold;
+    }
+
+    .btn-view {
+        background-color: purple;
+        color: white;
+    }
+</style>
+
+<section class="content">
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
+            <br />
+            <h4 class="display-6 text-purple text-center text-bold">BOOKED PATIENTS</h4>
+        </div>
+    </div>
+    <div><br></div>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <!-- Search bar -->
+            <form method="get" asp-controller="Anesthesiologist" asp-action="ViewPatients">
+                <div class="form-group">
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by surname" />
+                    <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
+
+                    <button type="submit" class="btn btn-purple">Filter</button>
+                    <a href="@Url.Action("bOOKEDPatients", "Anaesthesiologist")" class="btn btn-secondary">Reset</a>
+                </div>
+                <!-- Display patients -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Time</th>
+                                                <th>Patient</th>
+                                                <th>Treatment Code</th>
+                                                <th>Ward</th>
+                                                <th>Bed</th>
+                                                <th>Nurse</th>
+                                                <th>Theatre</th>
+                                                <th>Surgeon</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>@item.Date.ToShortDateString()</td>
+                                                    <td>@item.Time</td>
+
+                                                    <td>@item.Patient</td>
+                                                    <td>@item.Ward</td>
+                                                    <td>@item.Bed</td>
+                                                    <td>@item.Nurse</td>
+                                                    <td>@item.Surgeon</td>
+                                                    <td>@item.Theatre</td>
+                                                    <td></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+</section>
+
+
+
