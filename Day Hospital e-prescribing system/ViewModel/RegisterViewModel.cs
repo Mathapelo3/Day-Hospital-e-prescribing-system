@@ -57,12 +57,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         // Navigation property
         [ForeignKey("AdminID")]
         public virtual Admin Admin { get; set; }
-        [Required]
-        public int SpecializationID { get; set; }
-
-        // Navigation property
-        [ForeignKey("SpecializationID")]
-        public virtual Specialization Specialization { get; set; }
+        
+        
 
     }
 }

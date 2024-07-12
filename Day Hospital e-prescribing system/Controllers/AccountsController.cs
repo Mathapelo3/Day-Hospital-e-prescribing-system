@@ -85,7 +85,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     command.Parameters.AddWithValue("@Username", vm.Username);
                     command.Parameters.AddWithValue("@Password", hashedPassword);
                     command.Parameters.AddWithValue("@AdminID", vm.AdminID);
-                    command.Parameters.AddWithValue("@SpecializationID", vm.SpecializationID);
+                    
                     command.Parameters.AddWithValue("@RoleId", roleId);
                     
                     int result = command.ExecuteNonQuery();
