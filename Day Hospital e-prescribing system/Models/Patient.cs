@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
+    [Table("Patient")]
     public class Patient
     {
         [Key]

@@ -12,19 +12,22 @@ using Microsoft.CodeAnalysis.Scripting;
 using BCrypt.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
-    //Authorize
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AdminController> _logger;
-        public AdminController(ApplicationDbContext context, ILogger<AdminController> logger)
+        private readonly IConfiguration _config;
+        public AdminController(ApplicationDbContext context, ILogger<AdminController> logger, IConfiguration config)
         {
             _context = context;
             _logger = logger;
+            _config = config;
         }
         public IActionResult Index()
         {
@@ -154,115 +157,213 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return Json(suburbDetails);
         }
 
-        public async Task<IActionResult> MedicalProfessionals(int id)
-        {
-            var user = await _context.Users
-        .Include(u => u.Role)
-        .FirstOrDefaultAsync(u => u.UserID == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-           
-            return View(user);
-        }
+        [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
-            var viewModel = new UserViewModel
+            ViewBag.Roles = GetRoles();
+            var model = new RegisterViewModel
             {
-                Roles = _context.Role
-                       .OrderBy(r => r.RoleId)
-                       .Skip(1)
-                       .ToList()
+                Roles = GetRoles()
             };
-
-            return View(viewModel);
+            return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddMedicalProfessional(UserViewModel model)
+        public async Task<IActionResult> AddMedicalProfessional(RegisterViewModel vm)
         {
+            vm.Roles = GetRoles();
+
             if (!ModelState.IsValid)
             {
-                // Repopulate Roles in case of a validation error
-                model.Roles = _context.Role
-                                      .OrderBy(r => r.RoleId)
-                                      .Skip(1)
-                                      .ToList();
-
-                return View(model);
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return View(vm);
             }
 
-            // Hash the password
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            bool userExists = UserAlreadyExists(vm.Username);
 
-            // Create the user object
-            var user = new User
+            if (userExists)
             {
-                Name = model.Name,
-                Surname = model.Surname,
-                Email = model.Email,
-                ContactNo = model.ContactNo,
-                HCRNo = model.HCRNo,
-                Username = model.Username,
-                HashedPassword = hashedPassword,
-                RoleId = model.RoleId,
-                AdminID = GetCurrentAdminId()
+                TempData["ErrorMessage"] = "Username already exists!";
+                return View(vm);
+            }
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(vm.Password);
+
+            int adminID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "AdminID").Value);
+
+            string query = "INSERT INTO [User] (Name, Surname, Email, ContactNo, HCRNo, Username, HashedPassword, AdminID, RoleId) " +
+                           "OUTPUT INSERTED.UserID " +
+                           "VALUES (@Name, @Surname, @Email, @ContactNo, @HCRNo, @Username, @HashedPassword, @AdminID, @RoleId)";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Name", vm.Name);
+                        command.Parameters.AddWithValue("@Surname", vm.Surname);
+                        command.Parameters.AddWithValue("@Email", vm.Email);
+                        command.Parameters.AddWithValue("@ContactNo", vm.ContactNo);
+                        command.Parameters.AddWithValue("@HCRNo", vm.HCRNo);
+                        command.Parameters.AddWithValue("@Username", vm.Username);
+                        command.Parameters.AddWithValue("@HashedPassword", hashedPassword);
+                        command.Parameters.AddWithValue("@AdminID", adminID);
+                        command.Parameters.AddWithValue("@RoleId", vm.RoleId);
+
+                        int userId = (int)await command.ExecuteScalarAsync();
+
+                        await InsertRoleSpecificUser(vm.RoleId, userId);
+
+                        TempData["SuccessMessage"] = "User successfully added into the system.";
+                        return RedirectToAction("MedicalProfessionals");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding the user: {Message}", ex.Message);
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                return View(vm);
+            }
+        }
+
+
+
+        private async Task InsertRoleSpecificUser(int roleId, int userId)
+        {
+            string roleTable = roleId switch
+            {
+                2 => "Pharmacist",
+                3 => "Surgeon",
+                4 => "Nurse",
+                5 => "Anaesthesiologist",
+                _ => throw new ArgumentException("Invalid role ID")
             };
 
-            // Add the user to the context
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            // Save to the specialization table based on role
-            switch (model.RoleId)
+            string query = $"INSERT INTO [{roleTable}] (UserID) VALUES (@UserID)";
+            try
             {
-                case 2: // Assuming 2 is the RoleId for Pharmacist
-                    var pharmacist = new Pharmacist { UserID = user.UserID };
-                    _context.Pharmacists.Add(pharmacist);
-                    break;
-                case 3: // Assuming 3 is the RoleId for Surgeon
-                    var surgeon = new Surgeon { UserID = user.UserID };
-                    _context.Surgeons.Add(surgeon);
-                    break;
-                case 4: // Assuming 4 is the RoleId for Nurse
-                    var nurse = new Nurse { UserID = user.UserID };
-                    _context.Nurses.Add(nurse);
-                    break;
-                case 5: // Assuming 5 is the RoleId for Anaesthesiologist
-                    var anaesthesiologist = new Anaesthesiologist { UserID = user.UserID };
-                    _context.Anaesthesiologists.Add(anaesthesiologist);
-                    break;
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserID", userId);
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to insert into {roleTable} table: {ex.Message}");
+            }
+        }
+
+        public List<SelectListItem> GetRoles()
+        {
+            List<SelectListItem> roles = new List<SelectListItem>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    connection.Open();
+                    string sql = "SELECT RoleId, Name FROM [Role]";
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                roles.Add(new SelectListItem
+                                {
+                                    Value = reader["RoleId"].ToString(),
+                                    Text = reader["Name"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                throw new Exception($"Failed to fetch roles: {ex.Message}");
             }
 
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(MedicalProfessionals), new { id = user.UserID });
+            return roles;
         }
 
-        private int GetCurrentAdminId()
+        private bool UserAlreadyExists(string username)
         {
-            //var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); // Get the user ID from the claims
-            //var user = _context.Users.SingleOrDefault(u => u.UserID == userId); // Find the user with this user ID
+            string query = "SELECT COUNT(1) FROM [User] WHERE Username = @Username";
 
-            //if (user != null && user.AdminID != 0)
-            //{
-            //    return user.AdminID; // Return the admin ID from the user
-            //}
-
-            //throw new Exception("Current user is not associated with an admin");
-            return 3;
+            using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    int count = (int)command.ExecuteScalar();
+                    return count > 0;
+                }
+            }
         }
 
-        private string HashPassword(string password)
+        [HttpGet]
+        public async Task<IActionResult> MedicalProfessionals(int id)
         {
-            var passwordHasher = new PasswordHasher<User>();
-            var dummyUser = new User(); // Create a dummy user object just to use the PasswordHasher
-            return passwordHasher.HashPassword(dummyUser, password);
+            List<UserViewModel> medicalProfessionals = new List<UserViewModel>();
+
+            string query = "SELECT u.UserID, u.Name, u.Surname, u.Email, u.ContactNo, u.HCRNo, u.Username, r.Name AS Role " +
+                           "FROM [User] u " +
+                           "JOIN [Role] r ON u.RoleId = r.RoleId";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                medicalProfessionals.Add(new UserViewModel
+                                {
+                                    UserID = reader.GetInt32(0),
+                                    Name = reader.GetString(1),
+                                    Surname = reader.GetString(2),
+                                    Email = reader.GetString(3),
+                                    ContactNo = reader.GetString(4),
+                                    HCRNo = reader.GetString(5),
+                                    Username = reader.GetString(6),
+                                    Role = reader.GetString(7)
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+            }
+
+            return View(medicalProfessionals);
         }
+    
+        
+
+
+    
+        
 
         public IActionResult TheatreRecords()
         {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    
+    [Table("User")]
     public class User
     {
         [Key]
@@ -37,7 +37,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Username { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(256)]
 
         public string HashedPassword { get; set; }
 
@@ -57,7 +57,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("RoleId")]
 
-        public virtual Role Role { get; set; }
+        public virtual Role Roles { get; set; }
 
     }
 }

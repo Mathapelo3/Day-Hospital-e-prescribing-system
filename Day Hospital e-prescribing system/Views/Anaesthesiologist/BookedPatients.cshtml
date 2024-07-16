@@ -15,6 +15,12 @@
         background-color: purple;
         color: white;
     }
+
+    .btn-purple {
+        background-color: purple;
+        color: white;
+        font-weight: bold;
+    }
 </style>
 
 <section class="content">
@@ -30,17 +36,29 @@
         </div>
     </div>
     <div><br></div>
-    <div class="row mb-3">
-        <div class="col-md-3">
+    
             <!-- Search bar -->
-            <form method="get" asp-controller="Anesthesiologist" asp-action="ViewPatients">
-                <div class="form-group">
+    <form method="get" asp-controller="Anesthesiologist" asp-action="ViewPatients">
+        <div class="form-row">
+            <div class="col-md-3">
+               <div class="input-group">
                     <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by surname" />
-                    <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
-
-                    <button type="submit" class="btn btn-purple">Filter</button>
-                    <a href="@Url.Action("bOOKEDPatients", "Anaesthesiologist")" class="btn btn-secondary">Reset</a>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
+                </div>
+            <div class="col-md-2">
+                <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
+            </div>
+            
+            <div class="col-md-1 ml-auto">
+                <a href="@Url.Action("BookedPatients", "Anaesthesiologist")" class="btn btn-danger btn-block">Reset</a>
+            </div>
+        </div>
+        <br>
                 <!-- Display patients -->
                 <div class="row">
                     <div class="col-md-12">
@@ -75,7 +93,7 @@
                                                     <td>@item.Nurse</td>
                                                     <td>@item.Surgeon</td>
                                                     <td>@item.Theatre</td>
-                                                    @*<td><a href="@Url.Action("MedicalHistory", "Aneasthesiologist", new { id = patient.PatientID })" class="btn btn-purple">View</a></td>*@
+                                            <td><a href="@Url.Action("MedicalHistory", "Aneasthesiologist", new { id = item.PatientID })" class="btn btn-purple">View</a></td>
                                                 </tr>
                                             }
                                         </tbody>

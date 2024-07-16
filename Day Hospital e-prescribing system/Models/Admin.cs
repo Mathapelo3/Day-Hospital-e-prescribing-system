@@ -8,5 +8,17 @@ namespace Day_Hospital_e_prescribing_system.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AdminID { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string Username { get; set; }
+
+        [Required]
+        [StringLength(50)]
+
+        public string HashedPassword { get; set; }
+
+        [Required]
+        public int RoleId { get; set; }
     }
 }

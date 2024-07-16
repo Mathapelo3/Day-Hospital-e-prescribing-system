@@ -44,7 +44,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             
             ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
 
-            var patientAdmissions = from p in _context.Patients
+            var patientAdmission = from p in _context.Patients
                                     join a in _context.Admissions on p.PatientID equals a.PatientID
                                     join w in _context.Wards on p.WardID equals w.WardID
                                     join n in _context.Nurses on a.NurseID equals n.NurseID
@@ -63,18 +63,18 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                patientAdmissions = patientAdmissions.Where(pa => pa.Patient.Contains(searchString));
+                patientAdmission = patientAdmission.Where(pa => pa.Patient.Contains(searchString));
             }
 
 
             if (Date.HasValue)
             {
-                patientAdmissions = patientAdmissions.Where(pa => pa.Date.Date == Date.Value.Date);
+                patientAdmission = patientAdmission.Where(pa => pa.Date.Date == Date.Value.Date);
             }
 
             
 
-            return View(await patientAdmissions.ToListAsync());
+            return View(await patientAdmission.ToListAsync());
         }
         public async Task<ActionResult> BookedPatients(string searchString, DateTime? Date)
         {

@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Day_Hospital_e_prescribing_system.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
-using Day_Hospital_e_prescribing_system.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel
 {
@@ -35,13 +35,14 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Username { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(256)]
         public string Password { get; set; }
-
 
         [Required]
         public int RoleId { get; set; }
 
-        public List<Role> Roles { get; set; }
+        public IEnumerable<SelectListItem> Roles { get; set; }
+
+        public string Role { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Day_Hospital_e_prescribing_system.ViewModel;
+﻿using Day_Hospital_e_prescribing_system.Models;
+using Day_Hospital_e_prescribing_system.ViewModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data.SqlClient;
 
 namespace Day_Hospital_e_prescribing_system.Helper
@@ -6,10 +8,13 @@ namespace Day_Hospital_e_prescribing_system.Helper
     public class CommonHelper
     {
         private IConfiguration _config;
+        
+
 
         public CommonHelper(IConfiguration config)
         {
             _config = config;
+           
         }
 
         public int DMLTransaction(string Query)
@@ -38,7 +43,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
             {
                 connection.Open();
 
-                string sql = "SELECT * FROM [UserTbl] WHERE Username = @Username";
+                string sql = "SELECT * FROM [User] WHERE Username = @Username";
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@Username", username);
@@ -54,38 +59,36 @@ namespace Day_Hospital_e_prescribing_system.Helper
             return flag;
         }
 
-        public UserViewModel GetUserByUsername(string query, string username)
+        public User GetUserByUsername(string query, string username)
         {
-            UserViewModel user = null;
-            string connectionString = _config["ConnectionStrings:DefaultConnection"];
+            User user = null;
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
             {
                 connection.Open();
-
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@Username", username);
-                
-
-                using (SqlDataReader dataReader = command.ExecuteReader())
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    if (dataReader.Read())
+                    command.Parameters.AddWithValue("@Username", username);
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        user = new UserViewModel
+                        if (reader.Read())
                         {
-                            UserID = Convert.ToInt32 (dataReader["UserID"].ToString()),
-                            Username = dataReader["Username"].ToString(),
-                            Password = dataReader["Password"].ToString(),
-                            RoleId = Convert.ToInt32(dataReader["RoleId"].ToString())
-                        };
+                            user = new User
+                            {
+                                UserID = (int)reader["UserID"],
+                                Username = reader["Username"].ToString(),
+                                HashedPassword = reader["HashedPassword"].ToString(),
+                                RoleId = (int)reader["RoleId"]
+                            };
+                        }
                     }
                 }
-
-                connection.Close();
             }
 
             return user;
         }
+
+
 
 
         public SingleEntity GetEntityById(string query, string roleId)
@@ -115,5 +118,44 @@ namespace Day_Hospital_e_prescribing_system.Helper
         }
 
 
+        public Admin GetAdminByUsername(string query, string username)
+        {
+            Admin admin = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            admin = new Admin
+                            {
+                                AdminID = (int)reader["AdminID"],
+                                Username = reader["Username"].ToString(),
+                                HashedPassword = reader["HashedPassword"].ToString(),
+                                RoleId = (int)reader["RoleId"]
+                            };
+                        }
+                    }
+                }
+            }
+
+            return admin;
+        }
+        public static string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
     }
-}
+
+
+
+
+    }
+
+
+

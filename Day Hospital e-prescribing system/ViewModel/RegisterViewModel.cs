@@ -1,4 +1,5 @@
 ﻿using Day_Hospital_e_prescribing_system.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
@@ -34,16 +35,18 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [StringLength(10)]
         public string HCRNo { get; set; }
 
-
+        [Required]
+        [StringLength(50)]
         public string Username { get; set; }
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(256, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
 
         [Required]
+        [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
@@ -51,14 +54,12 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [Required]
         public int RoleId { get; set; }
 
+        public List<SelectListItem> Roles { get; set; }
+
         [Required]
         public int AdminID { get; set; }
 
-        // Navigation property
-        [ForeignKey("AdminID")]
-        public virtual Admin Admin { get; set; }
-        
-        
+
 
     }
 }

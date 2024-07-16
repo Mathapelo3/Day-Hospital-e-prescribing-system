@@ -10,7 +10,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<User> Users { get; set; }
 
         public DbSet<Role> Roles { get; set; }
-        public DbSet<Admin> Admin { get; set; }
+        
 
         public DbSet<Admin> Admins { get; set; }
 
@@ -31,8 +31,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Medication> Medications { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
 
-        public DbSet<Role> Role { get; set; }
-
         public DbSet<Admission> Admissions { get; set; }
         public DbSet<Allergy> Allergies { get; set; }
 
@@ -47,6 +45,16 @@ namespace Day_Hospital_e_prescribing_system.Models
         {
             base.OnModelCreating(modelBuilder);
             // Additional configurations if needed
+            modelBuilder.Entity<User>()
+                        .ToTable("User");
+
+            modelBuilder.Entity<Role>()
+                        .ToTable("Role");
+
+            modelBuilder.Entity<Patient>()
+                        .ToTable("Patient");
+
+            
 
             modelBuilder.Entity<Medication_Interaction>()
            .HasKey(m => new { m.ICD_ID, m.Active_IngredientID }); 

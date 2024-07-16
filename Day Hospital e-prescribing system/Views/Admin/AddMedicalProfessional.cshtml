@@ -1,136 +1,90 @@
-﻿@model Day_Hospital_e_prescribing_system.ViewModel.UserViewModel
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.RegisterViewModel
+
 @{
-    ViewData["Title"] = "Add Medical Professional";
-    Layout = "~/Views/Shared/AdminLayout.cshtml";
+    ViewBag.Title = "Register";
 }
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<!-- Main content -->
-<style>
-    .text-dark-green {
-        color: darkgreen;
-    }
 
-    .btn-outline-darkgreen {
-        color: darkgreen;
-        border-color: darkgreen;
-    }
+<h2>Register Medical Professional</h2>
 
-        .btn-outline-darkgreen:hover {
-            color: white;
-            background-color: darkgreen;
-            border-color: darkgreen;
-        }
+@using (Html.BeginForm("AddMedicalProfessional", "Admin", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
 
-    .btn-dark-green {
-        color: white;
-        background-color: darkgreen;
-        border-color: darkgreen;
-    }
-
-        .btn-dark-green:hover {
-            color: white;
-            background-color: darkgreen;
-            border-color: darkgreen;
-        }
-
-    .card-centered {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-    }
-</style>
-        
-<section class="content">
-    <div class="card">
-        <div class="card-header">
-            <div class="text-center">
-                <!-- Place for the hospital logo if needed -->
-            </div>
-            <br />
-            <h4 class="display-6 text-dark-green text-center text-bold">MEDICAL PROFESSIONAL FORM</h4>
+    <div class="form-group">
+        @Html.LabelFor(model => model.RoleId, "Role", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.DropDownListFor(model => model.RoleId, new SelectList(Model.Roles, "Value", "Text"), "Select Role", new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.RoleId, "", new { @class = "text-danger" })
         </div>
     </div>
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
 
-                        <form asp-action="AddMedicalProfessional" method="post">
-                            <div class="form-group">
-                                <label asp-for="Name">Name:</label>
-                                <input asp-for="Name" class="form-control" />
-                                <span asp-validation-for="Name" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Surname">Surname:</label>
-                                <input asp-for="Surname" class="form-control" />
-                                <span asp-validation-for="Surname" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Email">Email:</label>
-                                <input asp-for="Email" class="form-control" />
-                                <span asp-validation-for="Email" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="ContactNo">Contact Number:</label>
-                                <input asp-for="ContactNo" class="form-control" />
-                                <span asp-validation-for="ContactNo" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="HCRNo">HCR Number:</label>
-                                <input asp-for="HCRNo" class="form-control" />
-                                <span asp-validation-for="HCRNo" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Username">Username:</label>
-                                <input asp-for="Username" class="form-control" />
-                                <span asp-validation-for="Username" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Password">Password:</label>
-                                <input asp-for="Password" type="password" class="form-control" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group">
-                                <select asp-for="RoleId" class="form-control">
-                                    <option value="">Select Role</option>
-                                    @if (Model.Roles != null && Model.Roles.Any())
-                                    {
-                                        @foreach (var role in Model.Roles)
-                                        {
-                                            <option value="@role.RoleId">@role.Name</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option value="">No roles available</option>
-                                    }
-                                </select>
-
-
-                            </div>
-                            <button type="submit" class="btn btn-dark-green">Save</button>
-                        </form>
-
-                        @section Scripts {
-                            <partial name="_ValidationScriptsPartial" />
-                        }
-
-
-                        
-
-                            
-                            </div>
-
-                           
-                        
-                    </div>
-                </div>
-            </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Name, "Name", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
         </div>
-   
-</section>
+    </div>
 
+    <div class="form-group">
+        @Html.LabelFor(model => model.Surname, "Surname", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.Surname, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Email, "Email", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ContactNo, "Contact No", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.ContactNo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.ContactNo, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.HCRNo, "HCR No", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.HCRNo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.HCRNo, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Username, "Username", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(model => model.Username, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Password, "Password", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ConfirmPassword, "Confirm Password", new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.PasswordFor(model => model.ConfirmPassword, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+    <!-- Add other fields as needed -->
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-dark-green">Register</button>
+        </div>
+    </div>
+}

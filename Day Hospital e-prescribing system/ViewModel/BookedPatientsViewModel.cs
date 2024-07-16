@@ -3,6 +3,7 @@
     public class BookedPatientsViewModel
     {
         public int SurgeryID { get; set; }
+        public int PatientID { get; set; }
         public string Patient { get; set; }
 
         public DateTime Date { get; set; }

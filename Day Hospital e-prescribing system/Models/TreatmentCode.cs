@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
+    [Table("TreatmentCode")]
     public class TreatmentCode
     {
         [Key]
