@@ -1,20 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    [Table("Anaesthesiologist")]
-    public class Anaesthesiologist
+    public class Patient_Allergy
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int PharmacistID { get; set; }
+        public int Patient_AllergryID { get; set; }
 
         [Required]
-        public int UserID { get; set; }
-
+        public int PatientID { get; set; }
         // Navigation property
-        [ForeignKey("UserID")]
-        public virtual User User { get; set; }
+        [ForeignKey("PatientID")]
+        public virtual Patient Patients { get; set; }
     }
 }

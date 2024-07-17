@@ -3,22 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    public class Admin
+    [Table("Allergy")]
+    public class Allergy
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AdminID { get; set; }
+        public int AllergryID { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Username { get; set; }
-
-        [Required]
-        [StringLength(50)]
-
-        public string HashedPassword { get; set; }
-
-        [Required]
-        public int RoleId { get; set; }
+        public string Description { get; set; }
     }
 }

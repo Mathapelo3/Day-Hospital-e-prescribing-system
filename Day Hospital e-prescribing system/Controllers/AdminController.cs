@@ -8,16 +8,26 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.CodeAnalysis.Scripting;
+using BCrypt.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public AdminController(ApplicationDbContext context)
+        private readonly ILogger<AdminController> _logger;
+        private readonly IConfiguration _config;
+        public AdminController(ApplicationDbContext context, ILogger<AdminController> logger, IConfiguration config)
         {
             _context = context;
+            _logger = logger;
+            _config = config;
         }
         public IActionResult Index()
         {
@@ -28,76 +38,331 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult DayHospitalRecords()
+        public async Task<IActionResult> DayHospitalRecords()
         {
-            var model = _context.HospitalRecords.Include(r => r.Suburb).ThenInclude(s => s.City).ToList();
-            var suburbs = _context.Suburbs.Include(s => s.City).ToList();
+            var hospitalRecords = await _context.HospitalRecords
+            .Include(hr => hr.Suburb)
+                .ThenInclude(s => s.City)
+            .ToListAsync();
 
-            ViewBag.Suburbs = new SelectList(suburbs, "SuburbID", "Name");
+            var viewModelList = hospitalRecords.Select(hr => new HospitalRecordViewModel
+            {
+                HospitalRecordID = hr.HospitalRecordID,
+                Name = hr.Name,
+                AddressLine1 = hr.AddressLine1,
+                AddressLine2 = hr.AddressLine2,
+                ContactNo = hr.ContactNo,
+                Email = hr.Email,
+                PMContactNo = hr.PMContactNo,
+                SuburbName = hr.Suburb.Name,
+                PostalCode = hr.Suburb.PostalCode,
+                CityName = hr.Suburb.City.Name
+            }).ToList();
 
-            return View(model);
+            return View(viewModelList);
         }
-       
-        private bool HospitalRecordExists(int id)
+        public async Task<IActionResult> EditHospitalRecord(int id)
         {
-            return _context.HospitalRecords.Any(e => e.HospitalRecordID == id);
+            var hospitalRecord = await _context.HospitalRecords
+            .Include(hr => hr.Suburb)
+                .ThenInclude(s => s.City)
+            .FirstOrDefaultAsync(hr => hr.HospitalRecordID == id);
+
+            if (hospitalRecord == null)
+            {
+                return NotFound();
+            }
+
+            var suburbs = await _context.Suburbs.ToListAsync();
+            var suburbList = suburbs.Select(s => new SelectListItem
+            {
+                Value = s.SuburbID.ToString(),
+                Text = s.Name
+            }).ToList();
+
+            var viewModel = new HospitalRecordViewModel
+            {
+                HospitalRecordID = hospitalRecord.HospitalRecordID,
+                Name = hospitalRecord.Name,
+                AddressLine1 = hospitalRecord.AddressLine1,
+                AddressLine2 = hospitalRecord.AddressLine2,
+                ContactNo = hospitalRecord.ContactNo,
+                Email = hospitalRecord.Email,
+                PMContactNo = hospitalRecord.PMContactNo,
+                SuburbID = hospitalRecord.SuburbID,
+                SuburbName = hospitalRecord.Suburb.Name,
+                PostalCode = hospitalRecord.Suburb.PostalCode,
+                CityName = hospitalRecord.Suburb.City.Name,
+                Suburbs = suburbList
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult UpdateHospitalRecord(int id, [FromBody] UpdateHospitalRecordModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditHospitalRecord(HospitalRecordViewModel viewModel)
         {
-            var record = _context.HospitalRecords.Find(id);
-            if (record != null)
+            if (ModelState.IsValid)
             {
-                if (model.Field == "SuburbID")
+                var hospitalRecord = await _context.HospitalRecords
+                    .Include(hr => hr.Suburb)
+                        .ThenInclude(s => s.City)
+                    .FirstOrDefaultAsync(hr => hr.HospitalRecordID == viewModel.HospitalRecordID);
+
+                if (hospitalRecord == null)
                 {
-                    if (int.TryParse(model.Value, out int suburbId))
+                    return NotFound();
+                }
+
+                hospitalRecord.Name = viewModel.Name;
+                hospitalRecord.AddressLine1 = viewModel.AddressLine1;
+                hospitalRecord.AddressLine2 = viewModel.AddressLine2;
+                hospitalRecord.ContactNo = viewModel.ContactNo;
+                hospitalRecord.Email = viewModel.Email;
+                hospitalRecord.PMContactNo = viewModel.PMContactNo;
+                hospitalRecord.SuburbID = viewModel.SuburbID;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Hospital record updated successfully!";
+                return RedirectToAction(nameof(DayHospitalRecords));
+            }
+
+            viewModel.Suburbs = await _context.Suburbs.Select(s => new SelectListItem
+            {
+                Value = s.SuburbID.ToString(),
+                Text = s.Name
+            }).ToListAsync();
+
+            return View(viewModel);
+        }
+        public async Task<IActionResult> GetSuburbDetails(int suburbID)
+        {
+            var suburb = await _context.Suburbs
+                .Include(s => s.City)
+                .FirstOrDefaultAsync(s => s.SuburbID == suburbID);
+
+            if (suburb == null)
+            {
+                return NotFound();
+            }
+
+            var suburbDetails = new
+            {
+                postalCode = suburb.PostalCode,
+                cityName = suburb.City.Name
+            };
+
+            return Json(suburbDetails);
+        }
+
+        [HttpGet]
+        public IActionResult AddMedicalProfessional()
+        {
+            ViewBag.Roles = GetRoles();
+            var model = new RegisterViewModel
+            {
+                Roles = GetRoles()
+            };
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddMedicalProfessional(RegisterViewModel vm)
+        {
+            vm.Roles = GetRoles();
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return View(vm);
+            }
+
+            bool userExists = UserAlreadyExists(vm.Username);
+
+            if (userExists)
+            {
+                TempData["ErrorMessage"] = "Username already exists!";
+                return View(vm);
+            }
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(vm.Password);
+
+            int adminID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "AdminID").Value);
+
+            string query = "INSERT INTO [User] (Name, Surname, Email, ContactNo, HCRNo, Username, HashedPassword, AdminID, RoleId) " +
+                           "OUTPUT INSERTED.UserID " +
+                           "VALUES (@Name, @Surname, @Email, @ContactNo, @HCRNo, @Username, @HashedPassword, @AdminID, @RoleId)";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        var suburb = _context.Suburbs.Include(s => s.City).FirstOrDefault(s => s.SuburbID == suburbId);
-                        if (suburb != null)
+                        command.Parameters.AddWithValue("@Name", vm.Name);
+                        command.Parameters.AddWithValue("@Surname", vm.Surname);
+                        command.Parameters.AddWithValue("@Email", vm.Email);
+                        command.Parameters.AddWithValue("@ContactNo", vm.ContactNo);
+                        command.Parameters.AddWithValue("@HCRNo", vm.HCRNo);
+                        command.Parameters.AddWithValue("@Username", vm.Username);
+                        command.Parameters.AddWithValue("@HashedPassword", hashedPassword);
+                        command.Parameters.AddWithValue("@AdminID", adminID);
+                        command.Parameters.AddWithValue("@RoleId", vm.RoleId);
+
+                        int userId = (int)await command.ExecuteScalarAsync();
+
+                        await InsertRoleSpecificUser(vm.RoleId, userId);
+
+                        TempData["SuccessMessage"] = "User successfully added into the system.";
+                        return RedirectToAction("MedicalProfessionals");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding the user: {Message}", ex.Message);
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                return View(vm);
+            }
+        }
+
+
+
+        private async Task InsertRoleSpecificUser(int roleId, int userId)
+        {
+            string roleTable = roleId switch
+            {
+                2 => "Pharmacist",
+                3 => "Surgeon",
+                4 => "Nurse",
+                5 => "Anaesthesiologist",
+                _ => throw new ArgumentException("Invalid role ID")
+            };
+
+            string query = $"INSERT INTO [{roleTable}] (UserID) VALUES (@UserID)";
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserID", userId);
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to insert into {roleTable} table: {ex.Message}");
+            }
+        }
+
+        public List<SelectListItem> GetRoles()
+        {
+            List<SelectListItem> roles = new List<SelectListItem>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    connection.Open();
+                    string sql = "SELECT RoleId, Name FROM [Role]";
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            record.SuburbID = suburb.SuburbID;
-                            record.Suburb = suburb;
+                            while (reader.Read())
+                            {
+                                roles.Add(new SelectListItem
+                                {
+                                    Value = reader["RoleId"].ToString(),
+                                    Text = reader["Name"].ToString()
+                                });
+                            }
                         }
                     }
                 }
-                else
-                {
-                    // Update other fields
-                    _context.Entry(record).Property(model.Field).CurrentValue = model.Value;
-                }
-
-                _context.SaveChanges();
-                return Json(new { success = true, suburb = record.Suburb });
             }
-            return Json(new { success = false });
-        }
-
-        public JsonResult GetCityBySuburb(int id)
-        {
-            var suburb = _context.Suburbs.Include(s => s.City).FirstOrDefault(s => s.SuburbID == id);
-            if (suburb != null)
+            catch (Exception ex)
             {
-                return Json(new { cityName = suburb.City.Name, postalCode = suburb.PostalCode });
+                // Log the exception
+                throw new Exception($"Failed to fetch roles: {ex.Message}");
             }
-            return Json(new { cityName = "", postalCode = "" });
+
+            return roles;
         }
 
-
-
-        public IActionResult MedicalProfessionals()
+        private bool UserAlreadyExists(string username)
         {
-            return View();
+            string query = "SELECT COUNT(1) FROM [User] WHERE Username = @Username";
+
+            using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    int count = (int)command.ExecuteScalar();
+                    return count > 0;
+                }
+            }
         }
-        public IActionResult AddMedicalProfessional()
+
+        [HttpGet]
+        public async Task<IActionResult> MedicalProfessionals(int id)
         {
-            return View();
+            List<UserViewModel> medicalProfessionals = new List<UserViewModel>();
+
+            string query = "SELECT u.UserID, u.Name, u.Surname, u.Email, u.ContactNo, u.HCRNo, u.Username, r.Name AS Role " +
+                           "FROM [User] u " +
+                           "JOIN [Role] r ON u.RoleId = r.RoleId";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                medicalProfessionals.Add(new UserViewModel
+                                {
+                                    UserID = reader.GetInt32(0),
+                                    Name = reader.GetString(1),
+                                    Surname = reader.GetString(2),
+                                    Email = reader.GetString(3),
+                                    ContactNo = reader.GetString(4),
+                                    HCRNo = reader.GetString(5),
+                                    Username = reader.GetString(6),
+                                    Role = reader.GetString(7)
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+            }
+
+            return View(medicalProfessionals);
         }
-
+    
         
-        
-       
 
+
+    
         
 
         public IActionResult TheatreRecords()
@@ -123,13 +388,102 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddCondition()
         {
-            var con = _context.Conditions.ToList();
-
             return View();
         }
-        public IActionResult EditCondition()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCondition(ConditionViewModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var condition = new Condition
+                    {
+                        Description = model.Description,
+                        Name = model.Name
+                    };
+
+                    _context.Add(condition);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Condition added successfully.");
+                    return RedirectToAction("ConditionRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while adding condition: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
+        }
+        public async Task<IActionResult> EditCondition(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var condition = await _context.Conditions.FindAsync(id);
+            if (condition == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ConditionViewModel
+            {
+                ConditionID = condition.ConditionID,
+                Description = condition.Description,
+                Name = condition.Name
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCondition(int id, ConditionViewModel model)
+        {
+            if (id != model.ConditionID)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var condition = await _context.Conditions.FindAsync(id);
+                    if (condition == null)
+                    {
+                        return NotFound();
+                    }
+
+                    condition.Description = model.Description;
+                    condition.Name = model.Name;
+
+                    _context.Update(condition);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Condition record updated successfully.");
+                    return RedirectToAction("ConditionRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while updating the condition record: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
         }
         public IActionResult AddContraIndication()
         {

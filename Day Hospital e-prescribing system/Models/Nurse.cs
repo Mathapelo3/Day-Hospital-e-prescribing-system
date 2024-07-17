@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 namespace Day_Hospital_e_prescribing_system.Models
 {
+    [Table("Nurse")]
     public class Nurse
     {
         [Key]

@@ -1,4 +1,7 @@
-﻿@{
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Day_Hospital_e_prescribing_system.ViewModel
+@model Day_Hospital_e_prescribing_system.ViewModel.PatientViewModel
+@{
     ViewData["Title"] = "NewSurgery";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
@@ -11,7 +14,7 @@
             *@
         </div>
         <br />
-        <h4 class="display-6 text-warning text-center text-bold">ADD NEW PATIENT</h4>
+        <h4 class="display-6 text-warning text-center text-bold">ADD NEW PATIENT FOR SURGERY</h4>
     </div>
 </div>
 <section class="content">
@@ -20,40 +23,36 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                       @* <form id="orderForm">
-                            <div class="form-group">
-                                <label for="patient">First Name:</label>
-                                <input asp-for="firstName" class="form-control" />
+                        <form asp-action="AddPatients" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group col-12">
+                                <label asp-for="Name" class="control-label">First Name:</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
-                            <div class="form-group">
-                                <label for="patient">Last Name:</label>
-                                <input asp-for="lastName" class="form-control" />
+                            <div class="form-group col-12">
+                                <label asp-for="Surname" class="control-label">Last Name:</label>
+                                <input asp-for="Surname" class="form-control" />
+                                <span asp-validation-for="Surname" class="text-danger"></span>
                             </div>
-                            <div class="form-group">
-                                <label for="email">Email Address:</label>
-                                <input asp-for="email" class="form-control" />
+                            <div class="form-group col-12">
+                                <label asp-for="ContactNo" class="control-label">Contact Number:</label>
+                                <input asp-for="ContactNo" class="form-control" />
+                                <span asp-validation-for="ContactNo" class="text-danger"></span>
                             </div>
-                            <div class="form-group">
-                                <label for="cell">Cell Number:</label>
-                                <input asp-for="cell" class="form-control" />
+                            <div class="form-group col-12">
+                                <label asp-for="IDNo" class="control-label">ID Number:</label>
+                                <input asp-for="IDNo" class="form-control" />
+                                <span asp-validation-for="IDNo" class="text-danger"></span>
                             </div>
-                            <div class="form-group">
-                                <label for="cell">ID Number:</label>
-                                <input asp-for="cell" class="form-control" />
+                            <div class="row">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-warning">Add</button>
+                                    <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="gender">Gender</label>
-                                <select class="form-control" id="gender" name="gender">
-                                    <option value="gender">---</option>
-                                    <option value="gender">F</option>
-                                    <option value="gender">M</option>
-                                </select>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
-                            </div>
-                            <br />
-                        </form>*@
+                        </form>
                     </div>
                 </div>
             </div>

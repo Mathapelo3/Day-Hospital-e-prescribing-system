@@ -19,6 +19,22 @@
 }
 
 <style>
+    .custom-dropdown {
+        /* Basic styling */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right center;
+        background-position: right 10px top 50%;
+        background-size: 16px 16px;
+        padding-right: 30px; /* Adjust for dropdown arrow */
+    }
+
+    /* Remove arrow for IE10+ */
+    select::-ms-expand {
+        display: none;
+    }
+
     .background {
         background-color: hsl(156, 100%, 50%);
         background-image: radial-gradient(650px circle at 0% 0%, 
@@ -42,53 +58,49 @@
         <br />
         <h2 class="text-white font-weight-bold text-center">REGISTER ACCOUNT</h2>
         <hr class="divider" style="color:white" />
-        <form asp-action="Register">
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="row">
                 <div class="form-group col-6">
-                    <label asp-for="Name" class="control-label text-white">Name & Surname; </label>
+                    <label asp-for="Name" class="control-label text-white">Name: </label>
                     <input asp-for="Name" class="form-control" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="form-group col-6">
-                    <label asp-for="Email" class="control-label text-white">Email</label>
+                    <label asp-for="Surname" class="control-label text-white">Surname:</label>
+                    <input asp-for="Surname" class="form-control" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="form-group col-6">
+                    <label asp-for="Email" class="control-label text-white">Email:</label>
                     <input asp-for="Email" class="form-control" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
-            </div>
-            <div class="row">
                 <div class="form-group col-6">
-                    <label asp-for="Password" class="control-label text-white">Password</label>
-                    <input asp-for="Password" class="form-control" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="form-group col-6">
-                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
-                    <input asp-for="ConfirmPassword" class="form-control" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col-6">
-                    <label asp-for="HCRNo" class="control-label text-white">HC Registration No.</label>
+                    <label asp-for="HCRNo" class="control-label text-white">HC Registration No.:</label>
                     <input asp-for="HCRNo" class="form-control" />
                     <span asp-validation-for="HCRNo" class="text-danger"></span>
                 </div>
+            </div>
+            <br/>
+            <div class="row">
                 <div class="form-group col-6">
-                    <label asp-for="Username" class="control-label text-white">Username</label>
+                    <label asp-for="ContactNo" class="control-label text-white">Contact No.:</label>
+                    <input asp-for="ContactNo" class="form-control" />
+                    <span asp-validation-for="ContactNo" class="text-danger"></span>
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="Username" class="control-label text-white">Username:</label>
                     <input asp-for="Username" class="form-control" />
                     <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
-                
             </div>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username" class="control-label text-white">Username</label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            <br />
+            <br/>
             <div class="row">
                 <div class="form-group col-6">
                     <label asp-for="Password" class="control-label text-white">Password</label>
@@ -101,25 +113,17 @@
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
             </div>
+            <br/>
             <div class="row">
-               @* <div class="form-group col-4">
-                    <label asp-for="RoleId" class="control-label text-white">Role</label>
-                    <select asp-for="RoleId" asp-items="@(new SelectList(ViewBag.Roles,"RoleId", "Name"))" class="form-control">
+                
+                <div class="form-group col-4">
+                    <label asp-for="RoleId" class="control-label text-white">Role:</label>
+                    <select asp-for="RoleId" asp-items="ViewBag.Roles" class="form-control custom-dropdown">
                         <option>Select Role</option>
-                    </select> 
-                    <span asp-validation-for="Role" class="text-danger"></span>
-                </div>*@
-                <div class="form-group col-4">
-                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
-                    <input asp-for="ConfirmPassword" class="form-control" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </select>
+
+                    
                 </div>
-                <div class="form-group col-4">
-                    <label asp-for="ConfirmPassword" class="control-label text-white">Confirm Password</label>
-                    <input asp-for="ConfirmPassword" class="form-control" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-            </div>
             <br />
             <div class="form-group">
                 <input type="submit" value="REGISTER" class="btn btn-success rounded-pill btn-lg w-50 text-bold" />

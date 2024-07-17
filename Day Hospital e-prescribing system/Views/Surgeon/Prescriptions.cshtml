@@ -1,6 +1,9 @@
-﻿@{
+﻿@using Day_Hospital_e_prescribing_system.Models
+@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Prescription>
+@{
     ViewData["Title"] = "Prescriptions";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
+    var prescriptions = ViewBag.Prescription as IEnumerable<Prescription>;
 }
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -8,10 +11,6 @@
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
-            </div>
             <br />
             <h4 class="display-6 text-warning text-center text-bold">PRESCRIPTIONS</h4>
         </div>
@@ -39,7 +38,9 @@
         </div>
     </div>
     <div style="text-align:end">
-        <button class="btn btn-warning text-sm text-bold">New Prescription</button>
+        <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("NewPrescription", "Surgeon")'">
+            New Prescription
+        </button>
     </div>
     <div class="container p-3 text-md-center">
         <table class="table table-bordered table-striped">
@@ -63,36 +64,23 @@
                 </tr>
             </thead>
 
-            <tbody>
-                <tr>
-                    <td>2024-05-02</td>
-                    <td>Anxiolytics 20mg</td>
-                    <td>30</td>
-                    <td>One tablet three times a day after meal</td>
-                    <td>Prescribed</td>
-                    <td>
-                        <div class="text-center">
-                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                            </button>
-                        </div>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        @*}*@
-        @*else
+            @foreach (var prescription in prescriptions)
             {
-                <p>No assignment has been added yet.</p>
-            }*@
-        @*<div class="col-7 text-right">
-            <a asp-controller="Surgeon" asp-action="Create" class="btn btn-outline-warning">Add Assignment</a>
-                <button type="submit" class="btn btn-md btn-outline-danger" onclick="location.href = '@Url.Action("Index","TutorAssign")'">BACK</button>
-            </div>*@
+                <tbody>
+                    <tr>
+                        <td>@prescription.Date</td>
+                        <td>@prescription.Medications</td>
+                        <td>@prescription.Quantity</td>
+                        <td>@prescription.Status</td>
+                        <td>
+                            <a asp-action="EditPresciption" asp-route-id="@prescription.PrescriptionID" class="btn btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            }
+        </table>
+        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashbaord", "Surgeon")'">Back</button>
     </div>
-    <div class="row">
-
-    </div>
-
 </section>
