@@ -26,8 +26,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult Prescriptions()
         {
-            var prescription = _context.Prescriptions.ToList();
-            ViewBag.Prescription = prescription;
+            var prescriptions = _context.Prescriptions.ToList();
+            ViewBag.Prescription = prescriptions;
 
             return View();
         }

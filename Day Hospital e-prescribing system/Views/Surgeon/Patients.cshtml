@@ -3,17 +3,15 @@
 @{
     ViewData["Title"] = "Patients";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
+    var patients = ViewBag.Patient as IEnumerable<Patient>;
 }
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <section class="content">
 
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
-            </div>
             <br />
             <h4 class="display-6 text-warning text-center text-bold">PATIENT RECORDS</h4>
         </div>
@@ -32,11 +30,11 @@
             </div>
         </div>
         <div style="text-align:end">
-            <button class="btn btn-warning text-sm text-bold">Add New Patient</button>
+            <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
+                Add Patient
+            </button>
         </div>
         <br />
-        @* @if (Model.Count() > 0)
-            {*@
         <table id="patientsTable" class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -61,51 +59,24 @@
                 </tr>
             </thead>
 
-            <tbody>
-                <tr>
-                    <td width="15%">Jane Smith</td>
-                    <td width="20%">janesmith2@gmail.com</td>
-                    <td width="10%">0718871234</td>
-                    <td width="10%">F</td>
-                    <td width="10%">Discharged</td>
-                    <td width="10%">
-                        <a asp-controller="Surgeon" asp-action="Record" class="btn btn-warning btn-sm text-sm text-bold">View</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td width="15%">Andre Harris</td>
-                    <td width="20%">AndreHarris@gmail.com</td>
-                    <td width="10%">0817325534</td>
-                    <td width="10%">M</td>
-                    <td width="10%">Discharged</td>
-                    <td width="10%">
-                        <a asp-controller="Surgeon" asp-action="Record" class="btn btn-warning btn-sm text-sm text-bold">View</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td width="15%">John Doe</td>
-                    <td width="20%">DoeJohn@gmail.com</td>
-                    <td width="10%">0763457766</td>
-                    <td width="10%">M</td>
-                    <td width="10%">Admitted</td>
-                    <td width="10%">
-                        <a asp-controller="Surgeon" asp-action="Record" class="btn btn-warning btn-sm text-sm text-bold">View</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        
-        @*}*@
-        @*else
+            @foreach (var patient in patients)
             {
-            <p>No assignment has been added yet.</p>
-            }*@
-        @*<div class="col-7 text-right">
-            <a asp-controller="TutorAssignReport" asp-action="Create" class="btn btn-outline-warning">Add Assignment</a>
-            <button type="submit" class="btn btn-md btn-outline-danger" onclick="location.href = '@Url.Action("Index","TutorAssign")'">BACK</button>
-            </div>*@
+                <tbody>
+                    <tr>
+                        <td>@patient.Name</td>
+                        <td>@patient.Email</td>
+                        <td>@patient.ContactNo</td>
+                        <td>@patient.Gender</td>
+                        <td>@patient.Status</td>
+                        <td>
+                            <a asp-action="EditPatient" asp-route-id="@patient.PatientID" class="btn btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            }
+        </table>
+        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashbaord", "Surgeon")'">Back</button>
     </div>
-    <div class="row">
-    </div>
-
 </section>
