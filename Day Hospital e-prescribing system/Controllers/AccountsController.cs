@@ -181,7 +181,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return View(vm);
             }
 
-            string plainPassword = "Adminuser1";
+            string plainPassword = "Anauser1";
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
             Console.WriteLine(hashedPassword);
             var role = GetRole(vm.Username, vm.Password);

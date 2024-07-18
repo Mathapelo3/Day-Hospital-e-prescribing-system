@@ -6,7 +6,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     [Table("Role")]
     public class Role
     {
-        [Required]
+        [Key]
         public int RoleId { get; set; }
 
         [Required]
