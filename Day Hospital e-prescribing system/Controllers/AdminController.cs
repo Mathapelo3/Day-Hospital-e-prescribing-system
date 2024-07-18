@@ -160,36 +160,34 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
-            ViewBag.Roles = GetRoles();
-            var model = new RegisterViewModel
+            var roles = GetRoles();
+            var model = new UserViewModel
             {
-                Roles = GetRoles()
+                Roles = roles
             };
             return View(model);
         }
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddMedicalProfessional(RegisterViewModel vm)
+        public async Task<IActionResult> AddMedicalProfessional(UserViewModel model)
         {
-            vm.Roles = GetRoles();
-
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                return View(vm);
+                model.Roles = GetRoles();
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors));
+                return View(model);
             }
 
-            bool userExists = UserAlreadyExists(vm.Username);
+            bool userExists = UserAlreadyExists(model.Username);
 
             if (userExists)
             {
                 TempData["ErrorMessage"] = "Username already exists!";
-                return View(vm);
+                return View(model);
             }
 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(vm.Password);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
             int adminID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "AdminID").Value);
 
@@ -204,19 +202,19 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     await connection.OpenAsync();
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Name", vm.Name);
-                        command.Parameters.AddWithValue("@Surname", vm.Surname);
-                        command.Parameters.AddWithValue("@Email", vm.Email);
-                        command.Parameters.AddWithValue("@ContactNo", vm.ContactNo);
-                        command.Parameters.AddWithValue("@HCRNo", vm.HCRNo);
-                        command.Parameters.AddWithValue("@Username", vm.Username);
+                        command.Parameters.AddWithValue("@Name", model.Name);
+                        command.Parameters.AddWithValue("@Surname", model.Surname);
+                        command.Parameters.AddWithValue("@Email", model.Email);
+                        command.Parameters.AddWithValue("@ContactNo", model.ContactNo);
+                        command.Parameters.AddWithValue("@HCRNo", model.HCRNo);
+                        command.Parameters.AddWithValue("@Username", model.Username);
                         command.Parameters.AddWithValue("@HashedPassword", hashedPassword);
                         command.Parameters.AddWithValue("@AdminID", adminID);
-                        command.Parameters.AddWithValue("@RoleId", vm.RoleId);
+                        command.Parameters.AddWithValue("@RoleId", model.RoleId);
 
                         int userId = (int)await command.ExecuteScalarAsync();
 
-                        await InsertRoleSpecificUser(vm.RoleId, userId);
+                        await InsertRoleSpecificUser(model.RoleId, userId);
 
                         TempData["SuccessMessage"] = "User successfully added into the system.";
                         return RedirectToAction("MedicalProfessionals");
@@ -227,9 +225,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 _logger.LogError(ex, "An error occurred while adding the user: {Message}", ex.Message);
                 TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
-                return View(vm);
+                return View(model);
             }
         }
+
 
 
 
