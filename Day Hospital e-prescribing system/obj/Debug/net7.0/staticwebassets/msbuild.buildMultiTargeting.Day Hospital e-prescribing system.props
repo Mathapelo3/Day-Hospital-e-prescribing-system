@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Day Hospital e-prescribing system.props" />
+</Project>

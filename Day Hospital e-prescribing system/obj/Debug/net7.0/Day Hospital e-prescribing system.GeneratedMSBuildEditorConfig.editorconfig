@@ -1,0 +1,349 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Day_Hospital_e_prescribing_system
+build_property.RootNamespace = Day_Hospital_e_prescribing_system
+build_property.ProjectDir = C:\Users\mmmok\OneDrive\Documents\GitHub\Day-Hospital-e-prescribing-system\Day Hospital e-prescribing system\
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\mmmok\OneDrive\Documents\GitHub\Day-Hospital-e-prescribing-system\Day Hospital e-prescribing system
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Accounts/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudHNcTG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Accounts/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudHNcUmVnaXN0ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/AddCondition.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkQ29uZGl0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/AddContraIndication.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkQ29udHJhSW5kaWNhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/AddMedicalProfessional.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkTWVkaWNhbFByb2Zlc3Npb25hbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/AddMedicationInteraction.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRkTWVkaWNhdGlvbkludGVyYWN0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/AdminDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5EYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/ConditionRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ29uZGl0aW9uUmVjb3Jkcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/ContraIndicationRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ29udHJhSW5kaWNhdGlvblJlY29yZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/DayHospitalRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGF5SG9zcGl0YWxSZWNvcmRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/EditCondition.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdENvbmRpdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/EditHospitalRecord.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEhvc3BpdGFsUmVjb3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/MedicalProfessionals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWVkaWNhbFByb2Zlc3Npb25hbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/MedicationInteractionRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWVkaWNhdGlvbkludGVyYWN0aW9uUmVjb3Jkcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/TheatreRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGhlYXRyZVJlY29yZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Admin/WardRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cV2FyZFJlY29yZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/AddVitals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcQWRkVml0YWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/AdmissionRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcQWRtaXNzaW9uUmVjb3Jkcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/AnaesthesiologistDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcQW5hZXN0aGVzaW9sb2dpc3REYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/BookedPatients.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcQm9va2VkUGF0aWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/CaptureOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcQ2FwdHVyZU9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/EditOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcRWRpdE9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/EditVital.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcRWRpdFZpdGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/MaintainVitals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcTWFpbnRhaW5WaXRhbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/MedicalHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcTWVkaWNhbEhpc3RvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/MedicationRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcTWVkaWNhdGlvblJlY29yZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/Orders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcT3JkZXJzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/Prescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcUHJlc2NyaXB0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Anaesthesiologist/ViewPatients.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hZXN0aGVzaW9sb2dpc3RcVmlld1BhdGllbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Home/About.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/AddCodition2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcQWRkQ29kaXRpb24yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/AdministeredMeds.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcQWRtaW5pc3RlcmVkTWVkcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/AdmissionWizard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcQWRtaXNzaW9uV2l6YXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/AdmitPatient.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcQWRtaXRQYXRpZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/AdmittedPatients.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcQWRtaXR0ZWRQYXRpZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/Codition2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcQ29kaXRpb24yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/Discharge.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcRGlzY2hhcmdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/DisplayAdmission.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcRGlzcGxheUFkbWlzc2lvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/DisplayPatientInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcRGlzcGxheVBhdGllbnRJbmZvLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/DisplayVitals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcRGlzcGxheVZpdGFscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/DisplayVitals3.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcRGlzcGxheVZpdGFsczMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/Prescription.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcUHJlc2NyaXB0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/RetakeVitals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcUmV0YWtlVml0YWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/RetakeVitals2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcUmV0YWtlVml0YWxzMi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/RetakeVitals3.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcUmV0YWtlVml0YWxzMy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/UpdatePatientInfo.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcVXBkYXRlUGF0aWVudEluZm8uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/Vitals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcVml0YWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Nurse/Ward.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnVyc2VcV2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/Admission.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxBZG1pc3Npb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/ListDispensedPrescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxMaXN0RGlzcGVuc2VkUHJlc2NyaXB0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/MedicineList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxNZWRpY2luZUxpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/MedicineLogs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxNZWRpY2luZUxvZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/NewStock.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxOZXdTdG9jay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/OrderedMedicine.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxPcmRlcmVkTWVkaWNpbmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/OrderMedicine.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxPcmRlck1lZGljaW5lLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/PatientPrescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxQYXRpZW50UHJlc2NyaXB0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/PharmacistDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxQaGFybWFjaXN0RGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/Prescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxQcmVzY3JpcHRpb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/ReceiveMedicine.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxSZWNlaXZlTWVkaWNpbmUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Pharmacist/ViewPrescription.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGhhcm1hY2lzdFxWaWV3UHJlc2NyaXB0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/AdminLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEFkbWluTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/Anaesthesiologist.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEFuYWVzdGhlc2lvbG9naXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/NurseLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXE51cnNlTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/PharmacistLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFBoYXJtYWNpc3RMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/SurgeonLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFN1cmdlb25MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/AddPatients.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxBZGRQYXRpZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/ConfirmTreatmentCodes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxDb25maXJtVHJlYXRtZW50Q29kZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/DischargePatient.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxEaXNjaGFyZ2VQYXRpZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/EditPrescription.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxFZGl0UHJlc2NyaXB0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/NewPrescription.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxOZXdQcmVzY3JpcHRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/NewSurgery.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxOZXdTdXJnZXJ5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/PatientRecord.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxQYXRpZW50UmVjb3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/Patients.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxQYXRpZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/Prescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxQcmVzY3JpcHRpb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Surgeon/Surgeries.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VyZ2VvblxTdXJnZXJpZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/mmmok/OneDrive/Documents/GitHub/Day-Hospital-e-prescribing-system/Day Hospital e-prescribing system/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-pdullmobdj
