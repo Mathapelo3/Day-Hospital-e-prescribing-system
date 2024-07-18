@@ -250,8 +250,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult DischargePatient()
         {
-            var discharge = _context.Patients.Include(c => c.Status == "Discharged").ToList();
-            ViewBag.Patient = discharge;
+            var items = _context.Patients.Where(p => p.Status == "Discharged").OrderBy(p => p.Name).ToList();
+            ViewBag.Patient = items;
 
             return View();
         }
