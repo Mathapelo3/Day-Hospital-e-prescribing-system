@@ -6,8 +6,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PatientViewModel
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PatientID { get; set; }
 
         public string Name { get; set; }

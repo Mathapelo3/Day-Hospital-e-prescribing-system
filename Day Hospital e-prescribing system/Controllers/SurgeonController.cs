@@ -56,14 +56,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         Name = model.Name,
                         Surname = model.Surname,
-                        DateOfBirth = model.DateOfBirth,
                         IDNo = model.IDNo,
-                        Gender = model.Gender,
-                        AddressLine1 = model.AddressLine1,
-                        AddressLine2 = model.AddressLine2,
-                        Email = model.Email,
                         ContactNo = model.ContactNo,
-                        NextOfKinNo = model.NextOfKinNo
+                        Status = "Booked"
                     };
 
                     _context.Add(patient);
