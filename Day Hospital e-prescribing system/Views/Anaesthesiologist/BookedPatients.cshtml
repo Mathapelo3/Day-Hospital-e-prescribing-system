@@ -38,7 +38,7 @@
     <div><br></div>
     
             <!-- Search bar -->
-    <form method="get" asp-controller="Anesthesiologist" asp-action="ViewPatients">
+    <form method="get" asp-controller="Anesthesiologist" asp-action="BookedPatients">
         <div class="form-row">
             <div class="col-md-3">
                <div class="input-group">
@@ -71,7 +71,6 @@
                                                 <th>Date</th>
                                                 <th>Time</th>
                                                 <th>Patient</th>
-                                                <th>Treatment Code</th>
                                                 <th>Ward</th>
                                                 <th>Bed</th>
                                                 <th>Nurse</th>
@@ -86,9 +85,8 @@
                                                 <tr>
                                                     <td>@item.Date.ToShortDateString()</td>
                                                     <td>@item.Time</td>
-
                                                     <td>@item.Patient</td>
-                                                    <td>@item.Ward</td>
+                                                    <td>@item.Name</td>
                                                     <td>@item.Bed</td>
                                                     <td>@item.Nurse</td>
                                                     <td>@item.Surgeon</td>
