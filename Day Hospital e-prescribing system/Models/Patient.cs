@@ -12,47 +12,47 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Surname { get; set; }
+        public string? Surname { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string DateOfBirth { get; set; }
+        public string? DateOfBirth { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string IDNo { get; set; }
+        public string? IDNo { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Gender { get; set; }
+        public string? Gender { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string AddressLine1 { get; set; }
+        public string? AddressLine1 { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string AddressLine2 { get; set; }
+        public string? AddressLine2 { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string ContactNo { get; set; }
+        public string? ContactNo { get; set; }
 
         [Required]
         [StringLength(20)]
-        public string NextOfKinNo { get; set; }
+        public string? NextOfKinNo { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [Required]
         public int WardID { get; set; }

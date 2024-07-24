@@ -1,6 +1,7 @@
 ﻿using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
@@ -31,13 +32,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View();
         }
-
-        public IActionResult Patients()
+        public async Task<ActionResult> Patients(string searchString)
         {
-            var patients = _context.Patients.ToList();
-            ViewBag.Patient = patients;
+            ViewData["CurrentFilter"] = searchString;
 
-            return View();
+            var patient = from p in _context.Patients
+                          select new Patient
+                          {
+                              PatientID = p.PatientID,
+                              Name = p.Name ?? string.Empty,
+                              Surname = p.Surname ?? string.Empty,
+                              Email = p.Email ?? string.Empty,
+                              IDNo = p.IDNo ?? string.Empty, 
+                              Gender = p.Gender ?? string.Empty,
+                              Status = p.Status ?? string.Empty
+                          };
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                patient = patient.Where(p => p.IDNo.Contains(searchString));
+            }
+
+            return View(await patient.ToListAsync());
         }
 
         public IActionResult AddPatients()
@@ -56,9 +72,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         Name = model.Name,
                         Surname = model.Surname,
+                        Gender = model.Gender,
+                        Email = model.Email,
                         IDNo = model.IDNo,
-                        ContactNo = model.ContactNo,
-                        Status = "Booked"
+                        Status = "Admitted"
                     };
 
                     _context.Add(patient);
@@ -70,6 +87,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     _logger.LogError(ex, "An error occurred while adding patient: {Message}", ex.Message);
                     ModelState.AddModelError("", "Unable to save changes.");
+                    return View(model); // Return the view with the model to show errors
                 }
             }
             else
