@@ -10,7 +10,7 @@
         public string Time { get; set; }
 
         public string Surgery_TreatmentCode { get; set; }
-        public string Ward { get; set; }
+        public string Name { get; set; }
         public string Bed { get; set; }
         public string Nurse { get; set; }
         public string Theatre { get; set; }

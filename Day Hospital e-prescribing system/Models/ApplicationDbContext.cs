@@ -29,6 +29,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Surgery> Surgeries { get; set; }
         public DbSet<Medication> Medications { get; set; }
+
+        public DbSet<General_Medication> General_Medications { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
 
         public DbSet<Admission> Admissions { get; set; }
