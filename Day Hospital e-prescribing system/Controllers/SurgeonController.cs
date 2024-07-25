@@ -1,8 +1,16 @@
-﻿using Day_Hospital_e_prescribing_system.Models;
-using Day_Hospital_e_prescribing_system.ViewModel;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Day_Hospital_e_prescribing_system.Models;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Day_Hospital_e_prescribing_system.ViewModel;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Data.SqlTypes;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -10,10 +18,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SurgeonController> _logger;
-        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger)
+        private readonly IConfiguration _config;
+        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config)
         {
             _context = context;
             _logger = logger;
+            _config = config;
         }
 
         public ActionResult Dashboard()
@@ -75,7 +85,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Gender = model.Gender,
                         Email = model.Email,
                         IDNo = model.IDNo,
-                        Status = "Admitted"
+                        Status = "Booked"
                     };
 
                     _context.Add(patient);
