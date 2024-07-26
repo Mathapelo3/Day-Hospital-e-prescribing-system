@@ -1,33 +1,47 @@
-﻿@{
-    ViewData["Title"] = "Index1";
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientViewModel
+@{
+    ViewData["Title"] = "Medical History";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
     .card-title {
         font-weight: bold;
     }
-    .btn-purple {
-    background-color: purple;
-    color: white;
-        font-weight: bold;
-}
 
+    .btn-purple {
+        background-color: purple;
+        color: white;
+        font-weight: bold;
+    }
+
+
+    .table th, .table td {
+        padding: 5px; /* Reduce padding */
+    }
+
+    .table {
+        width: auto; /* Auto width for the table */
+    }
+
+    .vitals-table th, .vitals-table td {
+        padding: 10px; /* Increase padding */
+        font-size: 1.2em; /* Increase font size */
+    }
+
+    .vitals-table {
+        width: 100%; /* Adjust width as needed */
+    }
 </style>
 
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
-            </div>
-            <br />
             <h4 class="display-6 text-purple text-center text-bold">MEDICAL HISTORY</h4>
         </div>
     </div>
-    <div><br></div>
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -35,10 +49,10 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-md-8">
-                                <h3 class="card-title"> Patient: John Doe</h3><div></br></div>
-                                <h4 class="card-title"> Date: 2024-05-01</h4>
-                                
-                            </div>
+                                <h3 class="card-title">@Model.Name @Model.Surname</h3>
+                              
+                               
+                           </div>
                             <div class="col-md-2 text-right">
                                 <button type="submit" class="btn btn-purple">Prescriptions</button>
                             </div>
@@ -46,287 +60,111 @@
                                 <button type="submit" class="btn btn-purple">Orders</button>
                             </div>
                         </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                           
+                                <h3 class="card-title">@Model.Date.ToString("dd MMM yyyy")</h3>
+                            </div>
                     </div>
-                    </div>
-        </div>
-        <div class="row">
-        @*<div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Medical History</h3>
-            </div>*@
-        <!-- Display patients -->
-
-               </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <!-- Height and Weight -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title"></h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="heightWeightTable" class="table table-bordered table-striped">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Height</th>
+                                    <th>Weight</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>@Model.Height</td>
+                                    <td>@Model.Weight</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Vitals</h2>
+                        <table class="table vitals-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Vital</th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vital in Model.Vitals)
+                                {
+                                    <tr>
+                                        <td>@vital.Time</td>
+                                        <td>@vital.Vital</td>
+                                        <td>@vital.Min</td>
+                                        <td>@vital.Max</td>
+                                        <td>@vital.Notes</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <br />
+                        <div class="row">
+                            <div class="col-md-4">
+                                @*<h3>Allergies</h3>*@
+                                <table class="table">
                                     <thead>
                                         <tr>
-
-                                            <th>Height</th>
-                                            <th>Weight</th>
-                                    
-                                        </tr></thead>
+                                            <th>Allergy</th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
-                                        <!-- Height and weight data will be populated here -->
+                                        @foreach (var allergy in Model.Allergies)
+                                        {
+                                            <tr>
+                                                <td>@allergy</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-4">
+                                @*<h3>Chronic Conditions</h3>*@
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Chronic Conditions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var condition in Model.Conditions)
+                                        {
+                                            <tr>
+                                                <td>@condition</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-4">
+                               @* <h3>Medications</h3>*@
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Current Medication</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var medication in Model.Medications)
+                                        {
+                                            <tr>
+                                                <td>@medication</td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Other columns and tables -->
-            </div>
-                    <div class="col-md-14">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Vitals</h3>
-                            </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="patientsTable" class="table table-bordered table-striped">
-                                <colgroup>
-                                    <!-- Adjust the width as needed -->
-                                    <col> <!-- This col element will automatically adjust to the remaining width -->
-                                    <col> <!-- Add more col elements for other columns if needed -->
-                                    <col>
-                                    <col>
-                                    <col>
-                                    <col>
-                                    <col>
-                                </colgroup>
-                                <thead>
-                                    <tr>
-
-                                        <th>Time</th>
-                                        <th>Temperature</th>
-                                        <th>Blood Pressure</th>
-                                        <th>Pluse Rate</th>
-                                        <th>Respiratory Rate </th>
-                                        <th>Blood Oxygen</th>
-                                        <th>Blood Glucose Level</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Patient data will be populated here -->
-                                </tbody>
-                            </table>
-                            </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <!-- Allergies -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Allergies</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="allergiesTable" class="table table-bordered table-striped">
-                                                <thead></thead>
-                                                <tbody>
-                                                    <!-- Allergy data will be populated here -->
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Current Medication -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Current Medication</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="medicationTable" class="table table-bordered table-striped">
-                                                <thead></thead>
-                                                <tbody>
-                                                    <!-- Medication data will be populated here -->
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Conditions -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Conditions</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="conditionsTable" class="table table-bordered table-striped">
-                                                <thead></thead>
-                                                <tbody>
-                                                    <!-- Condition data will be populated here -->
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-    </div>
-    </div>
 </section>
-
-<script>
-    $(document).ready(function () { 
-
-        // Function to populate patients data based on selected date
-        function populatePatients() {
-            // Dummy data (replace with actual data retrieval logic)
-            var patientsData = [
-                { time: "10:00", temperature: " 35°C", blood: "120 bpm", pulse: "60bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l",notes: "---"},
-                { time: "10:30", temperature: "35°C", blood: "40 bpm", pulse: "100bpm", respiratory: "14bpm", oxygen: "95%", glucose: "80/120 mmol/l",notes: "---" },
-                // Add more patient data as needed
-            ];
-
-            // Clear previous data
-            $("#patientsTable tbody").empty();
-
-            // Populate table with patient data
-            patientsData.forEach(function (patient) {
-                $("#patientsTable tbody").append(
-                    "<tr>" +
-                   
-                    "<td>" + patient.time + "</td>" +
-                    "<td>" + patient.temperature + "</td>" +
-                    "<td>" + patient.blood + "</td>" +
-                    "<td>" + patient.pulse + "</td>" +
-                    "<td>" + patient.respiratory + "</td>" +
-                    "<td>" + patient.oxygen + "</td>" +
-                    "<td>" + patient.glucose + "</td>" +
-                    "<td>" + patient.notes + "</td>" +
-                    "</tr>"
-                );
-            });
-        }
-
-        // Function to populate allergies table
-        function populateAllergies() {
-            // Dummy data (replace with actual data retrieval logic)
-            var allergiesData = [
-                { allergy: "Peanuts" },
-                { allergy: "Penicillin" },
-                // Add more allergy data as needed
-            ];
-
-            // Clear previous data
-            $("#allergiesTable tbody").empty();
-
-            // Populate table with allergy data
-            allergiesData.forEach(function (allergy) {
-                $("#allergiesTable tbody").append(
-                    "<tr>" +
-                    "<td>" + allergy.allergy + "</td>" +
-                    "</tr>"
-                );
-            });
-        }
-
-        // Function to populate current medication table
-        function populateMedication() {
-            // Dummy data (replace with actual data retrieval logic)
-            var medicationData = [
-                { medication: "Aspirin" },
-                { medication: "Amoxicillin" },
-                // Add more medication data as needed
-            ];
-
-            // Clear previous data
-            $("#medicationTable tbody").empty();
-
-            // Populate table with medication data
-            medicationData.forEach(function (medication) {
-                $("#medicationTable tbody").append(
-                    "<tr>" +
-                    "<td>" + medication.medication + "</td>" +
-                    "</tr>"
-                );
-            });
-        }
-
-        // Function to populate conditions table
-        function populateConditions() {
-            // Dummy data (replace with actual data retrieval logic)
-            var conditionsData = [
-                { condition: "Diabetes" },
-                { condition: "Asthma" },
-                // Add more condition data as needed
-            ];
-
-            // Clear previous data
-            $("#conditionsTable tbody").empty();
-
-            // Populate table with condition data
-            conditionsData.forEach(function (condition) {
-                $("#conditionsTable tbody").append(
-                    "<tr>" +
-                    "<td>" + condition.condition + "</td>" +
-                    "</tr>"
-                );
-            });
-        }
-        function populateHeightWeight() {
-            // Dummy data (replace with actual data retrieval logic)
-            var heightWeightData = [
-                { label: "170cm", value: "80 kg" },
-                
-                // Add more height and weight data as needed
-            ];
-
-            // Clear previous data
-            $("#heightWeightTable tbody").empty();
-
-            // Populate table with height and weight data
-            heightWeightData.forEach(function (data) {
-                $("#heightWeightTable tbody").append(
-                    "<tr>" +
-                    "<td>" + data.label + "</td>" +
-                    "<td>" + data.value + "</td>" +
-                    "</tr>"
-                );
-            });
-        }
-
-
-        // Call the functions to populate the tables
-        populatePatients();
-        populateAllergies();
-        populateMedication();
-        populateConditions();
-        populateHeightWeight();
-
-        // Event listener for Prescriptions button
-        $("#prescriptionsButton").click(function () {
-            // Call function to populate prescriptions data
-            // Here, you can add logic to show prescriptions data
-            // For example:
-            alert("Displaying prescriptions data");
-        });
-
-        // Event listener for Orders button
-        $("#ordersButton").click(function () {
-            // Call function to populate orders data
-            // Here, you can add logic to show orders data
-            // For example:
-            alert("Displaying orders data");
-        });
-    });
-</script>
-
-

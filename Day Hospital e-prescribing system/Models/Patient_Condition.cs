@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
+    [Table("Patient_Condition")]
     public class Patient_Condition
     {
         [Key]
@@ -13,12 +14,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int PatientID { get; set; }
         // Navigation property
         [ForeignKey("PatientID")]
-        public virtual Patient Patients { get; set; }
+        public virtual Patient Patient { get; set; }
 
         [Required]
         public int ConditionID { get; set; }
         // Navigation property
         [ForeignKey("ConditionID")]
-        public virtual Condition Conditions { get; set; }
+        public virtual Condition Condition { get; set; }
     }
 }

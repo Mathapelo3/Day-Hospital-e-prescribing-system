@@ -71,5 +71,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("SuburbID")]
         public virtual Suburb Suburbs { get; set; }
+
+        // Navigation properties
+        public virtual ICollection<Patient_Vitals> Patient_Vitals { get; set; }
+        public virtual ICollection<Patient_Allergy> Patient_Allergy { get; set; }
+        public virtual ICollection<Patient_Condition> Patient_Condition { get; set; }
+        public virtual ICollection<Patient_Medication> Patient_Medication { get; set; }
     }
 }
