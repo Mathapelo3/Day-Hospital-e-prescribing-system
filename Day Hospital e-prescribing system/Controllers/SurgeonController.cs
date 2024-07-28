@@ -72,7 +72,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddPatients(PatientViewModel model)
+        public async Task<IActionResult> AddPatients(AddPatientsViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Gender = model.Gender,
                         Email = model.Email,
                         IDNo = model.IDNo,
-                        Status = "Booked"
+                        Status = model.Status,
                     };
 
                     _context.Add(patient);
@@ -97,7 +97,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     _logger.LogError(ex, "An error occurred while adding patient: {Message}", ex.Message);
                     ModelState.AddModelError("", "Unable to save changes.");
-                    return View(model); // Return the view with the model to show errors
                 }
             }
             else

@@ -8,62 +8,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
     {
         public int PatientID { get; set; }
 
-        [Required(ErrorMessage = "Please enter patient name.")]
-        [StringLength(50)]
-        public string Name { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient surname.")]
-        [StringLength(50)]
-        public string Surname { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient date of birth.")]
-        public DateTime DateOfBirth { get; set; }
-
-
-        [Required(ErrorMessage = "Please enter patient ID Number.")]
-        [StringLength(50)]
-        public string IDNo { get; set; }
-
-        [Required(ErrorMessage = "Please select patient gender.")]
-        [StringLength(50)]
-        public string Gender { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient address.")]
-        [StringLength(50)]
-        public string AddressLine1 { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient address.")]
-        [StringLength(50)]
-        public string AddressLine2 { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient email.")]
-        [StringLength(50)]
-        public string Email { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient cell number.")]
-        [StringLength(10)]
-        public string ContactNo { get; set; }
-
-        [Required(ErrorMessage = "Please enter patient cell number.")]
-        [StringLength(10)]
-        public string NextOfKinNo { get; set; }
-
-        public string Status { get; set; }
-
-        [Required]
-        public int WardID { get; set; }
-        // Navigation property
-        [ForeignKey("WardID")]
-        public virtual Ward Wards { get; set; }
-
-        public int TreatmentCode { get; set; }
-
-        [Required]
-        public int SuburbID { get; set; }
-        // Navigation property
-        [ForeignKey("SuburbID")]
-        public virtual Suburb Suburbs { get; set; }
-
         public string Patient { get; set; }
 
         public DateTime Date { get; set; }
@@ -72,6 +16,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Ward { get; set; }
         public string Bed { get; set; }
         public string Nurse { get; set; }
+<<<<<<< HEAD
+        public string Status { get; set; }
+=======
 
         public string Height { get; set; }
         public string Weight { get; set; }
@@ -80,5 +27,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public List<string> Allergies { get; set; }
         public List<string> Conditions { get; set; }
         public List<string> Medications { get; set; }
+>>>>>>> 0bc33f67d25189d703a3ea32bc31ca09b68a6646
     }
 }
