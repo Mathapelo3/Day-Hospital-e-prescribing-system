@@ -27,17 +27,19 @@
     <!-- Default box -->
     <div class="card">
         <div class="card-header">
-            <div class="text-center">
-                @* <img src="~/Images/zoomedLogo (2).png" width="200" /> *@
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
             </div>
             <br />
             <h4 class="display-6 text-purple text-center text-bold"> PATIENT RECORDS</h4>
         </div>
     </div>
     <div><br></div>
-
-    <!-- Search bar -->
-    <form id="filterForm" asp-action="ViewPatients" method="get">
+    
+        
+            <!-- Search bar -->
+        <form asp-action="ViewPatients" method="get" class="form-inline mb-3">
         <div class="form-row">
             <div class="col-md-3">
                 <div class="input-group">
@@ -50,59 +52,57 @@
                 </div>
             </div>
             <div class="col-md-2">
-                <input type="date" name="Date" value="@ViewData["CurrentDate"]" class="form-control" id="dateFilter" />
+                <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
             </div>
+
             <div class="col-md-1 ml-auto">
                 <a href="@Url.Action("ViewPatients", "Anaesthesiologist")" class="btn btn-danger btn-block">Reset</a>
             </div>
         </div>
-
-        <div class="mb-3"></div>
-        <!-- Display patients -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+        <br>
+              
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Surname</th>
+                                    <th>Time</th>
+                                    <th>Ward</th>
+                                    <th>Bed</th>
+                                    <th>Nurse</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Patient</th>
-                                        <th>Time</th>
-                                        <th>Ward</th>
-                                        <th>Bed</th>
-                                        <th>Nurse</th>
-                                        <th>Status</th>
+                                        <td>@item.Date.ToShortDateString()</td>
+                                        <td>@item.Patient</td>
+                                       
+                                        <td>@item.Time</td>
+                                        <td>@item.Ward</td>
+                                        <td>@item.Bed</td>
+                                        <td>@item.Nurse</td>
+                                        <td>@item.Status</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model)
-                                    {
-                                        <tr>
-                                            <td>@item.Date.ToString("dd MMM yyyy")</td>
-                                            <td>@item.Patient</td>
-                                            <td>@item.Time</td>
-                                            <td>@item.Ward</td>
-                                            <td>@item.Bed</td>
-                                            <td>@item.Nurse</td>
-                                            <td>@item.Status</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                }
+                            </tbody>
+                        </table>
+                      
                     </div>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
+    </form>        
 </section>
 
-<script>
-    $(document).ready(function () {
-        $('#dateFilter').change(function () {
-            $('#filterForm').submit();
-        });
-    });
-</script>
+
