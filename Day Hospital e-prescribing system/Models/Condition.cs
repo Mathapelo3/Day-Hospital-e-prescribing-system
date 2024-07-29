@@ -15,7 +15,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Name { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(50)]
         public string Description { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Patient_VitalsID { get; set; }
+        public int Patient_VitalID { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -22,17 +22,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Notes { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string Value { get; set; }
-
-        [StringLength(50)]
-        public string Height { get; set; }
-
-        [StringLength(50)]
-        public string Weight { get; set; }
-
-        [Required]
-        public int VitalsID { get; set; }
+        public int VitalID { get; set; }
         // Navigation property
         [ForeignKey("VitalsID")]
         public virtual Vitals Vitals { get; set; }
@@ -41,6 +31,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int PatientID { get; set; }
         // Navigation property
         [ForeignKey("PatientID")]
-        public virtual Patient Patient { get; set; }
+        public virtual Patient Patients { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AnesthesiologistID { get; set; }
+        public int PharmacistID { get; set; }
 
         [Required]
         public int UserID { get; set; }
