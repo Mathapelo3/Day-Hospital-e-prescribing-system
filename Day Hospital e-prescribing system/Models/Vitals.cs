@@ -5,12 +5,8 @@ namespace Day_Hospital_e_prescribing_system.Models
 {
     public class Vitals
     {
-        [Key]
-        
+        [Key] 
         public int VitalsID { get; set; }
-
-       
-
 
         [Required]
         [StringLength(50)]
@@ -23,10 +19,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string Max { get; set; }
 
-        [StringLength(100)]
-        public string? Height { get; set; }
-
-        [StringLength(100)]
-        public string? Weight { get; set; }
+        
     }
 }

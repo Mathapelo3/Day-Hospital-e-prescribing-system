@@ -6,45 +6,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PatientViewModel
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PatientID { get; set; }
-
-        public string Name { get; set; }
-
-        public string Surname { get; set; }
-
-        public string DateOfBirth { get; set; }
-
-        public string IDNo { get; set; }
-
-        public string Gender { get; set; }
-
-        public string AddressLine1 { get; set; }
-
-        public string AddressLine2 { get; set; }
-
-        public string Email { get; set; }
-
-        public string ContactNo { get; set; }
-
-        public string NextOfKinNo { get; set; }
-
-        public string Status { get; set; }
-
-        [Required]
-        public int WardID { get; set; }
-        // Navigation property
-        [ForeignKey("WardID")]
-        public virtual Ward Wards { get; set; }
-
-        public int TreatmentCode { get; set; }
-
-        [Required]
-        public int SuburbID { get; set; }
-        // Navigation property
-        [ForeignKey("SuburbID")]
-        public virtual Suburb Suburbs { get; set; }
 
         public string Patient { get; set; }
 
@@ -54,5 +16,17 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Ward { get; set; }
         public string Bed { get; set; }
         public string Nurse { get; set; }
+<<<<<<< HEAD
+        public string Status { get; set; }
+=======
+
+        public string Height { get; set; }
+        public string Weight { get; set; }
+
+        public List<VitalsViewModel> Vitals { get; set; }
+        public List<string> Allergies { get; set; }
+        public List<string> Conditions { get; set; }
+        public List<string> Medications { get; set; }
+>>>>>>> 0bc33f67d25189d703a3ea32bc31ca09b68a6646
     }
 }

@@ -10,7 +10,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int MedicationID { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(50)]
         public string Name { get; set; }
 
         [Required]

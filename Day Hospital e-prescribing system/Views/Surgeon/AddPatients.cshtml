@@ -1,20 +1,16 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @using Day_Hospital_e_prescribing_system.ViewModel
-@model Day_Hospital_e_prescribing_system.ViewModel.PatientViewModel
+@model Day_Hospital_e_prescribing_system.ViewModel.AddPatientsViewModel
 @{
-    ViewData["Title"] = "NewSurgery";
+    ViewData["Title"] = "AddPatients";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <div class="card">
     <div class="card-header">
-        <div class="text-center ">
-            @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-            *@
-        </div>
         <br />
-        <h4 class="display-6 text-warning text-center text-bold">ADD NEW PATIENT FOR SURGERY</h4>
+        <h4 class="display-6 text-warning text-center text-bold">ADD NEW PATIENT</h4>
     </div>
 </div>
 <section class="content">
@@ -37,9 +33,18 @@
                                 <span asp-validation-for="Surname" class="text-danger"></span>
                             </div>
                             <div class="form-group col-12">
-                                <label asp-for="ContactNo" class="control-label">Contact Number:</label>
-                                <input asp-for="ContactNo" class="form-control" />
-                                <span asp-validation-for="ContactNo" class="text-danger"></span>
+                                <label asp-for="Email" class="control-label">Email:</label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-12">
+                                <label asp-for="Gender" class="control-label">Gender:</label>
+                                <select asp-for="Gender" class="form-control">
+                                    <option value="">---Select---</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Male">Male</option>
+                                </select>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
                             </div>
                             <div class="form-group col-12">
                                 <label asp-for="IDNo" class="control-label">ID Number:</label>
@@ -48,7 +53,7 @@
                             </div>
                             <div class="row">
                                 <div class="col text-center">
-                                    <button type="submit" class="btn btn-warning">Add</button>
+                                    <input type="submit" value="Add" class="btn btn-warning" />
                                     <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
                                 </div>
                             </div>
@@ -59,3 +64,7 @@
         </div>
     </div>
 </section>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>

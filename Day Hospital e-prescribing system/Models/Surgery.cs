@@ -53,11 +53,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("AnaesthesiologistID")]
         public virtual Anaesthesiologist Anaesthesiologists { get; set; }
 
-        [Required]
-        public int WardID { get; set; }
-        // Navigation property
-        [ForeignKey("WardID")]
-        public virtual Ward Wards { get; set; }
+        
 
         [Required]
         public int SurgeonID { get; set; }

@@ -3,12 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    [Table("Patient_Condition")]
-    public class Patient_Condition
+    public class Patient_Medication
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Patient_ConditionID { get; set; }
+        public int Patient_MedicationID { get; set; }
 
         [Required]
         public int PatientID { get; set; }
@@ -17,9 +16,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual Patient Patient { get; set; }
 
         [Required]
-        public int ConditionID { get; set; }
+        public int General_MedicationID { get; set; }
         // Navigation property
-        [ForeignKey("ConditionID")]
-        public virtual Condition Condition { get; set; }
+        [ForeignKey("General_MedicationID")]
+        public virtual General_Medication General_Medication { get; set; }
     }
 }

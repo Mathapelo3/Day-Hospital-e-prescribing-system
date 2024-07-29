@@ -38,66 +38,70 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = username;
             return View();
         }
-        public async Task<ActionResult> ViewPatients(string searchString,  DateTime? Date)
+        [HttpGet]
+        public async Task<ActionResult> ViewPatients(string searchString, DateTime? Date)
         {
             ViewData["CurrentFilter"] = searchString;
-            
             ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
-
+            _logger.LogInformation("Received date: {Date}", Date?.ToString("yyyy-MM-dd"));
             var patientAdmission = from p in _context.Patients
-                                    join a in _context.Admissions on p.PatientID equals a.PatientID
-                                    join w in _context.Wards on p.WardID equals w.WardID
-                                    join n in _context.Nurses on a.NurseID equals n.NurseID
-                                    join u in _context.Users on n.UserID equals u.UserID
-                                    select new PatientViewModel
-                                    {
-                                        PatientID = p.PatientID,
-                                        Patient = p.Name + " " + p.Surname,
-                                        Date = a.Date,
-                                        Time = a.Time,
-                                        Ward = w.Name,
-                                        Bed = w.Bed,  // Assuming Bed is a property in the Ward table
-                                        Nurse = u.Name + " " + u.Surname,  
-                                        Status = p.Status
-                                    };
+                                   join a in _context.Admissions on p.PatientID equals a.PatientID
+                                   join w in _context.Wards on p.WardID equals w.WardID
+                                   join n in _context.Nurses on a.NurseID equals n.NurseID
+                                   join u in _context.Users on n.UserID equals u.UserID
+                                   select new PatientViewModel
+                                   {
+                                       PatientID = p.PatientID,
+                                       Patient = p.Name + " " + p.Surname,
+                                       Date = a.Date,
+                                       Time = a.Time,
+                                       Ward = w.Name,
+                                       Bed = w.Bed, // Assuming Bed is a property in the Ward table
+                                       Nurse = u.Name + " " + u.Surname,
+                                       Status = p.Status
+                                   };
 
             if (!String.IsNullOrEmpty(searchString))
             {
                 patientAdmission = patientAdmission.Where(pa => pa.Patient.Contains(searchString));
             }
 
-
             if (Date.HasValue)
             {
+                _logger.LogInformation("Filtering by date: {Date}", Date.Value.ToString("yyyy-MM-dd"));
                 patientAdmission = patientAdmission.Where(pa => pa.Date.Date == Date.Value.Date);
             }
-
-            
+        
 
             return View(await patientAdmission.ToListAsync());
+
+            
         }
+
         public async Task<ActionResult> BookedPatients(string searchString, DateTime? Date)
         {
             ViewData["CurrentFilter"] = searchString;
 
-            ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
+            ViewData["CurrentDate"] = Date?.ToString("dd-MM-yyyy");
 
             var bookedPatients = from s in _context.Surgeries
                                     join p in _context.Patients on s.PatientID equals p.PatientID
-                                    join w in _context.Wards on s.WardID equals w.WardID
+                                    
                                     join n in _context.Nurses on s.NurseID equals n.NurseID
                                  join su in _context.Surgeons on s.SurgeonID equals su.SurgeonID
                                  join t in _context.Theatres on s.TheatreID equals t.TheatreID
+                                 join w in _context.Wards on p.WardID equals w.WardID
                                  join c in _context.Surgery_TreatmentCodes on s.Surgery_TreatmentCodeID equals c.Surgery_TreatmentCodeID
                                  join u in _context.Users on n.UserID equals u.UserID
                                  join us in _context.Users on su.UserID equals us.UserID
                                  select new BookedPatientsViewModel
                                     {
                                         SurgeryID = s.SurgeryID,
-                                        Patient = p.Name + " " + p.Surname,
+                                     PatientID = p.PatientID,
+                                     Patient = p.Name + " " + p.Surname,
                                         Date = s.Date,
                                         Time = s.Time,
-                                        Ward = w.Name,
+                                        Name = w.Name,
                                         Bed = w.Bed,  // Assuming Bed is a property in the Ward table
                                         Nurse = u.Name + " " + u.Surname,
                                      Theatre = t.Name,
@@ -121,9 +125,57 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(await bookedPatients.ToListAsync());
         }
-        public ActionResult MedicalHistory()
+        public async Task<ActionResult> MedicalHistory(int id )
         {
-            return View();
+            _logger.LogInformation("MedicalHistory action called with id: {Id}", id);
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid patient id: {Id}", id);
+                return NotFound();
+            }
+
+            var patient = await _context.Patients
+                .Include(p => p.Patient_Vitals)
+                .ThenInclude(pv => pv.Vitals)
+                .Include(p => p.Patient_Allergy)
+                .ThenInclude(pa => pa.Allergy)
+                .Include(p => p.Patient_Condition)
+                .ThenInclude(pc => pc.Condition)
+                .Include(p => p.Patient_Medication)
+                .ThenInclude(pm => pm.General_Medication)
+                .FirstOrDefaultAsync(p => p.PatientID == id);
+
+            if (patient == null)
+            {
+                _logger.LogWarning("Patient not found with id: {Id}", id);
+                return NotFound();
+            }
+
+            var model = new PatientViewModel
+            {
+                PatientID = patient.PatientID,
+                Name = patient.Name,
+                Surname = patient.Surname,
+                Date = patient.Patient_Vitals.FirstOrDefault()?.Date?? DateTime.Now,
+                Height = patient.Patient_Vitals.FirstOrDefault()?.Height, // Correct reference
+                Weight = patient.Patient_Vitals.FirstOrDefault()?.Weight, // Correct reference
+                Vitals = patient.Patient_Vitals.Select(pv => new VitalsViewModel
+                {
+                    Vital = pv.Vitals.Vital,
+                    Min = pv.Vitals.Min,
+                    Max = pv.Vitals.Max,
+                    Date = pv.Date,
+                    Time = pv.Time,
+                    Notes = pv.Notes
+                }).ToList(),
+                Allergies = patient.Patient_Allergy.Select(pa => pa.Allergy.Name).ToList(),
+                Conditions = patient.Patient_Condition.Select(pc => pc.Condition.Name).ToList(),
+                Medications = patient.Patient_Medication.Select(pm => pm.General_Medication.Name).ToList()
+            };
+
+            _logger.LogInformation("MedicalHistory action completed successfully for id: {Id}", id);
+            return View(model);
         }
         public ActionResult Prescriptions()
         {

@@ -1,7 +1,16 @@
-﻿using Day_Hospital_e_prescribing_system.Models;
-using Day_Hospital_e_prescribing_system.ViewModel;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Day_Hospital_e_prescribing_system.Models;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Day_Hospital_e_prescribing_system.ViewModel;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Data.SqlTypes;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -9,10 +18,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SurgeonController> _logger;
-        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger)
+        private readonly IConfiguration _config;
+        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config)
         {
             _context = context;
             _logger = logger;
+            _config = config;
         }
 
         public ActionResult Dashboard()
@@ -31,13 +42,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View();
         }
-
-        public IActionResult Patients()
+        public async Task<ActionResult> Patients(string searchString)
         {
-            var patients = _context.Patients.ToList();
-            ViewBag.Patient = patients;
+            ViewData["CurrentFilter"] = searchString;
 
-            return View();
+            var patient = from p in _context.Patients
+                          select new Patient
+                          {
+                              PatientID = p.PatientID,
+                              Name = p.Name ?? string.Empty,
+                              Surname = p.Surname ?? string.Empty,
+                              Email = p.Email ?? string.Empty,
+                              IDNo = p.IDNo ?? string.Empty, 
+                              Gender = p.Gender ?? string.Empty,
+                              Status = p.Status ?? string.Empty
+                          };
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                patient = patient.Where(p => p.IDNo.Contains(searchString));
+            }
+
+            return View(await patient.ToListAsync());
         }
 
         public IActionResult AddPatients()
@@ -46,7 +72,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddPatients(PatientViewModel model)
+        public async Task<IActionResult> AddPatients(AddPatientsViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -56,14 +82,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         Name = model.Name,
                         Surname = model.Surname,
-                        DateOfBirth = model.DateOfBirth,
-                        IDNo = model.IDNo,
                         Gender = model.Gender,
-                        AddressLine1 = model.AddressLine1,
-                        AddressLine2 = model.AddressLine2,
                         Email = model.Email,
-                        ContactNo = model.ContactNo,
-                        NextOfKinNo = model.NextOfKinNo
+                        IDNo = model.IDNo,
+                        Status = model.Status,
                     };
 
                     _context.Add(patient);
@@ -250,8 +272,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult DischargePatient()
         {
-            var discharge = _context.Patients.Include(c => c.Status == "Discharged").ToList();
-            ViewBag.Patient = discharge;
+            var items = _context.Patients.Where(p => p.Status == "Discharged").OrderBy(p => p.Name).ToList();
+            ViewBag.Patient = items;
 
             return View();
         }

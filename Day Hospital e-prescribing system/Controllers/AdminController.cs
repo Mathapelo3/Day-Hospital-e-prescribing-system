@@ -357,12 +357,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(medicalProfessionals);
         }
-    
-        
-
-
-    
-        
 
         public IActionResult TheatreRecords()
         {

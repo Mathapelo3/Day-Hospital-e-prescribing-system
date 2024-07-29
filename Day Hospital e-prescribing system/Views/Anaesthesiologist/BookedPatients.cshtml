@@ -38,7 +38,7 @@
     <div><br></div>
     
             <!-- Search bar -->
-    <form method="get" asp-controller="Anesthesiologist" asp-action="ViewPatients">
+    <form method="get" asp-controller="Anesthesiologist" asp-action="BookedPatients">
         <div class="form-row">
             <div class="col-md-3">
                <div class="input-group">
@@ -51,7 +51,7 @@
                 </div>
                 </div>
             <div class="col-md-2">
-                <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
+                <input type="date" name="Date" value="@ViewData["CurrentDate"]" class="form-control" />
             </div>
             
             <div class="col-md-1 ml-auto">
@@ -71,7 +71,6 @@
                                                 <th>Date</th>
                                                 <th>Time</th>
                                                 <th>Patient</th>
-                                                <th>Treatment Code</th>
                                                 <th>Ward</th>
                                                 <th>Bed</th>
                                                 <th>Nurse</th>
@@ -86,14 +85,17 @@
                                                 <tr>
                                                     <td>@item.Date.ToShortDateString()</td>
                                                     <td>@item.Time</td>
-
                                                     <td>@item.Patient</td>
-                                                    <td>@item.Ward</td>
+                                                    <td>@item.Name</td>
                                                     <td>@item.Bed</td>
                                                     <td>@item.Nurse</td>
+                                            <td>@item.Theatre</td>
                                                     <td>@item.Surgeon</td>
-                                                    <td>@item.Theatre</td>
-                                            <td><a href="@Url.Action("MedicalHistory", "Aneasthesiologist", new { id = item.PatientID })" class="btn btn-purple">View</a></td>
+                                                    
+                                            <td>
+                                                <a asp-action="MedicalHistory" asp-controller="Anaesthesiologist" asp-route-id="@item.PatientID" class="btn btn-view">View</a>
+                                            </td>
+
                                                 </tr>
                                             }
                                         </tbody>
