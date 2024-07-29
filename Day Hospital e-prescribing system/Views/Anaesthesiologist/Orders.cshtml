@@ -1,4 +1,5 @@
-﻿@{
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.OrderViewModel
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
@@ -14,6 +15,7 @@
         background-color: purple;
         color: white;
         font-weight: bold;
+    }
 </style>
 
 <section class="content">
@@ -48,52 +50,40 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-md-7">
-                                <h3 class="card-title">Patient: John Doe </h3>
-                            </div>
-                            <div class="col-md-3 text-right">
-                                <button type="submit" class="btn btn-purple">View Prescriptions</button>
+                            <div class="col-md-8">
+                                <h3 class="card-title">@Model.Name @Model.Surname</h3>
+                                </div>
+                            
+                            <div class="col-md-2 text-right">
+                                <a href="@Url.Action("Precriptions", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Precriptions</a>
                             </div>
                             <div class="col-md-2 text-right">
-                                <button type="submit" class="btn btn-purple">Order Form</button>
+                                <a href="@Url.Action("Order Form", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Order Form</a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="patientsTable" class="table table-bordered table-striped">
+                            <table class="table">
                                 <thead>
                                     <tr>
-
-                                       
                                         <th>Date</th>
-                                        <th>Medication</th>
-                                        
-                                       
+                                        <th>Medciation</th>
                                         <th>Quantity</th>
                                         <th>Status</th>
-                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    
-                                    <tr>
-                                        
-                                        <td>2024-05-01</td>
-                                        <td>Anxiolytics 20mg</td>
-                                        <td>10</td>
-                                        <td>Ordered</td>
-                                        <td width="10%">
-                                            <div class="text-center">
-                                                <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                    <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                                </button>
-                                            </div>
-
-                                        </td>
-                                    </tr>
-                                   
-                                    <!-- Add more rows dynamically based on data -->
+                                    @foreach (var order in Model.Orders)
+                                    {
+                                        <tr>
+                                           
+                                            <td>@order.Date.ToString("dd MMM yyyy")</td>
+                                            <td>@order.Medication</td>
+                                            <td>@order.Quantity</td>
+                                            <td>@order.Status</td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>

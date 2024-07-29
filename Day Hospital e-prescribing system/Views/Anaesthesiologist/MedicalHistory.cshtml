@@ -54,10 +54,10 @@
                                
                            </div>
                             <div class="col-md-2 text-right">
-                                <button type="submit" class="btn btn-purple">Prescriptions</button>
+                                <a href="@Url.Action("Prescriptions", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Prescriptions</a>
                             </div>
                             <div class="col-md-2 text-right">
-                                <button type="submit" class="btn btn-purple">Orders</button>
+                                <a href="@Url.Action("Orders", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Orders</a>
                             </div>
                         </div>
                     <div class="row">

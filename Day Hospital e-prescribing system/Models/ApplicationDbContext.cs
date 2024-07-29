@@ -28,7 +28,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Surgery> Surgeries { get; set; }
-        public DbSet<Medication> Medications { get; set; }
+        public DbSet<Medication> Medication { get; set; }
         public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
         public DbSet<Admission> Admissions { get; set; }
@@ -42,8 +42,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Patient_Condition> Patient_Condition { get; set; }
 
         public DbSet<Patient_Medication> Patient_Medication { get; set; }
+        public DbSet<Orders> Orders { get; set; }
 
-        
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

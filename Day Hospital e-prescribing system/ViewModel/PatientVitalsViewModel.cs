@@ -7,7 +7,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModels
 {
     public class PatientVitalsViewModel
     {
+        
         [Required]
+        public int PrescriptionID { get; set; }
         public DateTime Date { get; set; }
 
         [Required]
@@ -25,6 +27,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModels
 
         [Required]
         public int PatientID { get; set; }
+
+
+
 
         public List<VitalsViewModel> Vitals { get; set; }
     }

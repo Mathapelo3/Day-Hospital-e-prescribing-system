@@ -11,6 +11,7 @@ using Day_Hospital_e_prescribing_system.ViewModel;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SqlTypes;
+using Day_Hospital_e_prescribing_system.ViewModels;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -177,13 +178,81 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             _logger.LogInformation("MedicalHistory action completed successfully for id: {Id}", id);
             return View(model);
         }
-        public ActionResult Prescriptions()
+        public async Task<ActionResult> Prescriptions(int id)
         {
-            return View();
+            _logger.LogInformation("Prescriptions action called with id: {Id}", id);
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid patient id: {Id}", id);
+                return NotFound();
+            }
+
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null)
+            {
+                _logger.LogWarning("Patient not found with id: {Id}", id);
+                return NotFound();
+            }
+
+            var prescriptions = await _context.Prescriptions
+        .Where(p => p.PatientID == id)
+        .Include(p => p.Medication)
+        .Include(p => p.Surgeon)
+        .ThenInclude(s => s.User)
+        .ToListAsync();
+
+            var prescriptionViewModels = prescriptions.Select(p => new PrescriptionViewModel
+            {
+                Medication = p.Medication.Name,
+                Instruction = p.Instruction,
+                Date = p.Date,
+                Quantity = p.Quantity,
+                Status = p.Status,
+                Urgency = p.Urgency,
+                Name = patient.Name,
+                Surname = patient.Surname,
+                PatientID = p.PatientID,
+                SurgeryID = p.SurgeonID,
+                MedicationID = p.MedicationID,
+                Surgeon = p.Surgeon.User.Name + " " + p.Surgeon.User.Surname // Assuming you have a Name property in Surgeon model
+            }).ToList();
+
+            return View(prescriptionViewModels);
         }
-        public ActionResult Orders()
+        public async Task<ActionResult> Orders(int id)
         {
-            return View();
+            _logger.LogInformation("Orders action called with id: {Id}", id);
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid patient id: {Id}", id);
+                return NotFound();
+            }
+
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null)
+            {
+                _logger.LogWarning("Patient not found with id: {Id}", id);
+                return NotFound();
+            }
+
+            var orders = await _context.Orders
+                .Where(o => o.PatientID == id)
+                .ToListAsync();
+
+            var orderViewModels = orders.Select(o => new OrderViewModel
+            {
+                
+                Date = o.Date,
+                Medication = o.Medications.Name,
+                Quantity = o.Quantity,
+                Status = o.Status,
+                Name = patient.Name,
+                Surname = patient.Surname
+            }).ToList();
+
+            return View(orderViewModels);
         }
         public ActionResult CaptureOrders()
         {
