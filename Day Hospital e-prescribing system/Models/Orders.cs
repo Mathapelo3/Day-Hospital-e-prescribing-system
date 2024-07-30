@@ -9,9 +9,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderID { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Name { get; set; }
+       
 
         [Required]
         public DateTime Date { get; set; }
@@ -26,11 +24,11 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [StringLength(50)]
-        public string Urgency { get; set; }
+        public bool Urgency { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Administered { get; set; }
+        public bool Administered { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -53,16 +51,16 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("AnaesthesiologistID")]
         public virtual Anaesthesiologist Anaesthesiologist { get; set; }
         [Required]
-        public int SurgeonID { get; set; }
+        public int SurgeryID { get; set; }
         // Navigation property
-        [ForeignKey("SurgeonID")]
-        public virtual Surgeon Surgeon { get; set; }
+        [ForeignKey("SurgeryID")]
+        public virtual Surgery Surgery { get; set; }
 
         [Required]
         public int MedicationID { get; set; }
         // Navigation property
         [ForeignKey("MedicationID")]
-        public virtual Medication Medications { get; set; }
+        public virtual Medication Medication { get; set; }
     }
 
 }

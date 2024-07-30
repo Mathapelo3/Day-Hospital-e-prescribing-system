@@ -1,4 +1,4 @@
-﻿@model Day_Hospital_e_prescribing_system.ViewModel.OrderViewModel
+﻿@model List<Day_Hospital_e_prescribing_system.ViewModel.OrderViewModel>
 @{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
@@ -51,14 +51,14 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-md-8">
-                                <h3 class="card-title">@Model.Name @Model.Surname</h3>
+                                <h3 class="card-title">@Model.FirstOrDefault()?.Name @Model.FirstOrDefault()?.Surname</h3>
                                 </div>
                             
                             <div class="col-md-2 text-right">
-                                <a href="@Url.Action("Precriptions", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Precriptions</a>
+                                <a href="@Url.Action("Precriptions", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID  })" class="btn btn-purple">Precriptions</a>
                             </div>
                             <div class="col-md-2 text-right">
-                                <a href="@Url.Action("Order Form", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Order Form</a>
+                                <a href="@Url.Action("Order Form", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID  })" class="btn btn-purple">Order Form</a>
                             </div>
                         </div>
                     </div>
@@ -71,10 +71,11 @@
                                         <th>Medciation</th>
                                         <th>Quantity</th>
                                         <th>Status</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var order in Model.Orders)
+                                    @foreach (var order in Model)
                                     {
                                         <tr>
                                            
@@ -82,6 +83,11 @@
                                             <td>@order.Medication</td>
                                             <td>@order.Quantity</td>
                                             <td>@order.Status</td>
+                                              <td>
+                                            <a asp-action="EditVital" asp-route-id="@order.OrderID" class="btn btn-primary">
+                                                <i class="fas fa-edit"></i> 
+                                            </a>
+                                        </td>
                                         </tr>
                                     }
                                 </tbody>

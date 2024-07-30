@@ -239,17 +239,20 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var orders = await _context.Orders
                 .Where(o => o.PatientID == id)
+                .Include(o => o.Medication)
                 .ToListAsync();
 
             var orderViewModels = orders.Select(o => new OrderViewModel
             {
                 
                 Date = o.Date,
-                Medication = o.Medications.Name,
+                Medication = o.Medication?.Name ?? "No Medication",
                 Quantity = o.Quantity,
                 Status = o.Status,
                 Name = patient.Name,
-                Surname = patient.Surname
+                Surname = patient.Surname,
+                MedicationID = o.MedicationID,
+                
             }).ToList();
 
             return View(orderViewModels);
