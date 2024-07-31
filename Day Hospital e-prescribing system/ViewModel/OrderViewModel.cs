@@ -14,6 +14,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Status { get; set; }
         public string Medication { get; set; }
         public string Quantity { get; set; }
+
+        public string Patient { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
 
