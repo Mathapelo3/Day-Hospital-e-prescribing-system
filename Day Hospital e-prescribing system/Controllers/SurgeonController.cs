@@ -71,13 +71,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(prescription);
         }
-        //public IActionResult Prescriptions()
-        //{
-        //    var prescriptions = _context.Prescriptions.ToList();
-        //    ViewBag.Prescription = prescriptions;
-
-        //    return View();
-        //}
         public async Task<ActionResult> Patients(string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
