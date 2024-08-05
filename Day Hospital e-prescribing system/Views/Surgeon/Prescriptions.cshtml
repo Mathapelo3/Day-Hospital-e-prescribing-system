@@ -1,9 +1,8 @@
-﻿@using Day_Hospital_e_prescribing_system.Models
-@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Prescription>
+﻿@model List<Day_Hospital_e_prescribing_system.Models.Prescription>
+
 @{
     ViewData["Title"] = "Prescriptions";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
-    var prescriptions = ViewBag.Prescription as IEnumerable<Prescription>;
 }
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -15,26 +14,12 @@
             <h4 class="display-6 text-warning text-center text-bold">PRESCRIPTIONS</h4>
         </div>
     </div>
-    <h5 class="display-6 text-bold">Patient Name: John Doe</h5>
+    <h5 class="display-6 text-bold">@Model.FirstOrDefault()?.Patient.Name @Model.FirstOrDefault()?.Patient.Surname</h5>
 
     <br />
     <div class="row mb-3">
         <div class="col-md-4">
-            <!-- Search bar -->
-            <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <!-- Admission date filter -->
-            <div class="input-group">
-                <input type="date" id="admissionDateFilter" class="form-control">
-            </div>
+            <input type="date" name="Date" value="@ViewData["CurrentDate"]" class="form-control" id="dateFilter" />
         </div>
     </div>
     <div style="text-align:end">
@@ -59,18 +44,23 @@
                         Instruction
                     </th>
                     <th>
+                        Urgency
+                    </th>
+                    <th>
                         Status
                     </th>
                 </tr>
             </thead>
 
-            @foreach (var prescription in prescriptions)
+            @foreach (var prescription in Model)
             {
                 <tbody>
                     <tr>
-                        <td>@prescription.Date</td>
-                        <td>@prescription.Medication</td>
+                        <td>@prescription.Date.ToString("dd MMM yyyy")</td>
+                        <td>@prescription.Medication.Name</td>
                         <td>@prescription.Quantity</td>
+                        <td>@prescription.Instruction</td>
+                        <td>@(prescription.Urgency ? "Yes" : "No")</td>
                         <td>@prescription.Status</td>
                         <td>
                             <a asp-action="EditPresciption" asp-route-id="@prescription.PrescriptionID" class="btn btn-primary">
@@ -84,3 +74,11 @@
         <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashbaord", "Surgeon")'">Back</button>
     </div>
 </section>
+
+<script>
+    $(document).ready(function () {
+        $('#dateFilter').change(function () {
+            $('#filterForm').submit();
+        });
+    });
+</script>

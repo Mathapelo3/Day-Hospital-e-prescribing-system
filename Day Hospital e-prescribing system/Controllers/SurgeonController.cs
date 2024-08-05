@@ -34,14 +34,50 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = username;
             return View();
         }
-
-        public IActionResult Prescriptions()
+        public async Task<ActionResult> Prescriptions(int id)
         {
-            var prescriptions = _context.Prescriptions.ToList();
-            ViewBag.Prescription = prescriptions;
+            _logger.LogInformation("Prescriptions action called with id: {Id}", id);
 
-            return View();
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid patient id: {Id}", id);
+                return NotFound();
+            }
+
+            var patient = await _context.Patients.FindAsync(id);
+            if (patient == null)
+            {
+                _logger.LogWarning("Patient not found with id: {Id}", id);
+                return NotFound();
+            }
+
+            var prescriptions = await _context.Prescriptions
+                .Where(p => p.PatientID == id)
+                .Include(p => p.Medication)
+                .ToListAsync();
+
+            var prescription = prescriptions.Select(p => new Prescription
+            {
+                Medication = p.Medication,
+                Instruction = p.Instruction,
+                Date = p.Date,
+                Quantity = p.Quantity,
+                Status = p.Status,
+                Urgency = p.Urgency,
+                Patient = p.Patient,
+                PatientID = p.PatientID,
+                MedicationID = p.MedicationID,
+            }).ToList();
+
+            return View(prescription);
         }
+        //public IActionResult Prescriptions()
+        //{
+        //    var prescriptions = _context.Prescriptions.ToList();
+        //    ViewBag.Prescription = prescriptions;
+
+        //    return View();
+        //}
         public async Task<ActionResult> Patients(string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -114,11 +150,62 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View();
         }
+        [HttpGet]
+        public IActionResult GetPatients()
+        {
+            var selectListItems = _context.Patients.Select(p => new SelectListItem
+            {
+                Value = p.PatientID.ToString(),
+                Text = $"{p.Name} {p.Surname}"
+            }).ToList();
 
+            var viewModel = new PrescriptionViewModel
+            {
+                PatientList = new SelectList(selectListItems, "Value", "Text")
+            };
+
+            return View(viewModel);
+        }
+        [HttpGet]
+        public IActionResult GetMedication()
+        {
+            var selectListItems = _context.Medication.Select(p => new SelectListItem
+            {
+                Value = p.MedicationID.ToString(),
+                Text = p.Name
+            }).ToList();
+
+            var viewModel = new PrescriptionViewModel
+            {
+                MedicationList = new SelectList(selectListItems, "Value", "Text")
+            };
+
+            return View(viewModel);
+        }
+        [HttpGet]
         public IActionResult NewPrescription()
         {
-            return View();
+            var patientSelectListItems = _context.Patients.Select(p => new SelectListItem
+            {
+                Value = p.PatientID.ToString(),
+                Text = $"{p.Name} {p.Surname}"
+            }).ToList();
+
+            var medicationSelectListItems = _context.Medication.Select(m => new SelectListItem
+            {
+                Value = m.MedicationID.ToString(),
+                Text = m.Name
+            }).ToList();
+
+            var viewModel = new PrescriptionViewModel
+            {
+                PatientList = new SelectList(patientSelectListItems, "Value", "Text"),
+                MedicationList = new SelectList(medicationSelectListItems, "Value", "Text")
+            };
+
+            return View(viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewPrescription(PrescriptionViewModel model)

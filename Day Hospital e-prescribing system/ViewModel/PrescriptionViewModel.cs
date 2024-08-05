@@ -1,10 +1,17 @@
-﻿ using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PrescriptionViewModel
     {
+        public PrescriptionViewModel()
+        {
+            PatientList = new List<SelectListItem>(); 
+            MedicationList = new List<SelectListItem>(); 
+        }
+
         [Required]
         public int PrescriptionID { get; set; }
         public string Medication { get; set; }
@@ -25,6 +32,12 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public int MedicationID { get; set; }
 
         public List<PrescriptionViewModel> Prescriptions { get; set; }
+
+        public int SelectedPatientId { get; set; }
+        public IEnumerable<SelectListItem> PatientList { get; set; }
+
+        public int SelectedMedicationId { get; set; }
+        public IEnumerable<SelectListItem> MedicationList { get; set; }
     }
 }
 
