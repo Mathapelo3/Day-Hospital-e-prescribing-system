@@ -1,5 +1,6 @@
-﻿@{
-    ViewData["Title"] = "Order List";
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.OrderViewModel
+@{
+    ViewData["Title"] = "Edit Order";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -26,7 +27,7 @@
                 *@
             </div>
             <br />
-            <h4 class="display-6 text-purple text-center text-bold">ORDER LIST</h4>
+            <h4 class="display-6 text-purple text-center text-bold">EDIT ORDER</h4>
         </div>
     </div>
     <div><br></div>
@@ -45,66 +46,62 @@
                 </div>
 
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Patient</th>
-                                   
-                                    <th>Medication</th>
-                                <th>Quantity</th>
-                                    <th>Status</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Sample row, replace with actual data -->
-                                <tr>
-                                    <td>2024-05-10</td>
-                                    <td>Joe Doe</td>
-                                    
-                                    <td>Anxiolytics 20mg</td>
-                                    <td>10</td>
-                                    <td>Ordered</td>
-                                    <td width="10%">
-                                        <div class="text-center">
-                                            <div class="text-center">
-                                                <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                    <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                                </button>
-                                        </div>
-                                        </div>
+                    <h1>Edit Order</h1>
 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2024-05-15</td>
-                                    <td>Alice Lee</td>
-                                  
-                                    <td>Anxiolytics 20mg</td>
-                                    <td>20</td>
-                                    <td>Dispensed</td>
-                                    <td width="10%">
-                                       @* <div <button type="button" class="btn btn-primary" onclick="editVital()"></></button>
-
-                                            </div>*@
-                                    </td>
-                                </tr>
-                                <!-- Add more rows dynamically based on data -->
-                            </tbody>
-                        </table>
-                    </div>
-                   
-                    <div>
-                        <div class="text-center">
-                            <button type="button" class="btn btn-purple">Save</button>
+                    <h4>Order</h4>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-4">
+                            <form asp-action="Edit">
+                                <div class="form-group">
+                                    <label asp-for="Date" class="control-label"></label>
+                                    <input asp-for="Date" class="form-control" />
+                                    <span asp-validation-for="Date" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Quantity" class="control-label"></label>
+                                    <input asp-for="Quantity" class="form-control" />
+                                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Status" class="control-label"></label>
+                                    <input asp-for="Status" class="form-control" />
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Name" class="control-label"></label>
+                                    <input asp-for="Name" class="form-control" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Surname" class="control-label"></label>
+                                    <input asp-for="Surname" class="form-control" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Medication" class="control-label"></label>
+                                    <input asp-for="Medication" class="form-control" readonly />
+                                </div>
+                                <input type="hidden" asp-for="OrderID" />
+                                <div class="form-group">
+                                    <input type="submit" value="Save" class="btn btn-primary" />
+                                </div>
+                            </form>
                         </div>
                     </div>
 
+                    <div>
+                        <a asp-action="Index">Back to List</a>
+                    </div>
+
+                    @section Scripts {
+                        @{
+                            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+                        }
+                    }
                 </div>
             </div>
+
         </div>
     </div>
+
+   
 </section>
-<!-- /.content -->

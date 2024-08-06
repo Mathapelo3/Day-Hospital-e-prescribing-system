@@ -1,6 +1,6 @@
 ﻿@model List<Day_Hospital_e_prescribing_system.ViewModel.OrderViewModel>
 @{
-    ViewData["Title"] = "Index1";
+    ViewData["Title"] = "Patient Orders";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -26,7 +26,7 @@
                 *@
             </div>
             <br />
-            <h4 class="display-6 text-purple text-center text-bold">ORDERS</h4>
+            <h4 class="display-6 text-purple text-center text-bold">PATIENT ORDERS</h4>
         </div>
     </div>
     <div><br /></div>
@@ -55,10 +55,10 @@
                                 </div>
                             
                             <div class="col-md-2 text-right">
-                                <a href="@Url.Action("Precriptions", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID  })" class="btn btn-purple">Precriptions</a>
+                                <a href="@Url.Action("Prescriptions", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID  })" class="btn btn-purple">Prescriptions</a>
                             </div>
                             <div class="col-md-2 text-right">
-                                <a href="@Url.Action("Order Form", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID  })" class="btn btn-purple">Order Form</a>
+                                <a href="@Url.Action("CaptureOrders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID  })" class="btn btn-purple">Order Form</a>
                             </div>
                         </div>
                     </div>
@@ -84,9 +84,10 @@
                                             <td>@order.Quantity</td>
                                             <td>@order.Status</td>
                                               <td>
-                                            <a asp-action="EditVital" asp-route-id="@order.OrderID" class="btn btn-primary">
-                                                <i class="fas fa-edit"></i> 
-                                            </a>
+                                                @if (order.Status == "ordered")
+                                                {
+                                                    <a asp-action="EditOrders" asp-route-id="@order.OrderID" class="btn btn-primary">Edit</a>
+                                                }
                                         </td>
                                         </tr>
                                     }

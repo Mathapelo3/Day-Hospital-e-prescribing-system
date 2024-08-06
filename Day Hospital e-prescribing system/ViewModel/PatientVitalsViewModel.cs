@@ -13,7 +13,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModels
         public DateTime Date { get; set; }
 
         [Required]
-        public TimeSpan Time { get; set; }
+        public string Time { get; set; }
 
         [Required]
         [StringLength(200)]

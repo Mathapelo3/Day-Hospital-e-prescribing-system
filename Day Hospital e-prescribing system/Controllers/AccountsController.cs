@@ -100,7 +100,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
         }
 
-
         private async Task InsertRoleSpecificUser(int roleId, int userId)
         {
             string roleTable = roleId switch
@@ -181,93 +180,193 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return View(vm);
             }
 
-            string plainPassword = "Anauser1";
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
-            Console.WriteLine(hashedPassword);
-            var role = GetRole(vm.Username, vm.Password);
+            string role = GetRole(vm.Username, vm.Password);
 
             if (!string.IsNullOrEmpty(role))
             {
-                var adminDetails = _helper.GetAdminByUsername("SELECT * FROM Admin WHERE Username=@Username", vm.Username);
-                if (adminDetails != null)
-                {
-                    var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, vm.Username),
-                new Claim("Role", role),
-                new Claim("AdminID", adminDetails.AdminID.ToString())
-            };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = true
-                    };
-
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
-
-                    HttpContext.Session.SetString("Username", vm.Username);
-                    HttpContext.Session.SetString("Role", role);
-                }
-
-                // Redirect based on role
                 switch (role.ToLower())
                 {
                     case "admin":
+                        await SignInAdmin(vm.Username, role);
                         return RedirectToAction("AdminDashboard", "Admin");
                     case "surgeon":
+                        await SignInSurgeon(vm.Username, role);
                         return RedirectToAction("Dashboard", "Surgeon");
                     case "nurse":
+                        await SignInNurse(vm.Username, role);
                         return RedirectToAction("Dashboard", "Nurse");
                     case "pharmacist":
+                        await SignInPharmacist(vm.Username, role);
                         return RedirectToAction("PharmacistDashboard", "Pharmacist");
                     case "anaesthesiologist":
+                        await SignInAnaesthesiologist(vm.Username, role);
                         return RedirectToAction("AnaesthesiologistDashboard", "Anaesthesiologist");
+                    default:
+                        ModelState.AddModelError("", "Invalid role.");
+                        break;
                 }
             }
+            else
+            {
+                ModelState.AddModelError("", "Incorrect username or password.");
+            }
 
-            ModelState.AddModelError("", "Incorrect username or password.");
             return View(vm);
         }
 
+        private async Task SignInAdmin(string username, string role)
+        {
+            var adminDetails = _helper.GetAdminByUsername("SELECT * FROM Admin WHERE Username=@Username", username);
+            if (adminDetails != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, adminDetails.AdminID.ToString()),
+                    new Claim("Role", role),
+                    new Claim("AdminID", adminDetails.AdminID.ToString())
+                };
 
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Role", role);
+            }
+        }
+
+        private async Task SignInSurgeon(string username, string role)
+        {
+            var surgeonDetails = _helper.GetSurgeonByUsername(@"
+                SELECT s.SurgeonID, s.UserID, u.HashedPassword 
+                FROM Surgeon s
+                INNER JOIN [User] u ON s.UserID = u.UserID
+                WHERE u.Username = @Username", username);
+            if (surgeonDetails != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, surgeonDetails.SurgeonID.ToString()),
+                    new Claim("Role", role),
+                    new Claim("SurgeonID", surgeonDetails.SurgeonID.ToString())
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Role", role);
+            }
+        }
+
+        private async Task SignInNurse(string username, string role)
+        {
+            var nurseDetails = _helper.GetNurseByUsername(@"
+                SELECT n.NurseID, n.UserID, u.HashedPassword 
+                FROM Nurse n
+                INNER JOIN [User] u ON n.UserID = u.UserID
+                WHERE u.Username = @Username", username);
+            if (nurseDetails != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, nurseDetails.NurseID.ToString()),
+                    new Claim("Role", role),
+                    new Claim("NurseID", nurseDetails.NurseID.ToString())
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Role", role);
+            }
+        }
+
+        private async Task SignInPharmacist(string username, string role)
+        {
+            var pharmacistDetails = _helper.GetPharmacistByUsername(@"
+                SELECT p.PharmacistID, p.UserID, u.HashedPassword 
+                FROM Pharmacist p
+                INNER JOIN [User] u ON p.UserID = u.UserID
+                WHERE u.Username = @Username", username);
+            if (pharmacistDetails != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, pharmacistDetails.PharmacistID.ToString()),
+                    new Claim("Role", role),
+                    new Claim("PharmacistID", pharmacistDetails.PharmacistID.ToString())
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Role", role);
+            }
+        }
+
+        private async Task SignInAnaesthesiologist(string username, string role)
+        {
+            var anaesthesiologistDetails = _helper.GetAnaesthesiologistByUsername(@"
+                SELECT a.AnaesthesiologistID, a.UserID, u.HashedPassword 
+                FROM Anaesthesiologist a
+                INNER JOIN [User] u ON a.UserID = u.UserID
+                WHERE u.Username = @Username", username);
+            if (anaesthesiologistDetails != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, anaesthesiologistDetails.AnaesthesiologistID.ToString()),
+                    new Claim("Role", role),
+                    new Claim("AnaesthesiologistID", anaesthesiologistDetails.AnaesthesiologistID.ToString())
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Role", role);
+            }
+        }
 
         private string GetRole(string username, string password)
         {
             try
             {
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-
                 // Check in Admin table first
                 string adminQuery = "SELECT * FROM Admin WHERE Username=@Username";
                 var adminDetails = _helper.GetAdminByUsername(adminQuery, username);
 
-                if (adminDetails != null && adminDetails.Username != null)
+                if (adminDetails != null && BCrypt.Net.BCrypt.Verify(password, adminDetails.HashedPassword))
                 {
-                    if (BCrypt.Net.BCrypt.Verify(password, adminDetails.HashedPassword))
-                    {
-                        var roles = _helper.GetEntityById("SELECT * FROM [Role] WHERE RoleId=@RoleId", adminDetails.RoleId.ToString());
-                        return roles.Name;
-                    }
+                    var roles = _helper.GetEntityById("SELECT * FROM [Role] WHERE RoleId=@RoleId", adminDetails.RoleId.ToString());
+                    return roles.Name;
                 }
-                else
-                {
-                    // Check in User table if not admin
-                    string userQuery = "SELECT * FROM [User] WHERE Username=@Username";
-                    var userDetails = _helper.GetUserByUsername(userQuery, username);
 
-                    if (userDetails != null && userDetails.Username != null)
-                    {
-                        if (BCrypt.Net.BCrypt.Verify(password, userDetails.HashedPassword))
-                        {
-                            var roles = _helper.GetEntityById("SELECT * FROM [Role] WHERE RoleId=@RoleId", userDetails.RoleId.ToString());
-                            return roles.Name;
-                        }
-                    }
+                // Check in User table if not admin
+                string userQuery = "SELECT * FROM [User] WHERE Username=@Username";
+                var userDetails = _helper.GetUserByUsername(userQuery, username);
+
+                if (userDetails != null && BCrypt.Net.BCrypt.Verify(password, userDetails.HashedPassword))
+                {
+                    var roles = _helper.GetEntityById("SELECT * FROM [Role] WHERE RoleId=@RoleId", userDetails.RoleId.ToString());
+                    return roles.Name;
                 }
             }
             catch (Exception ex)
@@ -277,6 +376,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
 
             return null;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Accounts");
         }
     }
 }

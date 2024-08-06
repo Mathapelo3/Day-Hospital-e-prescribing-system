@@ -21,8 +21,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         [Required]
         public int PatientID { get; set; }
-        [Required]
-        public int SurgeryID { get; set; }
+        
         [Required]
         public int MedicationID { get; set; }
 

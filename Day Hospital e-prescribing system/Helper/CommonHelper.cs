@@ -146,6 +146,120 @@ namespace Day_Hospital_e_prescribing_system.Helper
 
             return admin;
         }
+
+        public Nurse GetNurseByUsername(string query, string username)
+        {
+            Nurse nurse = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            nurse = new Nurse
+                            {
+                                NurseID = reader.GetInt32(reader.GetOrdinal("NurseID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                            };
+                        }
+                    }
+                }
+            }
+
+            return nurse;
+        }
+
+        public Surgeon GetSurgeonByUsername(string query, string username)
+        {
+            Surgeon surgeon = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            surgeon = new Surgeon
+                            {
+                                SurgeonID = reader.GetInt32(reader.GetOrdinal("SurgeonID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                            };
+                        }
+                    }
+                }
+            }
+
+            return surgeon;
+        }
+
+        public Pharmacist GetPharmacistByUsername(string query, string username)
+        {
+            Pharmacist pharmacist = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            pharmacist = new Pharmacist
+                            {
+                                PharmacistID = reader.GetInt32(reader.GetOrdinal("PharmacistID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                // Add more fields here if necessary
+                            };
+                        }
+                    }
+                }
+            }
+
+            return pharmacist;
+        }
+        public Anaesthesiologist GetAnaesthesiologistByUsername(string query, string username)
+        {
+            Anaesthesiologist anaesthesiologist = null;
+
+            using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            anaesthesiologist = new Anaesthesiologist
+                            {
+                                AnaesthesiologistID = reader.GetInt32(reader.GetOrdinal("AnaesthesiologistID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                // Add more fields here if necessary
+                            };
+                        }
+                    }
+                }
+            }
+
+            return anaesthesiologist;
+        }
+
+
+
+
+
         public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

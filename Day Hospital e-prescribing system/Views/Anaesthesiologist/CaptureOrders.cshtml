@@ -1,12 +1,15 @@
-﻿@{
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.OrderFormViewModel
+
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
     .card-title {
         font-weight: bold;
-        
     }
 
     .btn-purple {
@@ -14,19 +17,20 @@
         color: white;
         font-weight: bold;
     }
+
+    .medication-list {
+        margin-top: 10px;
+    }
 </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Main content -->
+
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
+            <div class="text-center">
+                @*<img src="~/Images/zoomedLogo (2).png" width="200" />*@
             </div>
             <br />
             <h4 class="display-6 text-purple text-center text-bold">MEDICATION ORDER FORM</h4>
-
         </div>
     </div>
 
@@ -34,93 +38,102 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card">
-                   
-                    <div class="card-body">
-                       
-                   
-                    <div class="text-right">
-                    <button class="btn btn-purple btn-medical-history">Medical History</button>
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h3></h3>
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <a href="@Url.Action("Prescriptions", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Prescriptions</a>
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Medical History</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                        <form id="orderForm">
-                        <div class="form-group col-md-12">
-                            <label for="surgeon">Patient:</label>
-                            <select class="form-control" id="patient" name="surgeon">
-                                <option value="surgeon1">Jane Doe</option>
-                                <option value="surgeon2">50mg</option>
-                                <option value="surgeon3">Surgeon 3</option>
-                            </select>
-
+                    <form asp-action="CaptureOrders" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            <input type="hidden" name="PatientID" value="@Model.PatientID" /> <!-- Hidden input for PatientID -->
+                            <label>Name:</label>
+                            <input type="text" class="form-control" value="@Model.Name" readonly />
+                            <input type="hidden" name="Name" value="@Model.Name" />
                         </div>
-                        <div class="form-group col-md-12">
-                                <label for="date">Date:</label>
-                                <input type="date" class="form-control" id="date" name="date">
-                                </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="medication">Medication:</label>
-                                <select class="form-control" id="medication">
-                                    <option value="sedatives"> Anxiolytics 20mg</option>
-                                    <option value="pain_reliever"></option>
-                                    <!-- Add more medication options here -->
-                                </select>
-                            </div>
-                           
-                            <div class="form-group col-md-3">
-                                <label for="quantity">Quantity:</label>
-                                <select class="form-control" id="quantity">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <!-- Add more quantity options here -->
-                                </select>
-                            </div>
-
-                            <div class="form-group col-md-2">
-                                <label>&nbsp;</label>
-                                <button type="button" class="btn btn-primary form-control" id="addMedication">
-                                    <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
-                                </button>
-                            </div>
-
+                        <div class="form-group">
+                            <label>Surname:</label>
+                            <input type="text" class="form-control" value="@Model.Surname" readonly />
+                            <input type="hidden" name="Surname" value="@Model.Surname" />
                         </div>
-
-
-                        <div class="form-group col-md-12">
-                            <label for="medicationList">Medication List:</label>
-                            <select multiple class="form-control" id="medicationList">
-                                <!-- Medication will be populated here -->
-                            </select>
+                      
+                        <div class="form-group">
+                            <label>Date:</label>
+                            <input type="date" class="form-control" asp-for="Date" />
                         </div>
-
-                          
-                           
-                           
-                        <div class="form-group col-md-12">
-                            <label for="urgency">Urgency:</label>
-                            <input type="checkbox">
+                        <div class="form-group">
+                            <label>Medications:</label>
+                            <select class="form-control" id="medicationSelect" asp-items="Model.Medications"></select>
+                            <input type="text" id="quantityInput" class="form-control" placeholder="Quantity" style="margin-top: 10px;" />
+                            <button type="button" id="addMedication" class="btn btn-purple" style="margin-top: 10px;">Add</button>
+                           @* <span asp-validation-for="SelectedMedicationsJson" class="text-danger"></span>*@
                         </div>
+                        <div class="form-group">
+                            <label>Selected Medications:</label>
+                            <ul id="medicationList">
+                                @for (int i = 0; i < Model.SelectedMedications.Count; i++)
+                                {
+                                    <li>
+                                        @Html.HiddenFor(m => m.SelectedMedications[i].MedicationID)
+                                        @Html.HiddenFor(m => m.SelectedMedications[i].Name)
+                                        @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
+                                        @Model.SelectedMedications[i].Name - @Model.SelectedMedications[i].Quantity
+                                    </li>
+                                }
+                            </ul>
+                            <input type="hidden" name="Medications" value="" />
+                        </div>
+                        <div class="form-group">
+                            <label>Urgency:</label>
+                            <input type="checkbox" asp-for="Urgency" />
+                        </div>
+                        <div class="form-group text-center">
+                            <input type="submit" value="Save" class="btn btn-purple" />
+                        </div>
+                    </form>
 
-
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-purple">Submit</button>
-                            </div>
-                        </form>
-                </div>
-                    </div>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
                 </div>
             </div>
-       
-    
+        </div>
+    </div>
 </section>
-<!-- /.content -->
+@*<input type="hidden" id="SelectedMedicationsJson" name="SelectedMedicationsJson" value="@Model.SelectedMedicationsJson" />*@
+
 <script>
     $(document).ready(function () {
-        $("#addMedication").click(function () {
-            var medication = $("#medication option:selected").text();
-            var quantity = $("#quantity").val();
-            var listItem = medication + " - Quantity: " + quantity;
-            $("#medicationList").append("<option>" + listItem + "</option>");
+        $('#addMedication').click(function () {
+            var medicationID = $('#medicationSelect').val();
+            var medicationName = $('#medicationSelect option:selected').text();
+            var quantity = $('#quantityInput').val();
+
+            if (quantity) {
+                var newItem = `<li>
+                                    <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].MedicationID" value="${medicationID}" />
+                                    <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Name" value="${medicationName}" />
+                                    <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Quantity" value="${quantity}" />
+                                    ${medicationName} - ${quantity}
+                                </li>`;
+                $('#medicationList').append(newItem);
+            }
         });
     });
 </script>
