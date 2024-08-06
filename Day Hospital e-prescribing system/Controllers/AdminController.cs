@@ -370,6 +370,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult TheatreRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var theatre = _context.Theatres.ToList();
             ViewBag.Theatre = theatre;
 
@@ -377,6 +379,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult WardRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var ward = _context.Wards.ToList();
             ViewBag.Ward = ward;
 
@@ -384,6 +388,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult ConditionRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var condition = _context.Conditions.ToList().OrderBy(c => c.Name);
             ViewBag.Condition = condition;
 
@@ -391,6 +397,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddCondition()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             return View();
         }
         [HttpPost]
@@ -427,6 +435,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public async Task<IActionResult> EditCondition(int? id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             if (id == null)
             {
                 return NotFound();

@@ -28,14 +28,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public ActionResult Dashboard()
         {
-            string username = HttpContext.Session.GetString("UserName"); // Use HttpContext.Session
-
-            // Pass the username to the view
-            ViewBag.Username = username;
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
         public async Task<ActionResult> Prescriptions(int id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             _logger.LogInformation("Prescriptions action called with id: {Id}", id);
 
             if (id <= 0)
@@ -73,6 +72,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public async Task<ActionResult> Patients(string searchString)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             ViewData["CurrentFilter"] = searchString;
 
             var patient = from p in _context.Patients
@@ -97,6 +98,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult AddPatients()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             return View();
         }
         [HttpPost]
@@ -138,6 +141,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult Surgeries()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var surgery = _context.Surgeries.ToList();
             ViewBag.Surgery = surgery;
 
@@ -178,6 +183,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult NewPrescription()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var patientSelectListItems = _context.Patients.Select(p => new SelectListItem
             {
                 Value = p.PatientID.ToString(),
@@ -236,6 +243,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public async Task<IActionResult> EditPrescription(int? id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             if (id == null)
             {
                 return NotFound();
@@ -306,6 +315,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult NewSurgery()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             return View();
         }
         [HttpPost]
@@ -347,11 +358,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult PatientRecord()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             return View();
         }
 
         public IActionResult DischargePatient()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var items = _context.Patients.Where(p => p.Status == "Discharged").OrderBy(p => p.Name).ToList();
             ViewBag.Patient = items;
 
@@ -360,6 +375,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult ConfirmTreatmentCodes()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             return View();
         }
     }
