@@ -86,18 +86,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             
         }
 
-        public async Task<ActionResult> BookedPatients(string searchString, DateTime? Date)
+        public async Task<ActionResult> BookedPatients(string searchString, DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
             ViewData["CurrentFilter"] = searchString;
-
-            ViewData["CurrentDate"] = Date?.ToString("dd-MM-yyyy");
+            ViewData["StartDate"] = startDate?.ToString("dd-MM-yyyy");
+            ViewData["EndDate"] = endDate?.ToString("dd-MM-yyyy");
 
             var bookedPatients = from s in _context.Surgeries
-                                    join p in _context.Patients on s.PatientID equals p.PatientID
-                                    
-                                    join n in _context.Nurses on s.NurseID equals n.NurseID
+                                 join p in _context.Patients on s.PatientID equals p.PatientID
+                                 join n in _context.Nurses on s.NurseID equals n.NurseID
                                  join su in _context.Surgeons on s.SurgeonID equals su.SurgeonID
                                  join t in _context.Theatres on s.TheatreID equals t.TheatreID
                                  join w in _context.Wards on p.WardID equals w.WardID
@@ -105,19 +104,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  join u in _context.Users on n.UserID equals u.UserID
                                  join us in _context.Users on su.UserID equals us.UserID
                                  select new BookedPatientsViewModel
-                                    {
-                                        SurgeryID = s.SurgeryID,
+                                 {
+                                     SurgeryID = s.SurgeryID,
                                      PatientID = p.PatientID,
                                      Patient = p.Name + " " + p.Surname,
-                                        Date = s.Date,
-                                        Time = s.Time,
+                                     Date = s.Date,
+                                     Time = s.Time,
                                      Name = w.Name,
                                      Bed = w.Bed,  // Assuming Bed is a property in the Ward table 
                                      Nurse = u.Name + " " + u.Surname,
                                      Theatre = t.Name,
                                      Surgeon = u.Name + " " + u.Surname
-
-
                                  };
 
             if (!String.IsNullOrEmpty(searchString))
@@ -125,13 +122,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 bookedPatients = bookedPatients.Where(pa => pa.Patient.Contains(searchString));
             }
 
-
-            if (Date.HasValue)
+            if (startDate.HasValue)
             {
-                bookedPatients = bookedPatients.Where(pa => pa.Date.Date == Date.Value.Date);
+                bookedPatients = bookedPatients.Where(pa => pa.Date.Date >= startDate.Value.Date);
             }
 
-
+            if (endDate.HasValue)
+            {
+                bookedPatients = bookedPatients.Where(pa => pa.Date.Date <= endDate.Value.Date);
+            }
 
             return View(await bookedPatients.ToListAsync());
         }
@@ -365,18 +364,33 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
 
-        public async Task<ActionResult> ViewOrders()
+        public async Task<ActionResult> ViewOrders(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var orders = await _context.Orders
+
+            var query = _context.Orders
                 .Include(o => o.Patient)
                 .Include(o => o.Medication)
+                .AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.Date >= startDate.Value);
+                ViewData["StartDate"] = startDate.Value.ToString("yyyy-MM-dd");
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.Date <= endDate.Value);
+                ViewData["EndDate"] = endDate.Value.ToString("yyyy-MM-dd");
+            }
+
+            var orders = await query
                 .Select(o => new OrderViewModel
                 {
                     OrderID = o.OrderID,
                     Date = o.Date,
                     Patient = o.Patient.Name + " " + o.Patient.Surname,
-
                     Medication = o.Medication.Name,
                     Quantity = o.Quantity,
                     Status = o.Status
@@ -403,7 +417,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return NotFound();
             }
 
-            var OrderViewModel = new OrderViewModel
+            var orderViewModel = new OrderViewModel
             {
                 OrderID = order.OrderID,
                 Date = order.Date,
@@ -414,16 +428,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Status = order.Status
             };
 
-            return View(OrderViewModel);
+            var orderEditViewModel = new OrderEditViewModel
+            {
+                OrderID = order.OrderID,
+                Date = order.Date,
+                Quantity = order.Quantity,
+                Status = order.Status
+            };
+
+            ViewBag.OrderEditViewModel = orderEditViewModel;
+            ViewBag.OrderViewModel = orderViewModel;
+
+            return View(orderViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditOrders(int id, OrderViewModel OrderViewModel)
+        public async Task<IActionResult> EditOrders(int id, OrderEditViewModel orderEditViewModel)
         {
+            _logger.LogInformation("EditOrders POST called with id: {Id}", id);
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            if (id != OrderViewModel.OrderID)
+
+            if (id != orderEditViewModel.OrderID)
             {
+                _logger.LogWarning("Mismatched order ID: {Id} != {OrderID}", id, orderEditViewModel.OrderID);
                 return NotFound();
             }
 
@@ -434,41 +462,74 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     var order = await _context.Orders.FindAsync(id);
                     if (order == null || order.Status != "ordered")
                     {
+                        _logger.LogWarning("Order not found or status is not 'ordered'.");
                         return NotFound();
                     }
 
                     // Update order properties
-                    order.Date = OrderViewModel.Date;
-                    order.Quantity = OrderViewModel.Quantity;
-                    order.Status = OrderViewModel.Status;
+                    order.Date = orderEditViewModel.Date;
+                    order.Quantity = orderEditViewModel.Quantity;
+                    order.Status = orderEditViewModel.Status;
 
                     _context.Update(order);
                     await _context.SaveChangesAsync();
+                    _logger.LogInformation("Order updated successfully with id: {Id}", id);
+                    return RedirectToAction(nameof(ViewOrders));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!OrderExists(OrderViewModel.OrderID))
+                    if (!OrderExists(orderEditViewModel.OrderID))
                     {
+                        _logger.LogWarning("Order not found during update.");
                         return NotFound();
                     }
                     else
                     {
+                        _logger.LogError(ex, "Concurrency error occurred while updating order with id: {Id}", id);
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(OrderViewModel);
+            else
+            {
+                // Log validation errors
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    _logger.LogWarning("Validation error: {ErrorMessage}", error.ErrorMessage);
+                }
+                _logger.LogWarning("ModelState is invalid.");
+            }
+
+            // Return the same view model for editing
+            return View(ViewBag.OrderEditViewModel);
         }
+
 
         private bool OrderExists(int id)
         {
 
             return _context.Orders.Any(e => e.OrderID == id);
         }
-    
 
-    public ActionResult MedicationRecords()
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                _logger.LogWarning($"Order with ID {id} not found.");
+                return NotFound();
+            }
+
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Order with ID {id} deleted.");
+
+            return RedirectToAction(nameof(ViewOrders));
+        }
+
+        public ActionResult MedicationRecords()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
