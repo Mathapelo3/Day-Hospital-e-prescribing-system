@@ -11,6 +11,7 @@ using Day_Hospital_e_prescribing_system.ViewModel;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SqlTypes;
+using System.Security.Claims;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -210,35 +211,70 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewPrescription(PrescriptionViewModel model)
         {
-            if (ModelState.IsValid)
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation("Starting to capture new prescription...");
+
+            var medications = await _context.Medication.ToListAsync();
+            model.MedicationList = new MultiSelectList(medications, "MedicationID", "Name");
+
+            if (!ModelState.IsValid)
             {
-                try
+                _logger.LogWarning("Model state is not valid.");
+                return View(model);
+            }
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                _logger.LogError("User ID not found in claims.");
+                ModelState.AddModelError("", "User ID not found in claims");
+                return View(model);
+            }
+
+            int userId = int.Parse(userIdClaim.Value);
+            var surgeonIdClaim = User.Claims.FirstOrDefault(c => c.Type == "SurgeonID"); 
+            if (surgeonIdClaim == null)
+            {
+                _logger.LogError("Surgeon ID not found in claims.");
+                ModelState.AddModelError("", "Surgeon ID not found in claims");
+                return View(model);
+            }
+
+            int surgeonId = int.Parse(surgeonIdClaim.Value);
+            var surgeon = await _context.Surgeons.FirstOrDefaultAsync(s => s.SurgeonID == surgeonId); 
+            if (surgeon == null)
+            {
+                _logger.LogError("Surgeon not found.");
+                ModelState.AddModelError("", "Surgeon not found");
+                return View(model);
+            }
+
+            var patientId = model.SelectedPatientId; 
+            _logger.LogInformation($"PatientID: {patientId}");
+
+            if (model.SelectedMedications != null && model.SelectedMedications.Any())
+            {
+                foreach (var medication in model.SelectedMedications)
                 {
                     var prescription = new Prescription
                     {
-                        Instruction = model.Instruction,
+                        PatientID = model.SelectedPatientId,
+                        MedicationID = medication.MedicationID,
+                        Quantity = medication.Quantity,
                         Date = model.Date,
-                        Quantity = model.Quantity,
-                        Urgency = model.Urgency
+                        Urgency = model.Urgency,
+                        SurgeonID = surgeon.SurgeonID,
+                        Instruction = medication.Instruction 
                     };
 
-                    _context.Add(prescription);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Prescription added successfully.");
-                    return RedirectToAction("Prescriptions", "Surgeon");
+                    _context.Prescriptions.Add(prescription);
                 }
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogError(ex, "An error occurred while adding prescription: {Message}", ex.Message);
-                    ModelState.AddModelError("", "Unable to save changes.");
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"{model.SelectedMedications.Count} prescriptions added to the database.");
             }
 
-            return View(model);
+            return RedirectToAction("Prescriptions", "Surgeon"); // Adjusted to redirect to a view prescriptions action
         }
 
         public async Task<IActionResult> EditPrescription(int? id)
