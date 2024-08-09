@@ -56,7 +56,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 AddressLine2 = hr.AddressLine2,
                 ContactNo = hr.ContactNo,
                 Email = hr.Email,
-                PMContactNo = hr.PMContactNo,
+                PM = hr.PM,
+                PMEmail = hr.PMEmail,
                 SuburbName = hr.Suburb.Name,
                 PostalCode = hr.Suburb.PostalCode,
                 CityName = hr.Suburb.City.Name
@@ -92,7 +93,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 AddressLine2 = hospitalRecord.AddressLine2,
                 ContactNo = hospitalRecord.ContactNo,
                 Email = hospitalRecord.Email,
-                PMContactNo = hospitalRecord.PMContactNo,
+                PM = hospitalRecord.PM,
+                PMEmail = hospitalRecord.PMEmail,
                 SuburbID = hospitalRecord.SuburbID,
                 SuburbName = hospitalRecord.Suburb.Name,
                 PostalCode = hospitalRecord.Suburb.PostalCode,
@@ -125,7 +127,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 hospitalRecord.AddressLine2 = viewModel.AddressLine2;
                 hospitalRecord.ContactNo = viewModel.ContactNo;
                 hospitalRecord.Email = viewModel.Email;
-                hospitalRecord.PMContactNo = viewModel.PMContactNo;
+                hospitalRecord.PM = viewModel.PM;
+                hospitalRecord.PMEmail = viewModel.PMEmail;
                 hospitalRecord.SuburbID = viewModel.SuburbID;
 
                 await _context.SaveChangesAsync();

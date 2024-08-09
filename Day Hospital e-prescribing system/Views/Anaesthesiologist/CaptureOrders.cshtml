@@ -68,13 +68,14 @@
                         <div class="form-group">
                             <label>Date:</label>
                             <input type="date" class="form-control" asp-for="Date" />
+                            <span asp-validation-for="Date" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label>Medications:</label>
                             <select class="form-control" id="medicationSelect" asp-items="Model.Medications"></select>
                             <input type="text" id="quantityInput" class="form-control" placeholder="Quantity" style="margin-top: 10px;" />
                             <button type="button" id="addMedication" class="btn btn-purple" style="margin-top: 10px;">Add</button>
-                           @* <span asp-validation-for="SelectedMedicationsJson" class="text-danger"></span>*@
+                            <span asp-validation-for="SelectedMedications" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label>Selected Medications:</label>

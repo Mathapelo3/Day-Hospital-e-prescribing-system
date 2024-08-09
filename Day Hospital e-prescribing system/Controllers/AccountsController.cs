@@ -164,6 +164,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return roles;
         }
+        public void DisplayHashedPassword()
+        {
+            string plainPassword = "Password123!";
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
+            Console.WriteLine($"Plain Password: {plainPassword}");
+            Console.WriteLine($"Hashed Password: {hashedPassword}");
+        }
+
 
         [HttpGet]
         public ActionResult Login()
@@ -174,32 +182,32 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel vm)
         {
-            if (string.IsNullOrEmpty(vm.Username) || string.IsNullOrEmpty(vm.Password))
+            if (string.IsNullOrEmpty(vm.Email) || string.IsNullOrEmpty(vm.Password))
             {
-                ModelState.AddModelError("", "Username and password are required.");
+                ModelState.AddModelError("", "Email and password are required.");
                 return View(vm);
             }
-
-            string role = GetRole(vm.Username, vm.Password);
+            DisplayHashedPassword();
+            string role = GetRole(vm.Email, vm.Password);
 
             if (!string.IsNullOrEmpty(role))
             {
                 switch (role.ToLower())
                 {
                     case "admin":
-                        await SignInAdmin(vm.Username, role);
+                        await SignInAdmin(vm.Email, role);
                         return RedirectToAction("AdminDashboard", "Admin");
                     case "surgeon":
-                        await SignInSurgeon(vm.Username, role);
+                        await SignInSurgeon(vm.Email, role);
                         return RedirectToAction("Dashboard", "Surgeon");
                     case "nurse":
-                        await SignInNurse(vm.Username, role);
+                        await SignInNurse(vm.Email, role);
                         return RedirectToAction("Dashboard", "Nurse");
                     case "pharmacist":
-                        await SignInPharmacist(vm.Username, role);
+                        await SignInPharmacist(vm.Email, role);
                         return RedirectToAction("PharmacistDashboard", "Pharmacist");
                     case "anaesthesiologist":
-                        await SignInAnaesthesiologist(vm.Username, role);
+                        await SignInAnaesthesiologist(vm.Email, role);
                         return RedirectToAction("AnaesthesiologistDashboard", "Anaesthesiologist");
                     default:
                         ModelState.AddModelError("", "Invalid role.");
@@ -208,20 +216,20 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
             else
             {
-                ModelState.AddModelError("", "Incorrect username or password.");
+                ModelState.AddModelError("", "Incorrect email or password.");
             }
 
             return View(vm);
         }
 
-        private async Task SignInAdmin(string username, string role)
+        private async Task SignInAdmin(string email, string role)
         {
-            var adminDetails = _helper.GetAdminByUsername("SELECT * FROM Admin WHERE Username=@Username", username);
+            var adminDetails = _helper.GetAdminByEmail("SELECT * FROM Admin WHERE Email=@Email", email);
             if (adminDetails != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Email, email),
                     new Claim(ClaimTypes.NameIdentifier, adminDetails.AdminID.ToString()),
                     new Claim("Role", role),
                     new Claim("AdminID", adminDetails.AdminID.ToString())
@@ -232,50 +240,53 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Email", email);
                 HttpContext.Session.SetString("Role", role);
+                HttpContext.Session.SetString("Username", adminDetails.Username);
             }
         }
 
-        private async Task SignInSurgeon(string username, string role)
+        private async Task SignInSurgeon(string email, string role)
         {
-            var surgeonDetails = _helper.GetSurgeonByUsername(@"
-                SELECT s.SurgeonID, s.UserID, u.HashedPassword 
-                FROM Surgeon s
-                INNER JOIN [User] u ON s.UserID = u.UserID
-                WHERE u.Username = @Username", username);
+            var surgeonDetails = _helper.GetSurgeonByEmail(@"
+        SELECT s.SurgeonID, s.UserID, u.Username 
+        FROM Surgeon s
+        INNER JOIN [User] u ON s.UserID = u.UserID
+        WHERE u.Email = @Email", email);
+
             if (surgeonDetails != null)
             {
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, username),
-                    new Claim(ClaimTypes.NameIdentifier, surgeonDetails.SurgeonID.ToString()),
-                    new Claim("Role", role),
-                    new Claim("SurgeonID", surgeonDetails.SurgeonID.ToString())
-                };
+        {
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.NameIdentifier, surgeonDetails.SurgeonID.ToString()),
+            new Claim("Role", role),
+            new Claim("SurgeonID", surgeonDetails.SurgeonID.ToString())
+        };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties { IsPersistent = true };
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Email", email);
+                HttpContext.Session.SetString("Username", surgeonDetails.Username); // Updated to get username
                 HttpContext.Session.SetString("Role", role);
             }
         }
 
-        private async Task SignInNurse(string username, string role)
+        private async Task SignInNurse(string email, string role)
         {
-            var nurseDetails = _helper.GetNurseByUsername(@"
-                SELECT n.NurseID, n.UserID, u.HashedPassword 
+            var nurseDetails = _helper.GetNurseByEmail(@"
+                SELECT n.NurseID, n.UserID, u.Username 
                 FROM Nurse n
                 INNER JOIN [User] u ON n.UserID = u.UserID
-                WHERE u.Username = @Username", username);
+                WHERE u.Email = @Email", email);
             if (nurseDetails != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Email, email),
                     new Claim(ClaimTypes.NameIdentifier, nurseDetails.NurseID.ToString()),
                     new Claim("Role", role),
                     new Claim("NurseID", nurseDetails.NurseID.ToString())
@@ -286,23 +297,24 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Email", email);
+                HttpContext.Session.SetString("Username", nurseDetails.Username);
                 HttpContext.Session.SetString("Role", role);
             }
         }
 
-        private async Task SignInPharmacist(string username, string role)
+        private async Task SignInPharmacist(string email, string role)
         {
-            var pharmacistDetails = _helper.GetPharmacistByUsername(@"
-                SELECT p.PharmacistID, p.UserID, u.HashedPassword 
+            var pharmacistDetails = _helper.GetPharmacistByEmail(@"
+                SELECT p.PharmacistID, p.UserID, u.Username 
                 FROM Pharmacist p
                 INNER JOIN [User] u ON p.UserID = u.UserID
-                WHERE u.Username = @Username", username);
+                WHERE u.Email = @Email", email);
             if (pharmacistDetails != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Email, email),
                     new Claim(ClaimTypes.NameIdentifier, pharmacistDetails.PharmacistID.ToString()),
                     new Claim("Role", role),
                     new Claim("PharmacistID", pharmacistDetails.PharmacistID.ToString())
@@ -313,23 +325,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-                HttpContext.Session.SetString("Username", username);
+
+                HttpContext.Session.SetString("Email", email);
+                HttpContext.Session.SetString("Username", pharmacistDetails.Username);
                 HttpContext.Session.SetString("Role", role);
             }
         }
 
-        private async Task SignInAnaesthesiologist(string username, string role)
+        private async Task SignInAnaesthesiologist(string email, string role)
         {
-            var anaesthesiologistDetails = _helper.GetAnaesthesiologistByUsername(@"
-                SELECT a.AnaesthesiologistID, a.UserID, u.HashedPassword 
+            var anaesthesiologistDetails = _helper.GetAnaesthesiologistByEmail(@"
+                SELECT a.AnaesthesiologistID, a.UserID, u.Username 
                 FROM Anaesthesiologist a
                 INNER JOIN [User] u ON a.UserID = u.UserID
-                WHERE u.Username = @Username", username);
+                WHERE u.Email = @Email", email);
             if (anaesthesiologistDetails != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Email, email),
                     new Claim(ClaimTypes.NameIdentifier, anaesthesiologistDetails.AnaesthesiologistID.ToString()),
                     new Claim("Role", role),
                     new Claim("AnaesthesiologistID", anaesthesiologistDetails.AnaesthesiologistID.ToString())
@@ -340,18 +354,19 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetString("Email", email);
+                HttpContext.Session.SetString("Username", anaesthesiologistDetails.Username);
                 HttpContext.Session.SetString("Role", role);
             }
         }
 
-        private string GetRole(string username, string password)
+        private string GetRole(string email, string password)
         {
             try
             {
                 // Check in Admin table first
-                string adminQuery = "SELECT * FROM Admin WHERE Username=@Username";
-                var adminDetails = _helper.GetAdminByUsername(adminQuery, username);
+                string adminQuery = "SELECT * FROM Admin WHERE Email=@Email";
+                var adminDetails = _helper.GetAdminByEmail(adminQuery, email);
 
                 if (adminDetails != null && BCrypt.Net.BCrypt.Verify(password, adminDetails.HashedPassword))
                 {
@@ -360,8 +375,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }
 
                 // Check in User table if not admin
-                string userQuery = "SELECT * FROM [User] WHERE Username=@Username";
-                var userDetails = _helper.GetUserByUsername(userQuery, username);
+                string userQuery = "SELECT * FROM [User] WHERE Email=@Email";
+                var userDetails = _helper.GetUserByEmail(userQuery, email);
 
                 if (userDetails != null && BCrypt.Net.BCrypt.Verify(password, userDetails.HashedPassword))
                 {
