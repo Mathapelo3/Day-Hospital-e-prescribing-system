@@ -6,12 +6,18 @@ namespace Day_Hospital_e_prescribing_system.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Patient_AllergryID { get; set; }
+        public int Patient_AllergyID { get; set; }
 
         [Required]
         public int PatientID { get; set; }
         // Navigation property
         [ForeignKey("PatientID")]
         public virtual Patient Patients { get; set; }
+
+        [Required]
+        public int AllergyID { get; set; }
+        // Navigation property
+        [ForeignKey("AllergyID")]
+        public virtual Allergy Allergies { get; set; }
     }
 }

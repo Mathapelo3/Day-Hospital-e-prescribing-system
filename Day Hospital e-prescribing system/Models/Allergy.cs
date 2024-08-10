@@ -8,7 +8,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AllergryID { get; set; }
+        public int AllergyID { get; set; }
 
         [Required]
         [StringLength(50)]

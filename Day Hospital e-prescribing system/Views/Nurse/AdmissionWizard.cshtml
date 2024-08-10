@@ -7,7 +7,9 @@
 <!DOCTYPE html>
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
     * {
         box-sizing: border-box;
@@ -94,7 +96,19 @@
     </div>
 </div>
 <body>
-    <form>
+        <!-- Search bar -->
+        <form id="filterForm" asp-action="AdmissionWizard" method="get">
+            <div class="form-row">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by surname" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
         <div class="card">
             <div class="card-header">
                 <div class="text-center ">
@@ -103,7 +117,7 @@
                 <div class="row">
                     <div class="form-group col-6">
                         <label for="startDate">Search Date:</label>
-                        <input type="date" name="startDate" id="startDate" class="form-control" pattern="\d{2}/\d{2}/\d{4}" placeholder="dd/mm/yyyy" />
+                                <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
                     </div>
                     @* <div class="form-group col-6">
                     <label class="form-label">Axtimate Time</label>
@@ -130,43 +144,23 @@
                         </thead>
                         <tbody>
 
-                            <tr>
-                                <td>Sally Williams</td>
-                                <td>13-05-2024</td>
-                                <td>AM</td>
-                                        <td>gwm456</td>
-                                        <td>OR002</td>
-                                        <td>Alex Law</td>
-                                        <td>Sam Smith</td>
-                                <td><input type="button" class="add btn-primary" id="add-button" value="Admit"></td>
+                                            @foreach (var item in Model)
+                                            {
+                                        <tr>
+                                            <td>@item.Patient</td>
+                                            <td>@item.Date.ToShortDateString()</td>
+                                            <td>@item.Time</td>
+                                            <td>@item.Surgery_TreatmentCode</td>
+                                            <td>@item.Theatre</td>
+                                            <td>@item.Surgeon</td>
+                                            <td>@item.Anaesthesiologist</td>
+                                            <td><a href="@Url.Action("Ward", "Nurse", new { id = item.PatientID })" type="button" class="add btn-primary" id="add-button">Admit</a></td>
+                                        </tr>
+                                            }
+                               @* <td><input type="button" class="add btn-primary" id="add-button" value="Admit"></td>
 
 
-
-                            </tr>
-                            <tr>
-                                <td>Jessie George</td>
-                                <td>13-05-2024</td>
-                                <td>AM</td>
-                                        <td>gwm456</td>
-                                        <td>OR004</td>
-                                        <td>Tommy Hill</td>
-                                        <td>Sam Smith</td>
-                                <td><input type="button" class="add btn-primary" id="add-button" value="Admit"></td>
-
-
-                            </tr>
-                            <tr>
-                                <td>John Doe</td>
-                                <td>13-05-2024</td>
-                                <td>AM</td>
-                                        <td>gwm456</td>
-                                        <td>OR001</td>
-                                        <td>Tony Dunn</td>
-                                        <td>Emma Stone</td>
-                                <td><input type="button" class="add btn-primary" id="add-button" value="Admit"></td>
-
-
-                            </tr>
+                            </tr>*@
 
                         </tbody>
                     </table>

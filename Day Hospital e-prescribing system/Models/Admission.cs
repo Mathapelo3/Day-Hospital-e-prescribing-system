@@ -11,11 +11,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int AdmissionID { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [DataType(DataType.Date)]
+        //[StringLength(50)]
        public DateTime Date { get; set; }
 
         [Required]
-        [StringLength(50)]
+        //[StringLength(50)]
         public string Time { get; set; }
 
         [Required]

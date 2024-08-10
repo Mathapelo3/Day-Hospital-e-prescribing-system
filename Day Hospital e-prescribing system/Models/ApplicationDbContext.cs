@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
@@ -30,7 +31,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Surgery> Surgeries { get; set; }
         public DbSet<Medication> Medications { get; set; }
 
-        public DbSet<General_Medication> General_Medications { get; set; }
+        public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
 
         public DbSet<Admission> Admissions { get; set; }
@@ -38,6 +39,12 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<TreatmentCode> TreatmentCodes { get; set; }
         public DbSet<Discharge> Discharges { get; set; }
+        public DbSet<Ward> Ward { get; set; }
+        public DbSet<Bed> Bed { get; set; }
+
+        public DbSet<Patient_Condition> Patient_Condition { get; set; }
+        public DbSet<Patient_Allergy> Patient_Allergy { get; set; }
+        public DbSet<Patient_Medication> Patient_Medication { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -59,7 +66,18 @@ namespace Day_Hospital_e_prescribing_system.Models
             
 
             modelBuilder.Entity<Medication_Interaction>()
-           .HasKey(m => new { m.ICD_ID, m.Active_IngredientID }); 
+           .HasKey(m => new { m.ICD_ID, m.Active_IngredientID });
+
+            modelBuilder.Entity<Patient_Allergy>()
+          .HasKey(m => new { m.PatientID, m.AllergyID });
+
+            modelBuilder.Entity<Patient_Condition>()
+        .HasKey(m => new { m.PatientID, m.ConditionID });
+
+            modelBuilder.Entity<Patient_Medication>()
+        .HasKey(m => new { m.PatientID, m.General_MedicationID });
+
+
         }
     }
 }
