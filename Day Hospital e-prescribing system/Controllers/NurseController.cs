@@ -2,10 +2,10 @@
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using String = System.String;
+
+
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -346,9 +346,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var patient = await _context.Patients
                  .Include(p => p.Patient_Allergy)
                  .ThenInclude(pa => pa.Allergy)
-                 .Include(p => p.Patient_Condition)
+                 .Include(p => p.Patient_Conditions)
                  .ThenInclude(pc => pc.Condition)
-                 .Include(p => p.Patient_Medication)
+                 .Include(p => p.Patient_Medications)
                  .ThenInclude(pm => pm.General_Medication)
                  .FirstOrDefaultAsync(p => p.PatientID == Id);
 
@@ -475,7 +475,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 TreatmentCode = treatmentCode
             };
 
-            ViewBag.Wards = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
+            ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
 
             return View(model);
         }
@@ -487,7 +487,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             if (!ModelState.IsValid)
             {
                 model.TreatmentCode = GetTreatmentCode();
-                ViewBag.Wards = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
+                ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
                 _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors));
                 return View(model);
             }
@@ -534,7 +534,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult Wards()
         {
 
-            ViewBag.Wards = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
+            ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
             return View();
         }
 

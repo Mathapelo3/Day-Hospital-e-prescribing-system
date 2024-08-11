@@ -54,7 +54,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             _logger.LogInformation("Received date: {Date}", Date?.ToString("yyyy-MM-dd"));
             var patientAdmission = from p in _context.Patients
                                    join a in _context.Admissions on p.PatientID equals a.PatientID
-                                   join w in _context.Wards on p.WardId equals w.WardId
+                                   join w in _context.Ward on p.WardId equals w.WardId
                                    join b in _context.Bed on p.WardId equals b.BedId
                                    join n in _context.Nurses on a.NurseID equals n.NurseID
                                    join u in _context.Users on n.UserID equals u.UserID
@@ -100,7 +100,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  join n in _context.Nurses on s.NurseID equals n.NurseID
                                  join su in _context.Surgeons on s.SurgeonID equals su.SurgeonID
                                  join t in _context.Theatres on s.TheatreID equals t.TheatreID
-                                 join w in _context.Wards on p.WardId equals w.WardId
+                                 join w in _context.Ward on p.WardId equals w.WardId
                                  join c in _context.Surgery_TreatmentCodes on s.Surgery_TreatmentCodeID equals c.Surgery_TreatmentCodeID
                                  join u in _context.Users on n.UserID equals u.UserID
                                  join us in _context.Users on su.UserID equals us.UserID

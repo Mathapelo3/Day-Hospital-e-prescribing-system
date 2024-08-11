@@ -20,7 +20,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Pharmacist> Pharmacists { get; set; }
         public DbSet<Anaesthesiologist> Anaesthesiologists { get; set; }
         public DbSet<Vitals> Vitals { get; set; }
-        public DbSet<Ward> Wards { get; set; }
+       
         public DbSet<Theatre> Theatres { get; set; }
         public DbSet<Condition> Conditions { get; set; }
         public DbSet<ICDCodes> ICDCodes { get; set; }
@@ -29,21 +29,31 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Surgery> Surgeries { get; set; }
+
         public DbSet<Medication> Medication { get; set; }
+
+
+
+
         public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
         public DbSet<Admission> Admissions { get; set; }
         public DbSet<Allergy> Allergies { get; set; }
         public DbSet<TreatmentCode> TreatmentCodes { get; set; }
         public DbSet<Discharge> Discharges { get; set; }
-        public DbSet<Patient_Vitals> Patient_Vitals { get; set; }
 
-        public DbSet<Patient_Allergy> Patient_Allergy { get; set; }
+        public DbSet<Ward> Ward { get; set; }
+        public DbSet<Bed> Bed { get; set; }
 
         public DbSet<Patient_Condition> Patient_Condition { get; set; }
-
+        public DbSet<Patient_Allergy> Patient_Allergy { get; set; }
         public DbSet<Patient_Medication> Patient_Medication { get; set; }
+
+        public DbSet<Patient_Vitals> Patient_Vitals { get; set; }
+
+       
         public DbSet<Orders> Orders { get; set; }
+
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -69,8 +79,8 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Medication_Interaction>()
            .HasKey(m => new { m.ICD_ID, m.Active_IngredientID });
 
-            modelBuilder.Entity<Patient_Allergy>()
-          .HasKey(m => new { m.PatientID, m.AllergyID });
+          //  modelBuilder.Entity<Patient_Allergy>()
+          //.HasKey(m => new { m.PatientID, m.AllergyID });
 
             modelBuilder.Entity<Patient_Condition>()
         .HasKey(m => new { m.PatientID, m.ConditionID });
@@ -78,6 +88,24 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Patient_Medication>()
         .HasKey(m => new { m.PatientID, m.General_MedicationID });
 
+            // Configuring relationships
+            modelBuilder.Entity<Patient>()
+                .HasMany(p => p.Patient_Allergy)
+                .WithOne(pa => pa.Patient)
+                .HasForeignKey(pa => pa.PatientID);
+
+            modelBuilder.Entity<Patient_Allergy>()
+                .HasOne(pa => pa.Patient)
+                .WithMany(p => p.Patient_Allergy)
+                .HasForeignKey(pa => pa.PatientID);
+
+            modelBuilder.Entity<Patient_Allergy>()
+                .HasOne(pa => pa.Allergy)
+                .WithMany(p => p.Patient_Allergy)
+                .HasForeignKey(pa => pa.AllergyID);
+
+
+            //base.OnModelCreating(modelBuilder);
 
         }
     }

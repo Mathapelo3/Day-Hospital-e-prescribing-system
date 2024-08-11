@@ -18,6 +18,6 @@ namespace WebApplication27.Models
         public int WardId { get; set; }
 
         [ForeignKey("WardId")]
-        public virtual Ward Ward { get; set; }
+        public virtual Ward Wards { get; set; }
     }
 }

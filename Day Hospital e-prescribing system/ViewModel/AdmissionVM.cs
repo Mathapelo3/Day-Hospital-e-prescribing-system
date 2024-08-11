@@ -18,8 +18,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         //[StringLength(50)]
         public DateTime Date { get; set; }
 
-        [DisplayFormat(DataFormatString = "{tt}", ApplyFormatInEditMode = true)]
-        public string Time { get; set; }
+        [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
+        public TimeSpan Time { get; set; }
 
         public int PatientID { get; set; }
 

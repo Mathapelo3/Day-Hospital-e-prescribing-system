@@ -117,7 +117,11 @@
                                 </div>
                                 <div class="form-group col-6">
                                     <label class="form-label">Time slot: </label>
-                                    <input class="form-control" asp-for="Time" type="time" />
+                                    <input type="hidden" id="TimeHidden" class="form-control"
+                                           asp-for="Time"  
+                                    type="time"
+                                           value="@Model.Time.ToString(@"hh\:mm")"
+                                           onchange="document.getElementById('TimeHidden').value = this.value;" />/>
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
