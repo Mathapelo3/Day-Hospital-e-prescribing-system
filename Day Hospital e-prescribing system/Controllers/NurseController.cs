@@ -346,9 +346,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var patient = await _context.Patients
                  .Include(p => p.Patient_Allergy)
                  .ThenInclude(pa => pa.Allergy)
-                 .Include(p => p.Patient_Conditions)
+                 .Include(p => p.Patient_Condition)
                  .ThenInclude(pc => pc.Condition)
-                 .Include(p => p.Patient_Medications)
+                 .Include(p => p.Patient_Medication)
                  .ThenInclude(pm => pm.General_Medication)
                  .FirstOrDefaultAsync(p => p.PatientID == Id);
 
@@ -431,40 +431,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public List<SelectListItem> GetWard()
-        {
-            List<SelectListItem> ward = new List<SelectListItem>();
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-                {
-                    connection.Open();
-                    string sql = "SELECT WardID, Name FROM [Ward]";
-                    using (SqlCommand command = new SqlCommand(sql, connection))
-                    {
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                ward.Add(new SelectListItem
-                                {
-                                    Value = reader["WardID"].ToString(),
-                                    Text = reader["Name"].ToString()
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                throw new Exception($"Failed to fetch roles: {ex.Message}");
-            }
-
-            return ward;
-        }
         [HttpGet]
         public IActionResult AdmitPatient()
         {

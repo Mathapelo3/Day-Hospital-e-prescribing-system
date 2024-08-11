@@ -79,8 +79,8 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Medication_Interaction>()
            .HasKey(m => new { m.ICD_ID, m.Active_IngredientID });
 
-          //  modelBuilder.Entity<Patient_Allergy>()
-          //.HasKey(m => new { m.PatientID, m.AllergyID });
+            modelBuilder.Entity<Patient_Allergy>()
+          .HasKey(m => new { m.PatientID, m.AllergyID });
 
             modelBuilder.Entity<Patient_Condition>()
         .HasKey(m => new { m.PatientID, m.ConditionID });
