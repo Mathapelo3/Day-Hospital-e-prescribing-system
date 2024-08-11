@@ -345,7 +345,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var patient = await _context.Patients
                  .Include(p => p.Patient_Allergy)
-                 .ThenInclude(pa => pa.Allergies)
+                 .ThenInclude(pa => pa.Allergy)
                  .Include(p => p.Patient_Condition)
                  .ThenInclude(pc => pc.Condition)
                  .Include(p => p.Patient_Medication)
@@ -475,7 +475,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 TreatmentCode = treatmentCode
             };
 
-            ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
+            ViewBag.Wards = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
 
             return View(model);
         }
@@ -487,7 +487,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             if (!ModelState.IsValid)
             {
                 model.TreatmentCode = GetTreatmentCode();
-                ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
+                ViewBag.Wards = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
                 _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors));
                 return View(model);
             }
@@ -534,7 +534,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult Wards()
         {
 
-            ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
+            ViewBag.Wards = new SelectList(_context.Wards.ToList(), "WardId", "WardName");
             return View();
         }
 
