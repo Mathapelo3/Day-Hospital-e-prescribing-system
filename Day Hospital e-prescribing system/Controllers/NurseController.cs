@@ -56,7 +56,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult Codition2()
         {
-           
+
             var allergy = GetAllergies();
             var condition = GetConditions();
             var meds = GetGeneral_Medication();
@@ -336,7 +336,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var searchpatient = from s in _context.Patients
-                                 select s;
+                                select s;
             if (!System.String.IsNullOrEmpty(searchString))
             {
                 searchpatient = searchpatient.Where(s => s.Name.Contains(searchString)
@@ -347,15 +347,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                  .Include(p => p.Patient_Allergy)
                  .ThenInclude(pa => pa.Allergies)
                  .Include(p => p.Patient_Condition)
-                 .ThenInclude(pc => pc.Conditions)
+                 .ThenInclude(pc => pc.Condition)
                  .Include(p => p.Patient_Medication)
-                 .ThenInclude(pm => pm.General_Medications)
+                 .ThenInclude(pm => pm.General_Medication)
                  .FirstOrDefaultAsync(p => p.PatientID == Id);
 
 
             return View(patient);
 
-         
+
         }
         public IActionResult DisplayAdmission()
         {
@@ -392,7 +392,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      Time = s.Time,
                                      Anaesthesiologist = $"{u.Name} {u.Surname}",
                                      Theatre = t.Name,
-                                     Surgery_TreatmentCode=c.Description,
+                                     Surgery_TreatmentCode = c.Description,
                                      Surgeon = $"{u.Name} {u.Surname}"
                                  };
 
@@ -430,7 +430,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
-       
+
         public List<SelectListItem> GetWard()
         {
             List<SelectListItem> ward = new List<SelectListItem>();
@@ -474,7 +474,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 TreatmentCode = treatmentCode
             };
-           
+
             ViewBag.Wards = new SelectList(_context.Ward.ToList(), "WardId", "WardName");
 
             return View(model);
@@ -499,7 +499,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                            "OUTPUT INSERTED.UserID " +
                            "VALUES (@WardId, @BedId, @TreatmentCodeID, @Date, @Time";
 
-           
+
 
             try
             {
@@ -513,12 +513,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         command.Parameters.AddWithValue("@TreatmentCodeID", model.TreatmentCodeID);
                         command.Parameters.AddWithValue("@Date", model.Date);
                         command.Parameters.AddWithValue("@Time", model.Time);
-                       
+
                         int userId = (int)await command.ExecuteScalarAsync();
 
-                       
+
                         await InsertSpecificTreatmentCode(model.TreatmentCodeID, userId);
-                       
+
                         //TempData["SuccessMessage"] = "User successfully added into the system.";
                         return RedirectToAction("Wards");
                     }
@@ -558,7 +558,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             string treatmentCodeTable = treatmentCodeId switch
             {
-               
+
                 2 => "Gwr0521",
                 3 => "Fwo5412",
                 4 => "Bsa3164",
@@ -585,7 +585,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
         }
 
-       
+
         public List<SelectListItem> GetTreatmentCode()
         {
             List<SelectListItem> treatmentCode = new List<SelectListItem>();
@@ -620,9 +620,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return treatmentCode;
         }
-       
+
     }
-
-
 }
+
+
+
 
