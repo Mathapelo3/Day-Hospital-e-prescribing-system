@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewData["Title"] = "Test";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Show Textbox on Button Click</title>
+    <style>
+        #myTextbox {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="showTextbox()">Click Me</button>
+
+    <input type="text" id="myTextbox" placeholder="Enter text here">
+
+    <script>
+        function showTextbox() {
+            document.getElementById("myTextbox").style.display = "block";
+        }
+    </script>
+</body>
+</html>

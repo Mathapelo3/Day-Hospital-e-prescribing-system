@@ -1,114 +1,35 @@
-﻿@model  IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.AdmittedPatientsVM>
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.AdmittedPatientsVM>
 @{
-    ViewData["Title"] = "AdmittedPatients";
+    ViewData["Title"] = "PatientsVitals";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
 
-<!DOCTYPE html>
-<html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        background-color: #f1f1f1;
-    }
-
-    #regForm {
-        background-color: #ffffff;
-        margin: 100px auto;
-        font-family: Raleway;
-        padding: 40px;
-        width: 70%;
-        min-width: 300px;
-    }
-
-    h1 {
-        text-align: center;
-    }
-
-    input {
-        padding: 10px;
-        width: 100%;
-        font-size: 17px;
-        font-family: Raleway;
-        border: 1px solid #aaaaaa;
-    }
-
-        /* Mark input boxes that gets an error on validation: */
-        input.invalid {
-            background-color: #ffdddd;
-        }
-
-    /* Hide all steps by default: */
-    .tab {
-        display: none;
-    }
-
-    button {
-        background-color: #007bff;
-        color: #ffffff;
-        border: none;
-        padding: 10px 20px;
-        font-size: 17px;
-        font-family: Raleway;
-        cursor: pointer;
-    }
-
-        button:hover {
-            opacity: 0.8;
-        }
-
-    #prevBtn {
-        background-color: #bbbbbb;
-    }
-
-    /* Make circles that indicate the steps of the form: */
-    .step {
-        height: 15px;
-        width: 15px;
-        margin: 0 2px;
-        background-color: #bbbbbb;
-        border: none;
-        border-radius: 50%;
-        display: inline-block;
-        opacity: 0.5;
-    }
-
-        .step.active {
-            opacity: 1;
-        }
-
-        /* Mark the steps that are finished and valid: */
-        .step.finish {
-            background-color: #04AA6D;
-        }
-</style>
 <div class="card">
     <div class="card-header">
         <div class="text-center ">
-            <h3 class="display-6 text-primary text-center text-bold">ADD HEALTH DETIALS</h3>
+            <h3 class="display-6 text-primary text-center text-bold">ADD PATIENT'S VITALS</h3>
         </div>
     </div>
+    </div>
+<br />
     <body>
-        <form asp-action="AdmittedPatients" method="get" class="form-inline mb-3">
+        <form asp-action="PatientsVitals" method="get" class="form-inline mb-3">
 
             <br />
-           @* <div class="input-group rounded">
-                <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
-                <span class="input-group-text border-0" id="search-addon">
-                    <i class="fas fa-search"></i>
-                </span>
+            @* <div class="input-group rounded">
+            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
+            <span class="input-group-text border-0" id="search-addon">
+            <i class="fas fa-search"></i>
+            </span>
             </div>*@
+            <br />
+              <br />
+            <br />
             <br />
             <div class="card">
                 <div class="body">
                     <div class="card-header text-bold">
-                        View all admitted patients
+                        Patients
                     </div>
                     <div class="card-body">
                         <div class="container-fluid">
@@ -119,10 +40,10 @@
                                         <tr>
                                             <th>Patient</th>
                                             <th>Gender</th>
-                                            <th>Admission Date</th>
-                                            <th>Admission Time</th>
+                                           @* <th>Admission Date</th>
+                                            <th>Admission Time</th>*@
                                             @*<th>Ward</th>*@
-                                            <th>Bed</th>
+                                           @* <th>Bed</th>*@
                                             <th>TreatmentCode</th>
                                             <th>Surgeon</th>
                                             <th>Anaesthesiologist</th>
@@ -130,49 +51,49 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                                    @foreach (var item in Model)
-                                                    {
+                                        @foreach (var item in Model)
+                                        {
                                             <tr>
                                                 <td>@item.Patients</td>
                                                 <td>@item.Gender</td>
-                                                <td>@item.Date.ToShortDateString()</td>
+                                               @* <td>@item.Date.ToShortDateString()</td>
                                                 <td>@item.Time</td>
-                                                <td>@item.Bed</td>
+                                                <td>@item.Bed</td>*@
                                                 <td>@item.TreatmentCodes</td>
                                                 <td>@item.Surgeons</td>
                                                 <td>@item.Anaesthesiologists</td>
                                                 <td>
-                                                                @if (item != null)
-                                                                {
-                                                        <a asp-action="AddCodition2" asp-route-selectedId="@item.AdmissionID" class="btn btn-primary">
-                                                            Add Health Details
+                                                    @if (item != null)
+                                                    {
+                                                    <a asp-action="DisplayVitals" asp-route-selectedId="@item.AdmissionID" class="btn btn-primary">
+                                                            Add Vitals
                                                         </a>
-                                                                }
-
-                                                        </td>
-                                            </tr>
                                                     }
+
+                                                </td>
+                                            </tr>
+                                        }
 
                                     </tbody>
                                 </table>
 
                             </div>
                         </div>
-                       @* <div style="overflow:auto;">
-                            <div style="float:right;">
-                                <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-                                <button type="button" id="nextBtn" onclick="nextPrev(1)">Finish</button>
-                            </div>
+                        @* <div style="overflow:auto;">
+                        <div style="float:right;">
+                        <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+                        <button type="button" id="nextBtn" onclick="nextPrev(1)">Finish</button>
+                        </div>
                         </div>*@
                         <!-- Circles which indicates the steps of the form: -->
                         @*<div style="text-align:center;margin-top:40px;">
-                            <span class="step"></span>
-                            <span class="step"></span>
-                            <span class="step"></span>
-                            <span class="step"></span>
-                            <span class="step"></span>
-                            <span class="step"></span>
-                            <span class="step"></span>
+                        <span class="step"></span>
+                        <span class="step"></span>
+                        <span class="step"></span>
+                        <span class="step"></span>
+                        <span class="step"></span>
+                        <span class="step"></span>
+                        <span class="step"></span>
                         </div>*@
         </form>
         <script>
@@ -251,7 +172,9 @@
         </script>
 
     </body>
-</html>
+    </html>
+
+
 
 
 

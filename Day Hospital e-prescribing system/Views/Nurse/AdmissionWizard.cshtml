@@ -1,4 +1,5 @@
 ﻿
+@*@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Surgery>*@
 @{
     ViewData["Title"] = "AdmissionWizard";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -97,7 +98,8 @@
 </div>
 <body>
         <!-- Search bar -->
-        <form id="filterForm" asp-action="AdmissionWizard" method="get">
+        <form id="filterForm" asp-action="AdmissionWizard" method="get" >
+          
             <div class="form-row">
                 <div class="col-md-3">
                     <div class="input-group">
@@ -147,14 +149,14 @@
                                             @foreach (var item in Model)
                                             {
                                         <tr>
-                                            <td>@item.Patient</td>
+                                            <td>@item.PatientDetails</td>
                                             <td>@item.Date.ToShortDateString()</td>
                                             <td>@item.Time</td>
                                             <td>@item.Surgery_TreatmentCode</td>
                                             <td>@item.Theatre</td>
                                             <td>@item.Surgeon</td>
                                             <td>@item.Anaesthesiologist</td>
-                                            <td><a href="@Url.Action("Ward", "Nurse", new { id = item.PatientID })" type="button" class="add btn-primary" id="add-button">Admit</a></td>
+                                                <td><a asp-action="AdmitPatient" asp-route-selectedSurgeryId="@item.SurgeryID" type="button" class="add btn-primary" id="add-button">Admit</a></td>
                                         </tr>
                                             }
                                @* <td><input type="button" class="add btn-primary" id="add-button" value="Admit"></td>

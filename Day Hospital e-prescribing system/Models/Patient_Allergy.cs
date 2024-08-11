@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 namespace Day_Hospital_e_prescribing_system.Models
 {
+    [Table("Patient_Allergy")]
     public class Patient_Allergy
     {
         [Key]
@@ -9,16 +10,16 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int Patient_AllergyID { get; set; }
 
         [Required]
-        [ForeignKey("AllergyID")]
+        [ForeignKey("Allergy")]
         public int AllergyID { get; set; }
   
        
         [Required]
-        [ForeignKey("PatientID")]
+        [ForeignKey("Patient")]
         public int PatientID { get; set; }
     
 
-        public virtual Allergy Allergy { get; set; }
-        public virtual Patient Patient { get; set; }
+        public virtual Allergy? Allergy { get; set; }
+        public virtual Patient? Patient { get; set; }
     }
 }

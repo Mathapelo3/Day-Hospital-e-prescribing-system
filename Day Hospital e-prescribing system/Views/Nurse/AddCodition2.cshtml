@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.ConditionsVM
 @{
     ViewData["Title"] = "AddCodition2";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -13,126 +13,126 @@
         </div>
     </div>
     <body>
+
+        <form asp-action="AddCondition2" method="get">
+            <input type="hidden" asp-for="AdmissionID" />
         
-            <form>
-                <div class="card">
-                    <div class="card-header text-bold">
-                        John Doe
-                    </div>
-                  
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="col-md-3">
-                                    <div class="input-group">
-                                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by name" />
-                                        <div class="input-group-append">
-                                            <button type="submit" class="btn btn-secondary">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                @if (Model.Count() != 0 || Model != null)
-                {
-                      <div class="row"></div>
-
-                @foreach (var item in Model)
-                {
-                        <br />
-                        <div class="row">
-                            <div class="col-md-4">
-                                <!-- Allergies -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title text-bold">Allergies</h4>
-                                    </div>
-                                    <div class="card-body">
-
-                                        <div class="table-responsive">
-                                            <table id="allergiesTable" class="table table-bordered table-striped">
-                                                <thead></thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @item.Patient_Allergy
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Current Medication -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title text-bold">Current Medication</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="medicationTable" class="table table-bordered table-striped">
-                                                <thead></thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @item.Patient_Medication
-
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <!-- Conditions -->
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title text-bold">Conditions</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table id="conditionsTable" class="table table-bordered table-striped">
-                                                <thead></thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @item.Patient_Condition
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-                     }
-                        @* </div>
-                </div>*@
-
-                }
-                else
-                {
-                    <div class="alert alert-info text-center">
-
-                        <p class="fw-bold">Nothing added yet.</p>
-
-                    </div>
-
-                }
+            <div class="card">
+                <div class="card-header text-bold">
+                    @Model.Name @Model.Surname
                 </div>
-            </form>
+                
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by name" />
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-secondary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <!-- Allergies -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-bold">Allergies</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="allergiesTable" class="table table-bordered table-striped">
+                                            <thead></thead>
+                                            <tbody>
+                                                @if (Model.Allergies.Any())
+                                                {
+                                                    foreach (var allergy in Model.Allergies)
+                                                    {
+                                                        <tr>
+                                                            <td>@allergy.Name</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td>No allergies added.</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Current Medication -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-bold">Current Medication</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="medicationTable" class="table table-bordered table-striped">
+                                            <thead></thead>
+                                            <tbody>
+                                                @if (Model.Medications.Any())
+                                                {
+                                                    foreach (var medication in Model.Medications)
+                                                    {
+                                                        <tr>
+                                                            <td>@medication.Name</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td>No medication added.</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Conditions -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title text-bold">Conditions</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="conditionsTable" class="table table-bordered table-striped">
+                                            <thead></thead>
+                                            <tbody>
+                                                @if (Model.Conditions.Any())
+                                                {
+                                                    foreach (var condition in Model.Conditions)
+                                                    {
+                                                        <tr>
+                                                            <td>@condition.Name</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td>No conditions added.</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+        </form>
     </body>
 </div>
-
-
-
 
 
 

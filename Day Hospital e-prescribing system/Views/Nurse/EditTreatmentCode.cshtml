@@ -1,0 +1,16 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.AdmissionVM
+@{
+    ViewData["Title"] = "EditTreatmentCode";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+
+<form asp-action="EditTreatmentCode" method="post">
+ 
+    <div class="form-group">
+        <label asp-for="Surgery_TreatmentCodeID">Treatment Code:</label>
+        <select asp-for="Surgery_TreatmentCodeID" class="form-control" asp-items="Model.Surgery_TreatmentCode"></select>
+    </div>
+    <input type="hidden" asp-for="SurgeryID" />
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+

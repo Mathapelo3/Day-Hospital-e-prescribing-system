@@ -1,4 +1,4 @@
-﻿
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.VitalsVM
 @{
     ViewData["Title"] = "Vitals";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -92,77 +92,71 @@
             <h3 class="display-6 text-primary text-center text-bold">VITALS</h3>
         </div>
     </div>
-        <form>
-          
+    <form asp-action="Vitals" method="post">
+        @Model.Name @Model.Surname
+        <div class="card">
+            <div class="body">
+                <div class="card-header text-bold">
+                    Patients
+                </div>
             <div class="card">
                 <div class="card-header">
                     <div class="text-center ">
                     </div>
                     <div class="container-fluid">
-                    <div class="form-group">
-                         <label for="sel1">Select Patient:</label>
-                        <select class="form-control" id="sel1">
-                            <option>John Doe</option>
-                            <option>B</option>
-                            <option>C</option>
-                            <option>D</option>
-                        </select>
-                    </div>
                         <div class="row">
             <div class="form-group col-6">
                 <label for="startDate">Date:</label>
-                <input type="date" name="startDate" id="startDate" class="form-control" pattern="\d{2}/\d{2}/\d{4}" placeholder="dd/mm/yyyy" />
+                            <input type="date" name="Date" id="Date" class="form-control" value="@Model.Date.ToString("yyyy-MM-dd")" />
             </div>
             <div class="form-group col-6">
                 <label class="form-label">Time:</label>
-                <input class="form-control"  type="time" />
+                            <input class="form-control" type="time" name="Time" id="Time" class="form-control" value="@Model.Time.ToString(@"hh\:mm")" />
                @* <span class="text-danger" asp-validation-for="VisitArriveTime"></span>*@
             </div>
                @* <div class="row">*@
                     <div class="form-group col-6">
                         <label class="control-label required">Weight:</label>
-                        <input type="number" name="weight" id="weight" class="form-control" />
+                            <input type="number" step="0.1" name="Weight" id="Weight" class="form-control" value="@Model.Weight" />
                     </div>
                     <div class="form-group col-6">
                         <label class="control-label required">Height:</label>
-                        <input type="number" name="weight" id="weight" class="form-control"  />
+                            <input type="number" step="0.1" name="Height" id="Height" class="form-control" value="@Model.Height" />
                     </div>
                    @* <div class="row">*@
                         <div class="form-group col-6">
-                            <label class="control-label required">Temperature:</label>
-                            <input type="number" name="weight" id="weight" class="form-control"  />
+                            <label class="control-label required">Body Temperature:</label>
+                            <input type="number" step="0.1" name="Temperature" id="Temperature" class="form-control" value="@Model.Vitals" />
                         </div>
                         <div class="form-group col-6">
                             <label class="control-label required">Blood Pressure:</label>
-                            <input type="number" name="weight" id="weight" class="form-control" />
+                                    <input type="number" name="BloodPressure" id="BloodPressure" class="form-control" value="@Model.Vitals" />
                         </div>
                       @*  <div class="row">*@
                             <div class="form-group col-6">
                                 <label class="control-label required">Pulse Rate:</label>
-                                <input type="number" name="weight" id="weight" class="form-control" />
+                                    <input name="PulseRate" id="PulseRate" class="form-control" value="@Model.Vitals" />
                             </div>
-                            <div class="form-group col-6">
+                           @* <div class="form-group col-6">
                                 <label class="control-label required">Respiratory Rate:</label>
-                                <input type="number" name="weight" id="weight" class="form-control" />
+                            <input type="number" name="RespiratoryRate" id="RespiratoryRate" class="form-control" value="@Model.RespiratoryRate" />
                             </div>
                             <div class=" form-group col-md-6">
                                 <label class="control-label required">Oxygen:</label>
-                                <input type="number" name="weight" id="weight" class="form-control" />
+                            <input type="number" name="Oxygen" id="Oxygen" class="form-control" value="@Model.OxygenLevel" />
                             </div>
                                 <div class="form-group col-md-6">
                                     <label class="control-label required">Glucose:</label>
-                            <input type="number" name="weight" id="weight" class="form-control" />
+                            <input type="number" name="Glucose" id="Glucose" class="form-control" value="@Model.GlucoseLevel" />
                             </div>  
-                            </div>
+                            </div>*@
                     <div class="form-group col-md-12">
                         <label for="medicationList">Additional Notes:</label>
-                        <select multiple class="form-control" id="medicationList">
-                            <!-- Medication will be populated here -->
-                        </select>
+                        <textarea name="Notes" id="Notes" class="form-control">@Model.Notes</textarea>
                     </div>
                     <div style="overflow:auto;">
                         <div style="float:right;">
-                            <button type="button" id="nextBtn" onclick="nextPrev(1)">Save</button>
+                            <buttontype ="submit" class="btn btn-primary">Save</button>
                         </div>
                     </div>
            

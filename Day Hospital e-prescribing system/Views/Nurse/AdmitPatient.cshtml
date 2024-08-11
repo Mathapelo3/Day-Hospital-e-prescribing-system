@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "AdmitPatient";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
+    
 }
 
 <!DOCTYPE html>
@@ -96,16 +97,15 @@
     </div>
     <body>
 
-
-
         <form asp-action="AdmitPatient" asp-controller="Nurse" method="post">
-
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="SurgeryID" />
             <br />
             <br />
             <div class="card">
                 <div class="body">
                     <div class="card-header text-bold">
-                        John Doe - Assign to bed and ward
+                        <strong> @Model.Name @Model.Surname</strong>
                     </div>
                     <div class="card-body">
 
@@ -115,95 +115,115 @@
                                     <label for="startDate"> Date: </label>
                                     <input class="form-control" asp-for="Date" type="date" id="datePicker" />
                                 </div>
-                                <div class="form-group col-6">
-                                    <label class="form-label">Time slot: </label>
-                                    <input type="hidden" id="TimeHidden" class="form-control"
-                                           asp-for="Time"  
-                                    type="time"
-                                           value="@Model.Time.ToString(@"hh\:mm")"
-                                           onchange="document.getElementById('TimeHidden').value = this.value;" />/>
-                                </div>
+                               <div class="form-group col-6">
+                                    <label class="form-label">Select AM/PM:</label>
+                                    <select class="form-control" asp-for="Time">
+                                        <option value="AM" selected="@(Model.Time == "AM")">AM</option>
+                                        <option value="PM" selected="@(Model.Time == "PM")">PM</option>
+                                    </select>
+                                 </div>
                             </div>
                             <div class="form-group col-md-6">
                                 <label asp-for="WardId">Select Ward:</label>
                                     <br />
                                 @Html.DropDownList("WardId", ViewBag.Wards as SelectList, "Select Ward", new { id = "wardDropdown", @class = "form-control" })
+                                            @Html.ValidationMessageFor(model => model.WardId, "", new { @class = "text-danger" })
                                 </div>
                             <div class="form-group col-md-6">
                                 <label asp-for="BedId">Select Bed:</label>
                                     <br />
                                 <select id="bedDropdown" asp-for="BedId"  class="form-control">
-                                    <option>Select a ward first</option>
+                                    <option value="1">Select a ward first</option>
+                                                
+                                                
                                 </select>
+                                            @Html.ValidationMessageFor(model => model.BedId, "", new { @class = "text-danger" })
                                 </div>
-                                <div class="form-row">
+                               @* <div class="form-row">
                                     <div class="form-group col-md-6">
-                                    <label asp-for="TreatmentCodeID" for="sel1">Treatment Code:</label>
+                                    <label asp-for="Surgery_TreatmentCodeID" for="sel1">Treatment Code:</label>
                                         <br />
-                                        <select asp-for="TreatmentCodeID" class="form-control" asp-items="Model.TreatmentCode"></select>
-                                    </div>
-                                    <div class="form-group col-md-1">
+                                        <select asp-for="Surgery_TreatmentCodeID" class="form-control" asp-items="Model.Surgery_TreatmentCode"></select>
+                                    </div>*@
+                                   
+                                <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label asp-for="Surgery_TreatmentCodeID">Surgery Treatmentcode:</label>
+                                    <br />
+                                    <input value="@Model.Description" class="form-control" readonly /> 
+                                </div>
+ 
+                            <div class="form-group col-md-1">
                                         <label>&nbsp;</label>
-                                        <button type="button" class="btn btn-primary form-control" id="addMedication">
-                                            <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                                    <button type="button" class="btn btn-primary form-control" onclick="location.href = '@Url.Action("EditTreatmentCode","Nurse")'" id="editTreatmentCode">
+                                            <i class="fas fa-edit"></i> <!-- Font Awesome plus icon -->
                                         </button>
-                                    </div>
-                                </div>
-                                <div style="overflow:auto;">
-                                    <div style="float:right;">
-                                        <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-                                        <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
-                                    </div>
-                                </div>
-                                <!-- Circles which indicates the steps of the form: -->
-                                <div style="text-align:center;margin-top:40px;">
-                                    <span class="step"></span>
-                                    <span class="step"></span>
-                                    <span class="step"></span>
-                                    <span class="step"></span>
-                                    <span class="step"></span>
-                                    <span class="step"></span>
 
-                                </div>
-                                @*<a href="#" class="btn btn-primary">Add</a>*@
-                            
 
-                        </div>
+                                   @* <div class="form-row">
+                                        <div class="form-group col-md-6">*@
+                                           @* <label asp-for="Surgery_TreatmentCodeID" for="sel1">Treatment Code:</label>*@
+                                            <br />
+                                     @*   <select asp-for="Surgery_TreatmentCodeID" class="form-control" asp-items="Model.Surgery_TreatmentCode"></select>
+                                        </div>
+                                    
+                                    </div>*@
+                                </div>
+              
+                               
+                                </div>
+                             
+     
                     </div>
                 </div>
             </div>
 
 
 
+        @*</form>
+    </body>*@
+</div>
+            <div style="overflow:auto;">
+                <div style="float:right;">
+                    <button type="button" id="prevBtn" onclick="location.href = '@Url.Action("AdmissionWizard","Nurse")'">Previous</button>
+                    <button type="submit" id="nextBtn">Next</button>
+                </div>
+            </div>
+            <!-- Circles which indicates the steps of the form: -->
+            <div style="text-align:center;margin-top:40px;">
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
         </form>
     </body>
-</div>
 
-@section Scripts {
+
+                @section Scripts {
     <script src="~/Scripts/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#wardDropdown').change(function () {
-                var wardId = $(this).val();
-                if (wardId) {
-                    $.getJSON('@Url.Action("GetBeds", "Nurse")', { wardId: wardId }, function (beds) {
-                        var $bedDropdown = $('#bedDropdown');
-                        $bedDropdown.empty();
-                        $.each(beds, function (i, bed) {
-                            var bedName = bed.BedName;
-                            var available = bed.IsAvailable ?  "Available" : "Not Available";
-                            $bedDropdown.append($('<option>', {
-                                value: bed.BedId,
-                                text: bed.bedName /*+ " - " + available*/
-                            }));
+            $(document).ready(function () {
+                $('#wardDropdown').change(function () {
+                    var wardId = $(this).val();
+                    if (wardId) {
+                        $.getJSON('@Url.Action("GetBeds", "Nurse")', { wardId: wardId }, function (beds) {
+                            var $bedDropdown = $('#bedDropdown');
+                            $bedDropdown.empty();
+                            $bedDropdown.append('<option value="">Select a bed</option>');
+                            $.each(beds, function (i, bed) {
+                                $bedDropdown.append($('<option>', {
+                                    value: bed.value,
+                                    text: bed.text
+                                }));
+                            });
                         });
-                    });
-                } else {
-                    $('#bedDropdown').empty().append('<option>Select a ward first</option>');
-                }
+                    } else {
+                        $('#bedDropdown').empty().append('<option value="">Select a ward first</option>');
+                    }
+                });
             });
-        });
-
 
     </script>
 }
@@ -300,5 +320,6 @@
         </script>*@
  
 </html>
+
 
 

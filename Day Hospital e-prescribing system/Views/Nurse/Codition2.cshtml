@@ -97,7 +97,7 @@
     </div>
     <body>
     <br />
-        <form asp-action="SubmitSelected" asp-controller="Nurse">
+        <form asp-action="Condition2" asp-controller="Nurse">
   <!-- Search bar -->
    @* <form id="filterForm" asp-action="ViewPatients" method="get">*@
             <div class="card-body">
@@ -118,7 +118,7 @@
               <div class="col-md-14">
             <div class="card">
             <div class="card-header">
-            <h4 class="card-title text-bold">Patient</h4>
+                        <h4 class="card-title text-bold"> @Model.Name @Model.Surname</h4>
             </div>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="card-body">

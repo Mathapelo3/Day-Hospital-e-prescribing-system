@@ -54,8 +54,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             _logger.LogInformation("Received date: {Date}", Date?.ToString("yyyy-MM-dd"));
             var patientAdmission = from p in _context.Patients
                                    join a in _context.Admissions on p.PatientID equals a.PatientID
-                                   join w in _context.Ward on p.WardId equals w.WardId
-                                   join b in _context.Bed on p.WardId equals b.BedId
+                                   join w in _context.Bed on p.BedId equals w.BedId
+                                   //join b in _context.Bed on p.WardId equals b.BedId
                                    join n in _context.Nurses on a.NurseID equals n.NurseID
                                    join u in _context.Users on n.UserID equals u.UserID
                                    select new PatientViewModel
@@ -63,9 +63,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                        PatientID = p.PatientID,
                                        Patient = p.Name + " " + p.Surname,
                                        Date = a.Date,
-                                       Time = a.Time,
-                                       Ward = w.WardName,
-                                       Bed = b.BedName, // Assuming Bed is a property in the Ward table
+                                       //Time = a.Time,
+                                       //Ward = w.WardName,
+                                       //Bed = b.BedName, // Assuming Bed is a property in the Ward table
                                        Nurse = u.Name + " " + u.Surname,
                                        Status = p.Status
                                    };
@@ -100,7 +100,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  join n in _context.Nurses on s.NurseID equals n.NurseID
                                  join su in _context.Surgeons on s.SurgeonID equals su.SurgeonID
                                  join t in _context.Theatres on s.TheatreID equals t.TheatreID
-                                 join w in _context.Ward on p.WardId equals w.WardId
+                                 join w in _context.Bed on p.BedId equals w.BedId
                                  join c in _context.Surgery_TreatmentCodes on s.Surgery_TreatmentCodeID equals c.Surgery_TreatmentCodeID
                                  join u in _context.Users on n.UserID equals u.UserID
                                  join us in _context.Users on su.UserID equals us.UserID
@@ -111,8 +111,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      Patient = p.Name + " " + p.Surname,
                                      Date = s.Date,
                                      Time = s.Time,
-                                     Name = w.Name,
-                                     Bed = w.Bed,  // Assuming Bed is a property in the Ward table 
+                                     //Name = w.WardName,
+                                     /*Bed = w.Bed,*/  // Assuming Bed is a property in the Ward table 
                                      Nurse = u.Name + " " + u.Surname,
                                      Theatre = t.Name,
                                      Surgeon = u.Name + " " + u.Surname
@@ -135,7 +135,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(await bookedPatients.ToListAsync());
         }
-        public async Task<ActionResult> MedicalHistory(int id )
+        public async Task<ActionResult> MedicalHistory(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             _logger.LogInformation("MedicalHistory action called with id: {Id}", id);
@@ -168,7 +168,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 PatientID = patient.PatientID,
                 Name = patient.Name,
                 Surname = patient.Surname,
-                Date = patient.Patient_Vitals.FirstOrDefault()?.Date?? DateTime.Now,
+                Date = patient.Patient_Vitals.FirstOrDefault()?.Date ?? DateTime.Now,
                 Height = patient.Patient_Vitals.FirstOrDefault()?.Height, // Correct reference
                 Weight = patient.Patient_Vitals.FirstOrDefault()?.Weight, // Correct reference
                 Vitals = patient.Patient_Vitals.Select(pv => new VitalsViewModel
