@@ -1,24 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    [Table("Prescription")]
-    public class Prescription
+    public class Orders
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int PrescriptionID { get; set; }
+        public int OrderID { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Instruction { get; set; }
+       
 
         [Required]
         public DateTime Date { get; set; }
 
         [Required]
-        [StringLength(50)]
+        
         public string Quantity { get; set; }
 
         [Required]
@@ -26,7 +23,21 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Status { get; set; }
 
         [Required]
+        
         public bool Urgency { get; set; }
+
+        
+        
+        public bool Administered { get; set; }
+
+       
+       
+        public string? QAdministered { get; set; }
+
+        
+       
+        public string? Notes { get; set; }
+
 
         [Required]
         public int PatientID { get; set; }
@@ -35,10 +46,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual Patient Patient { get; set; }
 
         [Required]
-        public int SurgeonID { get; set; }
+        public int AnaesthesiologistID { get; set; }
         // Navigation property
-        [ForeignKey("SurgeonID")]
-        public virtual Surgeon Surgeon { get; set; }
+        [ForeignKey("AnaesthesiologistID")]
+        public virtual Anaesthesiologist Anaesthesiologist { get; set; }
+
+
 
         [Required]
         public int MedicationID { get; set; }
@@ -46,4 +59,5 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("MedicationID")]
         public virtual Medication Medication { get; set; }
     }
+
 }

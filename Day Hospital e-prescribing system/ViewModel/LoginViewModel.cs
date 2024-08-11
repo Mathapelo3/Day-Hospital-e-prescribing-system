@@ -7,7 +7,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         //public string Id { get; set; }
 
         [Required]
-        public string Username { get; set; }
+        [EmailAddress]
+        public string Email{ get; set; }
 
         [Required]
         [DataType(DataType.Password)]

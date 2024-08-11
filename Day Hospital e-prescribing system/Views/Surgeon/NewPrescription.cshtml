@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Day_Hospital_e_prescribing_system.ViewModel
+@model Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel
+@{
     ViewData["Title"] = "NewPrescription";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
@@ -6,10 +8,6 @@
 
 <div class="card">
     <div class="card-header">
-        <div class="text-center ">
-            @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-            *@
-        </div>
         <br />
         <h4 class="display-6 text-warning text-center text-bold">PRESCRIPTION FORM </h4>
     </div>
@@ -21,61 +19,45 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form id="orderForm">
+                        <form id="orderForm" method="post" action="@Url.Action("NewPrescription", "Surgeon")" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
                             <div class="form-group">
                                 <label for="surgeon">Patient:</label>
-                                <select class="form-control" id="patient" name="surgeon">
-                                    <option value="patient">---</option>
-                                    <option value="patient">John Doe</option>
-                                    <option value="patient">Jane Smith</option>
-                                </select>
-
+                                @Html.DropDownListFor(m => m.SelectedPatientId, Model.PatientList, "Select a Patient", htmlAttributes: new { @class = "form-control" })
                             </div>
                             <div class="form-group">
                                 <label for="date">Date:</label>
                                 <input type="date" class="form-control" id="date" name="date">
                             </div>
                             <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="medication">Medication:</label>
-                                    <select class="form-control" id="medication">
-                                        <option value="sedatives"> Anxiolytics 20mg</option>
-                                        <option value="pain_reliever"></option>
-                                        <!-- Add more medication options here -->
-                                    </select>
-                                </div>
-
-                                <div class="form-group col-md-4">
-                                    <label for="medication">Instruction:</label>
-                                    <input type="text" class="form-control" id="instruction" name="instruction">
-                                </div>
-
-                                <div class="form-group col-md-3">
-                                    <label for="quantity">Quantity:</label>
-                                    <select class="form-control" id="quantity">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <!-- Add more quantity options here -->
-                                    </select>
-                                </div>
-
-                                <div class="form-group col-md-1">
-                                    <label>&nbsp;</label>
-                                    <button type="button" class="btn btn-primary form-control" id="addMedication">
-                                        <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
-                                    </button>
-                                </div>
                                 <div class="form-group col-md-12">
-                                    <label for="medicationList">Medication List:</label>
-                                    <select multiple class="form-control" id="medicationList">
-                                        <!-- Medication will be populated here -->
-                                    </select>
+                                    <label>Medications:</label>
+                                    <select class="form-control" id="medicationSelect" asp-items="Model.MedicationList" multiple></select>
+                                    <input type="text" id="quantityInput" class="form-control" placeholder="Quantity" style="margin-top: 10px;" />
+                                    <input type="text" id="instructionInput" class="form-control" placeholder="Instruction" style="margin-top: 10px;" />
+                                    <button type="button" id="addMedication" class="btn btn-warning text-bold" style="margin-top: 10px;">Add</button>
+                                    @* <span asp-validation-for="SelectedMedicationsJson" class="text-danger"></span>*@
                                 </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label>Selected Medications:</label>
+                                <ul id="medicationList">
+                                    @for (int i = 0; i < Model.SelectedMedications.Count; i++)
+                                    {
+                                        <li>
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].MedicationID)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].Name)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].Instruction)
+                                            @Model.SelectedMedications[i].Name - @Model.SelectedMedications[i].Quantity - @Model.SelectedMedications[i].Instruction
+                                        </li>
+                                    }
+                                </ul>
+                                <input type="hidden" name="Medications" value="" />
                             </div>
                             <div class="form-group">
                                 <label for="urgency">Urgency:</label>
-                                <input type="checkbox">
+                                <input type="checkbox" id="urgency" name="IsUrgent">
                             </div>
                             <div class="text-center">
                                 <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
@@ -86,5 +68,40 @@
             </div>
         </div>
     </div>
-    </div>
 </section>
+
+<script>
+    document.getElementById('addMedication').addEventListener('click', function () {
+        var selectedOptions = Array.from(document.getElementById('medicationSelect').selectedOptions);
+        var quantity = document.getElementById('quantityInput').value;
+        var instruction = document.getElementById('instructionInput').value;
+        var medicationList = document.getElementById('medicationList');
+
+        selectedOptions.forEach(function (option, index) {
+            var li = document.createElement('li');
+            li.textContent = option.text + '-' + quantity + '-' + instruction; // Include instruction in display text
+
+            // Create hidden inputs for each selected medication
+            var hiddenMedId = document.createElement('input');
+            hiddenMedId.type = 'hidden';
+            hiddenMedId.name = 'SelectedMedications[' + index + '].MedicationID'; // Adjusted to match server-side model
+            hiddenMedId.value = option.value;
+            li.appendChild(hiddenMedId);
+
+            var hiddenQuantity = document.createElement('input');
+            hiddenQuantity.type = 'hidden';
+            hiddenQuantity.name = 'SelectedMedications[' + index + '].Quantity'; // Adjusted to match server-side model
+            hiddenQuantity.value = quantity;
+            li.appendChild(hiddenQuantity);
+
+            var hiddenInstruction = document.createElement('input'); // New hidden input for instruction
+            hiddenInstruction.type = 'hidden';
+            hiddenInstruction.name = 'SelectedMedications[' + index + '].Instruction'; // Adjusted to match server-side model
+            hiddenInstruction.value = instruction;
+            li.appendChild(hiddenInstruction);
+
+            medicationList.appendChild(li);
+        });
+    });
+</script>
+

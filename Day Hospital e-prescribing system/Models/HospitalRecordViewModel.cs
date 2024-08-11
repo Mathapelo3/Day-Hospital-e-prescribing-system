@@ -13,7 +13,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string AddressLine2 { get; set; }
         public string ContactNo { get; set; }
         public string Email { get; set; }
-        public string PMContactNo { get; set; }
+
+        public string PM { get; set; }
+        public string PMEmail{ get; set; }
 
         // Suburb properties
 

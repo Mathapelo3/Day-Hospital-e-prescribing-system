@@ -34,7 +34,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
             return Result;
         }
 
-        public bool UserAlreadyExists(string username)
+        public bool UserAlreadyExists(string email)
         {
             bool flag = false;
             string connectionString = _config["ConnectionStrings:DefaultConnection"];
@@ -43,10 +43,10 @@ namespace Day_Hospital_e_prescribing_system.Helper
             {
                 connection.Open();
 
-                string sql = "SELECT * FROM [User] WHERE Username = @Username";
+                string sql = "SELECT * FROM [User] WHERE Email = @Email";
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", email);
                     using (SqlDataReader rd = command.ExecuteReader())
                     {
                         if (rd.HasRows)
@@ -59,7 +59,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
             return flag;
         }
 
-        public User GetUserByUsername(string query, string username)
+        public User GetUserByEmail(string query, string email)
         {
             User user = null;
 
@@ -68,7 +68,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", email);
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -76,7 +76,8 @@ namespace Day_Hospital_e_prescribing_system.Helper
                             user = new User
                             {
                                 UserID = (int)reader["UserID"],
-                                Username = reader["Username"].ToString(),
+                                Username = reader["Username"].ToString(),  // Retrieve Username
+                                Email = reader["Email"].ToString(),
                                 HashedPassword = reader["HashedPassword"].ToString(),
                                 RoleId = (int)reader["RoleId"]
                             };
@@ -118,7 +119,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
         }
 
 
-        public Admin GetAdminByUsername(string query, string username)
+        public Admin GetAdminByEmail(string query, string email)
         {
             Admin admin = null;
 
@@ -127,7 +128,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Email", email); // Add @ symbol for parameter
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -135,7 +136,8 @@ namespace Day_Hospital_e_prescribing_system.Helper
                             admin = new Admin
                             {
                                 AdminID = (int)reader["AdminID"],
-                                Username = reader["Username"].ToString(),
+                                Username = reader["Username"].ToString(),  // Retrieve Username
+                                Email = reader["Email"].ToString(),
                                 HashedPassword = reader["HashedPassword"].ToString(),
                                 RoleId = (int)reader["RoleId"]
                             };
@@ -146,6 +148,122 @@ namespace Day_Hospital_e_prescribing_system.Helper
 
             return admin;
         }
+
+        public Nurse GetNurseByEmail(string query, string email)
+        {
+            Nurse nurse = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            nurse = new Nurse
+                            {
+                                NurseID = reader.GetInt32(reader.GetOrdinal("NurseID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                Username = reader["Username"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+
+            return nurse;
+        }
+
+        public Surgeon GetSurgeonByEmail(string query, string email)
+        {
+            Surgeon surgeon = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            surgeon = new Surgeon
+                            {
+                                SurgeonID = reader.GetInt32(reader.GetOrdinal("SurgeonID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                 Username = reader["Username"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+
+            return surgeon;
+        }
+
+        public Pharmacist GetPharmacistByEmail(string query, string email)
+        {
+            Pharmacist pharmacist = null;
+
+            using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            pharmacist = new Pharmacist
+                            {
+                                PharmacistID = reader.GetInt32(reader.GetOrdinal("PharmacistID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                Username = reader["Username"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+
+            return pharmacist;
+        }
+        public Anaesthesiologist GetAnaesthesiologistByEmail(string query, string email)
+        {
+            Anaesthesiologist anaesthesiologist = null;
+
+            using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            anaesthesiologist = new Anaesthesiologist
+                            {
+                                AnaesthesiologistID = reader.GetInt32(reader.GetOrdinal("AnaesthesiologistID")),
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                Username = reader["Username"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+
+            return anaesthesiologist;
+        }
+
+
+
+
+
         public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

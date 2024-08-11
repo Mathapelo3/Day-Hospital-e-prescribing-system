@@ -31,15 +31,18 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult Index()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
         public IActionResult AdminDashboard()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
 
         public async Task<IActionResult> DayHospitalRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             var hospitalRecords = await _context.HospitalRecords
             .Include(hr => hr.Suburb)
                 .ThenInclude(s => s.City)
@@ -53,7 +56,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 AddressLine2 = hr.AddressLine2,
                 ContactNo = hr.ContactNo,
                 Email = hr.Email,
-                PMContactNo = hr.PMContactNo,
+                PM = hr.PM,
+                PMEmail = hr.PMEmail,
                 SuburbName = hr.Suburb.Name,
                 PostalCode = hr.Suburb.PostalCode,
                 CityName = hr.Suburb.City.Name
@@ -63,6 +67,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public async Task<IActionResult> EditHospitalRecord(int id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             var hospitalRecord = await _context.HospitalRecords
             .Include(hr => hr.Suburb)
                 .ThenInclude(s => s.City)
@@ -88,7 +93,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 AddressLine2 = hospitalRecord.AddressLine2,
                 ContactNo = hospitalRecord.ContactNo,
                 Email = hospitalRecord.Email,
-                PMContactNo = hospitalRecord.PMContactNo,
+                PM = hospitalRecord.PM,
+                PMEmail = hospitalRecord.PMEmail,
                 SuburbID = hospitalRecord.SuburbID,
                 SuburbName = hospitalRecord.Suburb.Name,
                 PostalCode = hospitalRecord.Suburb.PostalCode,
@@ -103,6 +109,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditHospitalRecord(HospitalRecordViewModel viewModel)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             if (ModelState.IsValid)
             {
                 var hospitalRecord = await _context.HospitalRecords
@@ -120,7 +127,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 hospitalRecord.AddressLine2 = viewModel.AddressLine2;
                 hospitalRecord.ContactNo = viewModel.ContactNo;
                 hospitalRecord.Email = viewModel.Email;
-                hospitalRecord.PMContactNo = viewModel.PMContactNo;
+                hospitalRecord.PM = viewModel.PM;
+                hospitalRecord.PMEmail = viewModel.PMEmail;
                 hospitalRecord.SuburbID = viewModel.SuburbID;
 
                 await _context.SaveChangesAsync();
@@ -139,6 +147,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public async Task<IActionResult> GetSuburbDetails(int suburbID)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             var suburb = await _context.Suburbs
                 .Include(s => s.City)
                 .FirstOrDefaultAsync(s => s.SuburbID == suburbID);
@@ -160,6 +169,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             var roles = GetRoles();
             var model = new UserViewModel
             {
@@ -172,6 +182,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMedicalProfessional(UserViewModel model)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             if (!ModelState.IsValid)
             {
                 model.Roles = GetRoles();
@@ -234,6 +245,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         private async Task InsertRoleSpecificUser(int roleId, int userId)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             string roleTable = roleId switch
             {
                 2 => "Pharmacist",
@@ -316,6 +328,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public async Task<IActionResult> MedicalProfessionals(int id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             List<UserViewModel> medicalProfessionals = new List<UserViewModel>();
 
             string query = "SELECT u.UserID, u.Name, u.Surname, u.Email, u.ContactNo, u.HCRNo, u.Username, r.Name AS Role " +
@@ -360,6 +373,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult TheatreRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var theatre = _context.Theatres.ToList();
             ViewBag.Theatre = theatre;
 
@@ -367,6 +382,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult WardRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var ward = _context.Wards.ToList();
             ViewBag.Ward = ward;
 
@@ -374,6 +391,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult ConditionRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var condition = _context.Conditions.ToList().OrderBy(c => c.Name);
             ViewBag.Condition = condition;
 
@@ -381,6 +400,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddCondition()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             return View();
         }
         [HttpPost]
@@ -417,6 +438,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public async Task<IActionResult> EditCondition(int? id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             if (id == null)
             {
                 return NotFound();

@@ -12,6 +12,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         [Required]
         public int UserID { get; set; }
 
+        public string Username { get; set; }
+
         // Navigation property
         [ForeignKey("UserID")]
         public virtual User User { get; set; }

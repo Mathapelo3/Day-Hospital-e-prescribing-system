@@ -33,7 +33,11 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [StringLength(20)]
-        public string PMContactNo { get; set; }
+        public string PM { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string PMEmail { get; set; }
 
         [Required]
         public int SuburbID { get; set; }

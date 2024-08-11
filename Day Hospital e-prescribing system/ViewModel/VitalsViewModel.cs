@@ -21,5 +21,11 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Max { get; set; }
 
         public bool IsEditing { get; set; }
+
+        public DateTime Date { get; set; }
+        public string Time { get; set; }
+        public string Notes { get; set; }
+
+
     }
 }
