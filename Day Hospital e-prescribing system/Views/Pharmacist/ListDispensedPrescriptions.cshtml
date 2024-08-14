@@ -1,4 +1,7 @@
-﻿@{
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PharmacistViewModel.DispensedPrescription>
+
+
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
@@ -24,81 +27,99 @@
    
         <div class="card-body">
 
-            <div class="row">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <!-- Search bar -->
-                        <div class="input-group">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Patient...">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                                    <i class="fas fa-search"></i>
-                                </button>
+            <form asp-action="ListDispensedPrescriptions">
+                <div class="row">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <!-- Search bar -->
+                            <div class="input-group">
+                                <input type="text" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Patient...">
+                                <div class="input-group-append">
+                                    <a asp-controller="Pharmacist"
+                                        asp-action="ListDispensedPrescriptions"
+                                       class="btn btn-outline-secondary" type="button" id="searchButton">
+                                       <i class="fas fa-search"></i>
+                                    </a>
+                                        
+                                   
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    @* <div class="col-md-4">
-                    <!-- Gender filter -->
-                    <select class="form-control" id="genderFilter">
-                    <option value="">All Genders</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    </select>
-                    </div>*@
-                    <div class="col-md-6">
-                        <!-- Admission date filter -->
-                        <div class="input-group">
-                            <input type="date" id="admissionDateFilter" class="form-control">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                                    <i class="fas fa-search"></i>
-                                </button>
+                        @* <div class="col-md-4">
+                        <!-- Gender filter -->
+                        <select class="form-control" id="genderFilter">
+                        <option value="">All Genders</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        </select>
+                        </div>*@
+                        <div class="col-md-6">
+                            <!-- Admission date filter -->
+                            <div class="input-group">
+                                <input type="date" id="admissionDateFilter" class="form-control">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
+                        </div>
+                        <br />
                     </div>
-                    <br />
+
                 </div>
 
-            </div>
-           
-            
 
-            <div class="row">
+
+               @if(Model != null && Model.Any())
+               {
+                    <div class="row">
+
+                        <table class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Patient Name</th>
+                                    <th scope="col">Action</th>
+
+                                </tr>
+                            </thead>
+                            @foreach (var item in Model)
+                            {
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>@item.Date.ToShortDateString()</td>
+                                        <td>@item.Patient</td>
+                                        <td>
+                                            <a asp-controller="Pharmacist"
+                                       asp-action="PatientPrescriptions"
+                                               class="btn btn-info">View Details</a>
+                                        </td>
+                                    </tr>
+
+
+
+                                </tbody>
+                            }
+                        </table>
+                        <div><br /></div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
+                        </div>
+                    </div>
+               }
+               else
+               {
+                <h3 class=" display-6 text-center text-bold" style="color:#268aab">Search not Found</h3>
+               }
                 
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-
-                            <th scope="col">Date</th>
-                            <th scope="col">Patient Name</th>
-                            <th scope="col">Action</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>05-06-2024</td>
-                            <td>John Doe</td>
-                            <td><button class="btn btn-info ">View Details</button></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>05-06-2024</td>
-                            <td>Jane Doe</td>
-                            <td><button class="btn btn-info ">View Details</button></td>
-                        </tr>
-                        
-
-                    </tbody>
-                </table>
-                <div><br /></div>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
-            </div>
-            </div>
+           
+        </form>
 
 
 
