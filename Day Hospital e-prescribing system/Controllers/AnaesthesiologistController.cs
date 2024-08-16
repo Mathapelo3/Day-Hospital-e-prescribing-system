@@ -23,12 +23,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AnaesthesiologistController> _logger;
-       
-        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger)
+        private readonly EmailService _emailService;
+        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger, EmailService emailService)
         {
             _context = context;
             _logger = logger;
-            
+            _emailService = emailService;
 
         }
         public IActionResult Index()
@@ -52,10 +52,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewData["CurrentFilter"] = searchString;
             ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
             _logger.LogInformation("Received date: {Date}", Date?.ToString("yyyy-MM-dd"));
+
             var patientAdmission = from p in _context.Patients
                                    join a in _context.Admissions on p.PatientID equals a.PatientID
-                                   join w in _context.Ward on p.WardId equals w.WardId
-                                   join b in _context.Bed on p.WardId equals b.BedId
+                                   join w in _context.Wards on p.WardID equals w.WardID
                                    join n in _context.Nurses on a.NurseID equals n.NurseID
                                    join u in _context.Users on n.UserID equals u.UserID
                                    select new PatientViewModel
@@ -80,11 +80,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 _logger.LogInformation("Filtering by date: {Date}", Date.Value.ToString("yyyy-MM-dd"));
                 patientAdmission = patientAdmission.Where(pa => pa.Date.Date == Date.Value.Date);
             }
-        
 
             return View(await patientAdmission.ToListAsync());
 
-            
+
         }
 
         public async Task<ActionResult> BookedPatients(string searchString, DateTime? startDate, DateTime? endDate)
@@ -111,11 +110,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      Patient = p.Name + " " + p.Surname,
                                      Date = s.Date,
                                      Time = s.Time,
-                                     Name = w.Name,
-                                     Bed = w.Bed,  // Assuming Bed is a property in the Ward table 
+                                     WardName = w.WardName,
+                                     BedName = b.BedName, 
                                      Nurse = u.Name + " " + u.Surname,
                                      Theatre = t.Name,
-                                     Surgeon = u.Name + " " + u.Surname
+                                     Surgeon = us.Name + " " + us.Surname
                                  };
 
             if (!String.IsNullOrEmpty(searchString))
@@ -135,6 +134,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(await bookedPatients.ToListAsync());
         }
+        
         public async Task<ActionResult> MedicalHistory(int id )
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -188,6 +188,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             _logger.LogInformation("MedicalHistory action completed successfully for id: {Id}", id);
             return View(model);
         }
+        
         public async Task<ActionResult> Prescriptions(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -226,14 +227,16 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 PatientID = p.PatientID,
                 SurgeryID = p.SurgeonID,
                 MedicationID = p.MedicationID,
-                Surgeon = p.Surgeon.User.Name + " " + p.Surgeon.User.Surname // Assuming you have a Name property in Surgeon model
+                Surgeon = p.Surgeon.User.Name + " " + p.Surgeon.User.Surname 
             }).ToList();
 
             return View(prescriptionViewModels);
         }
-        public async Task<ActionResult> Orders(int id)
+        
+        public async Task<ActionResult> Orders(int id, DateTime? Date)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            ViewData["CurrentDate"] = Date?.ToString("yyyy-MM-dd");
             _logger.LogInformation("Orders action called with id: {Id}", id);
 
             if (id <= 0)
@@ -254,6 +257,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 .Include(o => o.Medication)
                 .ToListAsync();
 
+            if (Date.HasValue)
+            {
+                _logger.LogInformation("Filtering by date: {Date}", Date.Value.ToString("yyyy-MM-dd"));
+                orders = orders.Where(o => o.Date.Date == Date.Value.Date).ToList();
+            }
+
             var orderViewModels = orders.Select(o => new OrderViewModel
             {
                 
@@ -267,9 +276,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 PatientID = o.PatientID,
 
             }).ToList();
+            
 
             return View(orderViewModels);
         }
+       
         public async Task<ActionResult> CaptureOrders(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -328,7 +339,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
 
             int anaesthesiologistId = int.Parse(anaesthesiologistIdClaim.Value);
-            var anaesthesiologist = await _context.Anaesthesiologists.FirstOrDefaultAsync(a => a.AnaesthesiologistID == anaesthesiologistId);
+            var anaesthesiologist = await _context.Anaesthesiologists
+                .Include(a => a.User)  // Ensure the related User entity is loaded
+                .FirstOrDefaultAsync(a => a.AnaesthesiologistID == anaesthesiologistId);
+
             if (anaesthesiologist == null)
             {
                 _logger.LogError("Anaesthesiologist not found.");
@@ -336,7 +350,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return View(model);
             }
 
-            var patientId = model.PatientID; // Check the value of model.PatientID
+            // Now you can safely access the Username
+            var username = anaesthesiologist.User.Username;
+
+            var patientId = model.PatientID;
             _logger.LogInformation($"PatientID: {patientId}");
 
             if (model.SelectedMedications != null && model.SelectedMedications.Count > 0)
@@ -400,11 +417,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(orders);
         }
+        [HttpGet]
         public async Task<ActionResult> EditOrders(int id)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            if (id == null)
+            _logger.LogInformation("EditOrders action called with id: {Id}", id);
+
+            if (id < 0)
             {
+                _logger.LogWarning("Invalid order id: {Id}", id);
                 return NotFound();
             }
 
@@ -413,10 +433,20 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 .Include(o => o.Medication)
                 .FirstOrDefaultAsync(o => o.OrderID == id);
 
-            if (order == null || order.Status != "ordered")
+            if (order == null)
             {
+                _logger.LogWarning("Order not found with id: {Id}", id);
                 return NotFound();
             }
+
+            if (order.Status != "ordered")
+            {
+                _logger.LogWarning("Order status is not 'ordered' for id: {Id}", id);
+                return NotFound();
+            }
+
+            _logger.LogInformation("Order found: {OrderId}, Patient: {PatientName}, Medication: {MedicationName}",
+                order.OrderID, order.Patient.Name, order.Medication.Name);
 
             var orderViewModel = new OrderViewModel
             {
@@ -429,17 +459,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Status = order.Status
             };
 
-            var orderEditViewModel = new OrderEditViewModel
-            {
-                OrderID = order.OrderID,
-                Date = order.Date,
-                Quantity = order.Quantity,
-                Status = order.Status
-            };
-
-            ViewBag.OrderEditViewModel = orderEditViewModel;
-            ViewBag.OrderViewModel = orderViewModel;
-
             return View(orderViewModel);
         }
 
@@ -448,7 +467,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<IActionResult> EditOrders(int id, OrderEditViewModel orderEditViewModel)
         {
             _logger.LogInformation("EditOrders POST called with id: {Id}", id);
-            ViewBag.Username = HttpContext.Session.GetString("Username");
 
             if (id != orderEditViewModel.OrderID)
             {
@@ -474,6 +492,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                     _context.Update(order);
                     await _context.SaveChangesAsync();
+
                     _logger.LogInformation("Order updated successfully with id: {Id}", id);
                     return RedirectToAction(nameof(ViewOrders));
                 }
@@ -527,9 +546,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             await _context.SaveChangesAsync();
             _logger.LogInformation($"Order with ID {id} deleted.");
 
-            return RedirectToAction(nameof(ViewOrders));
+            return RedirectToAction("ViewOrders", "Anaesthesiologist");
         }
-
+        
         public ActionResult MedicationRecords()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -569,7 +588,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return NotFound();
             }
 
-            var viewModel = new VitalsViewModel
+            var viewModel = new EditVitalsViewModel
             {
                 VitalsID = vitals.VitalsID,
                 Vital = vitals.Vital,
@@ -582,7 +601,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditVital(int id, VitalsViewModel model)
+        public async Task<IActionResult> EditVital(int id, EditVitalsViewModel model)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             if (id != model.VitalsID)
@@ -606,6 +625,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                     _context.Update(vitals);
                     await _context.SaveChangesAsync();
+                    //await _emailService.SendEmailAsync("aredlinghuys@gmail.com", "GROUP10-Vital Edited", $"Vital '{model.Vital}' edited successfully.");
                     _logger.LogInformation("Vital record updated successfully.");
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
@@ -638,6 +658,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 _context.Vitals.Remove(vitals);
                 await _context.SaveChangesAsync();
+                
                 _logger.LogInformation("Vital record deleted successfully.");
             }
             catch (SqlNullValueException ex)
@@ -650,7 +671,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 _logger.LogError(ex, "An error occurred while deleting the vital record: {Message}", ex.Message);
                 ModelState.AddModelError("", "Unable to delete. Try again, and if the problem persists see your system administrator.");
             }
-
+            //await _emailService.SendEmailAsync("aredlinghuys@gmail.com", "GROUP10-Vital Deleted", $"Vital with ID {id} deleted successfully.");
             return RedirectToAction(nameof(MaintainVitals));
         }
 
@@ -663,7 +684,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddVitals(VitalsViewModel model)
+        public async Task<IActionResult> AddVitals(AddVitalsViewModel model)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             if (ModelState.IsValid)
@@ -679,6 +700,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                     _context.Add(vitals);
                     await _context.SaveChangesAsync();
+                    //await _emailService.SendEmailAsync("aredlinghuys@gmail.com", "GROUP10-Vital Added", $"Vital '{model.Vital}' added successfully.");
                     _logger.LogInformation("Vital record created successfully.");
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }

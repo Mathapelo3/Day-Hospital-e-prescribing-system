@@ -9,55 +9,46 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class RegisterViewModel
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int UserID { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "Name is required.")]
         [StringLength(50)]
         public string Name { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Surname is required.")]
         [StringLength(50)]
         public string Surname { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Email is required.")]
         [EmailAddress]
-        [StringLength(50)]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(20)]
+        [Required(ErrorMessage = "Contact No. is required.")]
         public string ContactNo { get; set; }
 
-
-        [Required]
-        [StringLength(10)]
+        [Required(ErrorMessage = "HCRNo is required.")]
+        [StringLength(20)]
         public string HCRNo { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Username is required.")]
         [StringLength(50)]
         public string Username { get; set; }
 
         [Required]
-        [StringLength(256, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [StringLength(256)]
         public string Password { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [StringLength(256)]
         public string ConfirmPassword { get; set; }
 
         [Required]
         public int RoleId { get; set; }
 
-        public List<SelectListItem> Roles { get; set; }
-
-        [Required]
         public int AdminID { get; set; }
+
+        public IEnumerable<SelectListItem> Roles { get; set; }
 
 
 

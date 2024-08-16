@@ -1,7 +1,7 @@
 using Day_Hospital_e_prescribing_system.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using Day_Hospital_e_prescribing_system;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +29,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add EmailService
+builder.Services.AddTransient<EmailService>(provider =>
+{
+    var logger = provider.GetRequiredService<ILogger<EmailService>>();
+    return new EmailService(
+        "smtp-mail.outlook.com",
+        587,
+        "s219865345@mandela.ac.za",
+        "your-access-token-here", // Update with the correct access token
+        logger
+    );
+});
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

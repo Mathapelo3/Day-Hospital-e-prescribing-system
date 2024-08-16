@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -22,11 +23,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private readonly IConfiguration _config;
         private readonly CommonHelper _helper;
+        private readonly ApplicationDbContext _context;
 
-        public AccountsController(IConfiguration config)
+        public AccountsController(IConfiguration config, ApplicationDbContext context)
         {
             _config = config;
             _helper = new CommonHelper(_config);
+            _context = context;
         }
 
         public IActionResult Index()
@@ -36,134 +39,135 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public IActionResult Register()
         {
-            ViewBag.Roles = GetRoles();
+            
+            ViewBag.Roles = new SelectList(_context.Roles, "RoleId", "RoleName");
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel vm)
         {
-            ViewBag.Roles = GetRoles();
-
             if (!ModelState.IsValid)
             {
                 return View(vm);
             }
 
-            bool userExists = _helper.UserAlreadyExists(vm.Username);
+            // Get the AdminID from the logged-in Admin user
+            var adminId = HttpContext.Session.GetString("AdminID");
 
-            if (userExists)
+            // Create a new user
+            var user = new User
             {
-                TempData["ErrorMessage"] = "Username already exists!";
-                return View(vm);
-            }
-
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(vm.Password);
-
-            int adminID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "AdminID").Value);
-
-            string query = "INSERT INTO [User] (Name, Surname, Email, ContactNo, HCRNo, Username, HashedPassword, AdminID, RoleId) " +
-                           "OUTPUT INSERTED.UserID " +
-                           "VALUES (@Name, @Surname, @Email, @ContactNo, @HCRNo, @Username, @HashedPassword, @AdminID, @RoleId)";
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-                {
-                    await connection.OpenAsync();
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Name", vm.Name);
-                        command.Parameters.AddWithValue("@Surname", vm.Surname);
-                        command.Parameters.AddWithValue("@Email", vm.Email);
-                        command.Parameters.AddWithValue("@ContactNo", vm.ContactNo);
-                        command.Parameters.AddWithValue("@HCRNo", vm.HCRNo);
-                        command.Parameters.AddWithValue("@Username", vm.Username);
-                        command.Parameters.AddWithValue("@HashedPassword", hashedPassword);
-                        command.Parameters.AddWithValue("@AdminID", adminID);
-                        command.Parameters.AddWithValue("@RoleId", vm.RoleId);
-
-                        int userId = (int)await command.ExecuteScalarAsync();
-
-                        await InsertRoleSpecificUser(vm.RoleId, userId);
-
-                        TempData["SuccessMessage"] = "User successfully added into the system.";
-                        return RedirectToAction("MedicalProfessionals");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
-                // Log the exception
-                return View(vm);
-            }
-        }
-
-        private async Task InsertRoleSpecificUser(int roleId, int userId)
-        {
-            string roleTable = roleId switch
-            {
-                2 => "Pharmacist",
-                3 => "Surgeon",
-                4 => "Nurse",
-                5 => "Anaesthesiologist",
-                _ => throw new ArgumentException("Invalid role ID")
+                Name = vm.Name,
+                Surname = vm.Surname,
+                Email = vm.Email,
+                ContactNo = vm.ContactNo,
+                HCRNo = vm.HCRNo,
+                Username = vm.Username,
+                HashedPassword = BCrypt.Net.BCrypt.HashPassword(vm.Password),
+                AdminID = int.Parse(adminId),
+                RoleId = vm.RoleId
             };
 
-            string query = $"INSERT INTO [{roleTable}] (UserID) VALUES (@UserID)";
-            try
+            // Save the user
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            // Save the foreign key in the correct table based on the selected role
+            switch (vm.RoleId)
             {
-                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-                {
-                    await connection.OpenAsync();
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@UserID", userId);
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
+                //case 1: // Admin
+                //    var admin = new Admin { UserID = user.UserID };
+                //    _context.Admins.Add(admin);
+                //    break;
+                case 3: // Surgeon
+                    var surgeon = new Surgeon { UserID = user.UserID };
+                    _context.Surgeons.Add(surgeon);
+                    break;
+                case 4: // Nurse
+                    var nurse = new Nurse { UserID = user.UserID };
+                    _context.Nurses.Add(nurse);
+                    break;
+                case 2: // Pharmacist
+                    var pharmacist = new Pharmacist { UserID = user.UserID };
+                    _context.Pharmacists.Add(pharmacist);
+                    break;
+                case 5: // Anaesthesiologist
+                    var anaesthesiologist = new Anaesthesiologist { UserID = user.UserID };
+                    _context.Anaesthesiologists.Add(anaesthesiologist);
+                    break;
+                default:
+                    ModelState.AddModelError("", "Invalid role.");
+                    break;
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to insert into {roleTable} table: {ex.Message}");
-            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction("MedicalProfessionals", "Admin");
         }
 
-        public List<SelectListItem> GetRoles()
-        {
-            List<SelectListItem> roles = new List<SelectListItem>();
+        //private async Task InsertRoleSpecificUser(int roleId, int userId)
+        //{
+        //    string roleTable = roleId switch
+        //    {
+        //        2 => "Pharmacist",
+        //        3 => "Surgeon",
+        //        4 => "Nurse",
+        //        5 => "Anaesthesiologist",
+        //        _ => throw new ArgumentException("Invalid role ID")
+        //    };
 
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-                {
-                    connection.Open();
-                    string sql = "SELECT RoleId, Name FROM [Role]";
-                    using (SqlCommand command = new SqlCommand(sql, connection))
-                    {
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                roles.Add(new SelectListItem
-                                {
-                                    Value = reader["RoleId"].ToString(),
-                                    Text = reader["Name"].ToString()
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                throw new Exception($"Failed to fetch roles: {ex.Message}");
-            }
+        //    string query = $"INSERT INTO [{roleTable}] (UserID) VALUES (@UserID)";
+        //    try
+        //    {
+        //        using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+        //        {
+        //            await connection.OpenAsync();
+        //            using (SqlCommand command = new SqlCommand(query, connection))
+        //            {
+        //                command.Parameters.AddWithValue("@UserID", userId);
+        //                await command.ExecuteNonQueryAsync();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"Failed to insert into {roleTable} table: {ex.Message}");
+        //    }
+        //}
 
-            return roles;
-        }
+        //public List<SelectListItem> GetRoles()
+        //{
+        //    List<SelectListItem> roles = new List<SelectListItem>();
+
+        //    try
+        //    {
+        //        using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+        //        {
+        //            connection.Open();
+        //            string sql = "SELECT RoleId, Name FROM [Role]";
+        //            using (SqlCommand command = new SqlCommand(sql, connection))
+        //            {
+        //                using (SqlDataReader reader = command.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        roles.Add(new SelectListItem
+        //                        {
+        //                            Value = reader["RoleId"].ToString(),
+        //                            Text = reader["Name"].ToString()
+        //                        });
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        throw new Exception($"Failed to fetch roles: {ex.Message}");
+        //    }
+
+        //    return roles;
+        //}
         public void DisplayHashedPassword()
         {
             string plainPassword = "Password123!";
@@ -182,11 +186,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel vm)
         {
-            if (string.IsNullOrEmpty(vm.Email) || string.IsNullOrEmpty(vm.Password))
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("", "Email and password are required.");
                 return View(vm);
             }
+
             DisplayHashedPassword();
             string role = GetRole(vm.Email, vm.Password);
 
@@ -270,7 +274,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
                 HttpContext.Session.SetString("Email", email);
-                HttpContext.Session.SetString("Username", surgeonDetails.Username); // Updated to get username
+                HttpContext.Session.SetString("Username", surgeonDetails.Username); 
                 HttpContext.Session.SetString("Role", role);
             }
         }

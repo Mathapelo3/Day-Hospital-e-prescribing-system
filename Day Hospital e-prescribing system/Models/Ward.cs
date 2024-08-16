@@ -12,11 +12,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int WardId { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string WardName { get; set; }
 
         [Required]
-        public int NumberOfBeds { get; set; }
-
-        public virtual ICollection<Bed> Bed { get; set; }
+        [StringLength(50)]
+        public string NumberOfBeds { get; set; }
     }
 }

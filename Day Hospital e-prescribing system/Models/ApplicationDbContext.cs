@@ -8,6 +8,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<HospitalRecord> HospitalRecords { get; set; }
         public DbSet<Suburb> Suburbs { get; set; }
         public DbSet<City> Cities { get; set; }
+
+        public DbSet<Bed> Bed { get; set; }
         public DbSet<User> Users { get; set; }
 
         public DbSet<Role> Roles { get; set; }
@@ -53,7 +55,6 @@ namespace Day_Hospital_e_prescribing_system.Models
 
        
         public DbSet<Orders> Orders { get; set; }
-
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
