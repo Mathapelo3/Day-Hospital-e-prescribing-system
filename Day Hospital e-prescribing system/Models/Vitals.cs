@@ -19,6 +19,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string Max { get; set; }
 
-        
+        public Patient Patient { get; set; } 
     }
 }

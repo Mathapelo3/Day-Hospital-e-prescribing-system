@@ -411,7 +411,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     var condition = new Condition
                     {
-                        Description = model.Description,
+                        ICD_10_Code = model.ICD_10_Code,
                         Name = model.Name
                     };
 
@@ -451,7 +451,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new ConditionViewModel
             {
                 ConditionID = condition.ConditionID,
-                Description = condition.Description,
+                ICD_10_Code = condition.ICD_10_Code,
                 Name = condition.Name
             };
 
@@ -477,7 +477,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         return NotFound();
                     }
 
-                    condition.Description = model.Description;
+                    condition.ICD_10_Code = model.ICD_10_Code;
                     condition.Name = model.Name;
 
                     _context.Update(condition);
