@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {

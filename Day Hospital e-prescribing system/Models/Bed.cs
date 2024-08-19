@@ -17,7 +17,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [StringLength(50)]
-        public string isAvaible { get; set; }
+        public string IsAvailable { get; set; }
 
         [Required]
         public int WardId { get; set; }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
@@ -45,8 +44,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Discharge> Discharges { get; set; }
 
         public DbSet<Ward> Ward { get; set; }
-        public DbSet<Bed> Bed { get; set; }
-
         public DbSet<Patient_Condition> Patient_Condition { get; set; }
         public DbSet<Patient_Allergy> Patient_Allergy { get; set; }
         public DbSet<Patient_Medication> Patient_Medication { get; set; }

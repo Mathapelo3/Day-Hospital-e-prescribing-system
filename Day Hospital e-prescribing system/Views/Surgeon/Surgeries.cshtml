@@ -11,11 +11,6 @@
 
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
-            </div>
-            <br />
             <h4 class="display-6 text-warning text-center text-bold">BOOKED SURGERIES</h4>
         </div>
     </div>    <br />
@@ -23,84 +18,70 @@
         <div class="col-md-4">
             <!-- Admission date filter -->
             <div class="input-group">
-                <input type="date" id="admissionDateFilter" class="form-control">
+                <input type="date" name="Date" value="@ViewData["CurrentDate"]" class="form-control" id="dateFilter" />
             </div>
         </div>
     </div>
     <div style="text-align:end">
-        <button class="btn btn-warning text-sm text-bold">Add New Surgery</button>
-        <button class="btn btn-warning text-sm text-bold">Confirm Treatment Codes</button>
+        <button type="button" class="btn btn-warning text-sm text-bold" onclick="location.href='@Url.Action("NewSurgery", "Surgeon")'">
+            New Surgery
+        </button>
+        <button type="button" class="btn btn-warning text-sm text-bold" onclick="location.href='@Url.Action("ConfirmTreatmentCodes", "Surgeon")'">
+            Confirm Treatment Code
+        </button>
     </div>
     <div class="container p-3 text-md-center">
-
-        @* @if (Model.Count() > 0)
-            {*@
-        <table id="patientsTable" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>
-                        Date
-                    </th>
-                    <th>
-                        Time
-                    </th>
-                    <th>
-                        Patient
-                    </th>
-                    <th>
-                        Treatment Code
-                    </th>
-                    <th>
-                        Ward
-                    </th>
-                    <th>
-                        Bed
-                    </th>
-                    <th>
-                        Nurse
-                    </th>
-                    <th>
-                        Theatre
-                    </th>
-                    <th>
-                        Anesthesiologist
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr>
-                    <td>2024-05-01</td>
-                    <td>AM</td>
-                    <td>John Doe</td>
-                    <td>gwm456</td>
-                    <td>Ward A</td>
-                    <td>Bed 2</td>
-                    <td>Paul Lee</td>
-                    <td>OR002</td>
-                    <td>Dr Anne Doe</td>
-                    <td>
-                        <div class="text-center">
-                            <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                            </button>
-                        </div>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        @*}*@
-        @*else
-            {
-            <p>No assignment has been added yet.</p>
-            }*@
-        @*<div class="col-7 text-right">
-            <a asp-controller="TutorAssignReport" asp-action="Create" class="btn btn-outline-warning">Add Assignment</a>
-            <button type="submit" class="btn btn-md btn-outline-danger" onclick="location.href = '@Url.Action("Index","TutorAssign")'">BACK</button>
-            </div>*@
+        <form method="get" asp-controller="Surgeon" asp-action="Surgeries">
+            <table id="surgeryTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            Time
+                        </th>
+                        <th>
+                            Patient
+                        </th>
+                        <th>
+                            Treatment Code
+                        </th>
+                        @* <th>
+                            Ward
+                        </th>
+                        <th>
+                            Bed
+                        </th> *@
+                        <th>
+                            Nurse
+                        </th>
+                        <th>
+                            Theatre
+                        </th>
+                        <th>
+                            Anesthesiologist
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Date</td>
+                            <td>@item.Time</td>
+                            <td>@item.Patients.Name @item.Patients.Surname</td>
+                            <td>@item.Surgery_TreatmentCodes</td>
+                            <td>@item.Nurses.NurseID</td>
+                            <td>@item.Theatres.Name</td>
+                            <td>@item.Anaesthesiologists.AnaesthesiologistID</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+        <button type="button" class="btn btn-danger text-sm text-bold" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">
+            Back
+        </button>
     </div>
-    <div class="row">
-    </div>
-
 </section>
