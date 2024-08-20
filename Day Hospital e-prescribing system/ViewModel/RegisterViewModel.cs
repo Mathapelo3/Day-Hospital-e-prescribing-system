@@ -37,11 +37,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [StringLength(256)]
         public string Password { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        [StringLength(256)]
-        public string ConfirmPassword { get; set; }
+        
 
         [Required]
         public int RoleId { get; set; }

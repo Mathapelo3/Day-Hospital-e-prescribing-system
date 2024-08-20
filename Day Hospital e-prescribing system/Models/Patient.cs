@@ -60,6 +60,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
 
         public virtual ICollection<Patient_Allergy> Patient_Allergy { get; set; }
+        public virtual ICollection<Patient_Vitals> Patient_Vitals { get; set; }
         public virtual ICollection<Patient_Condition> Patient_Condition { get; set; }
         public virtual ICollection<Patient_Medication> Patient_Medication { get; set; }
         public virtual ICollection<Patient_Vitals> Patient_Vitals { get; set; }

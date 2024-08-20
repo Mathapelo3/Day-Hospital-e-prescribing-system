@@ -16,7 +16,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         
-        public string Quantity { get; set; }
+        public string? Quantity { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -28,7 +28,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         
         
-        public bool Administered { get; set; }
+        public bool? Administered { get; set; }
 
        
        

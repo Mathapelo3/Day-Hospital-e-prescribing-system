@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Day_Hospital_e_prescribing_system.Models;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel
 {

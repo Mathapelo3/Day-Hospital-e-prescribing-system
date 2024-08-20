@@ -55,7 +55,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var patientAdmission = from p in _context.Patients
                                    join a in _context.Admissions on p.PatientID equals a.PatientID
-                                   join w in _context.Wards on p.WardID equals w.WardID
+                                   join b in _context.Bed on p.BedId equals b.BedId
+                                   join w in _context.Ward on b.WardId equals w.WardId
                                    join n in _context.Nurses on a.NurseID equals n.NurseID
                                    join u in _context.Users on n.UserID equals u.UserID
                                    select new PatientViewModel
@@ -64,8 +65,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                        Patient = p.Name + " " + p.Surname,
                                        Date = a.Date,
                                        Time = a.Time,
-                                       Ward = w.WardName,
-                                       Bed = b.BedName, // Assuming Bed is a property in the Ward table
+                                       WardName = w.WardName,
+                                       BedName  = b.BedName, // Assuming Bed is a property in the Ward table
                                        Nurse = u.Name + " " + u.Surname,
                                        Status = p.Status
                                    };
@@ -99,7 +100,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  join n in _context.Nurses on s.NurseID equals n.NurseID
                                  join su in _context.Surgeons on s.SurgeonID equals su.SurgeonID
                                  join t in _context.Theatres on s.TheatreID equals t.TheatreID
-                                 join w in _context.Ward on p.WardId equals w.WardId
+                                 join b in _context.Bed on p.BedId equals b.BedId
+                                 join w in _context.Ward on b.WardId equals w.WardId
                                  join c in _context.Surgery_TreatmentCodes on s.Surgery_TreatmentCodeID equals c.Surgery_TreatmentCodeID
                                  join u in _context.Users on n.UserID equals u.UserID
                                  join us in _context.Users on su.UserID equals us.UserID
@@ -420,6 +422,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public async Task<ActionResult> EditOrders(int id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             _logger.LogInformation("EditOrders action called with id: {Id}", id);
 
             if (id < 0)
@@ -466,6 +469,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditOrders(int id, OrderEditViewModel orderEditViewModel)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             _logger.LogInformation("EditOrders POST called with id: {Id}", id);
 
             if (id != orderEditViewModel.OrderID)
@@ -548,12 +552,89 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return RedirectToAction("ViewOrders", "Anaesthesiologist");
         }
-        
-        public ActionResult MedicationRecords()
+
+        [HttpGet]
+        public async Task<ActionResult> MedicationRecords()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            return View();
+            var patients = await _context.Patients
+        .Select(p => new PatientDropDownViewModel
+        {
+            PatientID = p.PatientID,
+            FullName = p.Name + " " + p.Surname
+        })
+        .ToListAsync();
+
+            var model = new PSPatientOrderViewModel
+            {
+                Patients = patients,
+                Orders = new List<PostSurgeryOrderViewModel>() // Initially empty
+            };
+
+            return View(model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> MedicationRecords(PSPatientOrderViewModel model)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            var patients = await _context.Patients
+                .Select(p => new PatientDropDownViewModel
+                {
+                    PatientID = p.PatientID,
+                    FullName = p.Name + " " + p.Surname
+                })
+                .ToListAsync();
+
+            model.Patients = patients;
+
+            if (model.PatientID > 0)
+            {
+                model.Orders = await _context.Orders
+                    .Where(o => o.PatientID == model.PatientID && o.Status == "ordered")
+                    .Select(o => new PostSurgeryOrderViewModel
+                    {
+                        OrderID = o.OrderID,
+                        Date = o.Date,
+                        MedicationName = o.Medication.Name,
+                        Quantity = o.Quantity,
+                        Status = o.Status,
+                        Urgency = o.Urgency,
+                        Administered = o.Administered ?? false,
+                        QAdministered = o.QAdministered,
+                        Notes = o.Notes
+                    })
+                    .ToListAsync();
+            }
+            else
+            {
+                model.Orders = new List<PostSurgeryOrderViewModel>();
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateMedicationRecords(PSPatientOrderViewModel model)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            foreach (var order in model.Orders)
+            {
+                var existingOrder = await _context.Orders.FindAsync(order.OrderID);
+                if (existingOrder != null)
+                {
+                    existingOrder.Administered = order.Administered;
+                    existingOrder.QAdministered = order.QAdministered;
+                    existingOrder.Notes = order.Notes;
+
+                    _context.Update(existingOrder);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("MedicationRecords", new { model.PatientID });
+        }
+
         public IActionResult MaintainVitals()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -717,5 +798,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
+   
+        
     }
 }
