@@ -37,73 +37,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult Register()
-        {
-            
-            ViewBag.Roles = new SelectList(_context.Roles, "RoleId", "RoleName");
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel vm)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(vm);
-            }
-
-            // Get the AdminID from the logged-in Admin user
-            var adminId = HttpContext.Session.GetString("AdminID");
-
-            // Create a new user
-            var user = new User
-            {
-                Name = vm.Name,
-                Surname = vm.Surname,
-                Email = vm.Email,
-                ContactNo = vm.ContactNo,
-                HCRNo = vm.HCRNo,
-                Username = vm.Username,
-                HashedPassword = BCrypt.Net.BCrypt.HashPassword(vm.Password),
-                AdminID = int.Parse(adminId),
-                RoleId = vm.RoleId
-            };
-
-            // Save the user
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            // Save the foreign key in the correct table based on the selected role
-            switch (vm.RoleId)
-            {
-                //case 1: // Admin
-                //    var admin = new Admin { UserID = user.UserID };
-                //    _context.Admins.Add(admin);
-                //    break;
-                case 3: // Surgeon
-                    var surgeon = new Surgeon { UserID = user.UserID };
-                    _context.Surgeons.Add(surgeon);
-                    break;
-                case 4: // Nurse
-                    var nurse = new Nurse { UserID = user.UserID };
-                    _context.Nurses.Add(nurse);
-                    break;
-                case 2: // Pharmacist
-                    var pharmacist = new Pharmacist { UserID = user.UserID };
-                    _context.Pharmacists.Add(pharmacist);
-                    break;
-                case 5: // Anaesthesiologist
-                    var anaesthesiologist = new Anaesthesiologist { UserID = user.UserID };
-                    _context.Anaesthesiologists.Add(anaesthesiologist);
-                    break;
-                default:
-                    ModelState.AddModelError("", "Invalid role.");
-                    break;
-            }
-            await _context.SaveChangesAsync();
-            return RedirectToAction("MedicalProfessionals", "Admin");
-        }
-
+        
         //private async Task InsertRoleSpecificUser(int roleId, int userId)
         //{
         //    string roleTable = roleId switch

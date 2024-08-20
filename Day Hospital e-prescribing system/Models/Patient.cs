@@ -43,10 +43,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string? Status { get; set; }
 
-        public int WardId { get; set; }
+        public int BedId { get; set; }
         // Navigation property
-        [ForeignKey("BedID")]
-        public virtual Ward Wards { get; set; }
+        [ForeignKey("BedId")]
+        public virtual Bed Bed { get; set; }
 
         public int? TreatmentCodeID { get; set; }
         // Navigation property
@@ -63,7 +63,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual ICollection<Patient_Vitals> Patient_Vitals { get; set; }
         public virtual ICollection<Patient_Condition> Patient_Condition { get; set; }
         public virtual ICollection<Patient_Medication> Patient_Medication { get; set; }
-        public virtual ICollection<Patient_Vitals> Patient_Vitals { get; set; }
+        
 
     }
 }
