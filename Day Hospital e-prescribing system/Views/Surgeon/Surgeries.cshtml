@@ -47,15 +47,6 @@
                         <th>
                             Treatment Code
                         </th>
-                        @* <th>
-                            Ward
-                        </th>
-                        <th>
-                            Bed
-                        </th> *@
-                        <th>
-                            Nurse
-                        </th>
                         <th>
                             Theatre
                         </th>
@@ -70,11 +61,10 @@
                         <tr>
                             <td>@item.Date</td>
                             <td>@item.Time</td>
-                            <td>@item.Patients.Name @item.Patients.Surname</td>
-                            <td>@item.Surgery_TreatmentCodes</td>
-                            <td>@item.Nurses.NurseID</td>
+                            <td>@item.PatientName</td>
+                            <td>@item.Surgery_TreatmentCodes.ICD_10_Code</td>
                             <td>@item.Theatres.Name</td>
-                            <td>@item.Anaesthesiologists.AnaesthesiologistID</td>
+                            <td>@item.Anaesthesiologists.User.Name @item.Anaesthesiologists.User.Surname</td>
                         </tr>
                     }
                 </tbody>

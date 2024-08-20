@@ -143,10 +143,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var surgery = _context.Surgeries.ToList();
-            ViewBag.Surgery = surgery;
+            var surgeries = _context.Surgeries
+                .Include(s => s.Patients)
+                .Include(s => s.Surgery_TreatmentCodes)
+                .ToList();
 
-            return View();
+            return View(surgeries);
         }
         [HttpGet]
         public IActionResult GetPatients()
@@ -347,12 +349,37 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
-
+        [HttpGet]
         public IActionResult NewSurgery()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            return View();
+            var anaesthesiologistSelectListItems = _context.Anaesthesiologists.Select(a => new SelectListItem
+            {
+                Value = a.AnaesthesiologistID.ToString(),
+                Text = $"{a.User.Name} {a.User.Surname}"
+            }).ToList();
+
+            var theatreSelectListItems = _context.Theatres.Select(n => new SelectListItem
+            {
+                Value = n.TheatreID.ToString(),
+                Text = n.Name
+            }).ToList();
+
+            var treatmentCodeSelectListItems = _context.TreatmentCodes.Select(t => new SelectListItem
+            {
+                Value = t.TreatmentCodeID.ToString(),
+                Text = $"{t.ICD_10_Code} - {t.Description}"
+            }).ToList();
+
+            var viewModel = new SurgeryViewModel
+            {
+                AnaesthesiologistList = new SelectList(anaesthesiologistSelectListItems, "Value", "Text"),
+                TheatreList = new SelectList(theatreSelectListItems, "Value", "Text"),
+                TreatmentCodeList = new SelectList(treatmentCodeSelectListItems, "Value", "Text")
+            };
+
+            return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -366,14 +393,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         Date = model.Date,
                         Time = model.Time,
-                        Urgency = model.Urgency,
-                        Administered = model.Administered,
-                        QAdministered = model.QAdministered,
-                        Notes = model.Notes
+                        TheatreID = model.TheatreID,
+                        AnaesthesiologistID = model.AnaesthesiologistID,
+                        PatientName = model.Patient
                     };
 
                     _context.Add(surgery);
                     await _context.SaveChangesAsync();
+
+                    foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
+                    {
+                        var code = new TreatmentCode 
+                        {
+                            Surgery_TreatmentCodeID = surgery.SurgeryID, 
+                            TreatmentCodeID = treatmentCodeId 
+                        };
+                        _context.TreatmentCodes.Add(code); 
+                    }
+                    await _context.SaveChangesAsync(); // Save changes again after adding treatment codes
+
                     _logger.LogInformation("Surgery added successfully.");
                     return RedirectToAction("Surgeries", "Surgeon");
                 }
@@ -390,6 +428,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
+
 
         public async Task<IActionResult> PatientRecord(int id)
         {
