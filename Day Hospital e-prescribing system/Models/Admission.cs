@@ -16,8 +16,8 @@ namespace Day_Hospital_e_prescribing_system.Models
        public DateTime Date { get; set; }
 
         [Required]
-        [Display(Name = "Time")]
-        public string Time { get; set; }
+        [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
+        public TimeSpan Time { get; set; }
 
         [Required]
         public int SurgeonID { get; set; }

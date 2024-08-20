@@ -384,7 +384,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var ward = _context.Ward.ToList();
+            var ward = _context.Wards.ToList();
             ViewBag.Ward = ward;
 
             return View();

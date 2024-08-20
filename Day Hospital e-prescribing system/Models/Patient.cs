@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
@@ -56,10 +55,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string? Status { get; set; }
 
         [Required]
-        public int? BedId { get; set; }
+        public int WardId { get; set; }
         // Navigation property
-        [ForeignKey("BedId")]
-        public virtual Bed Beds { get; set; }
+        [ForeignKey("WardId")]
+        public virtual Ward Wards { get; set; }
 
         [Required]
         public int? TreatmentCodeID { get; set; }
@@ -73,13 +72,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("SuburbID")]
         public virtual Suburb Suburbs { get; set; }
 
-        public virtual ICollection<Patient_Vitals>? Patient_Vitals { get; set; }
 
-
-        public virtual ICollection<Patient_Allergy>? Patient_Allergy { get; set; }
-        public virtual ICollection<Patient_Condition>? Patient_Condition { get; set; }
-        public virtual ICollection<Patient_Medication>? Patient_Medication { get; set; }
-
-        public virtual ICollection<Surgery>? Surgeries { get; set; }
+        public virtual ICollection<Patient_Allergy> Patient_Allergy { get; set; }
+        public virtual ICollection<Patient_Condition> Patient_Condition { get; set; }
+        public virtual ICollection<Patient_Medication> Patient_Medication { get; set; }
     }
 }

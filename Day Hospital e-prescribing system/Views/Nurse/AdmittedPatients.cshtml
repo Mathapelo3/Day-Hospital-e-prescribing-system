@@ -1,4 +1,4 @@
-﻿@model  IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.AdmittedPatientsVM>
+﻿
 @{
     ViewData["Title"] = "AdmittedPatients";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -91,19 +91,19 @@
 <div class="card">
     <div class="card-header">
         <div class="text-center ">
-            <h3 class="display-6 text-primary text-center text-bold">ADD HEALTH DETIALS</h3>
+            <h3 class="display-6 text-primary text-center text-bold">ADMISSION RECORDS</h3>
         </div>
     </div>
     <body>
-        <form asp-action="AdmittedPatients" method="get" class="form-inline mb-3">
+        <form>
 
             <br />
-           @* <div class="input-group rounded">
+            <div class="input-group rounded">
                 <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
                 <span class="input-group-text border-0" id="search-addon">
                     <i class="fas fa-search"></i>
                 </span>
-            </div>*@
+            </div>
             <br />
             <div class="card">
                 <div class="body">
@@ -121,37 +121,59 @@
                                             <th>Gender</th>
                                             <th>Admission Date</th>
                                             <th>Admission Time</th>
-                                            @*<th>Ward</th>*@
+                                            <th>Ward</th>
                                             <th>Bed</th>
-                                            <th>TreatmentCode</th>
+                                            <th>Treatment Code</th>
                                             <th>Surgeon</th>
                                             <th>Anaesthesiologist</th>
+
+
+
+
+
 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                                    @foreach (var item in Model)
-                                                    {
-                                            <tr>
-                                                <td>@item.Patients</td>
-                                                <td>@item.Gender</td>
-                                                <td>@item.Date.ToShortDateString()</td>
-                                                <td>@item.Time</td>
-                                                <td>@item.Bed</td>
-                                                <td>@item.TreatmentCodes</td>
-                                                <td>@item.Surgeons</td>
-                                                <td>@item.Anaesthesiologists</td>
-                                                <td>
-                                                                @if (item != null)
-                                                                {
-                                                        <a asp-action="AddCodition2" asp-route-selectedId="@item.AdmissionID" class="btn btn-primary">
-                                                            Add Health Details
-                                                        </a>
-                                                                }
 
-                                                        </td>
+                                        <tr>
+                                            <td>John Doe</td>
+                                            <td>Male</td>
+                                            <td>13-05-2024</td>
+                                            <td>AM</td>
+                                            <td>A</td>
+                                            <td>1</td>
+                                            <td>gmw456</td>
+                                            <td>Tony Dunn</td>
+                                            <td>Emma Stone</td>
                                             </tr>
-                                                    }
+                                        <tr>
+                                            <td>Blake Bloom</td>
+                                            <td>Female</td>
+                                            <td>14-05-2024</td>
+                                            <td>AM</td>
+                                            <td>C</td>
+                                            <td>3</td>
+                                            <td>gmw456</td>
+                                            <td>Lily Snyder</td>
+                                            <td>Emma Stone</td>
+                                            </tr>
+                                        <tr>
+                                            <td>Christie Clann</td>
+                                            <td>Female</td>
+                                            <td>15-05-2024</td>
+                                            <td>AM</td>
+                                            <td>A</td>
+                                            <td>2</td>
+                                            <td>gmw456</td>
+                                            <td>Lily Snyder</td>
+                                            <td>Pam Mae</td>
+                                        </tr>
+
+
+
+
+
 
                                     </tbody>
                                 </table>

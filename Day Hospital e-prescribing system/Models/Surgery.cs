@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
@@ -72,7 +71,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int PatientID { get; set; }
         // Navigation property
         [ForeignKey("PatientID")]
-        public virtual Patient Patient { get; set; }
-       
+        public virtual Patient Patients { get; set; }
     }
 }

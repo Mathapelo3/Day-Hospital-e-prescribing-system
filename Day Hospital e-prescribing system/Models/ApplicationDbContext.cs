@@ -79,8 +79,8 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Medication_Interaction>()
            .HasKey(m => new { m.ICD_ID, m.Active_IngredientID });
 
-            modelBuilder.Entity<Patient_Allergy>()
-          .HasKey(m => new { m.PatientID, m.AllergyID });
+          //  modelBuilder.Entity<Patient_Allergy>()
+          //.HasKey(m => new { m.PatientID, m.AllergyID });
 
             modelBuilder.Entity<Patient_Condition>()
         .HasKey(m => new { m.PatientID, m.ConditionID });
@@ -88,49 +88,24 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Patient_Medication>()
         .HasKey(m => new { m.PatientID, m.General_MedicationID });
 
-            //modelBuilder.Entity<Surgery>()
-            //.HasOne(s => s.Patient)
-            //.WithMany(p => p.Surgeries) 
-            //.HasForeignKey(s => s.PatientID);
+            // Configuring relationships
+            modelBuilder.Entity<Patient>()
+                .HasMany(p => p.Patient_Allergy)
+                .WithOne(pa => pa.Patient)
+                .HasForeignKey(pa => pa.PatientID);
 
-            //Configuring relationships
-            //modelBuilder.Entity<Patient>()
-            //    .HasMany(p => p.Patient_Allergy)
-            //    .WithOne(pa => pa.Patient)
-            //    .HasForeignKey(pa => pa.PatientID);
+            modelBuilder.Entity<Patient_Allergy>()
+                .HasOne(pa => pa.Patient)
+                .WithMany(p => p.Patient_Allergy)
+                .HasForeignKey(pa => pa.PatientID);
 
-            //modelBuilder.Entity<Patient_Allergy>()
-            //    .HasOne(pa => pa.Patient)
-            //    .WithMany(p => p.Patient_Allergy)
-            //    .HasForeignKey(pa => pa.PatientID);
-
-            //modelBuilder.Entity<Patient>()
-            //   .HasMany(p => p.Patient_Condition)
-            //   .WithOne(pa => pa.Patient)
-            //   .HasForeignKey(pa => pa.PatientID);
-
-            //modelBuilder.Entity<Patient_Condition>()
-            //    .HasOne(pa => pa.Patient)
-            //    .WithMany(p => p.Patient_Condition)
-            //    .HasForeignKey(pa => pa.PatientID);
-
-            //modelBuilder.Entity<Patient>()
-            //   .HasMany(p => p.Patient_Medication)
-            //   .WithOne(pa => pa.Patient)
-            //   .HasForeignKey(pa => pa.PatientID);
-
-            //modelBuilder.Entity<Patient_Medication>()
-            //    .HasOne(pa => pa.Patient)
-            //    .WithMany(p => p.Patient_Medication)
-            //    .HasForeignKey(pa => pa.PatientID);
-
-            //modelBuilder.Entity<Patient_Allergy>()
-            //    .HasOne(pa => pa.Allergy)
-            //    .WithMany(p => p.Patient_Allergy)
-            //    .HasForeignKey(pa => pa.AllergyID);
+            modelBuilder.Entity<Patient_Allergy>()
+                .HasOne(pa => pa.Allergy)
+                .WithMany(p => p.Patient_Allergy)
+                .HasForeignKey(pa => pa.AllergyID);
 
 
-
+            //base.OnModelCreating(modelBuilder);
 
         }
     }
