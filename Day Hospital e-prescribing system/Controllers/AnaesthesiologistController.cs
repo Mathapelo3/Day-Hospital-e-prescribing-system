@@ -63,7 +63,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                        PatientID = p.PatientID,
                                        Patient = p.Name + " " + p.Surname,
                                        Date = a.Date,
-                                       Time = a.Time,
+                                       //Time = a.Time,
                                        Ward = w.WardName,
                                        Bed = b.BedName, // Assuming Bed is a property in the Ward table
                                        Nurse = u.Name + " " + u.Surname,
@@ -111,8 +111,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      Patient = p.Name + " " + p.Surname,
                                      Date = s.Date,
                                      Time = s.Time,
-                                     Name = w.Name,
-                                     Bed = w.Bed,  // Assuming Bed is a property in the Ward table 
+                                     Name = w.WardName,
+                                     /*Bed = w.Bed,*/  // Assuming Bed is a property in the Ward table 
                                      Nurse = u.Name + " " + u.Surname,
                                      Theatre = t.Name,
                                      Surgeon = u.Name + " " + u.Surname
@@ -140,53 +140,53 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             _logger.LogInformation("MedicalHistory action called with id: {Id}", id);
 
-            if (id <= 0)
-            {
-                _logger.LogWarning("Invalid patient id: {Id}", id);
-                return NotFound();
-            }
+            //if (id <= 0)
+            //{
+            //    _logger.LogWarning("Invalid patient id: {Id}", id);
+            //    return NotFound();
+            //}
 
-            var patient = await _context.Patients
-                .Include(p => p.Patient_Vitals)
-                .ThenInclude(pv => pv.Vitals)
-                .Include(p => p.Patient_Allergy)
-                .ThenInclude(pa => pa.Allergy)
-                .Include(p => p.Patient_Condition)
-                .ThenInclude(pc => pc.Condition)
-                .Include(p => p.Patient_Medication)
-                .ThenInclude(pm => pm.General_Medication)
-                .FirstOrDefaultAsync(p => p.PatientID == id);
+            //var patient = await _context.Patients
+            //    .Include(p => p.Patient_Vitals)
+            //    .ThenInclude(pv => pv.Vitals)
+            //    .Include(p => p.Patient_Allergy)
+            //    .ThenInclude(pa => pa.Allergy)
+            //    .Include(p => p.Patient_Condition)
+            //    .ThenInclude(pc => pc.Condition)
+            //    .Include(p => p.Patient_Medication)
+            //    .ThenInclude(pm => pm.General_Medication)
+            //    .FirstOrDefaultAsync(p => p.PatientID == id);
 
-            if (patient == null)
-            {
-                _logger.LogWarning("Patient not found with id: {Id}", id);
-                return NotFound();
-            }
+            //if (patient == null)
+            //{
+            //    _logger.LogWarning("Patient not found with id: {Id}", id);
+            //    return NotFound();
+            //}
 
-            var model = new PatientViewModel
-            {
-                PatientID = patient.PatientID,
-                Name = patient.Name,
-                Surname = patient.Surname,
-                Date = patient.Patient_Vitals.FirstOrDefault()?.Date?? DateTime.Now,
-                Height = patient.Patient_Vitals.FirstOrDefault()?.Height, // Correct reference
-                Weight = patient.Patient_Vitals.FirstOrDefault()?.Weight, // Correct reference
-                Vitals = patient.Patient_Vitals.Select(pv => new VitalsViewModel
-                {
-                    Vital = pv.Vitals.Vital,
-                    Min = pv.Vitals.Min,
-                    Max = pv.Vitals.Max,
-                    Date = pv.Date,
-                    Time = pv.Time.ToString(@"hh\:mm"),
-                    Notes = pv.Notes
-                }).ToList(),
-                Allergies = patient.Patient_Allergy.Select(pa => pa.Allergy.Name).ToList(),
-                Conditions = patient.Patient_Condition.Select(pc => pc.Condition.Name).ToList(),
-                Medications = patient.Patient_Medication.Select(pm => pm.General_Medication.Name).ToList()
-            };
+            //var model = new PatientViewModel
+            //{
+            //    PatientID = patient.PatientID,
+            //    Name = patient.Name,
+            //    Surname = patient.Surname,
+            //    Date = patient.Patient_Vitals.FirstOrDefault()?.Date?? DateTime.Now,
+            //    Height = patient.Patient_Vitals.FirstOrDefault()?.Height, // Correct reference
+            //    Weight = patient.Patient_Vitals.FirstOrDefault()?.Weight, // Correct reference
+            //    Vitals = patient.Patient_Vitals.Select(pv => new VitalsViewModel
+            //    {
+            //        Vital = pv.Vitals.Vital,
+            //        Min = pv.Vitals.Min,
+            //        Max = pv.Vitals.Max,
+            //        Date = pv.Date,
+            //        Time = pv.Time.ToString(@"hh\:mm"),
+            //        Notes = pv.Notes
+            //    }).ToList(),
+            //    Allergies = patient.Patient_Allergy.Select(pa => pa.Allergy.Name).ToList(),
+            //    Conditions = patient.Patient_Condition.Select(pc => pc.Condition.Name).ToList(),
+            //    Medications = patient.Patient_Medication.Select(pm => pm.General_Medication.Name).ToList()
+            //};
 
-            _logger.LogInformation("MedicalHistory action completed successfully for id: {Id}", id);
-            return View(model);
+            //_logger.LogInformation("MedicalHistory action completed successfully for id: {Id}", id);
+            return View(/*model*/);
         }
         public async Task<ActionResult> Prescriptions(int id)
         {
