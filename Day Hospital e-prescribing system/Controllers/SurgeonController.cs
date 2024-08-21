@@ -139,17 +139,31 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public IActionResult Surgeries()
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
+            var surgeries = _context.Surgeries.Include(s => s.Patients)
+                                              .Include(s => s.Surgery_TreatmentCodes)
+                                              .Include(s => s.Theatres)
+                                              .Include(s => s.Anaesthesiologists)
+                                              .Select(s => new Surgery
+                                              {
+                                                  SurgeryID = s.SurgeryID,
+                                                  Date = s.Date,
+                                                  Time = s.Time,
+                                                  PatientID = s.PatientID,
+                                                  Surgery_TreatmentCodeID = s.Surgery_TreatmentCodeID,
+                                                  TheatreID = s.TheatreID,
+                                                  AnaesthesiologistID = s.AnaesthesiologistID
+                                              })
+                                              .ToList();
 
-            var surgeries = _context.Surgeries
-                .Include(s => s.Patients)
-                .Include(s => s.Surgery_TreatmentCodes)
-                .ToList();
+            var currentDate = DateTime.Today.ToString("yyyy-MM-dd");
+            var filteredSurgeries = surgeries.Where(s => s.Date.Date.ToString("yyyy-MM-dd") == currentDate);
 
-            return View(surgeries);
+            return View(filteredSurgeries);
         }
+
         [HttpGet]
         public IActionResult GetPatients()
         {
@@ -360,6 +374,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Text = $"{a.User.Name} {a.User.Surname}"
             }).ToList();
 
+            var patientsSelectListItems = _context.Patients.Select(p => new SelectListItem
+            {
+                Value = p.PatientID.ToString(),
+                Text = $"{p.Name} {p.Surname}"
+            }).ToList();
+
             var theatreSelectListItems = _context.Theatres.Select(n => new SelectListItem
             {
                 Value = n.TheatreID.ToString(),
@@ -375,6 +395,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new SurgeryViewModel
             {
                 AnaesthesiologistList = new SelectList(anaesthesiologistSelectListItems, "Value", "Text"),
+                PatientList = new SelectList(patientsSelectListItems, "Value", "Text"),
                 TheatreList = new SelectList(theatreSelectListItems, "Value", "Text"),
                 TreatmentCodeList = new SelectList(treatmentCodeSelectListItems, "Value", "Text")
             };
@@ -393,7 +414,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     Time = model.Time,
                     TheatreID = model.TheatreID,
                     AnaesthesiologistID = model.AnaesthesiologistID,
-                    PatientName = model.Patient,
                     PatientID = model.PatientID,
                     // Set Surgery_TreatmentCodeID to null initially since it will be set later
                     Surgery_TreatmentCodeID = null

@@ -13,6 +13,7 @@ namespace Day_Hospital_e_prescribing_system.Models
             AnaesthesiologistList = new List<SelectListItem>();
             TheatreList = new List<SelectListItem>();
             TreatmentCodeList = new List<SelectListItem>();
+            PatientList = new List<SelectListItem>();
             SelectedTreatmentCodes = new List<int>(); 
         }
 
@@ -32,9 +33,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         //[StringLength(200)]
         //public string QAdministered { get; set; }
         public int PatientID { get; set; }
-
-        [StringLength(100)]
-        public string Patient { get; set; }
+        public int SurgeonID { get; set; }
+        public int SurgeryID { get; set; }
 
         public int TheatreID { get; set; }
 
@@ -59,6 +59,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public IEnumerable<SelectListItem> AnaesthesiologistList { get; set; }
         public IEnumerable<SelectListItem> TreatmentCodeList { get; set; }
         public IEnumerable<SelectListItem> TheatreList { get; set; }
+        public IEnumerable<SelectListItem> PatientList { get; set; }
 
         // New collection for selected treatment codes
         public List<int> SelectedTreatmentCodes { get; set; }
