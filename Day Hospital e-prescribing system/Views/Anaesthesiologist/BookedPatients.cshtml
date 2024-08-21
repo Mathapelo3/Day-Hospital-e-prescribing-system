@@ -50,7 +50,14 @@
             <label for="endDate" class="mr-2">End Date:</label>
             <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
         </div>
-        <button type="submit" class="btn btn-purple">Filter</button>
+       <div class="form-group mr-2">
+            <button type="submit" class="btn btn-purple">Filter</button>
+        </div>
+        <div class="col-md-1 ml-auto">
+            <a href="@Url.Action("BookedPatients", "Anaesthesiologist")" class="btn btn-danger btn-block">Reset</a>
+        </div>
+        
+        
     </form>
 
     <!-- Display patients -->
@@ -70,6 +77,7 @@
                                     <th>Nurse</th>
                                     <th>Theatre</th>
                                     <th>Surgeon</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -79,11 +87,15 @@
                                         <td>@patient.Patient</td>
                                         <td>@patient.Date.ToShortDateString()</td>
                                         <td>@patient.Time</td>
-                                        <td>@patient.Name</td>
-                                        <td>@patient.Bed</td>
+                                        <td>@patient.WardName</td>
+                                        <td>@patient.BedName</td>
                                         <td>@patient.Nurse</td>
                                         <td>@patient.Theatre</td>
                                         <td>@patient.Surgeon</td>
+                                        <td> <a asp-action="MedicalHistory" asp-route-id="@patient.PatientID" class="btn btn-view btn-purple">
+                     <i class="fas fa-eye"></i>
+                </a>
+                </td>
                                     </tr>
                                 }
                             </tbody>

@@ -18,7 +18,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string AddressLine1 { get; set; }
 
-        [Required]
+       
         [StringLength(50)]
         public string AddressLine2 { get; set; }
 

@@ -10,12 +10,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TreatmentCodeID { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
-        [Required]
-        public int Surgery_TreatmentCodeID { get; set; }
+        public string? ICD_10_Code { get; set; }
+
+        public int? Surgery_TreatmentCodeID { get; set; }
         // Navigation property
         [ForeignKey("Surgery_TreatmentCode")]
         public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }

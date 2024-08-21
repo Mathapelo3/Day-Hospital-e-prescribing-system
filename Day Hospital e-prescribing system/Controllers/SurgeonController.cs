@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SqlTypes;
 using System.Security.Claims;
+using Day_Hospital_e_prescribing_system.ViewModels;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -35,7 +36,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<ActionResult> Prescriptions(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
             _logger.LogInformation("Prescriptions action called with id: {Id}", id);
 
             if (id <= 0)
@@ -54,23 +54,22 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var prescriptions = await _context.Prescriptions
                 .Where(p => p.PatientID == id)
                 .Include(p => p.Medication)
+                .Select(p => new PatientPrescriptionViewModel
+                {
+                    PrescriptionID = p.PrescriptionID, 
+                    MedicationName = p.Medication.Name,
+                    Instruction = p.Instruction,
+                    Date = p.Date,
+                    Quantity = p.Quantity,
+                    Status = p.Status,
+                    Urgency = p.Urgency,
+                    PatientName = patient.Name 
+                })
                 .ToListAsync();
 
-            var prescription = prescriptions.Select(p => new Prescription
-            {
-                Medication = p.Medication,
-                Instruction = p.Instruction,
-                Date = p.Date,
-                Quantity = p.Quantity,
-                Status = p.Status,
-                Urgency = p.Urgency,
-                Patient = p.Patient,
-                PatientID = p.PatientID,
-                MedicationID = p.MedicationID,
-            }).ToList();
-
-            return View(prescription);
+            return View(prescriptions);
         }
+
         public async Task<ActionResult> Patients(string searchString)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -144,10 +143,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var surgery = _context.Surgeries.ToList();
-            ViewBag.Surgery = surgery;
+            var surgeries = _context.Surgeries
+                .Include(s => s.Patients)
+                .Include(s => s.Surgery_TreatmentCodes)
+                .ToList();
 
-            return View();
+            return View(surgeries);
         }
         [HttpGet]
         public IActionResult GetPatients()
@@ -348,12 +349,37 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
-
+        [HttpGet]
         public IActionResult NewSurgery()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            return View();
+            var anaesthesiologistSelectListItems = _context.Anaesthesiologists.Select(a => new SelectListItem
+            {
+                Value = a.AnaesthesiologistID.ToString(),
+                Text = $"{a.User.Name} {a.User.Surname}"
+            }).ToList();
+
+            var theatreSelectListItems = _context.Theatres.Select(n => new SelectListItem
+            {
+                Value = n.TheatreID.ToString(),
+                Text = n.Name
+            }).ToList();
+
+            var treatmentCodeSelectListItems = _context.TreatmentCodes.Select(t => new SelectListItem
+            {
+                Value = t.TreatmentCodeID.ToString(),
+                Text = $"{t.ICD_10_Code} - {t.Description}"
+            }).ToList();
+
+            var viewModel = new SurgeryViewModel
+            {
+                AnaesthesiologistList = new SelectList(anaesthesiologistSelectListItems, "Value", "Text"),
+                TheatreList = new SelectList(theatreSelectListItems, "Value", "Text"),
+                TreatmentCodeList = new SelectList(treatmentCodeSelectListItems, "Value", "Text")
+            };
+
+            return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -367,14 +393,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         Date = model.Date,
                         Time = model.Time,
-                        Urgency = model.Urgency,
-                        Administered = model.Administered,
-                        QAdministered = model.QAdministered,
-                        Notes = model.Notes
+                        TheatreID = model.TheatreID,
+                        AnaesthesiologistID = model.AnaesthesiologistID,
+                        PatientName = model.Patient
                     };
 
                     _context.Add(surgery);
                     await _context.SaveChangesAsync();
+
+                    foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
+                    {
+                        var code = new TreatmentCode 
+                        {
+                            Surgery_TreatmentCodeID = surgery.SurgeryID, 
+                            TreatmentCodeID = treatmentCodeId 
+                        };
+                        _context.TreatmentCodes.Add(code); 
+                    }
+                    await _context.SaveChangesAsync(); // Save changes again after adding treatment codes
+
                     _logger.LogInformation("Surgery added successfully.");
                     return RedirectToAction("Surgeries", "Surgeon");
                 }
@@ -392,12 +429,46 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
-        public IActionResult PatientRecord()
-        {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            return View();
+        public async Task<IActionResult> PatientRecord(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid patient ID.");
+            }
+
+            var patient = await _context.Patients
+                .Include(p => p.Patient_Allergy).ThenInclude(pa => pa.Allergy)
+                .Include(p => p.Patient_Vitals).ThenInclude(pv => pv.Vitals)
+                .FirstOrDefaultAsync(p => p.PatientID == id);
+
+            if (patient == null)
+            {
+                return NotFound($"Patient with ID {id} not found.");
+            }
+
+            var allergies = patient.Patient_Allergy.Select(pa => new Allergy
+            {
+                Name = pa.Allergy.Name,
+            }).ToList();
+
+            var vitals = patient.Patient_Vitals.Select(pv => new Vitals
+            {
+                Vital = pv.Vitals.Vital,
+                Min = pv.Vitals.Min,
+                Max = pv.Vitals.Max,
+            }).ToList();
+
+            var viewModel = new PatientRecordViewModel
+            {
+                Patient = patient,
+                Allergies = allergies, 
+                Vitals = vitals,
+            };
+
+            return View(viewModel);
         }
+
 
         public IActionResult DischargePatient()
         {

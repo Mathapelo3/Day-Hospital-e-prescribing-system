@@ -19,5 +19,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Description { get; set; }
 
         public virtual ICollection<Patient_Allergy>  Patient_Allergy { get; set; }
+
+        public Patient Patient { get; set; } 
+
     }
 }

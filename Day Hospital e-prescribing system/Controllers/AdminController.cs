@@ -43,9 +43,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<IActionResult> DayHospitalRecords()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation("Fetching all hospital records.");
             var hospitalRecords = await _context.HospitalRecords
             .Include(hr => hr.Suburb)
                 .ThenInclude(s => s.City)
+                .ThenInclude(c => c.Province)
             .ToListAsync();
 
             var viewModelList = hospitalRecords.Select(hr => new HospitalRecordViewModel
@@ -60,7 +62,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 PMEmail = hr.PMEmail,
                 SuburbName = hr.Suburb.Name,
                 PostalCode = hr.Suburb.PostalCode,
-                CityName = hr.Suburb.City.Name
+                CityName = hr.Suburb.City.Name,
+                ProvinceName = hr.Suburb.City.Province.Name
             }).ToList();
 
             return View(viewModelList);
@@ -68,13 +71,16 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<IActionResult> EditHospitalRecord(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation($"Entering Edit action for ID: {id}");
             var hospitalRecord = await _context.HospitalRecords
             .Include(hr => hr.Suburb)
                 .ThenInclude(s => s.City)
+                .ThenInclude(c => c.Province)
             .FirstOrDefaultAsync(hr => hr.HospitalRecordID == id);
 
             if (hospitalRecord == null)
             {
+                _logger.LogWarning("Hospital record not found.");
                 return NotFound();
             }
 
@@ -85,7 +91,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Text = s.Name
             }).ToList();
 
-            var viewModel = new HospitalRecordViewModel
+            var viewModel = new EditHospitalRecordViewModel
             {
                 HospitalRecordID = hospitalRecord.HospitalRecordID,
                 Name = hospitalRecord.Name,
@@ -99,6 +105,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 SuburbName = hospitalRecord.Suburb.Name,
                 PostalCode = hospitalRecord.Suburb.PostalCode,
                 CityName = hospitalRecord.Suburb.City.Name,
+                ProvinceName = hospitalRecord.Suburb.City.Province.Name,
                 Suburbs = suburbList
             };
 
@@ -107,21 +114,26 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditHospitalRecord(HospitalRecordViewModel viewModel)
+        public async Task<IActionResult> EditHospitalRecord(int id, EditHospitalRecordViewModel viewModel)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation($"Editing hospital record with ID: {viewModel.HospitalRecordID}");
+
             if (ModelState.IsValid)
             {
                 var hospitalRecord = await _context.HospitalRecords
                     .Include(hr => hr.Suburb)
-                        .ThenInclude(s => s.City)
+                    .ThenInclude(s => s.City)
+                    .ThenInclude(c => c.Province)
                     .FirstOrDefaultAsync(hr => hr.HospitalRecordID == viewModel.HospitalRecordID);
 
                 if (hospitalRecord == null)
                 {
+                    _logger.LogWarning("Hospital record not found.");
                     return NotFound();
                 }
 
+                // Update the HospitalRecord entity with the new values
                 hospitalRecord.Name = viewModel.Name;
                 hospitalRecord.AddressLine1 = viewModel.AddressLine1;
                 hospitalRecord.AddressLine2 = viewModel.AddressLine2;
@@ -131,10 +143,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 hospitalRecord.PMEmail = viewModel.PMEmail;
                 hospitalRecord.SuburbID = viewModel.SuburbID;
 
+                // Save the changes to the database
+                _context.Update(hospitalRecord);
+                //_context.HospitalRecords.Update(hospitalRecord);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Hospital record updated successfully!";
-                return RedirectToAction(nameof(DayHospitalRecords));
+                return RedirectToAction("DayHospitalRecords", "Admin");
             }
 
             viewModel.Suburbs = await _context.Suburbs.Select(s => new SelectListItem
@@ -145,11 +160,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(viewModel);
         }
+        
         public async Task<IActionResult> GetSuburbDetails(int suburbID)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             var suburb = await _context.Suburbs
                 .Include(s => s.City)
+                .ThenInclude(c => c.Province)
                 .FirstOrDefaultAsync(s => s.SuburbID == suburbID);
 
             if (suburb == null)
@@ -159,8 +176,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var suburbDetails = new
             {
-                postalCode = suburb.PostalCode,
-                cityName = suburb.City.Name
+                PostalCode = suburb.PostalCode,
+                CityName = suburb.City.Name,
+                ProvinceName = suburb.City.Province.Name,
             };
 
             return Json(suburbDetails);
@@ -169,81 +187,97 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            var roles = GetRoles();
-            var model = new UserViewModel
+            var model = new RegisterViewModel
             {
-                Roles = roles
+                Roles = _context.Roles.Select(r => new SelectListItem
+                {
+                    Value = r.RoleId.ToString(),
+                    Text = r.Name
+                }).ToList()
             };
+
             return View(model);
         }
-
-
         [HttpPost]
-        public async Task<IActionResult> AddMedicalProfessional(UserViewModel model)
+        [ValidateAntiForgeryToken]
+        public ActionResult AddMedicalProfessional(RegisterViewModel model)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            if (!ModelState.IsValid)
+            _logger.LogInformation("Received RoleId: {RoleId}", model.RoleId);
+            _logger.LogInformation("AddMedicalProfessional method started.");
+
+            if (ModelState.IsValid)
             {
-                model.Roles = GetRoles();
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors));
-                return View(model);
-            }
+                _logger.LogInformation("Model is valid.");
+                var adminId = GetLoggedInAdminId();
+                var hashedPassword = HashPassword(model.Password);
+                _logger.LogInformation("Hashed Password: {HashedPassword}", hashedPassword);
 
-            bool userExists = UserAlreadyExists(model.Username);
-
-            if (userExists)
-            {
-                TempData["ErrorMessage"] = "Username already exists!";
-                return View(model);
-            }
-
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
-
-            int adminID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "AdminID").Value);
-
-            string query = "INSERT INTO [User] (Name, Surname, Email, ContactNo, HCRNo, Username, HashedPassword, AdminID, RoleId) " +
-                           "OUTPUT INSERTED.UserID " +
-                           "VALUES (@Name, @Surname, @Email, @ContactNo, @HCRNo, @Username, @HashedPassword, @AdminID, @RoleId)";
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                var user = new User
                 {
-                    await connection.OpenAsync();
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Name", model.Name);
-                        command.Parameters.AddWithValue("@Surname", model.Surname);
-                        command.Parameters.AddWithValue("@Email", model.Email);
-                        command.Parameters.AddWithValue("@ContactNo", model.ContactNo);
-                        command.Parameters.AddWithValue("@HCRNo", model.HCRNo);
-                        command.Parameters.AddWithValue("@Username", model.Username);
-                        command.Parameters.AddWithValue("@HashedPassword", hashedPassword);
-                        command.Parameters.AddWithValue("@AdminID", adminID);
-                        command.Parameters.AddWithValue("@RoleId", model.RoleId);
+                    Name = model.Name,
+                    Surname = model.Surname,
+                    Email = model.Email,
+                    ContactNo = model.ContactNo,
+                    HCRNo = model.HCRNo,
+                    Username = model.Username,
+                    HashedPassword = hashedPassword,
+                    AdminID = adminId,
+                    RoleId = model.RoleId
+                };
 
-                        int userId = (int)await command.ExecuteScalarAsync();
+                _logger.LogInformation("Adding new user to the database.");
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                _logger.LogInformation("User added successfully.");
 
-                        await InsertRoleSpecificUser(model.RoleId, userId);
-
-                        TempData["SuccessMessage"] = "User successfully added into the system.";
-                        return RedirectToAction("MedicalProfessionals");
-                    }
-                }
+                return RedirectToAction("MedicalProfessionals", "Admin");
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "An error occurred while adding the user: {Message}", ex.Message);
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
+                _logger.LogWarning("Model is invalid.");
+
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    _logger.LogWarning("Validation error: {ErrorMessage}", error.ErrorMessage);
+                }
+
+                if (model.RoleId == 0)
+                {
+                    ModelState.AddModelError("RoleId", "The Roles field is required.");
+                }
+
+                _logger.LogInformation("Current model values - Name: {Name}, Surname: {Surname}, Email: {Email}, ContactNo: {ContactNo}, HCRNo: {HCRNo}, Username: {Username}, RoleId: {RoleId}",
+                    model.Name, model.Surname, model.Email, model.ContactNo, model.HCRNo, model.Username, model.RoleId);
+
+
+                model.Roles = _context.Roles.Select(r => new SelectListItem
+                {
+                    Value = r.RoleId.ToString(),
+                    Text = r.Name
+                }).ToList();
+
                 return View(model);
             }
         }
+        // Method to hash the password
+        private string HashPassword(string password)
+        {
+            // Using bcrypt to hash the password
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+
+        private int GetLoggedInAdminId()
+        {
+            // This method should retrieve the AdminID of the currently logged-in user.
+            // Example implementation:
+            return int.Parse(HttpContext.Session.GetString("AdminID"));
+        }
+    
 
 
 
-
-        private async Task InsertRoleSpecificUser(int roleId, int userId)
+    private async Task InsertRoleSpecificUser(int roleId, int userId)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             string roleTable = roleId switch
@@ -326,49 +360,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> MedicalProfessionals(int id)
+        public IActionResult MedicalProfessionals(string searchString)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            List<UserViewModel> medicalProfessionals = new List<UserViewModel>();
-
-            string query = "SELECT u.UserID, u.Name, u.Surname, u.Email, u.ContactNo, u.HCRNo, u.Username, r.Name AS Role " +
-                           "FROM [User] u " +
-                           "JOIN [Role] r ON u.RoleId = r.RoleId";
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-                {
-                    await connection.OpenAsync();
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                medicalProfessionals.Add(new UserViewModel
-                                {
-                                    UserID = reader.GetInt32(0),
-                                    Name = reader.GetString(1),
-                                    Surname = reader.GetString(2),
-                                    Email = reader.GetString(3),
-                                    ContactNo = reader.GetString(4),
-                                    HCRNo = reader.GetString(5),
-                                    Username = reader.GetString(6),
-                                    Role = reader.GetString(7)
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
-            }
-
-            return View(medicalProfessionals);
+            ViewData["CurrentFilter"] = searchString;
+            
+            return View(_context.Users.Include(u => u.Roles).ToList());
         }
 
         public IActionResult TheatreRecords()
@@ -414,7 +411,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     var condition = new Condition
                     {
-                        Description = model.Description,
+                        ICD_10_Code = model.ICD_10_Code,
                         Name = model.Name
                     };
 
@@ -454,7 +451,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new ConditionViewModel
             {
                 ConditionID = condition.ConditionID,
-                Description = condition.Description,
+                ICD_10_Code = condition.ICD_10_Code,
                 Name = condition.Name
             };
 
@@ -480,7 +477,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         return NotFound();
                     }
 
-                    condition.Description = model.Description;
+                    condition.ICD_10_Code = model.ICD_10_Code;
                     condition.Name = model.Name;
 
                     _context.Update(condition);

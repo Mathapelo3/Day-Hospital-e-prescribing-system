@@ -149,9 +149,9 @@ namespace Day_Hospital_e_prescribing_system.Helper
             return admin;
         }
 
-        public Nurse GetNurseByEmail(string query, string email)
+        public NurseWithUserDetails GetNurseByEmail(string query, string email)
         {
-            Nurse nurse = null;
+            NurseWithUserDetails nurseDetails = null;
 
             using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
             {
@@ -163,7 +163,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                     {
                         if (reader.Read())
                         {
-                            nurse = new Nurse
+                            nurseDetails = new NurseWithUserDetails
                             {
                                 NurseID = reader.GetInt32(reader.GetOrdinal("NurseID")),
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
@@ -174,12 +174,12 @@ namespace Day_Hospital_e_prescribing_system.Helper
                 }
             }
 
-            return nurse;
+            return nurseDetails;
         }
 
-        public Surgeon GetSurgeonByEmail(string query, string email)
+        public SurgeonWithUserDetails GetSurgeonByEmail(string query, string email)
         {
-            Surgeon surgeon = null;
+            SurgeonWithUserDetails surgeonDetails = null;
 
             using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
             {
@@ -191,7 +191,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                     {
                         if (reader.Read())
                         {
-                            surgeon = new Surgeon
+                            surgeonDetails = new SurgeonWithUserDetails
                             {
                                 SurgeonID = reader.GetInt32(reader.GetOrdinal("SurgeonID")),
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
@@ -202,12 +202,12 @@ namespace Day_Hospital_e_prescribing_system.Helper
                 }
             }
 
-            return surgeon;
+            return surgeonDetails;
         }
 
-        public Pharmacist GetPharmacistByEmail(string query, string email)
+        public PharmacistWithUserDetails GetPharmacistByEmail(string query, string email)
         {
-            Pharmacist pharmacist = null;
+            PharmacistWithUserDetails pharmacistDetails = null;
 
             using (SqlConnection connection = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]))
             {
@@ -219,7 +219,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                     {
                         if (reader.Read())
                         {
-                            pharmacist = new Pharmacist
+                            pharmacistDetails = new PharmacistWithUserDetails
                             {
                                 PharmacistID = reader.GetInt32(reader.GetOrdinal("PharmacistID")),
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
@@ -230,11 +230,11 @@ namespace Day_Hospital_e_prescribing_system.Helper
                 }
             }
 
-            return pharmacist;
+            return pharmacistDetails;
         }
-        public Anaesthesiologist GetAnaesthesiologistByEmail(string query, string email)
+        public AnaesthesiologistWithUserDetails GetAnaesthesiologistByEmail(string query, string email)
         {
-            Anaesthesiologist anaesthesiologist = null;
+            AnaesthesiologistWithUserDetails anaesthesiologistDetails = null;
 
             using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
@@ -246,7 +246,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                     {
                         if (reader.Read())
                         {
-                            anaesthesiologist = new Anaesthesiologist
+                            anaesthesiologistDetails = new AnaesthesiologistWithUserDetails
                             {
                                 AnaesthesiologistID = reader.GetInt32(reader.GetOrdinal("AnaesthesiologistID")),
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
@@ -257,7 +257,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                 }
             }
 
-            return anaesthesiologist;
+            return anaesthesiologistDetails;
         }
 
 

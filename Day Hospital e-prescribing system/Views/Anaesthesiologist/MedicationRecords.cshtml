@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PSPatientOrderViewModel
+
+@{
     ViewData["Title"] = "Medication Records";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
 }
@@ -7,124 +9,92 @@
     .card-title {
         font-weight: bold;
     }
-    .btn-purple
-    {
+    .btn-purple {
         background-color: purple;
         color: white;
         font-weight: bold;
     }
+        .small-dropdown {
+        width: 200px; /* Adjust the width as needed */
+        }
+    
 </style>
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
+            <div class="text-center">
+                @*<img src="~/Images/zoomedLogo (2).png" width="200" />*@
             </div>
             <br />
-            <h4 class="display-6 text-purple text-center text-bold">MEDICATION RECORDS </h4>
+            <h4 class="display-6 text-purple text-center text-bold">POST SURGERY ORDER RECORDS</h4>
         </div>
     </div>
-    <div></br</div>
-    <div class="container-fluid">
-        <div class="row ">
-            <div class="col-md-12">
-               @* <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Medication Records</h3>
-                    </div>*@
-                    <div class="card-body">
-                        <!-- Display orders with checkboxes -->
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                    <th style="width: 120px;">Date</th>
-                                        <th>Patient</th>
-                                        <th>Surgeon</th>
-                                       
-                                        <th>Medication</th>
-                                       
-                                        <th>Quantity</th>
-                                        <th>Status</th>
-                                        <th>Administered</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Sample row with multiple medications, replace with actual data -->
-                                    <tr>
-                                    <td rowspan="2">2024-05-10</td>
-                                        <td>Jane Doe</td>
-                                        <td>Jackson</td>
-                                       
-                                        <td>Anxiolytics 20mg</td>
-                                       
-                                        <td>10</td>
-                                    <td>
-                                        <!-- Dropdown menu for status -->
-                                        <div class="dropdown">
-                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                Received
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="statusDropdown">
+    <form asp-action="MedicationRecords" method="post">
+        <div class="form-group">
+            <label asp-for="PatientID" class="control-label">Patients</label>
+            <select asp-for="PatientID" class="form-control small-dropdown" asp-items="@(new SelectList(Model.Patients, "PatientID", "FullName"))">
+                <option value="">-- Select Patient --</option>
+            </select>
+        </div>
 
-                                                <a class="dropdown-item" href="#">Received</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                      <td>
-                                            <input type="checkbox">
-                                            <select>
-                                                @for (int i = 0; i <= 50; i++)
-                                                {
-                                                    <option>@i</option>
-                                                }
-                                            </select>
-                                        
-                                        </td>
-                                    <td> <textarea class="form-control" style="height: 100px;"></textarea></td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                   
-                                        <td>Anesthetics 20mg</td>
-                                        <td>10</td>
+        <button type="submit" class="btn btn-purple">Filter</button>
+    </form>
 
-                                    <td>
-                                        <!-- Dropdown menu for status -->
-                                        <div class="dropdown">
-                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                Received
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="statusDropdown">
+    @if (Model.PatientID > 0 && Model.Orders != null && Model.Orders.Any())
+    {
+        <form asp-action="UpdateMedicationRecords" method="post">
+            @Html.HiddenFor(m => m.PatientID)
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Medication</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Urgency</th>
+                        <th>Administered</th>
+                        <th>Quantity Administered</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Orders.Count; i++)
+                    {
+                        <tr>
+                            <td>@Model.Orders[i].Date.ToString("yyyy-MM-dd")</td>
+                            <td>@Model.Orders[i].MedicationName</td>
+                            <td>@Model.Orders[i].Quantity</td>
+                            <td>@Model.Orders[i].Status</td>
+                            <td>@Model.Orders[i].Urgency</td>
+                            <td>
+                                <input type="checkbox" asp-for="Orders[i].Administered"
+                               value="true"
+                                       checked="@(Model.Orders[i].Administered == true ? "checked" : null)" />
+                                <input type="hidden" name="Orders[@i].Administered" value="false" />
+                            </td>
 
-                                                <a class="dropdown-item" href="#">Received</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <input type="checkbox">
-                                        <select>
-                                            @for (int i = 0; i <= 50; i++)
-                                            {
-                                                <option>@i</option>
-                                            }
-                                        </select>
-                                    </td>
-                                    <td rowspan="2"><textarea class="form-control" style="height: 100px;"></textarea></td>
-                                    </tr>
-                                    <!-- Add more rows dynamically based on data -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <button type="button" class="btn btn-purple">Save</button>
-                    </div>
-                </div>
+
+
+
+                            <td>
+                                <input type="text" asp-for="Orders[i].QAdministered" class="form-control" style="width: 50px; height: 20px;" />
+                            </td>
+                            <td>
+                                <input type="text" asp-for="Orders[i].Notes" class="form-control" style="width: 200px; height: 80px;" />
+                            </td>
+                            <input type="hidden" asp-for="Orders[i].OrderID" />
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="text-center">
+            <button type="submit" class="btn btn-purple">Save </button>
             </div>
-        </div>
-    </div>
+        </form>
+    }
+    else if (Model.PatientID > 0 && !Model.Orders.Any())
+    {
+        <p>No orders found for the selected patient.</p>
+    }
+
 </section>

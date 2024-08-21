@@ -13,9 +13,11 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Surname { get; set; }
         public DateTime Date { get; set; }
         public string Time { get; set; }
-        public string Ward { get; set; }
-        public string Bed { get; set; }
+        public string WardName { get; set; }
+        public string BedName { get; set; }
         public string Nurse { get; set; }
+
+        public string Surgeon { get; set; }
         public string Status { get; set; }
         public string Height { get; set; }
         public string Weight { get; set; }

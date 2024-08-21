@@ -3,19 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    public class Pharmacist
+    [Table("Province")]
+    public class Province
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int PharmacistID { get; set; }
+        public int ProvinceID { get; set; }
 
         [Required]
-        public int UserID { get; set; }
-
-        
-
-        // Navigation property
-        [ForeignKey("UserID")]
-        public virtual User User { get; set; }
+        [StringLength(50)]
+        public string Name { get; set; }
     }
 }
