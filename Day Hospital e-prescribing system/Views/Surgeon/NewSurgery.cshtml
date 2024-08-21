@@ -107,9 +107,16 @@
             if (selectedTreatmentCode.val() !== '') {
                 // Clone the selected option and append it to the treatmentList
                 selectedTreatmentCode.clone().appendTo('#treatmentList');
+                // Append a hidden input field for the selected value
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'SelectedTreatmentCodes', // Match the name expected by your model
+                    value: selectedTreatmentCode.val()
+                }).appendTo('form');
                 // Optionally, remove the added option from the original select to prevent duplicates
                 selectedTreatmentCode.remove();
             }
         });
     });
+
 </script>

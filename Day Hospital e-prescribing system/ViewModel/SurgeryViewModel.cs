@@ -31,6 +31,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         //[StringLength(200)]
         //public string QAdministered { get; set; }
+        public int PatientID { get; set; }
 
         [StringLength(100)]
         public string Patient { get; set; }
@@ -38,6 +39,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int TheatreID { get; set; }
 
         public int AnaesthesiologistID { get; set; }
+
 
         //public int WardID { get; set; }
         //// Navigation property

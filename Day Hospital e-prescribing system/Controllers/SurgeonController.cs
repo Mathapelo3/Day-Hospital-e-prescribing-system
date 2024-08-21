@@ -387,43 +387,36 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             if (ModelState.IsValid)
             {
-                try
+                var surgery = new Surgery
                 {
-                    var surgery = new Surgery
+                    Date = model.Date,
+                    Time = model.Time,
+                    TheatreID = model.TheatreID,
+                    AnaesthesiologistID = model.AnaesthesiologistID,
+                    PatientName = model.Patient,
+                    PatientID = model.PatientID,
+                    // Set Surgery_TreatmentCodeID to null initially since it will be set later
+                    Surgery_TreatmentCodeID = null
+                };
+
+                _context.Surgeries.Add(surgery);
+                await _context.SaveChangesAsync(); // Save the surgery record to generate its ID
+
+                var surgeryId = surgery.SurgeryID; // Retrieve the generated ID
+
+                // Create a Surgery_TreatmentCode for each selected treatment code
+                foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
+                {
+                    var treatmentCode = new Surgery_TreatmentCode
                     {
-                        Date = model.Date,
-                        Time = model.Time,
-                        TheatreID = model.TheatreID,
-                        AnaesthesiologistID = model.AnaesthesiologistID,
-                        PatientName = model.Patient
+                        Surgery_TreatmentCodeID = surgeryId,
                     };
-
-                    _context.Add(surgery);
-                    await _context.SaveChangesAsync();
-
-                    foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
-                    {
-                        var code = new TreatmentCode 
-                        {
-                            Surgery_TreatmentCodeID = surgery.SurgeryID, 
-                            TreatmentCodeID = treatmentCodeId 
-                        };
-                        _context.TreatmentCodes.Add(code); 
-                    }
-                    await _context.SaveChangesAsync(); // Save changes again after adding treatment codes
-
-                    _logger.LogInformation("Surgery added successfully.");
-                    return RedirectToAction("Surgeries", "Surgeon");
+                    _context.Surgery_TreatmentCodes.Add(treatmentCode);
                 }
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogError(ex, "An error occurred while adding surgery: {Message}", ex.Message);
-                    ModelState.AddModelError("", "Unable to save changes.");
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+
+                await _context.SaveChangesAsync(); // Save the associations
+
+                return RedirectToAction("Surgeries", "Surgeon");
             }
 
             return View(model);
