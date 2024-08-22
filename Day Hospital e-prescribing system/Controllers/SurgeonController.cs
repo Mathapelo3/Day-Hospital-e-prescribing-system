@@ -163,7 +163,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 AnaesthesiologistName = s.Anaesthesiologists.User.Name,
                                 AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
                                 Date = s.Date,
-                                Time = s.Time // Assuming these properties exist on your Surgery entity
+                                Time = s.Time 
                              })
                              .ToList();
 
@@ -408,45 +408,51 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewSurgery(SurgeryViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var surgery = new Surgery
+                try
                 {
-                    Date = model.Date,
-                    Time = model.Time,
-                    TheatreID = model.TheatreID,
-                    AnaesthesiologistID = model.AnaesthesiologistID,
-                    PatientID = model.PatientID,
-                    // Set Surgery_TreatmentCodeID to null initially since it will be set later
-                    Surgery_TreatmentCodeID = null
-                };
-
-                _context.Surgeries.Add(surgery);
-                await _context.SaveChangesAsync(); // Save the surgery record to generate its ID
-
-                var surgeryId = surgery.SurgeryID; // Retrieve the generated ID
-
-                // Create a Surgery_TreatmentCode for each selected treatment code
-                foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
-                {
-                    var treatmentCode = new Surgery_TreatmentCode
+                    var newSurgery = new Surgery
                     {
-                        Surgery_TreatmentCodeID = surgeryId,
+                        Date = model.Date,
+                        Time = model.Time,
+                        PatientID = model.PatientID,
+                        AnaesthesiologistID = model.AnaesthesiologistID,
+                        TheatreID = model.TheatreID,
+                        //SurgeryID = model.SurgeryID,
                     };
-                    _context.Surgery_TreatmentCodes.Add(treatmentCode);
+
+                    // Assuming SelectedTreatmentCodes contains the IDs of the selected treatment codes
+                    foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
+                    {
+                        var treatmentCode = new Surgery_TreatmentCode
+                        {
+                            Surgery_TreatmentCodeID = treatmentCodeId // Directly use the ID from the model
+                        };
+
+                        _context.Surgery_TreatmentCodes.Add(treatmentCode);
+                    }
+
+                    _context.Surgeries.Add(newSurgery);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Surgeries));
                 }
-
-                await _context.SaveChangesAsync(); // Save the associations
-
-                return RedirectToAction("Surgeries", "Surgeon");
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, "Unable to save changes. " + ex.Message);
+                }
             }
 
             return View(model);
         }
+
+
 
 
         public async Task<IActionResult> PatientRecord(int id)

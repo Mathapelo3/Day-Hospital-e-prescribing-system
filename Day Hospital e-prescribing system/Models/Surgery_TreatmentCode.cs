@@ -17,5 +17,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         [Required]
         [StringLength(100)]
         public string ICD_10_Code { get; set; }
+
+        public int? TreatmentCodeID { get; set; }
+
+        public int? SurgeryID { get; set; }}
     }
 }

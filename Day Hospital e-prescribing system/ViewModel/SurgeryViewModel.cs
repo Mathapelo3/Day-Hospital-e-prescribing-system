@@ -22,42 +22,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DateTime Date { get; set; }
 
         public string Time { get; set; }
-
-        //[StringLength(100)]
-        //public string Description { get; set; }
-
-        //public bool Urgency { get; set; }
-
-        //public bool Administered { get; set; }
-
-        //[StringLength(200)]
-        //public string QAdministered { get; set; }
         public int PatientID { get; set; }
-        public int SurgeonID { get; set; }
-        public int SurgeryID { get; set; }
+        public int TreatmentCodeID { get; set; }
 
         public int TheatreID { get; set; }
 
         public int AnaesthesiologistID { get; set; }
-        public string PatientName { get; set; } // Assuming 'Name' is a property of Patient
-        public string TheatreName { get; set; } // Assuming 'Name' is a property of Theatre
-        public string AnaesthesiologistName { get; set; } // Assuming 'Name' is a property of Anaesthesiologist
-
-
-        //public int WardID { get; set; }
-        //// Navigation property
-        //[ForeignKey("WardID")]
-        //public virtual Ward Wards { get; set; }
-
-        //public int SurgeonID { get; set; }
-        //// Navigation property
-        //[ForeignKey("SurgeonID")]
-        //public virtual Surgeon Surgeons { get; set; }
-
-        //public int NurseID { get; set; }
-        //// Navigation property
-        //[ForeignKey("NurseID")]
-        //public virtual Nurse Nurses { get; set; }
 
         public IEnumerable<SelectListItem> AnaesthesiologistList { get; set; }
         public IEnumerable<SelectListItem> TreatmentCodeList { get; set; }

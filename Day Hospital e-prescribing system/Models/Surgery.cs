@@ -32,10 +32,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(200)]
         public string? Notes { get; set; }
 
-        public int? Surgery_TreatmentCodeID { get; set; }
-        // Navigation property
-        [ForeignKey("Surgery_TreatmentCodeID")]
-        public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }
+        //public int? Surgery_TreatmentCodeID { get; set; }
+        //// Navigation property
+        //[ForeignKey("Surgery_TreatmentCodeID")]
+        //public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }
 
         public int? TheatreID { get; set; }
         // Navigation property
@@ -61,5 +61,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("PatientID")]
         public virtual Patient Patients { get; set; }
+
+        public IList<Surgery_TreatmentCode>? Surgery_TreatmentCodes { get; set; }
+
     }
 }
