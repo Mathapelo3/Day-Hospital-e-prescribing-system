@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using AspNetCore;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
@@ -18,8 +19,13 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(100)]
         public string ICD_10_Code { get; set; }
 
-        public int? TreatmentCodeID { get; set; }
+        [ForeignKey("Surgery")]
+        public int SurgeryID { get; set; }
 
-        public int? SurgeryID { get; set; }}
+        [ForeignKey("TreatmentCodeID")]
+        public int TreatmentCodeID { get; set; }
+
+        public virtual Surgery? Surgeries { get; set; }
+        public virtual TreatmentCode? TreatmentCodes { get; set; }
     }
 }

@@ -5,7 +5,7 @@
         public int SurgeryID { get; set; }
         public int? PatientID { get; set; }
         public int? AnaesthesiologistID { get; set; }
-        public int? Surgery_TreatmentCodeID { get; set; }
+        public int? TreatmentCodeID { get; set; }
         public int? TheatreID { get; set; }
         public string PatientName { get; set; }
         public string PatientSurname { get; set; }

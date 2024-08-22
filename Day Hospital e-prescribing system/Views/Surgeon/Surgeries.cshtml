@@ -40,8 +40,8 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Patient</th>
-                        <th>Treatment Code</th>
-                        <th>Theatre</th>
+@*                         <th>Treatment Code</th>
+ *@                        <th>Theatre</th>
                         <th>Anesthesiologist</th>
                     </tr>
                 </thead>
@@ -60,8 +60,8 @@
                                 <td>@item.Date.ToString("dd/MM/yyyy")</td>
                                 <td>@(item.Time ?? " ") </td>
                                 <td>@item.PatientName @item.PatientSurname</td>
-                                <td>@item.ICD_Code_10</td>
-                                <td>@item.TheatreName</td>
+@*                                 <td>@item.ICD_Code_10</td>
+ *@                                <td>@item.TheatreName</td>
                                 <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
                             </tr>
                         }

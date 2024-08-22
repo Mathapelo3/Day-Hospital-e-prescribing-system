@@ -148,22 +148,20 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             .Include(s => s.Patients)
                             .Include(s => s.Theatres)
                             .Include(s => s.Anaesthesiologists)
-                            .Include (s => s.Surgery_TreatmentCodes)
+                            .Include(s => s.Surgery_TreatmentCodes)
                             .Select(s => new SurgeryDetailsViewModel
                             {
                                 SurgeryID = s.SurgeryID,
                                 PatientID = s.PatientID,
                                 AnaesthesiologistID = s.AnaesthesiologistID,
                                 TheatreID = s.TheatreID,
-                                Surgery_TreatmentCodeID = s.Surgery_TreatmentCodeID,
-                                ICD_Code_10 = s.Surgery_TreatmentCodes.ICD_10_Code,
                                 PatientName = s.Patients.Name,
                                 PatientSurname = s.Patients.Surname,
                                 TheatreName = s.Theatres.Name,
                                 AnaesthesiologistName = s.Anaesthesiologists.User.Name,
                                 AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
                                 Date = s.Date,
-                                Time = s.Time 
+                                Time = s.Time,
                              })
                              .ToList();
 
