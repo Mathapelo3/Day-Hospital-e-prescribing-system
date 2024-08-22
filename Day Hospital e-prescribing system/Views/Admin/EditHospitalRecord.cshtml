@@ -4,10 +4,7 @@
     ViewData["Title"] = "Edit Hospital Record";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
-@*<script src="~/lib/jquery/jquery.min.js"></script>
-<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-*@
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <style>
     .card-title {
@@ -49,11 +46,11 @@
             font-weight: bold;
         }
 </style>
-@*@section Scripts {
+@section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}*@
+}
 <section class="content">
     <div class="card">
         <div class="card-header">
@@ -74,8 +71,8 @@
                         <div class="alert alert-success">@TempData["SuccessMessage"]</div>
                     }
 
-                    <form asp-action="EditHospitalRecord" asp-route-id="@Model.HospitalRecordID" method="post">
-                        @Html.AntiForgeryToken()
+                    <form asp-action="EditHospitalRecord">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="HospitalRecordID" />
                         <div class="form-group">
                             <label asp-for="Name">Name:</label>
@@ -87,11 +84,11 @@
                             <input asp-for="AddressLine1" class="form-control" />
                             <span asp-validation-for="AddressLine1" class="text-danger"></span>
                         </div>
-                        <div class="form-group">
+                        @*<div class="form-group">
                             <label asp-for="AddressLine2">Address Line 2:</label>
                             <input asp-for="AddressLine2" class="form-control" />
                             
-                        </div>
+                        </div>*@
                         <div class="form-group">
                             <label asp-for="ContactNo">Contact Number:</label>
                             <input asp-for="ContactNo" class="form-control" />
@@ -113,8 +110,10 @@
                             <span asp-validation-for="PMEmail" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="SuburbID">Suburb:</label>
-                            <select asp-for="SuburbID" asp-items="Model.Suburbs" class="form-control"></select>
+                            <label asp-for="SuburbID" class="control-label">Suburb:</label>
+                            <select asp-for="SuburbID" class="form-control" asp-items="@(new SelectList(Model.Suburbs, "Value", "Text"))">
+                                <option value="">Select Suburb</option>
+                            </select>
                             <span asp-validation-for="SuburbID" class="text-danger"></span>
                         </div>
                         
@@ -145,7 +144,6 @@
 </section>
 
 <script>
-
     $(document).ready(function () {
         $('select[name="SuburbID"]').change(function () {
             var suburbID = $(this).val();

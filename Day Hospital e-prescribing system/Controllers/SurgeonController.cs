@@ -139,17 +139,35 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
-        public IActionResult Surgeries()
+        [HttpGet]
+        public async Task<ActionResult> Surgeries()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
             var surgeries = _context.Surgeries
-                .Include(s => s.Patients)
-                .Include(s => s.Surgery_TreatmentCodes)
-                .ToList();
+                            .Include(s => s.Patients)
+                            .Include(s => s.Theatres)
+                            .Include(s => s.Anaesthesiologists)
+                            .Include(s => s.Surgery_TreatmentCodes)
+                            .Select(s => new SurgeryDetailsViewModel
+                            {
+                                SurgeryID = s.SurgeryID,
+                                PatientID = s.PatientID,
+                                AnaesthesiologistID = s.AnaesthesiologistID,
+                                TheatreID = s.TheatreID,
+                                PatientName = s.Patients.Name,
+                                PatientSurname = s.Patients.Surname,
+                                TheatreName = s.Theatres.Name,
+                                AnaesthesiologistName = s.Anaesthesiologists.User.Name,
+                                AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
+                                Date = s.Date,
+                                Time = s.Time,
+                             })
+                             .ToList();
 
             return View(surgeries);
         }
+
         [HttpGet]
         public IActionResult GetPatients()
         {
@@ -360,6 +378,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Text = $"{a.User.Name} {a.User.Surname}"
             }).ToList();
 
+            var patientsSelectListItems = _context.Patients.Select(p => new SelectListItem
+            {
+                Value = p.PatientID.ToString(),
+                Text = $"{p.Name} {p.Surname}"
+            }).ToList();
+
             var theatreSelectListItems = _context.Theatres.Select(n => new SelectListItem
             {
                 Value = n.TheatreID.ToString(),
@@ -375,12 +399,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new SurgeryViewModel
             {
                 AnaesthesiologistList = new SelectList(anaesthesiologistSelectListItems, "Value", "Text"),
+                PatientList = new SelectList(patientsSelectListItems, "Value", "Text"),
                 TheatreList = new SelectList(theatreSelectListItems, "Value", "Text"),
                 TreatmentCodeList = new SelectList(treatmentCodeSelectListItems, "Value", "Text")
             };
 
             return View(viewModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewSurgery(SurgeryViewModel model)
@@ -389,45 +415,42 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 try
                 {
-                    var surgery = new Surgery
+                    var newSurgery = new Surgery
                     {
                         Date = model.Date,
                         Time = model.Time,
-                        TheatreID = model.TheatreID,
+                        PatientID = model.PatientID,
                         AnaesthesiologistID = model.AnaesthesiologistID,
-                        PatientName = model.Patient
+                        TheatreID = model.TheatreID,
+                        //SurgeryID = model.SurgeryID,
                     };
 
-                    _context.Add(surgery);
-                    await _context.SaveChangesAsync();
-
+                    // Assuming SelectedTreatmentCodes contains the IDs of the selected treatment codes
                     foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
                     {
-                        var code = new TreatmentCode 
+                        var treatmentCode = new Surgery_TreatmentCode
                         {
-                            Surgery_TreatmentCodeID = surgery.SurgeryID, 
-                            TreatmentCodeID = treatmentCodeId 
+                            Surgery_TreatmentCodeID = treatmentCodeId // Directly use the ID from the model
                         };
-                        _context.TreatmentCodes.Add(code); 
-                    }
-                    await _context.SaveChangesAsync(); // Save changes again after adding treatment codes
 
-                    _logger.LogInformation("Surgery added successfully.");
-                    return RedirectToAction("Surgeries", "Surgeon");
+                        _context.Surgery_TreatmentCodes.Add(treatmentCode);
+                    }
+
+                    _context.Surgeries.Add(newSurgery);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Surgeries));
                 }
                 catch (DbUpdateException ex)
                 {
-                    _logger.LogError(ex, "An error occurred while adding surgery: {Message}", ex.Message);
-                    ModelState.AddModelError("", "Unable to save changes.");
+                    ModelState.AddModelError(string.Empty, "Unable to save changes. " + ex.Message);
                 }
-            }
-            else
-            {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
             }
 
             return View(model);
         }
+
+
 
 
         public async Task<IActionResult> PatientRecord(int id)

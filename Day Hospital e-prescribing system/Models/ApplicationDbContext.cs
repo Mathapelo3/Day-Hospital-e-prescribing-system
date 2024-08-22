@@ -105,6 +105,17 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany(p => p.Patient_Allergy)
                 .HasForeignKey(pa => pa.AllergyID);
 
+            modelBuilder.Entity<Surgery_TreatmentCode>().HasKey(SC => new { SC.SurgeryID, SC.TreatmentCodeID });
+
+            modelBuilder.Entity<Surgery_TreatmentCode>()
+                .HasOne<Surgery>(SC => SC.Surgeries)
+                .WithMany(s => s.Surgery_TreatmentCodes)
+                .HasForeignKey(SC => SC.SurgeryID);
+
+            modelBuilder.Entity<Surgery_TreatmentCode>()
+                .HasOne<TreatmentCode>(SC => SC.TreatmentCodes)
+                .WithMany(t => t.Surgery_TreatmentCodes)
+                .HasForeignKey(SC => SC.TreatmentCodeID);
 
             //base.OnModelCreating(modelBuilder);
 

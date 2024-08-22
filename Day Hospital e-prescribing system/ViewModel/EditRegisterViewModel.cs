@@ -9,8 +9,10 @@ using System.Xml.Linq;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel
 {
-    public class RegisterViewModel
+    public class EditRegisterViewModel
     {
+        public int UserID { get; set; }
+
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(50)]
         public string Name { get; set; }
@@ -34,24 +36,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [StringLength(50)]
         public string Username { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        [StringLength(256)]
-        public string HashedPassword { get; set; }
-
-
-
-
-        [Required(ErrorMessage = "Please select a role.")]
-        public int RoleId { get; set; }
-
-
-
-        [BindNever]
-        [ValidateNever]
-        public List<SelectListItem> Roles { get; set; }
-
-
-
+      
     }
 }

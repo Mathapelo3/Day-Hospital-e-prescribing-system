@@ -11,7 +11,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Name { get; set; }
         [Required(ErrorMessage = "Address is required")]
         public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
+        //public string AddressLine2 { get; set; }
         [Required(ErrorMessage = "Contact number is required")]
         public string ContactNo { get; set; }
         [Required(ErrorMessage = "Name is required")]
@@ -27,7 +27,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         // Suburb properties
         [Required(ErrorMessage = "Suburb is required")]
         public int SuburbID { get; set; }
-        public string SuburbName { get; set; }
+
+        public string? SuburbName { get; set; }
         public string PostalCode { get; set; }
 
         // City properties

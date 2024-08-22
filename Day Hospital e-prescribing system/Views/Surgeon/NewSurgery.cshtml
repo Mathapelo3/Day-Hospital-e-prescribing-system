@@ -19,7 +19,8 @@
                 <div class="card">
                     <div class="card-body">
                         <form asp-action="NewSurgery" method="post">
-                            @Html.AntiForgeryToken()
+@*                             <input type ="hidden" asp-for="SurgeryID"/>
+ *@                            @Html.AntiForgeryToken()
                             <div class="form-group">
                                 <label for="date">Date:</label>
                                 <input type="date" class="form-control" id="date" name="date">
@@ -34,9 +35,14 @@
 
                             </div>
                             <div class="form-group">
-                                <label asp-for="Patient" class="control-label">Patient Name:</label>
-                                <input asp-for="Patient" class="form-control" />
-                                <span asp-validation-for="Patient" class="text-danger"></span>
+                                <label for="patient">Patient:</label>
+                                <select asp-for="PatientID" class="form-control" id="patientID" name="PatientID">
+                                    <option value="">---Select---</option>
+                                    @foreach (var item in Model.PatientList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="anaesthesiologist">Anaesthesiologist:</label>
@@ -61,10 +67,10 @@
 
                             </div>
                             <div class="form-row">
+                                <!-- Modify the treatment selection area -->
                                 <div class="form-group col-md-11">
-                                    <label for="treatment">Treatment Code:</label>
-                                    <select class="form-control" id="treatmentCodeSelect">
-                                        <option value="">---Select---</option>
+                                    <label for="treatment">Treatment Codes:</label>
+                                    <select multiple class="form-control" id="treatmentCodeSelect">
                                         @foreach (var item in Model.TreatmentCodeList)
                                         {
                                             <option value="@item.Value">@item.Text</option>
@@ -85,7 +91,10 @@
                                 </div>
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
+                                <input type="submit" value="Add" class="btn btn-bold btn-warning" />
+                                <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
+                                    New Patient
+                                </button>
                                 <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Surgeries", "Surgeon")'">
                                     Back
                                 </button>
@@ -103,12 +112,21 @@
 <script>
     $(document).ready(function () {
         $('#addTreatment').click(function () {
-            var selectedTreatmentCode = $('#treatmentCodeSelect option:selected');
-            if (selectedTreatmentCode.val() !== '') {
-                // Clone the selected option and append it to the treatmentList
-                selectedTreatmentCode.clone().appendTo('#treatmentList');
-                // Optionally, remove the added option from the original select to prevent duplicates
-                selectedTreatmentCode.remove();
+            var selectedTreatmentCodes = $('#treatmentCodeSelect option:selected');
+            if (selectedTreatmentCodes.length > 0) {
+                selectedTreatmentCodes.each(function () {
+                    // Add each selected treatment code to the SelectedTreatmentCodes list
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'SelectedTreatmentCodes[]', // Note the square brackets for multiple values
+                        value: $(this).val()
+                    }).appendTo('form');
+
+                    // Clone the selected option and append it to the treatmentList
+                    $(this).clone().appendTo('#treatmentList');
+                });
+                // Clear the selection after adding
+                selectedTreatmentCodes.remove();
             }
         });
     });
