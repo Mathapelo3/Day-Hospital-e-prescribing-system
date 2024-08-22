@@ -117,6 +117,12 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany(t => t.Surgery_TreatmentCodes)
                 .HasForeignKey(SC => SC.TreatmentCodeID);
 
+            modelBuilder.Entity<Patient>().ToTable("Patient");
+
+            modelBuilder.Entity<Patient>()
+                .Property(p => p.PatientID)
+                .HasColumnName("PatientID");
+
             //base.OnModelCreating(modelBuilder);
 
         }

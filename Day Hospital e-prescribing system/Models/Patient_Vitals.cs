@@ -26,10 +26,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Value { get; set; }
 
         [StringLength(50)]
-        public string Height { get; set; }
+        public string? Height { get; set; }
 
         [StringLength(50)]
-        public string Weight { get; set; }
+        public string? Weight { get; set; }
 
         [Required]
         public int VitalsID { get; set; }

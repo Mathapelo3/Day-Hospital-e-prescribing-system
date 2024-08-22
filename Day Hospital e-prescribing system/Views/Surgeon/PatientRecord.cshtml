@@ -8,19 +8,18 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <section class="content">
-
     <div class="card">
         <div class="card-header">
             <br />
             <h4 class="display-6 text-warning text-center text-bold">PATIENT MEDICAL HISTORY</h4>
         </div>
-    </div>    
+    </div>
     <div class="row">
         <div class="col-md-8">
-            <h4 class="card-title text-bold"> Patient: @Model.Patient.Name @Model.Patient.Surname</h4>
+            <h4 class="card-title text-bold"> Patient: @(Model.Patient?.Name ?? "N/A") @(Model.Patient?.Surname ?? "N/A")</h4>
         </div>
         <div class="col-md-1 text-right">
-            <a href="@Url.Action("Prescriptions", "Surgeon", new { id = Model.Patient.PatientID })" class="btn btn-warning text-bold">Prescriptions</a>
+            <a href="@Url.Action("Prescriptions", "Surgeon", new { id = Model.Patient?.PatientID })" class="btn btn-warning text-bold">Prescriptions</a>
         </div>
         <div class="col-md-3 text-right">
             <a href="@Url.Action("NewSurgery", "Surgeon")" class="btn btn-warning text-bold">Book Surgery</a>
@@ -30,23 +29,16 @@
         <table class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
-                    <th>
-                        Date of Birth
-                    </th>
-                    <th>
-                        Gender
-                    </th>
-                    <th>
-                        Contact No.
-                    </th>
+                    <th>Date of Birth</th>
+                    <th>Gender</th>
+                    <th>Contact No.</th>
                 </tr>
             </thead>
-
             <tbody>
                 <tr>
-                    <td>@Model.Patient.DateOfBirth</td>
-                    <td>@Model.Patient.Gender</td>
-                    <td>@Model.Patient.ContactNo</td>
+                    <td>@(Model.Patient?.DateOfBirth ?? "N/A")</td>
+                    <td>@(Model.Patient?.Gender ?? "N/A")</td>
+                    <td>@(Model.Patient?.ContactNo ?? "N/A")</td>
                 </tr>
             </tbody>
         </table>
@@ -68,12 +60,18 @@
                                         <table id="allergiesTable" class="table table-bordered table-striped">
                                             <thead></thead>
                                             <tbody>
-                                                <tr>
-                                                    @foreach (var allergy in Model.Allergies)
+                                                @if (Model.Allergies.Any())
+                                                {
+                                                    foreach (var allergy in Model.Allergies)
                                                     {
-                                                        <td>@allergy.Patient_Allergy</td>
+                                                        <p>@allergy.Name</p>
                                                     }
-                                                </tr>
+                                                }
+                                                else
+                                                {
+                                                    <p>No allergies found.</p>
+                                                }
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -92,28 +90,34 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <!-- Allergies -->
+                            <!-- Vitals -->
                             <div class="card">
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table id="allergiesTable" class="table table-bordered table-striped">
+                                        <table id="vitalsTable" class="table table-bordered table-striped">
                                             <thead>
                                                 <tr>
-
                                                     <th>Vital</th>
                                                     <th>Min</th>
                                                     <th>Max</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
+                                                @if (Model.Vitals != null && Model.Vitals.Any())
+                                                {
                                                     @foreach (var vital in Model.Vitals)
                                                     {
-                                                        <td>@vital.Vital</td>
-                                                        <td>@vital.Min</td>
-                                                        <td>@vital.Max</td>
+                                                        <tr>
+                                                            <td>@(vital?.Vital ?? "N/A")</td>
+                                                            <td>@(vital?.Min?.ToString() ?? "N/A")</td>
+                                                            <td>@(vital?.Max?.ToString() ?? "N/A")</td>
+                                                        </tr>
                                                     }
-                                                </tr>
+                                                }
+                                                else
+                                                {
+                                                    <tr><td colspan="3">No vitals recorded</td></tr>
+                                                }
                                             </tbody>
                                         </table>
                                     </div>

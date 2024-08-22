@@ -487,7 +487,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
-
         public async Task<IActionResult> PatientRecord(int id)
         {
             if (id <= 0)
@@ -495,36 +494,52 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return BadRequest("Invalid patient ID.");
             }
 
-            var patient = await _context.Patients
-                .Include(p => p.Patient_Allergy).ThenInclude(pa => pa.Allergy)
-                .Include(p => p.Patient_Vitals).ThenInclude(pv => pv.Vitals)
-                .FirstOrDefaultAsync(p => p.PatientID == id);
-
-            if (patient == null)
+            try
             {
-                return NotFound($"Patient with ID {id} not found.");
+                var patient = await _context.Patients
+                    .Include(p => p.Patient_Allergy)
+                        .ThenInclude(pa => pa.Allergy)
+                    .Include(p => p.Patient_Vitals)
+                        .ThenInclude(pv => pv.Vitals)
+                    .FirstOrDefaultAsync(p => p.PatientID == id);
+
+                if (patient == null)
+                {
+                    return NotFound($"Patient with ID {id} not found.");
+                }
+
+                // Now that we have the data, we can select the properties we need
+                var allergies = patient.Patient_Allergy
+                    .Select(pa => new Allergy
+                    {
+                        Name = pa.Allergy.Name,
+                    })
+                    .ToList();
+
+                var vitals = patient.Patient_Vitals
+                    .Where(pv => pv.Vitals != null)
+                    .Select(pv => new Vitals
+                    {
+                        Vital = pv.Vitals.Vital ?? "Unknown",
+                        Min = pv.Vitals.Min ?? "Unknown",
+                        Max = pv.Vitals.Max ?? "Unknown",
+                    })
+                    .ToList();
+
+                var viewModel = new PatientRecordViewModel
+                {
+                    Patient = patient,
+                    Allergies = allergies,
+                    Vitals = vitals,
+                };
+
+                return View(viewModel);
             }
-
-            var allergies = patient.Patient_Allergy.Select(pa => new Allergy
+            catch (Exception ex)
             {
-                Name = pa.Allergy.Name,
-            }).ToList();
-
-            var vitals = patient.Patient_Vitals.Select(pv => new Vitals
-            {
-                Vital = pv.Vitals.Vital,
-                Min = pv.Vitals.Min,
-                Max = pv.Vitals.Max,
-            }).ToList();
-
-            var viewModel = new PatientRecordViewModel
-            {
-                Patient = patient,
-                Allergies = allergies, 
-                Vitals = vitals,
-            };
-
-            return View(viewModel);
+                // Log the exception if necessary
+                return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
+            }
         }
 
 
