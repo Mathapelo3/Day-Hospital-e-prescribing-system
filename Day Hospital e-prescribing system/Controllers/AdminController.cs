@@ -70,35 +70,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(viewModelList);
         }
+
+        [HttpGet]
         public async Task<IActionResult> EditHospitalRecord(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            _logger.LogInformation($"Entering Edit action for ID: {id}");
+            _logger.LogInformation("Editing hospital record with ID {id}", id);
+
             var hospitalRecord = await _context.HospitalRecords
-            .Include(hr => hr.Suburb)
+                .Include(hr => hr.Suburb)
                 .ThenInclude(s => s.City)
                 .ThenInclude(c => c.Province)
-            .FirstOrDefaultAsync(hr => hr.HospitalRecordID == id);
+                .FirstOrDefaultAsync(hr => hr.HospitalRecordID == id);
 
             if (hospitalRecord == null)
             {
-                _logger.LogWarning("Hospital record not found.");
                 return NotFound();
             }
-
-            var suburbs = await _context.Suburbs.ToListAsync();
-            var suburbList = suburbs.Select(s => new SelectListItem
-            {
-                Value = s.SuburbID.ToString(),
-                Text = s.Name
-            }).ToList();
 
             var viewModel = new EditHospitalRecordViewModel
             {
                 HospitalRecordID = hospitalRecord.HospitalRecordID,
                 Name = hospitalRecord.Name,
                 AddressLine1 = hospitalRecord.AddressLine1,
-                AddressLine2 = hospitalRecord.AddressLine2,
+                //AddressLine2 = hospitalRecord.AddressLine2,
                 ContactNo = hospitalRecord.ContactNo,
                 Email = hospitalRecord.Email,
                 PM = hospitalRecord.PM,
@@ -108,7 +103,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 PostalCode = hospitalRecord.Suburb.PostalCode,
                 CityName = hospitalRecord.Suburb.City.Name,
                 ProvinceName = hospitalRecord.Suburb.City.Province.Name,
-                Suburbs = suburbList
+                Suburbs = await _context.Suburbs.Select(s => new SelectListItem { Value = s.SuburbID.ToString(), Text = s.Name }).ToListAsync()
             };
 
             return View(viewModel);
@@ -116,13 +111,29 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditHospitalRecord(int id, EditHospitalRecordViewModel viewModel)
+        public async Task<IActionResult> EditHospitalRecord(EditHospitalRecordViewModel viewModel)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            _logger.LogInformation($"Editing hospital record with ID: {viewModel.HospitalRecordID}");
 
-            if (ModelState.IsValid)
+            try
             {
+                _logger.LogInformation("Starting to update hospital record with ID {id}", viewModel.HospitalRecordID);
+
+                if (!ModelState.IsValid)
+                {
+                    
+                    foreach (var key in ModelState.Keys)
+                    {
+                        var state = ModelState[key];
+                        foreach (var error in state.Errors)
+                        {
+                            _logger.LogInformation("Key: {Key}, Error: {ErrorMessage}", key, error.ErrorMessage);
+                        }
+                    }
+                    viewModel.Suburbs = await _context.Suburbs.Select(s => new SelectListItem { Value = s.SuburbID.ToString(), Text = s.Name }).ToListAsync();
+                    return View(viewModel);
+                }
+
+
                 var hospitalRecord = await _context.HospitalRecords
                     .Include(hr => hr.Suburb)
                     .ThenInclude(s => s.City)
@@ -131,41 +142,48 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 if (hospitalRecord == null)
                 {
-                    _logger.LogWarning("Hospital record not found.");
+                    _logger.LogInformation("Hospital record with ID {id} not found", viewModel.HospitalRecordID);
                     return NotFound();
                 }
 
-                // Update the HospitalRecord entity with the new values
                 hospitalRecord.Name = viewModel.Name;
                 hospitalRecord.AddressLine1 = viewModel.AddressLine1;
-                hospitalRecord.AddressLine2 = viewModel.AddressLine2;
+                //hospitalRecord.AddressLine2 = viewModel.AddressLine2;
                 hospitalRecord.ContactNo = viewModel.ContactNo;
                 hospitalRecord.Email = viewModel.Email;
                 hospitalRecord.PM = viewModel.PM;
                 hospitalRecord.PMEmail = viewModel.PMEmail;
                 hospitalRecord.SuburbID = viewModel.SuburbID;
 
-                // Save the changes to the database
-                _context.Update(hospitalRecord);
-                //_context.HospitalRecords.Update(hospitalRecord);
-                await _context.SaveChangesAsync();
+                _context.Entry(hospitalRecord).State = EntityState.Modified;
+                _logger.LogInformation("Updated hospital record with ID {id} in context", viewModel.HospitalRecordID);
 
-                TempData["SuccessMessage"] = "Hospital record updated successfully!";
-                return RedirectToAction("DayHospitalRecords", "Admin");
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Saved changes to database for hospital record with ID {id}", viewModel.HospitalRecordID);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error saving changes to database for hospital record with ID {id}", viewModel.HospitalRecordID);
+                    return View(viewModel);
+                }
+
+                _logger.LogInformation("Hospital record with ID {id} has been updated", viewModel.HospitalRecordID);
+
+                TempData["SuccessMessage"] = "Hospital record updated successfully.";
+                _logger.LogInformation("Redirecting to DayHospitalRecords action");
+                return RedirectToAction(nameof(DayHospitalRecords)); // Redirect to DayHospitalRecords action
             }
-
-            viewModel.Suburbs = await _context.Suburbs.Select(s => new SelectListItem
+            catch (Exception ex)
             {
-                Value = s.SuburbID.ToString(),
-                Text = s.Name
-            }).ToListAsync();
-
-            return View(viewModel);
+                _logger.LogError(ex, "Error updating hospital record with ID {id}", viewModel.HospitalRecordID);
+                return View(viewModel);
+            }
         }
-        
+        [HttpGet]
         public async Task<IActionResult> GetSuburbDetails(int suburbID)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
             var suburb = await _context.Suburbs
                 .Include(s => s.City)
                 .ThenInclude(c => c.Province)
@@ -176,17 +194,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return NotFound();
             }
 
-            var suburbDetails = new
+            return Json(new
             {
-                PostalCode = suburb.PostalCode,
-                CityName = suburb.City.Name,
-                ProvinceName = suburb.City.Province.Name,
-            };
-
-            return Json(suburbDetails);
+                postalCode = suburb.PostalCode,
+                cityName = suburb.City.Name,
+                provinceName = suburb.City.Province.Name
+            });
         }
 
-        [HttpGet]
+            [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
             if (!User.Identity.IsAuthenticated)
