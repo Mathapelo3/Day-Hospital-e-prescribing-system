@@ -52,7 +52,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("SurgeonID")]
         public virtual Surgeon Surgeons { get; set; }
 
-        public int NurseID { get; set; }
+        public int? NurseID { get; set; }
         // Navigation property
         [ForeignKey("NurseID")]
         public virtual Nurse Nurses { get; set; }
@@ -63,6 +63,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual Patient Patients { get; set; }
 
         public IList<Surgery_TreatmentCode>? Surgery_TreatmentCodes { get; set; }
+
 
     }
 }

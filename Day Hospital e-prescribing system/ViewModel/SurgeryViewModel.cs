@@ -11,6 +11,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public SurgeryViewModel()
         {
             AnaesthesiologistList = new List<SelectListItem>();
+            SurgeonList = new List<SelectListItem>();
             TheatreList = new List<SelectListItem>();
             TreatmentCodeList = new List<SelectListItem>();
             PatientList = new List<SelectListItem>();
@@ -28,13 +29,13 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int TheatreID { get; set; }
 
         public int AnaesthesiologistID { get; set; }
+        public int SurgeonID { get; set; }
+        public IEnumerable<SelectListItem> SurgeonList { get; set; }
 
         public IEnumerable<SelectListItem> AnaesthesiologistList { get; set; }
         public IEnumerable<SelectListItem> TreatmentCodeList { get; set; }
         public IEnumerable<SelectListItem> TheatreList { get; set; }
         public IEnumerable<SelectListItem> PatientList { get; set; }
-
-        // New collection for selected treatment codes
         public List<int> SelectedTreatmentCodes { get; set; }
     }
 }

@@ -18,12 +18,11 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form asp-action="NewSurgery" method="post">
-@*                             <input type ="hidden" asp-for="SurgeryID"/>
- *@                            @Html.AntiForgeryToken()
+                        <form asp-action="NewSurgery" asp-controller="Surgeon" method="post">
+                           @Html.AntiForgeryToken()
                             <div class="form-group">
                                 <label for="date">Date:</label>
-                                <input type="date" class="form-control" id="date" name="date">
+                                <input type="date" class="form-control" id="date" asp-for="Date">
                             </div>
                             <div class="form-group">
                                 <label for="time">Time Slot:</label>
@@ -43,6 +42,17 @@
                                         <option value="@item.Value">@item.Text</option>
                                     }
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="anaesthesiologist">Surgeon:</label>
+                                <select asp-for="SurgeonID" class="form-control" id="surgeonID" name="SurgeonID">
+                                    <option value="">---Select---</option>
+                                    @foreach (var item in Model.SurgeonList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+
                             </div>
                             <div class="form-group">
                                 <label for="anaesthesiologist">Anaesthesiologist:</label>
@@ -84,9 +94,9 @@
                                     </button>
                                 </div>
                                 <div class="form-group col-md-12">
-                                    <label for="treatmentList">Treatment Code List:</label>
-                                    <select multiple class="form-control" id="treatmentList">
-                                        <!-- TreatmentCodes will be populated here -->
+                                    <label for="SelectedTreatmentCodes">Selected Treatment Codes:</label>
+                                    <select multiple class="form-control" asp-for="SelectedTreatmentCodes" id="treatmentList">
+                                        <!-- Selected TreatmentCodes will be populated here -->
                                     </select>
                                 </div>
                             </div>
@@ -115,17 +125,10 @@
             var selectedTreatmentCodes = $('#treatmentCodeSelect option:selected');
             if (selectedTreatmentCodes.length > 0) {
                 selectedTreatmentCodes.each(function () {
-                    // Add each selected treatment code to the SelectedTreatmentCodes list
-                    $('<input>').attr({
-                        type: 'hidden',
-                        name: 'SelectedTreatmentCodes[]', // Note the square brackets for multiple values
-                        value: $(this).val()
-                    }).appendTo('form');
-
                     // Clone the selected option and append it to the treatmentList
                     $(this).clone().appendTo('#treatmentList');
                 });
-                // Clear the selection after adding
+                // Remove the selected options from the source list
                 selectedTreatmentCodes.remove();
             }
         });
