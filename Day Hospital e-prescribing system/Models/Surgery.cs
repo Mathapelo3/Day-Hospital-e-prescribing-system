@@ -47,12 +47,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("AnaesthesiologistID")]
         public virtual Anaesthesiologist Anaesthesiologists { get; set; }
 
-        public int? SurgeonID { get; set; }
+        public int SurgeonID { get; set; }
         // Navigation property
         [ForeignKey("SurgeonID")]
         public virtual Surgeon Surgeons { get; set; }
 
-        public int? NurseID { get; set; }
+        public int NurseID { get; set; }
         // Navigation property
         [ForeignKey("NurseID")]
         public virtual Nurse Nurses { get; set; }

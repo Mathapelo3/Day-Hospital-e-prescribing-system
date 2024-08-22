@@ -1,8 +1,9 @@
-﻿@using Day_Hospital_e_prescribing_system.Models
-@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Surgery>
+﻿@using Day_Hospital_e_prescribing_system.ViewModel
+@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.SurgeryDetailsViewModel>
 @{
     ViewData["Title"] = "Surgeries";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
+
 }
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -58,12 +59,13 @@
                             <tr>
                                 <td>@item.Date.ToString("dd/MM/yyyy")</td>
                                 <td>@(item.Time ?? " ") </td>
-                                <td>@(item.Patients?.Name ?? " ") @(item.Patients?.Surname ?? " ")</td>
-                                <td>@(item.Surgery_TreatmentCodes?.ICD_10_Code ?? " ")</td>
-                                <td>@(item.Theatres?.Name ?? " ")</td>
-                                <td>@(item.Anaesthesiologists?.User?.Name ?? " ") @(item.Anaesthesiologists?.User?.Surname ?? " ")</td>
+                                <td>@item.PatientName @item.PatientSurname</td>
+                                <td>@item.ICD_Code_10</td>
+                                <td>@item.TheatreName</td>
+                                <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
                             </tr>
                         }
+
                     }
                 </tbody>
             </table>

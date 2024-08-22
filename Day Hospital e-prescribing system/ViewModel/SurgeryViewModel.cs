@@ -39,6 +39,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         public int TheatreID { get; set; }
 
         public int AnaesthesiologistID { get; set; }
+        public string PatientName { get; set; } // Assuming 'Name' is a property of Patient
+        public string TheatreName { get; set; } // Assuming 'Name' is a property of Theatre
+        public string AnaesthesiologistName { get; set; } // Assuming 'Name' is a property of Anaesthesiologist
 
 
         //public int WardID { get; set; }
