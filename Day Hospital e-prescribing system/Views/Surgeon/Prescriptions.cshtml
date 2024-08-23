@@ -57,8 +57,8 @@
                         <th>Instruction</th>
                         <th>Urgency</th>
                         <th>Status</th>
-                        <th>Surgeon</th>
-                        <th>Actions</th>
+@*                         <th>Surgeon</th>
+ *@                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,13 +66,13 @@
                     {
                         <tr>
                             <td>@prescription.Date.ToString("dd MMM yyyy")</td>
-                            <td>@prescription.MedicationName</td>
+                            <td>@prescription.GeneralMedicationName</td>
                             <td>@prescription.Quantity</td>
                             <td>@prescription.Instruction</td>
                             <td>@(prescription.Urgency ? "Yes" : "No")</td>
                             <td>@prescription.Status</td>
-                            <td>@($"{prescription.SurgeonName} {prescription.SurgeonSurname}")</td>
-                            <td>
+@*                             <td>@($"{prescription.SurgeonName} {prescription.SurgeonSurname}")</td>
+ *@                            <td>
                                 <a asp-action="EditPrescription" asp-route-id="@prescription.PrescriptionID" class="btn btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -81,9 +81,9 @@
                     }
                 </tbody>
             </table>
+            <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
         </div>
     }
-    <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
 </section>
 <script>
     $(document).ready(function () {

@@ -33,6 +33,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
+
         [HttpGet]
         public IActionResult Prescriptions(string id)
         {
@@ -62,7 +63,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         }
                         else
                         {
-                            // Log or display: No patient found with this ID
+                            // Handle case where no patient found
                             //return View("Error", new ErrorViewModel { Message = "No patient found with this ID." });
                         }
 
@@ -81,17 +82,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
                                 Status = reader.GetString(reader.GetOrdinal("Status")),
                                 Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency")),
-                                MedicationName = reader.GetString(reader.GetOrdinal("MedicationName")),
-                                SurgeonName = reader.GetString(reader.GetOrdinal("SurgeonName")),
-                                SurgeonSurname = reader.GetString(reader.GetOrdinal("SurgeonSurname"))
+                                GeneralMedicationName = reader.GetString(reader.GetOrdinal("GeneralMedicationName")), 
                             });
                         }
 
-                        // Debug: Check if there are any prescriptions in the debug result set
+                        // Check if there are any prescriptions in the debug result set
                         reader.NextResult();
                         if (!reader.HasRows)
                         {
-                            // Log or display: No prescriptions found for this patient
+                            // Handle case where no prescriptions found
                             ViewBag.DebugMessage = "No prescriptions found for this patient.";
                         }
                     }
@@ -335,77 +334,77 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return RedirectToAction("Prescriptions", "Surgeon"); // Adjusted to redirect to a view prescriptions action
         }
 
-        public async Task<IActionResult> EditPrescription(int? id)
-        {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
+        //public async Task<IActionResult> EditPrescription(int? id)
+        //{
+        //    ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var prescription = await _context.Prescriptions.FindAsync(id);
-            if (prescription == null)
-            {
-                return NotFound();
-            }
+        //    var prescription = await _context.Prescriptions.FindAsync(id);
+        //    if (prescription == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var viewModel = new PrescriptionViewModel
-            {
-                PrescriptionID = prescription.PrescriptionID,
-                Instruction = prescription.Instruction,
-                Date = prescription.Date,
-                Quantity = prescription.Quantity,
-                Status = prescription.Status,
-                Urgency = prescription.Urgency
-            };
+        //    var viewModel = new PrescriptionViewModel
+        //    {
+        //        PrescriptionID = prescription.PrescriptionID,
+        //        Instruction = prescription.Instruction,
+        //        Date = prescription.Date,
+        //        Quantity = prescription.Quantity,
+        //        Status = prescription.Status,
+        //        Urgency = prescription.Urgency
+        //    };
 
-            return View(viewModel);
-        }
+        //    return View(viewModel);
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPrescription(int id, PrescriptionViewModel model)
-        {
-            if (id != model.PrescriptionID)
-            {
-                return NotFound();
-            }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> EditPrescription(int id, PrescriptionViewModel model)
+        //{
+        //    if (id != model.PrescriptionID)
+        //    {
+        //        return NotFound();
+        //    }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var prescription = await _context.Prescriptions.FindAsync(id);
-                    if (prescription == null)
-                    {
-                        return NotFound();
-                    }
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            var prescription = await _context.Prescriptions.FindAsync(id);
+        //            if (prescription == null)
+        //            {
+        //                return NotFound();
+        //            }
 
-                    prescription.Instruction = model.Instruction;
-                    prescription.Date = model.Date;
-                    prescription.Quantity = model.Quantity;
-                    prescription.Status = model.Status;
-                    prescription.Urgency = model.Urgency;
+        //            prescription.Instruction = model.Instruction;
+        //            prescription.Date = model.Date;
+        //            prescription.Quantity = model.Quantity;
+        //            prescription.Status = model.Status;
+        //            prescription.Urgency = model.Urgency;
 
-                    _context.Update(prescription);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Prescription record updated successfully.");
-                    return RedirectToAction("Prescriptions", "Surgeon");
-                }
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogError(ex, "An error occurred while updating the prescription record: {Message}", ex.Message);
-                    ModelState.AddModelError("", "Unable to save changes.");
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-            }
+        //            _context.Update(prescription);
+        //            await _context.SaveChangesAsync();
+        //            _logger.LogInformation("Prescription record updated successfully.");
+        //            return RedirectToAction("Prescriptions", "Surgeon");
+        //        }
+        //        catch (DbUpdateException ex)
+        //        {
+        //            _logger.LogError(ex, "An error occurred while updating the prescription record: {Message}", ex.Message);
+        //            ModelState.AddModelError("", "Unable to save changes.");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+        //    }
 
-            return View(model);
-        }
+        //    return View(model);
+        //}
 
 
         [HttpGet]
@@ -645,21 +644,42 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         //}
 
 
-        public IActionResult DischargePatient()
+        public async Task<ActionResult> DischargePatient(string searchString)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var items = _context.Patients.Where(p => p.Status == "Discharged").OrderBy(p => p.Name).ToList();
-            ViewBag.Patient = items;
+            ViewData["CurrentFilter"] = searchString;
 
-            return View();
+            var patient = from p in _context.Patients
+                          select new Patient
+                          {
+                              PatientID = p.PatientID,
+                              Name = p.Name ?? string.Empty,
+                              Surname = p.Surname ?? string.Empty,
+                              Email = p.Email ?? string.Empty,
+                              IDNo = p.IDNo ?? string.Empty,
+                              Gender = p.Gender ?? string.Empty,
+                              Status = p.Status ?? string.Empty
+                          };
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                patient = patient.Where(p => p.IDNo.Contains(searchString) && p.Status == "Discharge"); // Added condition for status
+            }
+            else
+            {
+                patient = patient.Where(p => p.Status == "Discharge"); // Filter by status when no search string is provided
+            }
+
+            return View(await patient.ToListAsync());
         }
 
-        public IActionResult ConfirmTreatmentCodes()
-        {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
+        //public IActionResult ConfirmTreatmentCodes()
+        //{
+        //    ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            return View();
-        }
+        //    return View();
+        //}
+
     }
 }
