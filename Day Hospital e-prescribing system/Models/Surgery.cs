@@ -6,6 +6,8 @@ namespace Day_Hospital_e_prescribing_system.Models
     [Table("Surgery")]
     public class Surgery
     {
+        internal object Surgery_TreatmentCodeID;
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SurgeryID { get; set; }
