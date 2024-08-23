@@ -56,8 +56,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<Patient_Medication> Patient_Medication { get; set; }
 
         public DbSet<Patient_Vitals> Patient_Vitals { get; set; }
-
-       
+        public DbSet<DayHospitalMedication> DayHospitalMedication { get; set; }
+        
         public DbSet<Orders> Orders { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -120,6 +120,21 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .HasOne<TreatmentCode>(SC => SC.TreatmentCodes)
                 .WithMany(t => t.Surgery_TreatmentCodes)
                 .HasForeignKey(SC => SC.TreatmentCodeID);
+
+            modelBuilder.Entity<Patient>().ToTable("Patient");
+
+            modelBuilder.Entity<Patient>()
+                .Property(p => p.PatientID)
+                .HasColumnName("PatientID");
+
+            modelBuilder.Entity<Patient>(entity =>
+            {
+                entity.ToTable("Patient");
+                entity.HasKey(e => e.PatientID);
+                entity.Property(e => e.PatientID)
+                    .HasColumnName("PatientID")
+                    .ValueGeneratedOnAdd();
+            });
 
             //base.OnModelCreating(modelBuilder);
 

@@ -3,11 +3,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
+
+    [Table("DayHospitalMedication")]
+
     public class DayHospitalMedication
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int StockID { get; set; }
+
 
         [Required]
         [StringLength(50)]
@@ -38,5 +42,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("MedTypeID")]
         public virtual MedicationType MedicationType { get; set; }
 
+
+     
     }
 }

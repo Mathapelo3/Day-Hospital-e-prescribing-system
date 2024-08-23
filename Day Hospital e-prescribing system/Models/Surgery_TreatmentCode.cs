@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
+//using AspNetCore;
+
+
 namespace Day_Hospital_e_prescribing_system.Models
 {
     [Table("Surgery_TreatmentCode")]

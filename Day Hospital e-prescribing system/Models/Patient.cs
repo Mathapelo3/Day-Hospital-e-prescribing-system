@@ -7,6 +7,7 @@ namespace Day_Hospital_e_prescribing_system.Models
     public class Patient
     {
         [Key]
+        [Column("PatientID")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PatientID { get; set; }
 
@@ -43,7 +44,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string? Status { get; set; }
 
-        public int BedId { get; set; }
+        public int? BedId { get; set; }
         // Navigation property
         [ForeignKey("BedId")]
         public virtual Bed Bed { get; set; }
