@@ -76,7 +76,7 @@
                     </div>
                     <div class="info">
                         <span class="d-block text-white">
-                            Welcome, Username @ViewBag.Username
+                            Welcome, @ViewBag.Username
                         </span>
                     </div>
                 </div>
@@ -128,7 +128,7 @@
                             </a>
 
                         </li>
-                        <li class="nav-item">
+                        @* <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("PatientRecord","Surgeon")'">
 
                                 <p>
@@ -137,12 +137,12 @@
                                 </p>
                             </a>
 
-                        </li>
+                        </li> *@
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Surgeon")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("NewPrescription","Surgeon")'">
 
                                 <p>
-                                    VIEW PRESCRIPTIONS
+                                    NEW PRESCRIPTION
 
                                 </p>
                             </a>
@@ -152,14 +152,14 @@
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("DischargePatient","Surgeon")'">
 
                                 <p>
-                                    DISCHARGE PATIENTS
+                                    DISCHARGED PATIENTS
 
                                 </p>
                             </a>
 
                         </li>
                         <li class="nav-item">
-                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <form asp-controller="Accounts" asp-action="Logout" method="post" class="form-inline">
                                 <button type="submit" class="nav-link btn btn-link text-warning">Logout</button>
                             </form>
                         </li>

@@ -18,12 +18,12 @@
         <div class="col-md-8">
             <h4 class="card-title text-bold"> Patient: @(Model.Patient?.Name ?? "N/A") @(Model.Patient?.Surname ?? "N/A")</h4>
         </div>
-        <div class="col-md-1 text-right">
+        @* <div class="col-md-1 text-right">
             <a href="@Url.Action("Prescriptions", "Surgeon", new { id = Model.Patient?.PatientID })" class="btn btn-warning text-bold">Prescriptions</a>
         </div>
         <div class="col-md-3 text-right">
             <a href="@Url.Action("NewSurgery", "Surgeon")" class="btn btn-warning text-bold">Book Surgery</a>
-        </div>
+        </div> *@
     </div>
     <div class="container p-3 text-md-center">
         <table class="table table-bordered table-striped" style="width:100%">
@@ -45,26 +45,29 @@
         <div class="col-md-14">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title text-bold">Patient History</h4>
+                    <h4 class="card-title text-bold">Patient Allergies</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <!-- Allergies -->
                             <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title text-bold">Allergies</h4>
-                                </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table id="allergiesTable" class="table table-bordered table-striped">
-                                            <thead></thead>
+                                            <thead>
+                                                <th>Allergy</th>
+                                                <th>Description</th>
+                                            </thead>
                                             <tbody>
                                                 @if (Model.Allergies.Any())
                                                 {
                                                     foreach (var allergy in Model.Allergies)
                                                     {
-                                                        <p>@allergy.Name</p>
+                                                        <tr>
+                                                            <td>@allergy.Name</td>
+                                                            <td>@allergy.Description</td>
+                                                        </tr>
                                                     }
                                                 }
                                                 else
@@ -127,6 +130,7 @@
                     </div>
                 </div>
             </div>
+            <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
         </div>
     </div>
 </section>

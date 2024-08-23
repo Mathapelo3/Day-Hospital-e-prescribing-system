@@ -123,6 +123,15 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .Property(p => p.PatientID)
                 .HasColumnName("PatientID");
 
+            modelBuilder.Entity<Patient>(entity =>
+            {
+                entity.ToTable("Patient");
+                entity.HasKey(e => e.PatientID);
+                entity.Property(e => e.PatientID)
+                    .HasColumnName("PatientID")
+                    .ValueGeneratedOnAdd();
+            });
+
             //base.OnModelCreating(modelBuilder);
 
         }

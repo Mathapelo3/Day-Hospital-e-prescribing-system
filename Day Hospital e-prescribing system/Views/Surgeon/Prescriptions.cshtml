@@ -1,12 +1,9 @@
-﻿@model List<Day_Hospital_e_prescribing_system.Models.Prescription>
-
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientPrescriptionViewModel
 @{
     ViewData["Title"] = "Prescriptions";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
-
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
 <section class="content">
     <div class="card">
         <div class="card-header">
@@ -14,8 +11,7 @@
             <h4 class="display-6 text-warning text-center text-bold">PRESCRIPTIONS</h4>
         </div>
     </div>
-    <h5 class="display-6 text-bold">@Model.FirstOrDefault()?.Patient.Name @Model.FirstOrDefault()?.Patient.Surname</h5>
-
+    <h5 class="display-6 text-bold">@Model.PatientName @Model.PatientSurname</h5>
     <br />
     <div class="row mb-3">
         <div class="col-md-4">
@@ -27,54 +23,68 @@
             New Prescription
         </button>
     </div>
-    <div class="container p-3 text-md-center">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>
-                        Date
-                    </th>
-                    <th>
-                        Medication
-                    </th>
-                    <th>
-                        Quantity
-                    </th>
-                    <th>
-                        Instruction
-                    </th>
-                    <th>
-                        Urgency
-                    </th>
-                    <th>
-                        Status
-                    </th>
-                </tr>
-            </thead>
+    <br />
 
-            @foreach (var prescription in Model)
-            {
-                <tbody>
+@*     @if (!string.IsNullOrEmpty(ViewBag.DebugMessage))
+    {
+        <div class="alert alert-warning">
+            @ViewBag.DebugMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <div class="alert alert-info">
+            @ViewBag.Message
+        </div>
+    } *@
+
+    @if (Model.Prescriptions == null || Model.Prescriptions.Count == 0)
+    {
+        <div class="alert alert-info">
+            No prescriptions found for this patient.
+        </div>
+    }
+    else
+    {
+        <div class="container p-3 text-md-center">
+            <table class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        <td>@prescription.Date.ToString("dd MMM yyyy")</td>
-                        <td>@prescription.Medication.Name</td>
-                        <td>@prescription.Quantity</td>
-                        <td>@prescription.Instruction</td>
-                        <td>@(prescription.Urgency ? "Yes" : "No")</td>
-                        <td>@prescription.Status</td>
-                        <td>
-                            <a asp-action="EditPresciption" asp-route-id="@prescription.PrescriptionID" class="btn btn-primary">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </td>
+                        <th>Date</th>
+                        <th>Medication</th>
+                        <th>Quantity</th>
+                        <th>Instruction</th>
+                        <th>Urgency</th>
+                        <th>Status</th>
+                        <th>Surgeon</th>
+                        <th>Actions</th>
                     </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prescription in Model.Prescriptions)
+                    {
+                        <tr>
+                            <td>@prescription.Date.ToString("dd MMM yyyy")</td>
+                            <td>@prescription.MedicationName</td>
+                            <td>@prescription.Quantity</td>
+                            <td>@prescription.Instruction</td>
+                            <td>@(prescription.Urgency ? "Yes" : "No")</td>
+                            <td>@prescription.Status</td>
+                            <td>@($"{prescription.SurgeonName} {prescription.SurgeonSurname}")</td>
+                            <td>
+                                <a asp-action="EditPrescription" asp-route-id="@prescription.PrescriptionID" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
-            }
-        </table>
-        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashbaord", "Surgeon")'">Back</button>
-    </div>
+            </table>
+        </div>
+    }
+    <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
 </section>
-
 <script>
     $(document).ready(function () {
         $('#dateFilter').change(function () {

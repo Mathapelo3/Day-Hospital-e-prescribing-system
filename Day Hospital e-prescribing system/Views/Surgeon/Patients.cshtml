@@ -74,8 +74,11 @@
                             <td>
                                 @if (patient != null)
                                 {
-                                    <a asp-action="PatientRecord" asp-route-id="@patient.PatientID" class="btn btn-warning">
-                                        View Record
+                                    <a asp-action="PatientRecord" asp-route-id="@patient.IDNo" class="btn btn-warning">
+                                        Record
+                                    </a>
+                                    <a asp-action="Prescriptions" asp-route-id="@patient.IDNo" class="btn btn-warning">
+                                        Prescriptions
                                     </a>
                                 }
                             </td>

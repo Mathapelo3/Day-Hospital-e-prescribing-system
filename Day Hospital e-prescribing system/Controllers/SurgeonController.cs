@@ -33,41 +33,77 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
-        public async Task<ActionResult> Prescriptions(int id)
+        [HttpGet]
+        public IActionResult Prescriptions(string id)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            _logger.LogInformation("Prescriptions action called with id: {Id}", id);
-
-            if (id <= 0)
+            if (string.IsNullOrEmpty(id))
             {
-                _logger.LogWarning("Invalid patient id: {Id}", id);
-                return NotFound();
+                return BadRequest("ID Number is required");
             }
 
-            var patient = await _context.Patients.FindAsync(id);
-            if (patient == null)
-            {
-                _logger.LogWarning("Patient not found with id: {Id}", id);
-                return NotFound();
-            }
+            var viewModel = new PatientPrescriptionViewModel();
 
-            var prescriptions = await _context.Prescriptions
-                .Where(p => p.PatientID == id)
-                .Include(p => p.Medication)
-                .Select(p => new PatientPrescriptionViewModel
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                connection.Open();
+
+                using (var command = new SqlCommand("GetPatientPrescriptions", connection))
                 {
-                    PrescriptionID = p.PrescriptionID, 
-                    MedicationName = p.Medication.Name,
-                    Instruction = p.Instruction,
-                    Date = p.Date,
-                    Quantity = p.Quantity,
-                    Status = p.Status,
-                    Urgency = p.Urgency,
-                    PatientName = patient.Name 
-                })
-                .ToListAsync();
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IDNo", id);
 
-            return View(prescriptions);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Read patient details
+                        if (reader.Read())
+                        {
+                            viewModel.PatientName = reader.IsDBNull(reader.GetOrdinal("Name")) ? null : reader.GetString(reader.GetOrdinal("Name"));
+                            viewModel.PatientSurname = reader.IsDBNull(reader.GetOrdinal("Surname")) ? null : reader.GetString(reader.GetOrdinal("Surname"));
+                        }
+                        else
+                        {
+                            // Log or display: No patient found with this ID
+                            //return View("Error", new ErrorViewModel { Message = "No patient found with this ID." });
+                        }
+
+                        // Move to next result set (prescriptions)
+                        reader.NextResult();
+
+                        // Read prescriptions
+                        viewModel.Prescriptions = new List<PatientPrescriptionViewModel.PrescriptionDetails>();
+                        while (reader.Read())
+                        {
+                            viewModel.Prescriptions.Add(new PatientPrescriptionViewModel.PrescriptionDetails
+                            {
+                                PrescriptionID = reader.GetInt32(reader.GetOrdinal("PrescriptionID")),
+                                Instruction = reader.GetString(reader.GetOrdinal("Instruction")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency")),
+                                MedicationName = reader.GetString(reader.GetOrdinal("MedicationName")),
+                                SurgeonName = reader.GetString(reader.GetOrdinal("SurgeonName")),
+                                SurgeonSurname = reader.GetString(reader.GetOrdinal("SurgeonSurname"))
+                            });
+                        }
+
+                        // Debug: Check if there are any prescriptions in the debug result set
+                        reader.NextResult();
+                        if (!reader.HasRows)
+                        {
+                            // Log or display: No prescriptions found for this patient
+                            ViewBag.DebugMessage = "No prescriptions found for this patient.";
+                        }
+                    }
+                }
+            }
+
+            if (viewModel.Prescriptions.Count == 0)
+            {
+                ViewBag.Message = "No prescriptions found for this patient.";
+            }
+
+            return View(viewModel);
         }
 
         public async Task<ActionResult> Patients(string searchString)
@@ -487,60 +523,126 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> PatientRecord(int id)
+        [HttpGet]
+        public IActionResult PatientRecord(string id)
         {
-            if (id <= 0)
-            {
-                return BadRequest("Invalid patient ID.");
-            }
+            var viewModel = new PatientRecordViewModel();
 
-            try
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
-                var patient = await _context.Patients
-                    .Include(p => p.Patient_Allergy)
-                        .ThenInclude(pa => pa.Allergy)
-                    .Include(p => p.Patient_Vitals)
-                        .ThenInclude(pv => pv.Vitals)
-                    .FirstOrDefaultAsync(p => p.PatientID == id);
+                connection.Open();
 
-                if (patient == null)
+                using (var command = new SqlCommand("GetPatientVitalsAndAllergies", connection))
                 {
-                    return NotFound($"Patient with ID {id} not found.");
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IDNo", id);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        // Read patient details
+                        if (reader.Read())
+                        {
+                            viewModel.Patient = new Patient
+                            {
+                                //PatientID = reader.IsDBNull(reader.GetOrdinal("PatientID")) ? 0 : reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                Name = reader.IsDBNull(reader.GetOrdinal("Name")) ? null : reader.GetString(reader.GetOrdinal("Name")),
+                                Surname = reader.IsDBNull(reader.GetOrdinal("Surname")) ? null : reader.GetString(reader.GetOrdinal("Surname")),
+                                DateOfBirth = reader.IsDBNull(reader.GetOrdinal("DateOfBirth")) ? null : reader.GetString(reader.GetOrdinal("DateOfBirth")),
+                                Gender = reader.IsDBNull(reader.GetOrdinal("Gender")) ? null : reader.GetString(reader.GetOrdinal("Gender")),
+                                ContactNo = reader.IsDBNull(reader.GetOrdinal("ContactNo")) ? null : reader.GetString(reader.GetOrdinal("ContactNo"))
+                            };
+                        }
+
+                        // Move to next result set (vitals)
+                        reader.NextResult();
+
+                        // Read vitals
+                        viewModel.Vitals = new List<Vitals>();
+                        while (reader.Read())
+                        {
+                            viewModel.Vitals.Add(new Vitals
+                            {
+                                Vital = reader.GetString(reader.GetOrdinal("Vital")),
+                                Min = reader.GetString(reader.GetOrdinal("Min")),
+                                Max = reader.GetString(reader.GetOrdinal("Max"))
+                            });
+                        }
+
+                        // Move to next result set (allergies)
+                        reader.NextResult();
+
+                        // Read allergies
+                        viewModel.Allergies = new List<Allergy>();
+                        while (reader.Read())
+                        {
+                            viewModel.Allergies.Add(new Allergy
+                            {
+                                Name = reader.GetString(reader.GetOrdinal("AllergyName")),
+                                Description = reader.GetString(reader.GetOrdinal("AllergyDescription"))
+                            });
+                        }
+                    }
                 }
-
-                // Now that we have the data, we can select the properties we need
-                var allergies = patient.Patient_Allergy
-                    .Select(pa => new Allergy
-                    {
-                        Name = pa.Allergy.Name,
-                    })
-                    .ToList();
-
-                var vitals = patient.Patient_Vitals
-                    .Where(pv => pv.Vitals != null)
-                    .Select(pv => new Vitals
-                    {
-                        Vital = pv.Vitals.Vital ?? "Unknown",
-                        Min = pv.Vitals.Min ?? "Unknown",
-                        Max = pv.Vitals.Max ?? "Unknown",
-                    })
-                    .ToList();
-
-                var viewModel = new PatientRecordViewModel
-                {
-                    Patient = patient,
-                    Allergies = allergies,
-                    Vitals = vitals,
-                };
-
-                return View(viewModel);
             }
-            catch (Exception ex)
-            {
-                // Log the exception if necessary
-                return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
-            }
+
+            return View(viewModel);
         }
+
+
+        //public async Task<IActionResult> PatientRecord(int id)
+        //{
+        //    if (id <= 0)
+        //    {
+        //        return BadRequest("Invalid patient ID.");
+        //    }
+
+        //    try
+        //    {
+        //        var patient = await _context.Patients
+        //            .Include(p => p.Patient_Allergy)
+        //                .ThenInclude(pa => pa.Allergy)
+        //            .Include(p => p.Patient_Vitals)
+        //                .ThenInclude(pv => pv.Vitals)
+        //            .FirstOrDefaultAsync(p => p.PatientID == id);
+
+        //        if (patient == null)
+        //        {
+        //            return NotFound($"Patient with ID {id} not found.");
+        //        }
+
+        //        // Now that we have the data, we can select the properties we need
+        //        var allergies = patient.Patient_Allergy
+        //            .Select(pa => new Allergy
+        //            {
+        //                Name = pa.Allergy.Name,
+        //            })
+        //            .ToList();
+
+        //        var vitals = patient.Patient_Vitals
+        //            .Where(pv => pv.Vitals != null)
+        //            .Select(pv => new Vitals
+        //            {
+        //                Vital = pv.Vitals.Vital ?? "Unknown",
+        //                Min = pv.Vitals.Min ?? "Unknown",
+        //                Max = pv.Vitals.Max ?? "Unknown",
+        //            })
+        //            .ToList();
+
+        //        var viewModel = new PatientRecordViewModel
+        //        {
+        //            Patient = patient,
+        //            Allergies = allergies,
+        //            Vitals = vitals,
+        //        };
+
+        //        return View(viewModel);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception if necessary
+        //        return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
+        //    }
+        //}
 
 
         public IActionResult DischargePatient()
