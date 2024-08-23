@@ -577,6 +577,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult PatientRecord(string id)
         {
+            //ViewBag.Username = HttpContext.Session.GetString("Username");
+
             var viewModel = new PatientRecordViewModel();
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
@@ -705,9 +707,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<ActionResult> DischargePatient(string searchString)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
             ViewData["CurrentFilter"] = searchString;
-
             var patient = from p in _context.Patients
                           select new Patient
                           {
@@ -719,16 +719,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                               Gender = p.Gender ?? string.Empty,
                               Status = p.Status ?? string.Empty
                           };
-
             if (!String.IsNullOrEmpty(searchString))
             {
-                patient = patient.Where(p => p.IDNo.Contains(searchString) && p.Status == "Discharge"); // Added condition for status
+                patient = patient.Where(p => p.IDNo.Contains(searchString) && p.Status == "Discharge");
             }
             else
             {
-                patient = patient.Where(p => p.Status == "Discharge"); // Filter by status when no search string is provided
+                patient = patient.Where(p => p.Status == "Discharge");
             }
-
             return View(await patient.ToListAsync());
         }
 
