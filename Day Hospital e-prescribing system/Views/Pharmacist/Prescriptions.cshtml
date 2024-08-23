@@ -1,14 +1,27 @@
-﻿@{
-    ViewData["Title"] = "Index1";
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel>
+
+
+@{
+    ViewData["Title"] = "Prescriptions";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
 
 <section class="content">
-    <div class="row">
-        <div class="col-md-4">
-            <!-- Calendar to select date -->
+
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
+                *@
+            </div>
             <br />
+            <h4 style="color:#268aab">List Of Prescriptions</h4>
+            <br />
+        </div>
+    </div>
+    <div class="row">
+        <form asp-action="Prescriptions" method="get" class="form-inline mb-3">
             <div class="card">
                 <div class="card-body">
                    
@@ -21,86 +34,72 @@
                         </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
 
-    <!-- Display patients -->
-    <div class="row">
-        <div class="col-md-12">
-            <br />
-            <div class="card">
-                <div class="card-header">
-                    <h3 style="color:#268aab">List Of Prescriptions</h3>
-                </div>
-                <div class="card-body">
-                    <table class="table">
+    <!-- Display Prescriptions -->
+    <div class="card-body">
+
+        <form asp-action="Prescriptions">
+           
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="row">
+
+                    <table class="table table-bordered table-striped">
+
                         <thead>
                             <tr>
-                                <th scope="col">#</th>
                                 <th scope="col">Date</th>
-                                
-                                <th scope="col">Patient
-                                    <br />
-                                    Invoice
-                                </th>
+                                <th scope="col">Medicine</th>
                                 <th scope="col">Patient Name</th>
                                 <th scope="col">Surgeon</th>
-                                <th scope="col">Anastheseologist</th>
-                                <th scope="col">View</th>
+                                <th scope="col">Action</th>
+
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td scope="row">1</td>
-                                <td>2024-04-30</td>
-                                <td>PID_20240430</td>
-                                <td>Jodie Smith</td>
-                                <td>John Doe</td>
-                                <td>Joe Doe</td>
-                                <td>
-                                    <button class="btn" style="background-color: #268aab; color:#ffffff">View</button>
-                                </td>
-                            </tr>
-                            <tr class="bg-danger">
-                                <td scope="row">2</td>
-                                <td>2024-04-30</td>
-                                <td>PID_20240410</td>
-                                <td>Olerato Mthombeni</td>
-                                <td>John Doe</td>
-                                <td>Joe Doe</td>
-                                <td>
-                                    <button class="btn" style="background-color: #268aab; color:#ffffff">View</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td scope="row">3</td>
-                                <td>2024-04-30</td>
-                                <td>PID_20240430</td>
-                                <td>Shaiur Scott</td>
-                                <td>John Doe</td>
-                                <td>Joe Doe</td>
-                                <td>
-                                    <button class="btn" style="background-color: #268aab; color:#ffffff">View</button>
-                                </td>
-                            </tr>
-                            <tr class="bg-danger">
-                                <td scope="row">4</td>
-                                <td>2024-04-30</td>
-                                <td>PID_20240430</td>
-                                <td>Elizabeth Paul</td>
-                                <td>John Doe</td>
-                                <td>Joe Doe</td>
-                                <td>
-                                    <button class="btn" style="background-color: #268aab; color:#ffffff">View</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        @foreach (var item in Model)
+                        {
+                            <tbody>
+                                <tr>
+                                   
+                                    <td>@item.Date.ToShortDateString()</td>
+                                    <td>@item.Medication</td>
+                                    <td>@item.Name</td>
+                                    <td>@item.Surgeon</td>
+                                    <td>
+                                        <a asp-controller="Pharmacist"
+                                            asp-route-PatientID="@item.PatientID"
+                                            asp-action="PatientPrescriptions"
+                                           class="btn btn-info">View Details</a>
+                                    </td>
+                                </tr>
 
+
+
+                            </tbody>
+                        }
+                    </table>
+                    <div><br /></div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                        <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
+                    </div>
                 </div>
-            </div>
-        </div>
+            }
+            else
+            {
+                <h3 class=" display-6 text-center text-bold" style="color:#268aab">Search not Found</h3>
+            }
+
+
+        </form>
+
+
+
     </div>
+
+    
 
 </section>
