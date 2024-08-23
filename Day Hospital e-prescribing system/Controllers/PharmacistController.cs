@@ -1,6 +1,7 @@
 ﻿using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Day_Hospital_e_prescribing_system.ViewModel.PharmacistViewModel;
+using Day_Hospital_e_prescribing_system.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,7 +59,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 join u in _context.Users on s.UserID equals u.UserID
                                 join d in _context.DayHospitalMedication on pr.MedicationID equals d.StockID
                                 where pr.Status != "Dispensed"
-                                select new PrescriptionViewModel
+                                select new ViewModel.PrescriptionViewModel
                                 {
                                     PrescriptionID = pr.PrescriptionID,
                                     Medication = d.MedicationName,
@@ -83,9 +84,73 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(prescriptions);
         }
 
-        public IActionResult ViewPrescription()
+        public async Task<IActionResult> ViewPrescription(int id)
         {
-            return View();
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation("Prescription action called with id: {Id}", id);
+
+            if (id <= 0)
+            {
+                _logger.LogWarning("Invalid patient id: {Id}", id);
+                return NotFound();
+            }
+
+            var patient = await _context.Patients.Include(p => p.Patient_Vitals).Include(p => p.Patient_Condition).Include(p => p.Patient_Allergy).FirstOrDefaultAsync(p => p.PatientID == id);
+            if (patient == null)
+            {
+                _logger.LogWarning("Invalid patient id: {Id}", id);
+                return NotFound();
+            }
+
+            var prescriptions = await _context.Prescriptions
+                .Where(p => p.PatientID == id)
+                .Include(p => p.Medication)
+                .Include(p => p.Surgeon)
+                .ThenInclude(s => s.User)
+                .ToListAsync();
+
+            var vitals = patient.Patient_Vitals;
+            var conditions = patient.Patient_Condition;
+            var allergies = patient.Patient_Allergy;
+
+            var viewModel = new ViewModel.PharmacistViewModel.PrescriptionViewModel
+            {
+                prescriptions = prescriptions.Select(p => new ViewModel.PharmacistViewModel.PrescriptionViewModel.PrescriptionViewModel
+                {
+                    PrescriptionID = p.PrescriptionID,
+                    Medication = p.Medication.Name,
+                    Instruction = p.Instruction,
+                    Date = p.Date,
+                    Quantity = p.Quantity,
+                    Status = p.Status,
+                    Urgency = p.Urgency,
+                    Name = patient.Name,
+                    Surname = patient.Surname,
+                    PatientID = p.PatientID,
+                    SurgeryID = p.SurgeonID,
+                    MedicationID = p.MedicationID,
+                    Surgeon = p.Surgeon.User.Name + " " + p.Surgeon.User.Surname,
+                    Time = p.Time.ToString(), // Assuming 'Time' is a property of Prescription
+                    Notes = p.Notes,
+                    Height = p.Height.ToString(), // Assuming 'Height' is a property of Prescription
+                    Weight = p.Weight.ToString(), // Assuming 'Weight' is a property of Prescription
+                    Vitals = vitals.Select(v => new ViewModel.PharmacistViewModel.PrescriptionViewModel.VitalsViewModel
+                    {
+                        Date = v.Date,
+                        Time = v.Time.ToString(),
+                        Notes = v.Notes,
+                        Height = v.Height.ToString(),
+                        Weight = v.Weight.ToString(),
+                        Min = v.Min.ToString(),
+                        Max = v.Max.ToString(),
+                        Value = v.Value.ToString()
+                    }).ToList(),
+                    Patient_AllergyID = allergies.FirstOrDefault()?.AllergyID ?? -1, // Example handling for allergies
+                    Patient_ConditionID = conditions.FirstOrDefault()?.Patient_ConditionID ?? -1 // Example handling for conditions
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult RejectPrescription()
@@ -134,7 +199,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult PatientPrescriptions()
+        public async Task<ActionResult> PatientPrescriptions(int id)
         {
             return View();
         }
