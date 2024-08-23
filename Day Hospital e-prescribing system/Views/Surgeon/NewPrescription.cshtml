@@ -1,5 +1,4 @@
-﻿@using Day_Hospital_e_prescribing_system.ViewModel
-@model PrescriptionViewModel
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel
 @{
     ViewData["Title"] = "NewPrescription";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
@@ -22,12 +21,14 @@
                         <form id="orderForm" method="post" action="@Url.Action("NewPrescription", "Surgeon")" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             <div class="form-group">
-                                <label for="surgeon">Patient:</label>
-                                @Html.DropDownListFor(m => m.SelectedPatientId, Model.PatientList, "Select a Patient", htmlAttributes: new { @class = "form-control" })
+                                <label for="SelectedPatientId">Patient:</label>
+                                @Html.DropDownListFor(m => m.SelectedPatientId, Model.PatientList, "Select a Patient", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.SelectedPatientId, "", new { @class = "text-danger" })
                             </div>
                             <div class="form-group">
-                                <label for="date">Date:</label>
-                                <input type="date" class="form-control" id="date" name="date">
+                                <label for="Date">Date:</label>
+                                <input type="date" class="form-control" id="Date" name="Date" value="@Model.Date.ToString("yyyy-MM-dd")">
+                                @Html.ValidationMessageFor(m => m.Date, "", new { @class = "text-danger" })
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-12">
@@ -36,7 +37,6 @@
                                     <input type="text" id="quantityInput" class="form-control" placeholder="Quantity" style="margin-top: 10px;" />
                                     <input type="text" id="instructionInput" class="form-control" placeholder="Instruction" style="margin-top: 10px;" />
                                     <button type="button" id="addMedication" class="btn btn-warning text-bold" style="margin-top: 10px;">Add</button>
-                                    @* <span asp-validation-for="SelectedMedicationsJson" class="text-danger"></span>*@
                                 </div>
                             </div>
                             <div class="form-group col-md-12">
@@ -45,22 +45,23 @@
                                     @for (int i = 0; i < Model.SelectedMedications.Count; i++)
                                     {
                                         <li>
-                                            @Html.HiddenFor(m => m.SelectedMedications[i].MedicationID)
-                                            @Html.HiddenFor(m => m.SelectedMedications[i].Name)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].StockID)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].MedicationName)
                                             @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
                                             @Html.HiddenFor(m => m.SelectedMedications[i].Instruction)
-                                            @Model.SelectedMedications[i].Name - @Model.SelectedMedications[i].Quantity - @Model.SelectedMedications[i].Instruction
+                                            @Model.SelectedMedications[i].MedicationName - @Model.SelectedMedications[i].Quantity - @Model.SelectedMedications[i].Instruction
                                         </li>
                                     }
                                 </ul>
-                                <input type="hidden" name="Medications" value="" />
                             </div>
                             <div class="form-group">
-                                <label for="urgency">Urgency:</label>
-                                <input type="checkbox" id="urgency" name="IsUrgent">
+                                <label for="Urgency">Urgency:</label>
+                                <input type="checkbox" id="Urgency" name="Urgency" value="true">
+                                <input type="hidden" name="Urgency" value="false">
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
+                                <input type="submit" value="Add" class="btn btn-warning" />
+                                <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
                             </div>
                         </form>
                     </div>
@@ -77,31 +78,40 @@
         var instruction = document.getElementById('instructionInput').value;
         var medicationList = document.getElementById('medicationList');
 
-        selectedOptions.forEach(function (option, index) {
+        selectedOptions.forEach(function (option) {
             var li = document.createElement('li');
-            li.textContent = option.text + '-' + quantity + '-' + instruction; // Include instruction in display text
+            li.textContent = option.text + ' - ' + quantity + ' - ' + instruction;
 
-            // Create hidden inputs for each selected medication
-            var hiddenMedId = document.createElement('input');
-            hiddenMedId.type = 'hidden';
-            hiddenMedId.name = 'SelectedMedications[' + index + '].MedicationID'; // Adjusted to match server-side model
-            hiddenMedId.value = option.value;
-            li.appendChild(hiddenMedId);
+            var hiddenStockId = document.createElement('input');
+            hiddenStockId.type = 'hidden';
+            hiddenStockId.name = 'SelectedMedications[' + medicationList.children.length + '].StockID';
+            hiddenStockId.value = option.value;
+            li.appendChild(hiddenStockId);
+
+            var hiddenMedicationName = document.createElement('input');
+            hiddenMedicationName.type = 'hidden';
+            hiddenMedicationName.name = 'SelectedMedications[' + medicationList.children.length + '].MedicationName';
+            hiddenMedicationName.value = option.text;
+            li.appendChild(hiddenMedicationName);
 
             var hiddenQuantity = document.createElement('input');
             hiddenQuantity.type = 'hidden';
-            hiddenQuantity.name = 'SelectedMedications[' + index + '].Quantity'; // Adjusted to match server-side model
+            hiddenQuantity.name = 'SelectedMedications[' + medicationList.children.length + '].Quantity';
             hiddenQuantity.value = quantity;
             li.appendChild(hiddenQuantity);
 
-            var hiddenInstruction = document.createElement('input'); // New hidden input for instruction
+            var hiddenInstruction = document.createElement('input');
             hiddenInstruction.type = 'hidden';
-            hiddenInstruction.name = 'SelectedMedications[' + index + '].Instruction'; // Adjusted to match server-side model
+            hiddenInstruction.name = 'SelectedMedications[' + medicationList.children.length + '].Instruction';
             hiddenInstruction.value = instruction;
             li.appendChild(hiddenInstruction);
 
             medicationList.appendChild(li);
         });
+
+        // Clear inputs after adding
+        document.getElementById('medicationSelect').selectedIndex = -1;
+        document.getElementById('quantityInput').value = '';
+        document.getElementById('instructionInput').value = '';
     });
 </script>
-

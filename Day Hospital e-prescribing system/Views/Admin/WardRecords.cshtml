@@ -58,8 +58,8 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Bed Name</th>
-                                        <th>Bed Status</th>
+                                        <th>Ward Name</th>
+                                        <th>Number of Beds</th>
                                         <th style="width:10%"></th>
                                     </tr>
                                 </thead>
@@ -68,12 +68,12 @@
                                     <tbody>
                                         <tr>
                                             <td>@ward.WardName</td>
-                                           @* <td>@ward.BedName</td>*@
-                                            <td>
+                                           <td>@ward.NumberOfBeds</td>
+                                            @* <td>
                                                 <button type="button" class="btn btn-primary" id="removeBed">
                                                     <i class="fas fa-remove"></i> <!-- Font Awesome plus icon -->
                                                 </button>
-                                            </td>
+                                            </td> *@
                                         </tr>
                                     </tbody>
                                 }
@@ -81,11 +81,14 @@
                         </div>
                         <div class="text-center">
                             @* <div class="btn-group">*@
-                            <button type="button" class="btn btn-primary" id="addBed">
+                            @* <button type="button" class="btn btn-primary" id="addBed">
                                 <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
-                            </button>
+                            </button> *@
 
-                            <button type="button" class="btn btn-dark-green" onclick="saveChanges()">Save</button>
+                            @* <button type="button" class="btn btn-dark-green" onclick="saveChanges()">Save</button> *@
+
+                            <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("AdminDashboard", "Admin")'">Back</button>
+
                         </div>
                     </div>
                 </div>

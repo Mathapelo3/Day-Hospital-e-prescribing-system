@@ -10,6 +10,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         {
             PatientList = new List<SelectListItem>();
             MedicationList = new List<SelectListItem>();
+            SelectedMedications = new List<DayHospitalMedicationViewModel>();
         }
 
         [Required]
@@ -33,10 +34,11 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         public List<PrescriptionViewModel> Prescriptions { get; set; }
 
-        public int SelectedPatientId { get; set; }
         public IEnumerable<SelectListItem> PatientList { get; set; }
         public IEnumerable<SelectListItem> MedicationList { get; set; }
-        public List<MedicationViewModel> SelectedMedications { get; set; } = new List<MedicationViewModel>();
+        public int SelectedPatientId { get; set; }
+        public List<DayHospitalMedicationViewModel> SelectedMedications { get; set; }
+
     }
 }
 

@@ -108,9 +108,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<ActionResult> Patients(string searchString)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
             ViewData["CurrentFilter"] = searchString;
-
             var patient = from p in _context.Patients
                           select new Patient
                           {
@@ -118,16 +116,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                               Name = p.Name ?? string.Empty,
                               Surname = p.Surname ?? string.Empty,
                               Email = p.Email ?? string.Empty,
-                              IDNo = p.IDNo ?? string.Empty, 
+                              IDNo = p.IDNo ?? string.Empty,
                               Gender = p.Gender ?? string.Empty,
                               Status = p.Status ?? string.Empty
                           };
-
             if (!String.IsNullOrEmpty(searchString))
             {
                 patient = patient.Where(p => p.IDNo.Contains(searchString));
             }
-
             return View(await patient.ToListAsync());
         }
 
@@ -175,33 +171,43 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Surgeries()
+        public async Task<IActionResult> Surgeries(DateTime? filterDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var surgeries = await _context.Surgeries
-                            .Include(s => s.Patients)
-                            .Include(s => s.Theatres)
-                            .Include(s => s.Anaesthesiologists)
-                                .ThenInclude(a => a.User)
-                            .Include(s => s.Surgery_TreatmentCodes)
-                                .ThenInclude(stc => stc.TreatmentCodes)
-                            .Select(s => new SurgeryDetailsViewModel
-                            {
-                                SurgeryID = s.SurgeryID,
-                                PatientID = s.PatientID,
-                                AnaesthesiologistID = s.AnaesthesiologistID,
-                                TheatreID = s.TheatreID,
-                                PatientName = s.Patients.Name,
-                                PatientSurname = s.Patients.Surname,
-                                TheatreName = s.Theatres.Name,
-                                AnaesthesiologistName = s.Anaesthesiologists.User.Name,
-                                AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
-                                Date = s.Date,
-                                Time = s.Time,
-                                TreatmentCodes = s.Surgery_TreatmentCodes.Select(stc => stc.ICD_10_Code).ToList()
-                            })
-                            .ToListAsync();
 
+            var query = _context.Surgeries
+                .Include(s => s.Patients)
+                .Include(s => s.Theatres)
+                .Include(s => s.Anaesthesiologists)
+                    .ThenInclude(a => a.User)
+                .Include(s => s.Surgery_TreatmentCodes)
+                    .ThenInclude(stc => stc.TreatmentCodes)
+                .AsQueryable();
+
+            if (filterDate.HasValue)
+            {
+                query = query.Where(s => s.Date.Date == filterDate.Value.Date);
+            }
+
+            var surgeries = await query
+                .Select(s => new SurgeryDetailsViewModel
+                {
+                    SurgeryID = s.SurgeryID,
+                    PatientID = s.PatientID,
+                    AnaesthesiologistID = s.AnaesthesiologistID,
+                    TheatreID = s.TheatreID,
+                    PatientName = s.Patients.Name,
+                    PatientSurname = s.Patients.Surname,
+                    TheatreName = s.Theatres.Name,
+                    AnaesthesiologistName = s.Anaesthesiologists.User.Name,
+                    AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
+                    Date = s.Date,
+                    Time = s.Time,
+                    TreatmentCodes = s.Surgery_TreatmentCodes.Select(stc => stc.ICD_10_Code).ToList()
+                })
+                .ToListAsync();
+
+            ViewBag.FilterDate = filterDate;
             return View(surgeries);
         }
 
@@ -238,100 +244,146 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(viewModel);
         }
+
         [HttpGet]
-        public IActionResult NewPrescription()
+        public async Task<IActionResult> NewPrescription()
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-
-            var patientSelectListItems = _context.Patients.Select(p => new SelectListItem
+            var model = new PrescriptionViewModel
             {
-                Value = p.PatientID.ToString(),
-                Text = $"{p.Name} {p.Surname}"
-            }).ToList();
-
-            var medicationSelectListItems = _context.Medication.Select(m => new SelectListItem
-            {
-                Value = m.MedicationID.ToString(),
-                Text = m.Name
-            }).ToList();
-
-            var viewModel = new PrescriptionViewModel
-            {
-                PatientList = new SelectList(patientSelectListItems, "Value", "Text"),
-                MedicationList = new SelectList(medicationSelectListItems, "Value", "Text")
+                Date = DateTime.Today
             };
-
-            return View(viewModel);
+            await PopulateDropdownLists(model);
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewPrescription(PrescriptionViewModel model)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            _logger.LogInformation("Starting to capture new prescription...");
-
-            var medications = await _context.Medication.ToListAsync();
-            model.MedicationList = new MultiSelectList(medications, "MedicationID", "Name");
-
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model state is not valid.");
+                _logger.LogWarning("Model state is invalid: " + string.Join("; ", ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(x => x.ErrorMessage)));
+                await PopulateDropdownLists(model);
                 return View(model);
             }
 
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
-                _logger.LogError("User ID not found in claims.");
+                _logger.LogError("User ID claim not found");
                 ModelState.AddModelError("", "User ID not found in claims");
+                await PopulateDropdownLists(model);
                 return View(model);
             }
-
             int userId = int.Parse(userIdClaim.Value);
-            var surgeonIdClaim = User.Claims.FirstOrDefault(c => c.Type == "SurgeonID"); 
+
+            var surgeonIdClaim = User.Claims.FirstOrDefault(c => c.Type == "SurgeonID");
             if (surgeonIdClaim == null)
             {
-                _logger.LogError("Surgeon ID not found in claims.");
+                _logger.LogError("Surgeon ID claim not found");
                 ModelState.AddModelError("", "Surgeon ID not found in claims");
+                await PopulateDropdownLists(model);
                 return View(model);
             }
-
             int surgeonId = int.Parse(surgeonIdClaim.Value);
-            var surgeon = await _context.Surgeons.FirstOrDefaultAsync(s => s.SurgeonID == surgeonId); 
+
+            var surgeon = await _context.Surgeons.FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
             if (surgeon == null)
             {
-                _logger.LogError("Surgeon not found.");
+                _logger.LogError($"Surgeon not found for ID: {surgeonId}");
                 ModelState.AddModelError("", "Surgeon not found");
+                await PopulateDropdownLists(model);
                 return View(model);
             }
-
-            var patientId = model.SelectedPatientId; 
-            _logger.LogInformation($"PatientID: {patientId}");
 
             if (model.SelectedMedications != null && model.SelectedMedications.Any())
             {
-                foreach (var medication in model.SelectedMedications)
+                try
                 {
-                    var prescription = new Prescription
+                    foreach (var medication in model.SelectedMedications)
                     {
-                        PatientID = model.SelectedPatientId,
-                        MedicationID = medication.MedicationID,
-                        Quantity = medication.Quantity,
-                        Date = model.Date,
-                        Urgency = model.Urgency,
-                        SurgeonID = surgeon.SurgeonID,
-                        Instruction = medication.Instruction 
-                    };
+                        if (medication == null)
+                        {
+                            _logger.LogWarning("Null medication encountered in SelectedMedications");
+                            continue;
+                        }
 
-                    _context.Prescriptions.Add(prescription);
+                        var prescription = new Prescription
+                        {
+                            PatientID = model.SelectedPatientId,
+                            MedicationID = medication.StockID,
+                            Quantity = medication.Quantity ?? "0",
+                            Date = model.Date,
+                            Urgency = model.Urgency,
+                            SurgeonID = surgeon.SurgeonID,
+                            Instruction = medication.Instruction ?? "",
+                        };
+                        _context.Prescriptions.Add(prescription);
+                    }
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"{model.SelectedMedications.Count} prescriptions added to the database.");
+                    return RedirectToAction("Prescriptions", new { patientId = model.SelectedPatientId });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error saving prescriptions: {ex.Message}");
+                    ModelState.AddModelError("", "Error saving prescriptions. Please try again.");
+                    await PopulateDropdownLists(model);
+                    return View(model);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("No medications selected");
+                ModelState.AddModelError("", "No medications selected");
+                await PopulateDropdownLists(model);
+                return View(model);
+            }
+        }
+
+        private async Task PopulateDropdownLists(PrescriptionViewModel model)
+        {
+            try
+            {
+                var patients = await _context.Patients
+                    .Where(p => p.Name != null && p.Surname != null)
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.PatientID.ToString(),
+                        Text = $"{p.Name} {p.Surname} ({p.IDNo})"
+                    })
+                    .ToListAsync();
+
+                if (!patients.Any())
+                {
+                    _logger.LogWarning("No patients found in the database");
                 }
 
-                await _context.SaveChangesAsync();
-                _logger.LogInformation($"{model.SelectedMedications.Count} prescriptions added to the database.");
-            }
+                model.PatientList = new SelectList(patients, "Value", "Text");
 
-            return RedirectToAction("Prescriptions", "Surgeon"); // Adjusted to redirect to a view prescriptions action
+                var medications = await _context.DayHospitalMedication
+                    .Where(m => m.MedicationName != null)
+                    .Select(m => new SelectListItem
+                    {
+                        Value = m.StockID.ToString(),
+                        Text = m.MedicationName
+                    })
+                    .ToListAsync();
+
+                if (!medications.Any())
+                {
+                    _logger.LogWarning("No medications found in the database");
+                }
+
+                model.MedicationList = new MultiSelectList(medications, "Value", "Text");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error populating dropdown lists: {ex.Message}");
+                throw;
+            }
         }
 
         //public async Task<IActionResult> EditPrescription(int? id)
@@ -526,16 +578,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult PatientRecord(string id)
         {
             var viewModel = new PatientRecordViewModel();
-
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
                 connection.Open();
-
-                using (var command = new SqlCommand("GetPatientVitalsAndAllergies", connection))
+                using (var command = new SqlCommand("GetPatientVitalsAllergiesMedicationsAndConditions", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@IDNo", id);
-
                     using (var reader = command.ExecuteReader())
                     {
                         // Read patient details
@@ -543,7 +592,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             viewModel.Patient = new Patient
                             {
-                                //PatientID = reader.IsDBNull(reader.GetOrdinal("PatientID")) ? 0 : reader.GetInt32(reader.GetOrdinal("PatientID")),
                                 Name = reader.IsDBNull(reader.GetOrdinal("Name")) ? null : reader.GetString(reader.GetOrdinal("Name")),
                                 Surname = reader.IsDBNull(reader.GetOrdinal("Surname")) ? null : reader.GetString(reader.GetOrdinal("Surname")),
                                 DateOfBirth = reader.IsDBNull(reader.GetOrdinal("DateOfBirth")) ? null : reader.GetString(reader.GetOrdinal("DateOfBirth")),
@@ -554,7 +602,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                         // Move to next result set (vitals)
                         reader.NextResult();
-
                         // Read vitals
                         viewModel.Vitals = new List<Vitals>();
                         while (reader.Read())
@@ -569,7 +616,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                         // Move to next result set (allergies)
                         reader.NextResult();
-
                         // Read allergies
                         viewModel.Allergies = new List<Allergy>();
                         while (reader.Read())
@@ -580,10 +626,22 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 Description = reader.GetString(reader.GetOrdinal("AllergyDescription"))
                             });
                         }
+
+                        // Move to next result set (conditions)
+                        reader.NextResult();
+                        // Read conditions
+                        viewModel.Conditions = new List<Condition>();
+                        while (reader.Read())
+                        {
+                            viewModel.Conditions.Add(new Condition
+                            {
+                                Name = reader.GetString(reader.GetOrdinal("ConditionName")),
+                                ICD_10_Code = reader.GetString(reader.GetOrdinal("ICD_10_Code"))
+                            });
+                        }
                     }
                 }
             }
-
             return View(viewModel);
         }
 
