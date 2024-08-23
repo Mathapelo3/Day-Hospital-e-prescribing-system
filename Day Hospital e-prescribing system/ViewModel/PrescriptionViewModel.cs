@@ -23,6 +23,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public bool Urgency { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
+        public string Patient { get; set; }
 
         public string Surgeon { get; set; }
         [Required]
