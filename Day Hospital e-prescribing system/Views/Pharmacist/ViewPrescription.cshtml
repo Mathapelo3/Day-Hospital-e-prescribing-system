@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel
+
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
@@ -32,20 +34,17 @@
                 <div class="card" id="container">
                     
                     <div class="card-header">
-                        <h5 style="color:#268aab">Patient Prescription</h5>
+                        <h5 style="color:#268aab">@Model.Patient Prescription</h5>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="submit" class="btn btn-info">Joe Doe Prescription History</button>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <label for="inputState" class="form-label">Prescription No: </label>
-                                <lable type="text">Pres2024043020</lable>
-                            </div>
+                           
                             <div class="col-md-4">
                                 <label for="inputState" class="form-label">Date</label>
-                                <lable type="date">07/04/2027</lable>
+                                <lable type="date">@Model.Date</lable>
                             </div>
 
                         </div>
@@ -55,15 +54,12 @@
                             
                             <div class="col-md-4">
                                 <label class="form-label">Patient Name: </label>
-                                <lable>Shaiur</lable>
+                                <lable>@Model.Patient  </lable>
                             </div>
-                            <div class="col-md-1">
-                                <label class="form-label">Age: </label>
-                                <lable>30</lable>
-                            </div>
+                            
                             <div class="col-md-2">
                                 <label class="form-label">Gender</label>
-                                <lable>Female</lable>
+                                <lable>Male</lable>
                             </div>
                         </div>
                         <hr />
@@ -76,41 +72,23 @@
                                         <th scope="col">#</th>
                                         <th scope="col">Drug</th>
                                         <th scope="col">Dosage</th>
-                                        <th scope="col">Units</th>
-                                        <th scope="col">Dispense</th>
-                                        <th scope="col">Avail. Qty</th>
-                                        <th scope="col">Refills</th>
+                                        <th scope="col">Quantity</th>
+                                       
                                        
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <th scope="row">1</th>
-                                        <td>Napa Rapid 500mg oral tablet</td>
-                                        <td>2 Morning, 2 Night
-                                            <br />
-                                            (Before Meal)
+                                        <td>@Model.Medication</td>
+                                        <td>@Model.Instruction
                                         </td>
-                                        <td>tablet</td>
-                                        <td>20(twenty)</td>
-                                        <td class="bg-success">500</td>
-                                        <td>0</td>
+                                        <td>@Model.DosageForm</td>
+                                        <td>@Model.Quantity</td>
+                                        
 
                                     </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>Finix 20mg oral tablet</td>
-                                        <td>
-                                            1 tablet/ day
-                                            <br />
-                                            (With Meal)
-                                        </td>
-                                        <td>tablet</td>
-                                        <td>20(twenty)</td>
-                                        <td class="bg-success">400</td>
-                                        <td>0</td>
-
-                                    </tr>
+                                    
                                 </tbody>
                             </table>
                             <br />

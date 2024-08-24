@@ -5,8 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel.PharmacistViewModel
 {
-    public class PrescriptionViewModel
-    {
+
         public class PrescriptionViewModel
         {
             public PrescriptionViewModel()
@@ -108,5 +107,5 @@ namespace Day_Hospital_e_prescribing_system.ViewModel.PharmacistViewModel
 
            
         }
-    }
+    
 }

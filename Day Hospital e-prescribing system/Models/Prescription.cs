@@ -45,5 +45,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("MedicationID")]
         public virtual Medication Medication { get; set; }
+        public string Conditions { get; internal set; }
     }
 }

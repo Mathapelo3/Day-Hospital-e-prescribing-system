@@ -3,6 +3,7 @@ using Day_Hospital_e_prescribing_system.ViewModel;
 using Day_Hospital_e_prescribing_system.ViewModel.PharmacistViewModel;
 using Day_Hospital_e_prescribing_system.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
@@ -34,17 +35,76 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         // Medicine
         public IActionResult MedicineList()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
+
         public IActionResult ReceiveMedicine()
         {
-            return View();
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            var selectListItems = _context.DayHospitalMedication.Select(m => new SelectListItem
+            {
+                Value = m.StockID.ToString(),
+                Text = m.MedicationName
+            }).ToList();
+
+            var viewModel = new MedicationViewModel
+            {
+                DayHospitalMedicationList = new SelectList(selectListItems, "Value", "Text")
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReceiveMedicine(MedicationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var medicine = new Medication
+                    {
+                        Name = model.Name,
+                        Quantity = model.Quantity
+                       
+                    };
+
+                    _context.Add(medicine);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Reorder Place Successfully");
+                    return RedirectToAction("ReOrder", "Pharmacist");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while adding patient: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
+
+            
         }
 
         public IActionResult OrderMedicine()
         {
+
             return View();
         }
+
+        public async Task<IActionResult> OrderMedicine(AddMedicineViewModel model)
+        {
+           
+            return View();
+        }
+
 
         public async Task<ActionResult> Prescriptions(DateTime? startDate, DateTime? endDate)
         {
@@ -95,7 +155,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return NotFound();
             }
 
-            var patient = await _context.Patients.Include(p => p.Patient_Vitals).Include(p => p.Patient_Condition).Include(p => p.Patient_Allergy).FirstOrDefaultAsync(p => p.PatientID == id);
+            var patient = await _context.Patients
+                .Include(p => p.Patient_Vitals)
+                .Include(p => p.Patient_Condition)
+                .Include(p => p.Patient_Allergy)
+                .FirstOrDefaultAsync(p => p.PatientID == id);
+
             if (patient == null)
             {
                 _logger.LogWarning("Invalid patient id: {Id}", id);
@@ -109,16 +174,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 .ThenInclude(s => s.User)
                 .ToListAsync();
 
-            var vitals = patient.Patient_Vitals;
-            var conditions = patient.Patient_Condition;
-            var allergies = patient.Patient_Allergy;
 
-            var viewModel = new ViewModel.PharmacistViewModel.PrescriptionViewModel
+            
+
+            var viewModel = new ViewModel.PrescriptionViewModel
             {
-                prescriptions = prescriptions.Select(p => new ViewModel.PharmacistViewModel.PrescriptionViewModel.PrescriptionViewModel
+                Prescriptions = prescriptions.Select(p => new ViewModel.PrescriptionViewModel
                 {
                     PrescriptionID = p.PrescriptionID,
-                    Medication = p.Medication.Name,
+                    MedicationName = p.Medication.Name,
                     Instruction = p.Instruction,
                     Date = p.Date,
                     Quantity = p.Quantity,
@@ -126,32 +190,29 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     Urgency = p.Urgency,
                     Name = patient.Name,
                     Surname = patient.Surname,
-                    PatientID = p.PatientID,
-                    SurgeryID = p.SurgeonID,
-                    MedicationID = p.MedicationID,
+                    Patient = $"{patient.Name} {patient.Surname}",
+                    //Allergies = p.Allergies,
+                    Conditions = p.Conditions,
+                    //Vitals = string.Join(", ", p.Vitals.Select(v => v.Value)),
+                    //Time = p.Time.ToString(),
+                    //Height = p.Height.ToString(),
+                    //Temp = p.Temperature.ToString(),
+                    //Max = p.MaxValue.ToString(),
+                    //Min = p.MinValue.ToString(),
+                    //Vital = p.VitalSigns.ToString(),
+                    //ChronicMedication = p.ChronicMedication,
                     Surgeon = p.Surgeon.User.Name + " " + p.Surgeon.User.Surname,
-                    Time = p.Time.ToString(), // Assuming 'Time' is a property of Prescription
-                    Notes = p.Notes,
-                    Height = p.Height.ToString(), // Assuming 'Height' is a property of Prescription
-                    Weight = p.Weight.ToString(), // Assuming 'Weight' is a property of Prescription
-                    Vitals = vitals.Select(v => new ViewModel.PharmacistViewModel.PrescriptionViewModel.VitalsViewModel
-                    {
-                        Date = v.Date,
-                        Time = v.Time.ToString(),
-                        Notes = v.Notes,
-                        Height = v.Height.ToString(),
-                        Weight = v.Weight.ToString(),
-                        Min = v.Min.ToString(),
-                        Max = v.Max.ToString(),
-                        Value = v.Value.ToString()
-                    }).ToList(),
-                    Patient_AllergyID = allergies.FirstOrDefault()?.AllergyID ?? -1, // Example handling for allergies
-                    Patient_ConditionID = conditions.FirstOrDefault()?.Patient_ConditionID ?? -1 // Example handling for conditions
+                    PatientID = p.PatientID,
+                    //SurgeryID = p.SurgeryID,
+                    MedicationID = p.MedicationID
+                    
+                    
                 }).ToList()
             };
 
             return View(viewModel);
         }
+
 
         public IActionResult RejectPrescription()
         {
@@ -201,6 +262,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
         public async Task<ActionResult> PatientPrescriptions(int id)
         {
+
             return View();
         }
 
