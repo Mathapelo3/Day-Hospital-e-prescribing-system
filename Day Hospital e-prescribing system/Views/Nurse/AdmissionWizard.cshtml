@@ -1,4 +1,5 @@
-﻿
+﻿@using Day_Hospital_e_prescribing_system.ViewModel
+@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.BookedDetailsVM>
 @{
     ViewData["Title"] = "AdmissionWizard";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -8,6 +9,7 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
@@ -96,80 +98,85 @@
     </div>
 </div>
 <body>
+    <br />
+    <br />
         <!-- Search bar -->
-        <form id="filterForm" asp-action="AdmissionWizard" method="get">
-            <div class="form-row">
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by surname" />
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-secondary">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <form method="get" asp-controller="Nurse" asp-action="AdmissionWizard">
+       
+       @*<div class="form-group mr-2">
+            <button type="submit" class="btn btn-purple">Filter</button>
+        </div>
+        <div class="col-md-1 ml-auto">
+                <a href="@Url.Action("AdmissionWizard", "Nurse")" class="btn btn-danger btn-block">Reset</a>
+        </div>*@
+        
+        
+
         <div class="card">
             <div class="card-header">
                 <div class="text-center ">
                 </div>
                     <div class="container-fluid">
                 <div class="row">
-                    <div class="form-group col-6">
-                        <label for="startDate">Search Date:</label>
-                                <input type="date" name="admissionDate" value="@ViewData["CurrentDate"]" class="form-control" />
-                    </div>
-                    @* <div class="form-group col-6">
-                    <label class="form-label">Axtimate Time</label>
-                    <input class="form-control"  type="time" />
-                    </div>*@
+                            <div class="form-group mr-2">
+                                <label for="startDate" class="mr-2">Search Date:</label>
+                                <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
+                            </div>
 
+                    <br />
+                    <br />
+                    <br />
+                        <!-- Display patients -->
 
-
-                    <table class="table table-striped table-bordered" id="myTable">
-                        <thead>
-
-                            <tr>
-                                <th>Name</th>
-                                <th>Date</th>
-                                <th>Time Slot</th>
-                                 <th>Treatment Code</th>
-                                 <th>Theatre</th>
-                                 <th>Surgeon</th>
-                                 <th>Anaesthesiologist</th>
-                                <th></th>
-
-
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                                            @foreach (var item in Model)
-                                            {
+                            <table class="table table-striped table-bordered" id="myTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                      @*  <th>Treatment Code</th>*@
+                                        <th>Theatre</th>
+                                        <th>Anesthesiologist</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model == null || !Model.Any())
+                                    {
                                         <tr>
-                                            <td>@item.Patient</td>
-                                            <td>@item.Date.ToShortDateString()</td>
-                                            <td>@item.Time</td>
-                                            <td>@item.Surgery_TreatmentCode</td>
-                                            <td>@item.Theatre</td>
-                                            <td>@item.Surgeon</td>
-                                            <td>@item.Anaesthesiologist</td>
-                                            <td><a href="@Url.Action("Ward", "Nurse", new { id = item.PatientID })" type="button" class="add btn-primary" id="add-button">Admit</a></td>
+                                            <td colspan="6" class="text-center">No surgeries added yet.</td>
                                         </tr>
-                                            }
-                               @* <td><input type="button" class="add btn-primary" id="add-button" value="Admit"></td>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                                                <td>@(item.Time ?? " ") </td>
+                                                <td>@item.PatientName @item.PatientSurname</td>
+                                                @*<td>@item.ICD_Code_10</td>*@
+                                                <td>@item.TheatreName</td>
+                                                <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
+                                                <td>
+                                                    <a asp-action="AdmitPatient" asp-route-selectedId="@item.SurgeryID" class="btn btn-primary">
+                                                        Admit
+                                                    </a>   
+                                                </td>
+                                                 
+                                                                
+                                            </tr>
+                                        }
 
-
-                            </tr>*@
-
-                        </tbody>
-                    </table>
+                                    }
+                                </tbody>
+                                            </table>
 
                 </div>
-            </div>
-
-          
-    </form>
+           
+            </form>
+         
+  
 
     <script>
         var currentTab = 0; // Current tab is set to be the first tab (0)
@@ -247,4 +254,5 @@
     </script>
 
 </body>
+</div>
 </html>           

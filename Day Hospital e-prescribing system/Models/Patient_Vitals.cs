@@ -9,11 +9,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Patient_VitalsID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Date is required.")]
         [StringLength(50)]
         public DateTime Date { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Time is required.")]
         [StringLength(50)]
         public TimeSpan Time { get; set; }
 

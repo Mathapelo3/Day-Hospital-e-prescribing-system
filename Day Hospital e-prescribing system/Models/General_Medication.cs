@@ -16,6 +16,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [StringLength(100)]
+        [Column("Description")]
         public string Description { get; set; }
 
         [Required]

@@ -1,9 +1,8 @@
 ﻿@model Day_Hospital_e_prescribing_system.ViewModel.VitalsVM
 @{
-    ViewData["Title"] = "RetakeVitals2";
+    ViewData["Title"] = "SaveVitals";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
-
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
@@ -99,12 +98,12 @@
             <h3 class="display-6 text-primary text-center text-bold">VITALS</h3>
         </div>
     </div>
-    <form asp-action="RetakeVitals2" method="post">
-     @*   <input type="hidden" asp-for="SurgeryID" />*@
+    <form asp-action="SaveVitals" method="post">
+      @*  <input type="hidden" asp-for="SurgeryID" />*@
         <div class="card">
             <div class="body">
                 <div class="card-header text-bold">
-                  @*  @Model.Name @Model.Surname*@
+                    @Model.Name @Model.Surname
                 </div>
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -130,14 +129,14 @@
                                         <input type="hidden" asp-for="Vitals[i].VitalsID" />
                                         <input type="text" asp-for="Vitals[i].Value" class="form-control" />
                                         <input type="hidden" asp-for="Vitals[i].Vital" />
-                                       @* <input type="hidden" asp-for="Vitals[i].Min" />
-                                        <input type="hidden" asp-for="Vitals[i].Max" />*@
+                                        @* <input type="hidden" asp-for="Vitals[i].Min" />
+                                    <input type="hidden" asp-for="Vitals[i].Max" />*@
                                         <span asp-validation-for="Vitals[i].Value" class="text-danger"></span>
                                         <small class="form-text text-muted">
                                             Normal Range: @Model.Vitals[i].Min - @Model.Vitals[i].Max
                                         </small>
                                     }
-                                  
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="medicationList">Additional Notes:</label>
@@ -146,7 +145,7 @@
                                 </div>
                                 <div style="overflow:auto;">
                                     <div style="float:right;">
-                                            <input type="submit" value="Save" class="btn btn-primary" />
+                                        <input type="submit" value="Save" class="btn btn-primary" />
                                     </div>
                                 </div>
                             </div>
@@ -159,7 +158,8 @@
 
 
 
-  
+
+
 
 
 

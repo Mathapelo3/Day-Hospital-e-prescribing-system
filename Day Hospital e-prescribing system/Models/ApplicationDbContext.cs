@@ -88,6 +88,9 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Patient_Medication>()
         .HasKey(m => new { m.PatientID, m.General_MedicationID });
 
+            modelBuilder.Entity<Patient_Vitals>()
+       .HasKey(m => new { m.PatientID, m.VitalsID });
+
             // Configuring relationships
             modelBuilder.Entity<Patient>()
                 .HasMany(p => p.Patient_Allergy)

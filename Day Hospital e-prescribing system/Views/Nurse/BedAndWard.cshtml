@@ -1,0 +1,61 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.AdmissionVM
+@{
+    ViewData["Title"] = "BedAndWard";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+<form asp-action="BedAndWard" method="post">
+<div class="form-group col-md-6">
+    <label asp-for="WardId">Select Ward:</label>
+    @Html.DropDownListFor(model => model.WardId, Model.WardList, "Select Ward", new { @class = "form-control", @id = "wardDropdown" })
+    @Html.ValidationMessageFor(model => model.WardId, "", new { @class = "text-danger" })
+</div>
+
+<div class="form-group col-md-6">
+    <label asp-for="BedId">Select Bed:</label>
+    <select id="bedDropdown" asp-for="BedId" class="form-control">
+        <option value="">Select a ward first</option>
+        @if (Model.BedList != null)
+        {
+            foreach (var bed in Model.BedList)
+            {
+                <option value="@bed.Value">@bed.Text</option>
+            }
+        }
+    </select>
+    @Html.ValidationMessageFor(model => model.BedId, "", new { @class = "text-danger" })
+</div>
+</form>
+
+@*@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#WardId').change(function () {
+                var wardId = $(this).val();
+                var $bedDropdown = $('#BedId');
+                $bedDropdown.empty();
+
+                if (wardId) {
+                    $.getJSON('@Url.Action("GetBeds", "Nurse")', { wardId: wardId })
+                        .done(function (beds) {
+                            $bedDropdown.append($('<option></option>').val('').text('Select a bed'));
+                            $.each(beds, function (i, bed) {
+                                $bedDropdown.append($('<option></option>').val(bed.BedId).text(bed.bedName));
+                            });
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            console.error("Error fetching beds:", textStatus, errorThrown);
+                            $bedDropdown.append($('<option></option>').val('').text('Error loading beds'));
+                        });
+                } else {
+                    $bedDropdown.append($('<option></option>').val('').text('Select a ward first'));
+                }
+            });
+
+            // Trigger change event if a ward is already selected (for form retention after validation errors)
+            if ($('#WardId').val()) {
+                $('#WardId').trigger('change');
+            }
+        });
+    </script>
+}*@

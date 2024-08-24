@@ -16,8 +16,8 @@ namespace Day_Hospital_e_prescribing_system.Models
        public DateTime Date { get; set; }
 
         [Required]
-        [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
-        public TimeSpan Time { get; set; }
+        [Display(Name = "Time")]
+        public string Time { get; set; }
 
         [Required]
         public int SurgeonID { get; set; }
@@ -45,7 +45,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         // Navigation property
         [ForeignKey("PatientID")]
-        public virtual Patient Patients { get; set; }
+        public virtual Patient Patient { get; set; }
 
     }
 }

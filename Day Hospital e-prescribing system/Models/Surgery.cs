@@ -35,11 +35,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(200)]
         public string Notes { get; set; }
 
-        [Required]
-        public int Surgery_TreatmentCodeID { get; set; }
-        // Navigation property
-        [ForeignKey("Surgery_TreatmentCodeID")]
-        public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }
+        //[Required]
+        //public int Surgery_TreatmentCodeID { get; set; }
+        //// Navigation property
+        //[ForeignKey("Surgery_TreatmentCodeID")]
+        //public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }
 
         [Required]
         public int TheatreID { get; set; }
@@ -52,8 +52,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("AnaesthesiologistID")]
         public virtual Anaesthesiologist Anaesthesiologists { get; set; }
-
-        
 
         [Required]
         public int SurgeonID { get; set; }

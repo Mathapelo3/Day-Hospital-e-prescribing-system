@@ -1,14 +1,11 @@
 ﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientVM
 @{
-    ViewData["Title"] = "DisplayPatientInfo";
+    ViewData["Title"] = "EditPatient";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
-   
 }
 
-<!DOCTYPE html>
-<html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+<h1>EditPatient</h1>
+
 <style>
     * {
         box-sizing: border-box;
@@ -98,9 +95,9 @@
         <form asp-action="DisplayPatientInfo" asp-controller="Nurse" method="post">
     <div class="card-body">
 
-           @* <input asp-for="@Model.PatientID" hidden />*@
+                @* <input asp-for="@Model.PatientID" hidden />*@
             <div class="row">
-                @*<p class="fw-bold">Personal Details:</p>*@
+                    @*<p class="fw-bold">Personal Details:</p>*@
                     <div class="form-group col-6">
                         <label class="control-label required">First Name:</label>
                         <input asp-for="Name" class="form-control" />
@@ -127,8 +124,8 @@
                         <input asp-for="DateOfBirth" class="form-control" placeholder="" type="date" />
                         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                     </div>
-            
-     
+
+
                     </div>
                     <div class="row">
                         <div class="form-group col-6">
@@ -149,7 +146,7 @@
                             <option value="">Select City</option>
                             @foreach (var city in ViewBag.Cities)
                             {
-                                <option value="@city.Value">@city.Text</option>
+                                    <option value="@city.Value">@city.Text</option>
                             }
                         </select>
                         <span asp-validation-for="CityID" class="text-danger"></span>
@@ -163,7 +160,7 @@
                     </div>
                 </div>
             <div class="row">
-                @*<p class="fw-bold">Personal Details:</p>*@
+                    @*<p class="fw-bold">Personal Details:</p>*@
                     <div class="row">
                         <div class="form-group col-6">
                             <label class="control-label required">Address Line 1:</label>
@@ -190,9 +187,9 @@
                 </div>
 
 
-           
-           
-           @* <div class="d-flex">
+
+
+                    @* <div class="d-flex">
                 <div class="form-group mt-3 ms-auto">
                     <input type="submit" value="Update" class="btn btn-primary" />
                 </div>
@@ -214,34 +211,34 @@
                     <span class="step"></span>
                     <span class="step"></span>
                 </div>
-              
+
         </form>
     </body>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            // Handle city dropdown change event
-            $('#cityDropdown').change(function () {
-                var cityId = $(this).val();
-                if (cityId) {
-                    $.getJSON('/Patient/GetSuburbsByCity', { cityId: cityId }, function (data) {
-                        var suburbDropdown = $('#suburbDropdown');
-                        suburbDropdown.empty();
-                        suburbDropdown.append('<option value="">Select Suburb</option>');
-                        $.each(data, function (index, item) {
-                            suburbDropdown.append($('<option></option>').val(item.SuburbID).html(item.Name));
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // Handle city dropdown change event
+                $('#cityDropdown').change(function () {
+                    var cityId = $(this).val();
+                    if (cityId) {
+                        $.getJSON('/Nurse/GetSuburbsByCity', { cityId: cityId }, function (data) {
+                            var suburbDropdown = $('#suburbDropdown');
+                            suburbDropdown.empty();
+                            suburbDropdown.append('<option value="">Select Suburb</option>');
+                            $.each(data, function (index, item) {
+                                suburbDropdown.append($('<option></option>').val(item.SuburbID).html(item.Name));
+                            });
                         });
-                    });
-                } else {
-                    $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
-                }
+                    } else {
+                        $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
+                    }
+                });
             });
-        });
-    </script>
+        </script>
 }
 
 

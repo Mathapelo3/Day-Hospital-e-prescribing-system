@@ -1,11 +1,8 @@
-﻿@model Day_Hospital_e_prescribing_system.ViewModel.ConditionsVM
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.CamVM
 @{
-    ViewData["Title"] = "AddCodition2";
+    ViewData["Title"] = "PatientConditions";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
-
-
-
 <div class="card">
     <div class="card-header">
         <div class="text-center ">
@@ -13,16 +10,17 @@
         </div>
     </div>
     <body>
+        <br />
+        <br />
+        <form asp-action="PatientConditions" asp-controller="Nurse" method="get">
 
-        <form asp-action="AddCondition2" asp-controller="Nurse" method="get">
-          
 
             <div class="card">
                 <div class="card-header text-bold">
-                   @* @Model.Name @Model.Surname*@
+                    @(Model.Patient?.Name ?? "Not applicable") @(Model.Patient?.Surname ?? "Not applicable")
+                </div>
                 </div>
 
-             
                 <!-- Allergies -->
                 <div class="row">
                     <div class="col-md-4">
@@ -40,7 +38,7 @@
                                                 foreach (var allergy in Model.Allergies)
                                                 {
                                                     <tr>
-                                                        <td>@allergy</td>
+                                                        <td>@allergy.Name</td>
                                                     </tr>
                                                 }
                                             }
@@ -70,7 +68,7 @@
                                                 foreach (var medication in Model.General_Medication)
                                                 {
                                                     <tr>
-                                                        <td>@medication</td>
+                                                        <td>@medication.Name</td>
                                                     </tr>
                                                 }
                                             }
@@ -100,7 +98,7 @@
                                                 foreach (var condition in Model.Conditions)
                                                 {
                                                     <tr>
-                                                        <td>@condition</td>
+                                                        <td>@condition.Name</td>
                                                     </tr>
                                                 }
                                             }
@@ -111,11 +109,15 @@
                                         </tbody>
                                     </table>
                                 </div>
+                           
                             </div>
                         </div>
                     </div>
+               @*<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Condition2", "Nurse", new { id = Model.IDNo })'">
+    ADD
+</button>*@
 
-                </div>
+
             </div>
         </form>
     </body>
