@@ -2,91 +2,73 @@
 @{
     ViewData["Title"] = "Patients";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
-    var patients = ViewBag.Patient as IEnumerable<Patient>;
 }
-
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
 <section class="content">
-
     <div class="card">
         <div class="card-header">
             <br />
             <h4 class="display-6 text-warning text-center text-bold">PATIENT RECORDS</h4>
         </div>
     </div>
-
     <div class="container p-3 text-md-center">
-        <div class="col-md-4">
-            <!-- Search bar -->
-            <div class="input-group">
-                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number" />
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Patients" method="get">
+                    <div class="input-group">
+                        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-8" style="text-align:end">
+                <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
+                    Add Patient
+                </button>
             </div>
         </div>
-        <div style="text-align:end">
-            <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
-                Add Patient
-            </button>
-        </div>
         <br />
-        <form method="get" asp-controller="Surgeon" asp-action="Patients">
-            <table id="patientsTable" class="table table-bordered table-striped">
-                <thead>
+        <table id="patientsTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email Address</th>
+                    <th>ID Number</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var patient in Model)
+                {
                     <tr>
-                        <th>
-                            First Name
-                        </th>
-                        <th>
-                            Last Name
-                        </th>
-                        <th>
-                            Email Address
-                        </th>
-                        <th>
-                            ID Number
-                        </th>
-                        <th>
-                            Gender
-                        </th>
-                        <th>
-                            Status
-                        </th>
-                        <th>
-                            Action
-                        </th>
+                        <td>@patient.Name</td>
+                        <td>@patient.Surname</td>
+                        <td>@patient.Email</td>
+                        <td>@patient.IDNo</td>
+                        <td>@patient.Gender</td>
+                        <td>@patient.Status</td>
+                        <td>
+                            @if (patient != null)
+                            {
+                                <a asp-action="PatientRecord" asp-route-id="@patient.IDNo" class="btn btn-warning">
+                                    Record
+                                </a>
+                                <a asp-action="Prescriptions" asp-route-id="@patient.IDNo" class="btn btn-warning">
+                                    Prescriptions
+                                </a>
+                            }
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var patient in Model)
-                    {
-                        <tr>
-                            <td>@patient.Name</td>
-                            <td>@patient.Surname</td>
-                            <td>@patient.Email</td>
-                            <td>@patient.IDNo</td>
-                            <td>@patient.Gender</td>
-                            <td>@patient.Status</td>
-                            <td>
-                                @if (patient != null)
-                                {
-                                    <a asp-action="PatientRecord" asp-route-id="@patient.IDNo" class="btn btn-warning">
-                                        Record
-                                    </a>
-                                    <a asp-action="Prescriptions" asp-route-id="@patient.IDNo" class="btn btn-warning">
-                                        Prescriptions
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
-        </form>
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
     </div>
 </section>
