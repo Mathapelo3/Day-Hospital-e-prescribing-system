@@ -54,6 +54,8 @@ namespace Day_Hospital_e_prescribing_system.Models
        
         public DbSet<Orders> Orders { get; set; }
 
+        public DbSet<Province> Provinces { get; set; }
+
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

@@ -22,7 +22,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string NextOfKinNo { get; set; }
         public string Status { get; set; }
         public int? TreatmentCodeID { get; set; }
-        public int? SuburbID { get; set; }
+        public int SuburbID { get; set; }
         public int? BedId { get; set; }
 
         public string SuburbName { get; set; }
@@ -32,8 +32,13 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public int CityID { get; set; }
         public string CityName { get; set; }
 
+        public int ProvinceID { get; set; }
         public string ProvinceName { get; set; }
 
         public List<SelectListItem> Suburbs { get; set; } = new List<SelectListItem>();
+
+        public IEnumerable<SelectListItem> CityList { get; set; }
+        public IEnumerable<SelectListItem> SuburbList { get; set; }
+        public IEnumerable<SelectListItem> ProvinceList { get; set; }
     }
 }

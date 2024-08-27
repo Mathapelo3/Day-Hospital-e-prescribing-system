@@ -434,10 +434,360 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
-        public IActionResult Discharge()
+ 
+        public async Task<ActionResult> Discharge(int id)
+        {
+            try
+            {
+                var patient = await GetPatientByIdAsync(id);
+                if (patient == null)
+                {
+                    return NotFound();
+                }
+
+                var patientVM = new PatientVM
+                {
+                    PatientID = patient.PatientID,
+                    Name = patient.Name,
+                    Surname = patient.Surname,
+                    Gender = patient.Gender,
+                    DateOfBirth = patient.DateOfBirth,
+                    IDNo = patient.IDNo,
+                    Email = patient.Email,
+                    SuburbID = patient.SuburbID,
+                    AddressLine1 = patient.AddressLine1,
+                    AddressLine2 = patient.AddressLine2,
+                    ContactNo = patient.ContactNo,
+                    NextOfKinNo = patient.NextOfKinNo,
+                    // Map other properties as needed
+                };
+
+                await PopulateDropdowns(patient.SuburbID);
+                await PopulateDropdowns(patientVM.CityID);
+                await PopulateDropdowns(patientVM.ProvinceID);
+                return View(patientVM);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Debug.WriteLine($"Error in Discharge GET: {ex.Message}");
+                return View("Error");
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Discharge(int id, PatientVM patientVM)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            return View();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                   
+                    if (id != patientVM.PatientID)
+                    {
+                        return NotFound();
+                    }
+
+                    var patient = new Patient
+                    {
+                       
+                        Name = patientVM.Name,
+                        Surname = patientVM.Surname,
+                        Gender = patientVM.Gender,
+                        DateOfBirth = patientVM.DateOfBirth,
+                        IDNo = patientVM.IDNo,
+                        Email = patientVM.Email,
+                        SuburbID = patientVM.SuburbID,
+                        AddressLine1 = patientVM.AddressLine1,
+                        AddressLine2 = patientVM.AddressLine2,
+                        ContactNo = patientVM.ContactNo,
+                        NextOfKinNo = patientVM.NextOfKinNo,
+                        
+                    };
+
+                    await UpdatePatientAsync(patient);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Patient info updated successfully with id: {Id}", id);
+                    return RedirectToAction(nameof(Discharge), new { id = patient.PatientID });
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                    _logger.LogError(ex, "Concurrency error occurred while updating order with id: {Id}", id);
+                    throw;
+                }
+            }
+             else
+            {
+                // Log validation errors
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    _logger.LogWarning("Validation error: {ErrorMessage}", error.ErrorMessage);
+                }
+                _logger.LogWarning("ModelState is invalid.");
+            }
+
+            await PopulateDropdowns(patientVM.SuburbID);
+            await PopulateDropdowns(patientVM.CityID);
+            await PopulateDropdowns(patientVM.ProvinceID);
+            return View(patientVM);
+        }
+        private async Task<Patient> GetPatientByIdAsync(int id)
+        {
+            const string query = @"
+            SELECT p.PatientID, p.Name, p.Surname, p.DateOfBirth, p.IDNo, p.Gender, 
+                   p.AddressLine1, p.AddressLine2, p.Email, p.ContactNo, p.NextOfKinNo, 
+                   p.SuburbID, s.CityID, s.PostalCode, c.ProvinceID
+            FROM Patient p
+            INNER JOIN Suburb s ON p.SuburbID = s.SuburbID
+            INNER JOIN City c ON s.CityID = c.CityID
+            WHERE p.PatientID = @PatientID";
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@PatientID", id);
+                await connection.OpenAsync();
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new Patient
+                        {
+                            PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Surname = reader.GetString(reader.GetOrdinal("Surname")),
+                            DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth")),
+                            IDNo = reader.GetString(reader.GetOrdinal("IDNo")),
+                            Gender = reader.GetString(reader.GetOrdinal("Gender")),
+                            AddressLine1 = reader.GetString(reader.GetOrdinal("AddressLine1")),
+                            AddressLine2 = reader.IsDBNull(reader.GetOrdinal("AddressLine2")) ? null : reader.GetString(reader.GetOrdinal("AddressLine2")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            ContactNo = reader.GetString(reader.GetOrdinal("ContactNo")),
+                            NextOfKinNo = reader.GetString(reader.GetOrdinal("NextOfKinNo")),
+                            SuburbID = reader.GetInt32(reader.GetOrdinal("SuburbID")),
+                            Suburbs = new Suburb
+                            {
+                                SuburbID = reader.GetInt32(reader.GetOrdinal("SuburbID")),
+                                CityID = reader.GetInt32(reader.GetOrdinal("CityID")),
+                                PostalCode = reader.GetString(reader.GetOrdinal("PostalCode")),
+                                City = new City
+                                {
+                                    CityID = reader.GetInt32(reader.GetOrdinal("CityID")),
+                                    ProvinceID = reader.GetInt32(reader.GetOrdinal("ProvinceID")),
+                                    Province = new Province
+                                    {
+                                        ProvinceID = reader.GetInt32(reader.GetOrdinal("ProvinceID"))
+                                    }
+                                }
+                            }
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        private async Task UpdatePatientAsync(Patient patient)
+        {
+            const string updateQuery = @"
+            UPDATE Patient 
+            SET Name = @Name, Surname = @Surname, DateOfBirth = @DateOfBirth, 
+                IDNo = @IDNo, Gender = @Gender, AddressLine1 = @AddressLine1, 
+                AddressLine2 = @AddressLine2, Email = @Email, ContactNo = @ContactNo, 
+                NextOfKinNo = @NextOfKinNo, SuburbID = @SuburbID
+            WHERE PatientID = @PatientID";
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(updateQuery, connection))
+            {
+                command.Parameters.AddWithValue("@Name", patient.Name);
+                command.Parameters.AddWithValue("@Surname", patient.Surname);
+                command.Parameters.AddWithValue("@DateOfBirth", patient.DateOfBirth);
+                command.Parameters.AddWithValue("@IDNo", patient.IDNo);
+                command.Parameters.AddWithValue("@Gender", patient.Gender);
+                command.Parameters.AddWithValue("@AddressLine1", patient.AddressLine1);
+                command.Parameters.AddWithValue("@AddressLine2", (object)patient.AddressLine2 ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Email", patient.Email);
+                command.Parameters.AddWithValue("@ContactNo", patient.ContactNo);
+                command.Parameters.AddWithValue("@NextOfKinNo", patient.NextOfKinNo);
+                command.Parameters.AddWithValue("@SuburbID", patient.SuburbID);
+                command.Parameters.AddWithValue("@PatientID", patient.PatientID);
+
+                await connection.OpenAsync();
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        private async Task PopulateDropdowns(int suburbId)
+        {
+            try
+            {
+                // Get the suburb details including city and province
+                const string query = @"
+            SELECT s.SuburbID, s.CityID, c.ProvinceID
+            FROM Suburb s
+            INNER JOIN City c ON s.CityID = c.CityID
+            WHERE s.SuburbID = @SuburbID";
+
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@SuburbID", suburbId);
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                int cityId = reader.GetInt32(reader.GetOrdinal("CityID"));
+                                int provinceId = reader.GetInt32(reader.GetOrdinal("ProvinceID"));
+
+                                // Populate dropdowns
+                                ViewBag.Provinces = await GetProvincesAsync();
+                                ViewBag.Cities = await GetCitiesByProvinceAsync(provinceId);
+                                ViewBag.Suburbs = await GetSuburbsByCityAsync(cityId);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Debug.WriteLine($"Error in PopulateDropdowns: {ex.Message}");
+                // You might want to throw the exception here or handle it appropriately
+            }
+        }
+
+        private async Task<List<SelectListItem>> GetProvincesAsync()
+        {
+            const string query = "SELECT ProvinceID, Name FROM Province";
+            var provinces = new List<SelectListItem>();
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(query, connection))
+            {
+                await connection.OpenAsync();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        provinces.Add(new SelectListItem
+                        {
+                            Value = reader.GetInt32(reader.GetOrdinal("ProvinceID")).ToString(),
+                            Text = reader.GetString(reader.GetOrdinal("Name"))
+                        });
+                    }
+                }
+            }
+
+            return provinces;
+        }
+
+        private async Task<List<SelectListItem>> GetCitiesByProvinceAsync(int provinceId)
+        {
+            const string query = "SELECT CityID, Name FROM City WHERE ProvinceID = @ProvinceID";
+            var cities = new List<SelectListItem>();
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@ProvinceID", provinceId);
+                await connection.OpenAsync();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        cities.Add(new SelectListItem
+                        {
+                            Value = reader.GetInt32(reader.GetOrdinal("CityID")).ToString(),
+                            Text = reader.GetString(reader.GetOrdinal("Name"))
+                        });
+                    }
+                }
+            }
+
+            return cities;
+        }
+
+        private async Task<List<SelectListItem>> GetSuburbsByCityAsync(int cityId)
+        {
+            const string query = "SELECT SuburbID, Name, PostalCode FROM Suburb WHERE CityID = @CityID";
+            var suburbs = new List<SelectListItem>();
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@CityID", cityId);
+                await connection.OpenAsync();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        suburbs.Add(new SelectListItem
+                        {
+                            Value = reader.GetInt32(reader.GetOrdinal("SuburbID")).ToString(),
+                            Text = $"{reader.GetString(reader.GetOrdinal("Name"))} ({reader.GetString(reader.GetOrdinal("PostalCode"))})"
+                        });
+                    }
+                }
+            }
+
+            return suburbs;
+        }
+
+        private async Task<int> GetProvinceIdBySuburbAsync(int suburbId)
+        {
+            const string query = @"
+            SELECT c.ProvinceID
+            FROM Suburb s
+            INNER JOIN City c ON s.CityID = c.CityID
+            WHERE s.SuburbID = @SuburbID";
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@SuburbID", suburbId);
+                await connection.OpenAsync();
+                var result = await command.ExecuteScalarAsync();
+                return (int)result;
+            }
+        }
+
+        private async Task<int> GetCityIdBySuburbAsync(int suburbId)
+        {
+            const string query = "SELECT CityID FROM Suburb WHERE SuburbID = @SuburbID";
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@SuburbID", suburbId);
+                await connection.OpenAsync();
+                var result = await command.ExecuteScalarAsync();
+                return (int)result;
+            }
+        }
+
+        // GET: Nurse/GetCitiesByProvince/5
+        [HttpGet]
+        public async Task<JsonResult> GetCitiesByProvince(int provinceId)
+        {
+            var cities = await GetCitiesByProvinceAsync(provinceId);
+            return Json(cities);
+        }
+
+        // GET: Nurse/GetSuburbsByCity/5
+        [HttpGet]
+        public async Task<JsonResult> GetSuburbsByCity(int cityId)
+        {
+            var suburbs = await GetSuburbsByCityAsync(cityId);
+            return Json(suburbs);
         }
 
         [HttpGet]
@@ -1046,7 +1396,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             Date = model.Date,
                             Time = model.Time,
-                            PatientID = selectedSurgery.PatientID,
+                            //PatientID = selectedSurgery.PatientID,
 
                         };
 
@@ -1412,7 +1762,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Email = patient.Email,
                 ContactNo = patient.ContactNo,
                 NextOfKinNo = patient.NextOfKinNo,
-                SuburbID = patient.SuburbID ?? 0,
+                SuburbID = patient.SuburbID,
                 CityID = patient.Suburbs?.City?.CityID ?? 0
             };
 
@@ -1491,15 +1841,92 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return _context.Patients.Any(e => e.PatientID == id);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetSuburbsByCity(int cityId)
-        {
-            var suburbs = await _context.Suburbs
-                .Where(s => s.CityID == cityId)
-                .Select(s => new { value = s.SuburbID, text = s.Name })
-                .ToListAsync();
+        //[HttpGet]
+        //public async Task<IActionResult> GetSuburbsByCity(int cityId)
+        //{
+        //    var suburbs = await _context.Suburbs
+        //        .Where(s => s.CityID == cityId)
+        //        .Select(s => new { value = s.SuburbID, text = s.Name })
+        //        .ToListAsync();
 
-            return Json(suburbs);
+        //    return Json(suburbs);
+        //}
+        [HttpGet]
+        public IActionResult UpdatePatientProfile(int id)
+        {
+            //var UserID = _userService.GetLoggedInUserId();
+
+            var pateint = _context.Patients.Where(p => p.PatientID == id).FirstOrDefault();
+
+            var citySelectList = new SelectList(_context.Cities, "CityID", "Name");
+            ViewBag.City = citySelectList;
+
+            var provSelectList = new SelectList(_context.Provinces, "Province", "Name");
+            ViewBag.Province = provSelectList;
+
+            var updatePatient = new PatientVM
+            {
+                PatientID = pateint.PatientID,
+                Name = pateint.Name,
+                Gender = pateint.Gender,
+                Surname = pateint.Surname,
+                Email = pateint.Email,
+                ContactNo = pateint.ContactNo,
+                IDNo = pateint.IDNo,
+                DateOfBirth = pateint.DateOfBirth,
+                NextOfKinNo= pateint.NextOfKinNo,
+                AddressLine1 = pateint.AddressLine1,
+                AddressLine2 = pateint.AddressLine2,
+
+            };
+            ViewBag.Suburb = new SelectList(_context.Suburbs.Select(w => new
+            {
+                SuburbID = w.SuburbID.ToString(),  // Convert to string
+                w.Name
+            }).ToList(), "SuburbID", "Name");
+            ViewBag.City = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
+            ViewBag.Province = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
+
+            PopulateDropdowns(pateint.SuburbID);
+            PopulateDropdowns(pateint.Suburbs.CityID);
+            PopulateDropdowns(pateint.Suburbs.City.ProvinceID);
+
+            return View(updatePatient);
+        }
+
+        public async Task<IActionResult> SubmitPatientProfile(PatientVM model, int[] selectedCityID, int[] selectedSuburbID, int[] selectedProvinceID)
+        {
+            if (ModelState.IsValid)
+            {
+                var pateint = _context.Patients.Where(p => p.PatientID == model.PatientID).FirstOrDefault();
+
+                if (pateint == null)
+                {
+                    return NotFound();
+                }
+
+
+                pateint.Name = model.Name;
+                pateint.Surname = model.Surname;
+                pateint.Gender = model.Gender;
+                pateint.Email = model.Email;
+                pateint.ContactNo = model.ContactNo;
+                pateint.IDNo = model.IDNo;
+                pateint.AddressLine1 = model.AddressLine1;
+                pateint.AddressLine2 = model.AddressLine2;
+                pateint.DateOfBirth = model.DateOfBirth;
+                pateint.NextOfKinNo = model.NextOfKinNo;
+                //pateint.SuburbID = model.SuburbID;
+                //pateint.Suburbs.CityID = model.CityID;
+                //pateint.Suburbs.City.ProvinceID = model.ProvinceID;
+
+
+
+                _context.Patients.Update(pateint);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("PatientProfile", "Profile");
+            }
+            return View(model);
         }
     }
 

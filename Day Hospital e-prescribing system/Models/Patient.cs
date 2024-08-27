@@ -67,7 +67,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual TreatmentCode TreatmentCodes { get; set; }
 
         [Required]
-        public int? SuburbID { get; set; }
+        public int SuburbID { get; set; }
         // Navigation property
         [ForeignKey("SuburbID")]
         public virtual Suburb Suburbs { get; set; }

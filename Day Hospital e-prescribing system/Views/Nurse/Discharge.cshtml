@@ -1,13 +1,10 @@
 ﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientVM
 @{
+    var editModel = (PatientVM)ViewBag.PatientVM;
     ViewData["Title"] = "Discharge";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
 
-<!DOCTYPE html>
-<html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
 <style>
     * {
         box-sizing: border-box;
@@ -94,7 +91,10 @@
         </div>
     </div>
     <body>
-
+        <form asp-action="Discharge" asp-controller="Nurse">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="@Model.PatientID" />
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="row">
                 @*<p class="fw-bold">Personal Details:</p>*@
                 <div class="form-group col-6">
@@ -120,7 +120,7 @@
                 </div>
                 <div class="form-group col-6">
                     <label class="control-label required">Date Of Birth:</label>
-                    <input asp-for="DateOfBirth" class="form-control" placeholder="" type="date" />
+                    <input asp-for="DateOfBirth" class="form-control" id="idNumber" pattern="[0-9]*"  placeholder="" type="date" />
                     <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                 </div>
 
@@ -158,6 +158,17 @@
                     <span asp-validation-for="SuburbID" class="text-danger"></span>
                 </div>
             </div>
+            <div class="form-group col-6">
+                <label class="control-label required">Province:</label>
+                <select asp-for="ProvinceID" class="form-control" id="provinceDropdown">
+                    <option value="">Select Province</option>
+                    @foreach (var province in ViewBag.Provinces)
+                    {
+                        <option value="@province.Value">@province.Text</option>
+                    }
+                </select>
+                <span asp-validation-for="ProvinceID" class="text-danger"></span>
+            </div>
             <div class="row">
                 @*<p class="fw-bold">Personal Details:</p>*@
                 <div class="row">
@@ -184,30 +195,56 @@
                         <span asp-validation-for="NextOfKinNo" class="text-danger"></span>
                     </div>
                 </div>
+                </div>
+                </form>
                 </body>
                 </div>
-                </html>
 
 @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+                    }
+              
+
+@section Scripts {}
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/3.5.1/jquery.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            // Handle city dropdown change event
-            $('#cityDropdown').change(function () {
-                var cityId = $(this).val();
-                if (cityId) {
-                    $.getJSON('/Nurse/GetSuburbsByCity', { cityId: cityId }, function (data) {
-                        var suburbDropdown = $('#suburbDropdown');
-                        suburbDropdown.empty();
-                        suburbDropdown.append('<option value="">Select Suburb</option>');
-                        $.each(data, function (index, item) {
-                            suburbDropdown.append($('<option></option>').val(item.SuburbID).html(item.Name));
-                        });
+    $(document).ready(function () {
+        // Handle province dropdown change event
+        $('#provinceDropdown').change(function () {
+            var provinceId = $(this).val();
+            if (provinceId) {
+                $.getJSON('/Nurse/GetCitiesByProvince', { provinceId: provinceId }, function (data) {
+                    var cityDropdown = $('#cityDropdown');
+                    cityDropdown.empty();
+                    cityDropdown.append('<option value="">Select City</option>');
+                    $.each(data, function (index, item) {
+                        cityDropdown.append($('<option></option>').val(item.Value).text(item.Text));
                     });
-                } else {
-                    $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
-                }
-            });
+                });
+            } else {
+                $('#cityDropdown').empty().append('<option value="">Select City</option>');
+                $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
+            }
         });
-    </script>
+        
+        // Handle city dropdown change event
+        $('#cityDropdown').change(function () {
+            var cityId = $(this).val();
+            if (cityId) {
+                $.getJSON('/Nurse/GetSuburbsByCity', { cityId: cityId }, function (data) {
+                    var suburbDropdown = $('#suburbDropdown');
+                    suburbDropdown.empty();
+                    suburbDropdown.append('<option value="">Select Suburb</option>');
+                    $.each(data, function (index, item) {
+                        suburbDropdown.append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                });
+            } else {
+                $('#suburbDropdown').empty().append('<option value="">Select Suburb</option>');
+            }
+        });
+    });
 }
+
