@@ -20,7 +20,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         //public string SelectedMedicationsJson { get; set; } = "[]";
         [Required(ErrorMessage = "Medications are required.")]
 
-        public List<MedicationViewModel> SelectedMedications { get; set; } = new List<MedicationViewModel>();
+        public List<SPMedicationViewModel> SelectedMedications { get; set; }
     }
 }
     
