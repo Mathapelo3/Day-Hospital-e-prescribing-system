@@ -1,4 +1,4 @@
-﻿@model List<Day_Hospital_e_prescribing_system.Models.HospitalRecordViewModel>
+﻿@model List<Day_Hospital_e_prescribing_system.ViewModel.HospitalRecordViewModel>
 
 @{
     ViewData["Title"] = "Hospital Record";
@@ -60,8 +60,8 @@
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-10">
-        <div class="card-body">
-            
+                <div class="card-body">
+
                     <table class="table">
                         <thead>
                             <tr>
@@ -90,6 +90,10 @@
                                 <td>@Model.FirstOrDefault()?.CityName</td>
                             </tr>
                             <tr>
+                                <th>Province:</th>
+                                <td>@Model.FirstOrDefault()?.ProvinceName</td>
+                            </tr>
+                            <tr>
                                 <th>Postal Code:</th>
                                 <td>@Model.FirstOrDefault()?.PostalCode</td>
                             </tr>
@@ -106,16 +110,16 @@
                                 <td>@Model.FirstOrDefault()?.PM</td>
                             </tr>
                             <tr>
-                                <th>PM Email:</th>
+                                <th>Purchase Manager Email:</th>
                                 <td>@Model.FirstOrDefault()?.PMEmail</td>
                             </tr>
-                            
+
                             <!-- Add more rows for other headings -->
                         </tbody>
                     </table>
                 </div>
-            <br />
-            <div class="text-center">
+                <br />
+                <div class="text-center">
 
                     <button type="button" class="btn btn-dark-green" onclick="location.href='@Url.Action("EditHospitalRecord", "Admin", new { id = Model.FirstOrDefault()?.HospitalRecordID })'">
                         <i class="fas fa-edit"></i>
@@ -123,12 +127,12 @@
 
 
 
-            </div>
-                
-            </div>
+                </div>
+
             </div>
         </div>
-        
+    </div>
+
 </section>
 
 

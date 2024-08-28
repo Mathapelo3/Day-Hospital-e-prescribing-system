@@ -1,4 +1,4 @@
-﻿@model List<Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel>
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PPrescriptionViewModel>
 @{
     ViewData["Title"] = "Prescriptions";
     Layout = "~/Views/Shared/Anaesthesiologist.cshtml";
@@ -50,14 +50,18 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-md-5">
-                                <h3 class="card-title">@Model.FirstOrDefault()?.Name @Model.FirstOrDefault()?.Surname</h3>
+                                @if (Model.Any())
+                                {
+                                    var patient = Model.First();
+                                    <h3 class="card-title">@patient.PatientFullName</h3> <!-- Display patient name -->
+                                }
                             </div>
                             <div class="col-md-2 text-right">
                                 <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Medical History</a>
                             </div>
-                            <div class="col-md-2 text-right">
-                                <a href="@Url.Action("Orders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Orders</a>
-                            </div>
+                            @*<div class="col-md-2 text-right">
+                            <a href="@Url.Action("Orders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Orders</a>
+                            </div>*@
                             <div class="col-md-2 text-right">
                                 <a href="@Url.Action("CaptureOrders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Order Form</a>
                             </div>
@@ -71,23 +75,30 @@
                                         <th>Date</th>
                                         <th>Medication</th>
                                         <th>Instruction</th>
+
                                         <th>Quantity</th>
                                         <th>Status</th>
+
                                         <th>Urgency</th>
                                         <th>Surgeon</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var prescription in Model)
+                                    @foreach (var item in Model)
                                     {
                                         <tr>
-                                            <td>@prescription.Date.ToString("dd MMM yyyy")</td>
-                                            <td>@prescription.Medication</td>
-                                            <td>@prescription.Instruction</td>
-                                            <td>@prescription.Quantity</td>
-                                            <td>@prescription.Status</td>
-                                            <td>@(prescription.Urgency ? "Yes" : "No")</td>
-                                            <td>@prescription.Surgeon</td> <!-- Assuming you have a property for surgeon in the ViewModel -->
+
+
+                                            <td>@item.Date.ToShortDateString()</td>
+                                            <td>@item.MedicationName</td>
+                                            <td>@item.Instruction</td>
+
+                                            <td>@item.Quantity</td>
+                                            <td>@item.Status</td>
+                                            <td>@(item.Urgency ? "Urgent" : "Non-Urgent")</td>
+
+                                            <td>@item.SurgeonFullName</td>
+
                                         </tr>
                                     }
                                 </tbody>

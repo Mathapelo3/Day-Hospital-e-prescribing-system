@@ -64,7 +64,7 @@
                             <input type="text" class="form-control" value="@Model.Surname" readonly />
                             <input type="hidden" name="Surname" value="@Model.Surname" />
                         </div>
-                      
+
                         <div class="form-group">
                             <label>Date:</label>
                             <input type="date" class="form-control" asp-for="Date" />
@@ -128,11 +128,11 @@
 
             if (quantity) {
                 var newItem = `<li>
-                                    <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].MedicationID" value="${medicationID}" />
-                                    <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Name" value="${medicationName}" />
-                                    <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Quantity" value="${quantity}" />
-                                    ${medicationName} - ${quantity}
-                                </li>`;
+                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].MedicationID" value="${medicationID}" />
+                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Name" value="${medicationName}" />
+                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Quantity" value="${quantity}" />
+                                        ${medicationName} - ${quantity}
+                                    </li>`;
                 $('#medicationList').append(newItem);
             }
         });

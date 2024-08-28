@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Day_Hospital_e_prescribing_system.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
@@ -56,6 +57,12 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Province> Provinces { get; set; }
 
+        public DbSet<PatientMHViewModel> PatientMHViewModel { get; set; }
+        public DbSet<OrderViewModel> OrderViewModel { get; set; }
+        public DbSet<APatientViewModel> APatientViewModel { get; set; }
+        public DbSet<PAllergyViewModel> PAllergyViewModels { get; set; }
+        public DbSet<PConditionViewModel> PConditionViewModels { get; set; }
+        public DbSet<PMedicationViewModel> PMedicationViewModels { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -109,7 +116,14 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany(p => p.Patient_Allergy)
                 .HasForeignKey(pa => pa.AllergyID);
 
-
+            modelBuilder.Entity<PMedicationViewModel>().HasNoKey();
+            modelBuilder.Entity<PConditionViewModel>().HasNoKey();
+            modelBuilder.Entity<PAllergyViewModel>().HasNoKey();
+            //base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<PatientMHViewModel>().HasNoKey();
+            modelBuilder.Entity<OrderViewModel>().HasNoKey();
+            modelBuilder.Entity<APatientViewModel>().HasNoKey();
+            modelBuilder.Entity<Patient>().ToTable("Patient");
             //base.OnModelCreating(modelBuilder);
 
         }
