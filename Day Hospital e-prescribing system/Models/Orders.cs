@@ -9,33 +9,33 @@ namespace Day_Hospital_e_prescribing_system.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderID { get; set; }
 
-       
+
 
         [Required]
         public DateTime Date { get; set; }
 
         [Required]
-        
-        public string Quantity { get; set; }
+
+        public string? Quantity { get; set; }
 
         [Required]
         [StringLength(50)]
         public string Status { get; set; }
 
         [Required]
-        
+
         public bool Urgency { get; set; }
 
-        
-        
-        public bool Administered { get; set; }
 
-       
-       
+
+        public bool? Administered { get; set; }
+
+
+
         public string? QAdministered { get; set; }
 
-        
-       
+
+
         public string? Notes { get; set; }
 
 
