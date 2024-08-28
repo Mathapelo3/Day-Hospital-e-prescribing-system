@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Day_Hospital_e_prescribing_system.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,14 +32,16 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         // City properties
         public int CityID { get; set; }
         public string CityName { get; set; }
+        public IEnumerable<City> Cities { get; set; }
 
         public int ProvinceID { get; set; }
         public string ProvinceName { get; set; }
+        public IEnumerable<Province> Province { get; set; }
 
         public List<SelectListItem> Suburbs { get; set; } = new List<SelectListItem>();
 
-        public IEnumerable<SelectListItem> CityList { get; set; }
+        //public IEnumerable<City> Cities { get; set; }
         public IEnumerable<SelectListItem> SuburbList { get; set; }
-        public IEnumerable<SelectListItem> ProvinceList { get; set; }
+       
     }
 }

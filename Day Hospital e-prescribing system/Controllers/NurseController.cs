@@ -1718,17 +1718,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         //    return Json(suburbs);
         //}
         [HttpGet]
-        public IActionResult UpdatePatientProfile(int id)
+        public async Task<IActionResult> UpdatePatientProfile(int id)
         {
             //var UserID = _userService.GetLoggedInUserId();
 
-            var pateint = _context.Patients.Where(p => p.PatientID == id).FirstOrDefault();
-
-            var citySelectList = new SelectList(_context.Cities, "CityID", "Name");
-            ViewBag.City = citySelectList;
-
-            var provSelectList = new SelectList(_context.Provinces, "Province", "Name");
-            ViewBag.Province = provSelectList;
+            var pateint = await _context.Patients
+        .Include(p => p.Suburbs)
+        .ThenInclude(s => s.City)
+        .ThenInclude(c => c.Province)
+        .FirstOrDefaultAsync(p => p.PatientID == id);
 
             var updatePatient = new PatientVM
             {
@@ -1745,26 +1743,23 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 AddressLine2 = pateint.AddressLine2,
 
             };
-            ViewBag.Suburb = new SelectList(_context.Suburbs.Select(w => new
-            {
-                SuburbID = w.SuburbID.ToString(),  // Convert to string
-                w.Name
-            }).ToList(), "SuburbID", "Name");
-            ViewBag.City = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
-            ViewBag.Province = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
+            ViewBag.Provinces = await GetProvincesAsync();
+            ViewBag.Cities = await GetCitiesByProvinceAsync(pateint.Suburbs.City.ProvinceID);
+            ViewBag.Suburbs = await GetSuburbsByCityAsync(pateint.Suburbs.CityID);
 
-            PopulateDropdowns(pateint.SuburbID);
-            PopulateDropdowns(pateint.Suburbs.CityID);
-            PopulateDropdowns(pateint.Suburbs.City.ProvinceID);
+            
 
             return View(updatePatient);
         }
 
-        public async Task<IActionResult> SubmitPatientProfile(PatientVM model, int[] selectedCityID, int[] selectedSuburbID, int[] selectedProvinceID)
+        public async Task<IActionResult> SubmitPatientProfile(PatientVM model, int provinceId)
         {
             if (ModelState.IsValid)
             {
-                var pateint = _context.Patients.Where(p => p.PatientID == model.PatientID).FirstOrDefault();
+                var pateint = await _context.Patients
+           .Include(p => p.Suburbs)
+           .ThenInclude(s => s.City)
+           .FirstOrDefaultAsync(p => p.PatientID == model.PatientID);
 
                 if (pateint == null)
                 {
@@ -1782,15 +1777,153 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 pateint.AddressLine2 = model.AddressLine2;
                 pateint.DateOfBirth = model.DateOfBirth;
                 pateint.NextOfKinNo = model.NextOfKinNo;
-                //pateint.SuburbID = model.SuburbID;
+                pateint.SuburbID = model.SuburbID;
                 //pateint.Suburbs.CityID = model.CityID;
                 //pateint.Suburbs.City.ProvinceID = model.ProvinceID;
 
-
+                // Update related entities if necessary
+                if (pateint.Suburbs != null)
+                {
+                    pateint.Suburbs.CityID = model.CityID;
+                    if (pateint.Suburbs.City != null)
+                    {
+                        pateint.Suburbs.City.ProvinceID = model.ProvinceID;
+                    }
+                }
 
                 _context.Patients.Update(pateint);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("PatientProfile", "Profile");
+            }
+
+            // If we got this far, something failed, redisplay form
+            ViewBag.Provinces = await GetProvincesAsync();
+            ViewBag.Cities = await GetCitiesByProvinceAsync(model.ProvinceID);
+            ViewBag.Suburbs = await GetSuburbsByCityAsync(model.CityID);
+
+            return View(model);
+        }
+        
+        public IActionResult EditSuburb([FromRoute] int id, PatientVM model)
+        {
+            var Suburb = _context.Suburbs.Where(s => s.SuburbID == model.SuburbID).Include(s => s.City).FirstOrDefault();
+
+            var city = _context.Cities.Where(c => c.CityID == model.CityID).ToList();
+
+            ViewBag.Cities = city;
+
+            var updateSuburb = new PatientVM
+            {
+                SuburbID = Suburb.SuburbID,
+                CityID = Suburb.CityID,
+                PostalCode = Suburb.PostalCode,
+                Name = Suburb.Name,
+            };
+
+            return View(updateSuburb);
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateSuburb(PatientVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                var Suburb = _context.Suburbs.Where(s => s.SuburbID == model.SuburbID).FirstOrDefault();
+                if (Suburb == null)
+                {
+                    return NotFound();
+                }
+
+                Suburb.Name = model.Name;
+                Suburb.CityID = model.CityID;
+                Suburb.PostalCode = model.PostalCode;
+
+                _context.Suburbs.Update(Suburb);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Suburbs", "Suburb");
+            }
+            return View(model);
+        }
+
+
+        //public IActionResult Cities()
+        //{
+        //    var city = _context.Cities.Where(c => c.CityID == CityID).ToList();
+
+        //    return View(city);
+        //}
+
+        //public IActionResult AddCity()
+        //{
+        //    return View();
+        //}
+
+        //[HttpPost]
+        //public async Task<IActionResult> SubmitCity(AddCityVM model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        bool cityCheck = CheckCityExist(model.Name);
+        //        if (cityCheck)
+        //        {
+
+        //            var city = new City
+        //            {
+
+        //                Name = model.Name,
+        //                Short = model.Short
+
+        //            };
+        //            _context.City.Add(city);
+        //            await _context.SaveChangesAsync();
+
+        //            return RedirectToAction("Cities", "Suburb");
+        //        }
+        //        else
+        //        {
+
+        //        }
+        //    }
+
+        //    return View(model);
+        //}
+
+        public IActionResult EditCity([FromRoute] int id)
+        {
+            var city = _context.Cities.Where(c => c.CityID == id).FirstOrDefault();
+            if (city == null)
+            {
+                return NotFound();
+            }
+
+            var updateCity = new PatientVM
+            {
+                CityID = city.CityID,
+                Name = city.Name,
+               
+            };
+
+            return View(updateCity);
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateCity(PatientVM model)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var city = _context.Cities.Where(c => c.CityID == model.CityID).FirstOrDefault();
+
+
+                if (city == null)
+                {
+                    return NotFound();
+                }
+
+                city.Name = model.Name;
+                //city.Short = model.Short;
+
+                _context.Cities.Update(city);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Cities", "Suburb");
             }
             return View(model);
         }

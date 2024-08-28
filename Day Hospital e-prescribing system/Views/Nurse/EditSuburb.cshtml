@@ -1,0 +1,47 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientVM
+@{
+    ViewData["Title"] = "EditSuburb";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+
+    var CitySelect = ViewBag.Cities as IEnumerable<City>;
+}
+
+<div class="col-12 card-body">
+    <form asp-action="UpdateSuburb" asp-controller="Nurse">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input value="@Model.SuburbID" asp-for="@Model.SuburbID" hidden />
+        <div class="form-group">
+            <label for="Name">Suburb Name</label>
+            <input type="text" class="form-control" id="Name" name="Name" required asp-for="Name">
+            <span class="text-danger" asp-validation-for="Name"></span>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-4">
+                <label for="PostalCode">Postal Code</label>
+                <input inputmode="numeric" pattern="[0-9]{4}" maxlength="4" class="form-control" id="PostalCode" name="PostalCode" required asp-for="PostalCode">
+                <span class="text-danger" asp-validation-for="PostalCode"></span>
+            </div>
+            <div class="form-group col-8">
+                <label for="CityID">City</label>
+                <select class="form-select" id="CityID" name="CityID" asp-for="CityID">
+                    <option selected value="">Select city</option>
+                    @foreach (var city in CitySelect)
+                    {
+                        <option value="@city.CityID">@city.Name</option>
+                    }
+
+                </select>
+                <span class="text-danger" asp-validation-for="CityID"></span>
+            </div>
+
+        </div>
+
+        <div class="d-flex">
+            <div class="form-group mt-3 ms-auto">
+                <input type="submit" value="Add Suburb" class="btn btn-success" />
+            </div>
+        </div>
+    </form>
+
