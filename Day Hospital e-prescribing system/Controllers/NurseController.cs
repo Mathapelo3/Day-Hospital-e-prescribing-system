@@ -35,7 +35,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
-        
+
         // GET: Vitals/Add
         public async Task<ActionResult> Vitals(int selectedId)
         {
@@ -248,7 +248,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  TheatreName = s.Theatres.Name,
                                  AnaesthesiologistName = s.Anaesthesiologists.User.Name,
                                  AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
-                                 Date = s.Date,
+                                 //Date = s.Date,
                                  Time = s.Time // Assuming these properties exist on your Surgery entity
                              })
                               .ToList();
@@ -300,7 +300,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
- 
+
         public async Task<ActionResult> Discharge(int id)
         {
             try
@@ -350,7 +350,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 try
                 {
-                   
+
                     if (id != patientVM.PatientID)
                     {
                         return NotFound();
@@ -358,7 +358,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                     var patient = new Patient
                     {
-                       
+
                         Name = patientVM.Name,
                         Surname = patientVM.Surname,
                         Gender = patientVM.Gender,
@@ -370,7 +370,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         AddressLine2 = patientVM.AddressLine2,
                         ContactNo = patientVM.ContactNo,
                         NextOfKinNo = patientVM.NextOfKinNo,
-                        
+
                     };
 
                     await UpdatePatientAsync(patient);
@@ -386,7 +386,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     throw;
                 }
             }
-             else
+            else
             {
                 // Log validation errors
                 var errors = ModelState.Values.SelectMany(v => v.Errors);
@@ -890,7 +890,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  TheatreName = s.Theatres.Name,
                                  AnaesthesiologistName = s.Anaesthesiologists.User.Name,
                                  AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
-                                 Date = s.Date,
+                                 //Date = s.Date,
                                  Time = s.Time // Assuming these properties exist on your Surgery entity
                              })
                               .ToList();
@@ -1111,7 +1111,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<ActionResult> AdmittedPatients()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-           
+
 
 
             var patientAdmission = from p in _context.Patients
@@ -1123,7 +1123,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                        ContactNo = p.ContactNo ?? string.Empty,
                                        IDNo = p.IDNo ?? string.Empty,
                                        Gender = p.Gender ?? string.Empty,
-                                       
+
                                    };
 
 
@@ -1738,7 +1738,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 ContactNo = pateint.ContactNo,
                 IDNo = pateint.IDNo,
                 DateOfBirth = pateint.DateOfBirth,
-                NextOfKinNo= pateint.NextOfKinNo,
+                NextOfKinNo = pateint.NextOfKinNo,
                 AddressLine1 = pateint.AddressLine1,
                 AddressLine2 = pateint.AddressLine2,
 
@@ -1747,7 +1747,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Cities = await GetCitiesByProvinceAsync(pateint.Suburbs.City.ProvinceID);
             ViewBag.Suburbs = await GetSuburbsByCityAsync(pateint.Suburbs.CityID);
 
-            
+
 
             return View(updatePatient);
         }
@@ -1803,133 +1803,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
-        
-        public IActionResult EditSuburb([FromRoute] int id, PatientVM model)
-        {
-            var Suburb = _context.Suburbs.Where(s => s.SuburbID == model.SuburbID).Include(s => s.City).FirstOrDefault();
-
-            var city = _context.Cities.Where(c => c.CityID == model.CityID).ToList();
-
-            ViewBag.Cities = city;
-
-            var updateSuburb = new PatientVM
-            {
-                SuburbID = Suburb.SuburbID,
-                CityID = Suburb.CityID,
-                PostalCode = Suburb.PostalCode,
-                Name = Suburb.Name,
-            };
-
-            return View(updateSuburb);
-        }
-        [HttpPost]
-        public async Task<IActionResult> UpdateSuburb(PatientVM model)
-        {
-            if (ModelState.IsValid)
-            {
-                var Suburb = _context.Suburbs.Where(s => s.SuburbID == model.SuburbID).FirstOrDefault();
-                if (Suburb == null)
-                {
-                    return NotFound();
-                }
-
-                Suburb.Name = model.Name;
-                Suburb.CityID = model.CityID;
-                Suburb.PostalCode = model.PostalCode;
-
-                _context.Suburbs.Update(Suburb);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Suburbs", "Suburb");
-            }
-            return View(model);
-        }
-
-
-        //public IActionResult Cities()
-        //{
-        //    var city = _context.Cities.Where(c => c.CityID == CityID).ToList();
-
-        //    return View(city);
-        //}
-
-        //public IActionResult AddCity()
-        //{
-        //    return View();
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> SubmitCity(AddCityVM model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        bool cityCheck = CheckCityExist(model.Name);
-        //        if (cityCheck)
-        //        {
-
-        //            var city = new City
-        //            {
-
-        //                Name = model.Name,
-        //                Short = model.Short
-
-        //            };
-        //            _context.City.Add(city);
-        //            await _context.SaveChangesAsync();
-
-        //            return RedirectToAction("Cities", "Suburb");
-        //        }
-        //        else
-        //        {
-
-        //        }
-        //    }
-
-        //    return View(model);
-        //}
-
-        public IActionResult EditCity([FromRoute] int id)
-        {
-            var city = _context.Cities.Where(c => c.CityID == id).FirstOrDefault();
-            if (city == null)
-            {
-                return NotFound();
-            }
-
-            var updateCity = new PatientVM
-            {
-                CityID = city.CityID,
-                Name = city.Name,
-               
-            };
-
-            return View(updateCity);
-        }
-        [HttpPost]
-        public async Task<IActionResult> UpdateCity(PatientVM model)
-        {
-
-            if (ModelState.IsValid)
-            {
-                var city = _context.Cities.Where(c => c.CityID == model.CityID).FirstOrDefault();
-
-
-                if (city == null)
-                {
-                    return NotFound();
-                }
-
-                city.Name = model.Name;
-                //city.Short = model.Short;
-
-                _context.Cities.Update(city);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Cities", "Suburb");
-            }
-            return View(model);
-        }
     }
-
 }
+        
+       
+
+
 
 
 
