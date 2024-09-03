@@ -9,7 +9,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         [Required(ErrorMessage = "The Description field is required.")]
         [StringLength(255)]
-        public string Description { get; set; }
+        public string ICD_10_Code { get; set; }
 
         [Required(ErrorMessage = "The Name field is required.")]
         [StringLength(50)]
