@@ -25,14 +25,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AnaesthesiologistController> _logger;
-        private readonly EmailService _emailService;
+       
         private readonly IConfiguration _configuration;
         private readonly CommonHelper _helper;
-        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger, EmailService emailService, IConfiguration configuration)
+        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger,  IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
-            _emailService = emailService;
+           
             _configuration = configuration;
             _helper = new CommonHelper(_configuration);
 
