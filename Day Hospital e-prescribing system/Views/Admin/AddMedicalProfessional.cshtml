@@ -36,104 +36,123 @@
             background-color: darkgreen;
             border-color: darkgreen;
         }
-</style>
-<section class="content">
 
+    .small-dropdown {
+        width: 50%; /* Adjust this percentage or use a fixed pixel value */
+    }
+
+    /* Center the form container */
+    .form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Optional: adjust this value as needed */
+    }
+
+    .form-card {
+        width: 100%; /* Adjust as needed */
+        max-width: 600px; /* Adjust as needed */
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: #fff;
+    }
+</style>
+
+<section class="content">
     <!-- Default box -->
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
+            <div class="text-center">
+                @* <img src="~/Images/zoomedLogo (2).png" width="200" /> *@
             </div>
             <br />
-            <h4 class="display-6 text-dark-green text-center text-bold"> ADD MEDICAL PROFFESIONALS</h4>
+            <h4 class="display-6 text-dark-green text-center text-bold">ADD MEDICAL PROFESSIONALS</h4>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body form-container">
+        <div class="form-card">
+            <form asp-action="AddMedicalProfessional" method="post" class="form-horizontal" role="form" asp-antiforgery="true">
+                @Html.AntiForgeryToken()
 
-        <form asp-action="AddMedicalProfessional" method="post" class="form-horizontal" role="form" asp-antiforgery="true">
-            @Html.AntiForgeryToken()
-
-            <div class="form-group">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <label asp-for="Name" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                <div class="form-group">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <label asp-for="Name" class="control-label col-md-2">Name:</label>
+                    <div class="col-md-10">
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="Surname" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="Surname" class="form-control" />
-                    <span asp-validation-for="Surname" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Surname" class="control-label col-md-2">Surname:</label>
+                    <div class="col-md-10">
+                        <input asp-for="Surname" class="form-control" />
+                        <span asp-validation-for="Surname" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="Email" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label col-md-2">Email:</label>
+                    <div class="col-md-10">
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="ContactNo" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="ContactNo" class="form-control" />
-                    <span asp-validation-for="ContactNo" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="ContactNo" class="control-label col-md-2">Contact Number:</label>
+                    <div class="col-md-10">
+                        <input asp-for="ContactNo" class="form-control" />
+                        <span asp-validation-for="ContactNo" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="HCRNo" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="HCRNo" class="form-control" />
-                    <span asp-validation-for="HCRNo" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="HCRNo" class="control-label col-md-2">Health Council Registration Number:</label>
+                    <div class="col-md-10">
+                        <input asp-for="HCRNo" class="form-control" />
+                        <span asp-validation-for="HCRNo" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="Username" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="Username" class="form-control" />
-                    <span asp-validation-for="Username" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Username" class="control-label col-md-2">Username:</label>
+                    <div class="col-md-10">
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="HashedPassword" class="control-label col-md-2"></label>
-                <div class="col-md-10">
-                    <input asp-for="HashedPassword" type="password" class="form-control" />
-                    <span asp-validation-for="HashedPassword" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="HashedPassword" class="control-label col-md-2">Password:</label>
+                    <div class="col-md-10">
+                        <input asp-for="HashedPassword" type="password" class="form-control" />
+                        <span asp-validation-for="HashedPassword" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label asp-for="RoleId" class="control-label"></label>
-                <select asp-for="RoleId" class="form-control" asp-items="@Model.Roles" ></select>
-               
-                <span asp-validation-for="RoleId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group text-center">
-                <div class="col-md-offset-2 col-md-10" >
-                    <button type="submit" class="btn btn-dark-green">Register</button>
+                <div class="form-group">
+                    <label asp-for="RoleId" class="control-label">Role:</label>
+                    <select asp-for="RoleId" class="form-control small-dropdown" asp-items="@Model.Roles"></select>
+                    <span asp-validation-for="RoleId" class="text-danger"></span>
                 </div>
-            </div>
-        </form>
 
-
-
-
+                <div class="form-group text-center">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="submit" class="btn btn-dark-green">Register</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
+
 @if (ViewBag.ErrorMessage != null)
 {
     <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
 }
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
