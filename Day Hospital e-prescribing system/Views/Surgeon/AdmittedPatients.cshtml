@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
 @{
-    ViewData["Title"] = "DischargePatient";
+    ViewData["Title"] = "AdmittedPatients";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
     var items = ViewBag.Patient as IEnumerable<Patient>;
 }
@@ -15,7 +15,7 @@
     <div class="container p-3 text-md-center">
         <div class="col-md-4">
             <!-- Search bar -->
-            <form asp-action="DischargePatient" method="get">
+            <form asp-action="AdmittedPatients" method="get">
                 <div class="input-group">
                     <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number">
                     <div class="input-group-append">

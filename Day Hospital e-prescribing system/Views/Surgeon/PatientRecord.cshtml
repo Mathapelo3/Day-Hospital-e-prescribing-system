@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientRecordViewModel
+
+@{
     ViewData["Title"] = "AdmissionRecord";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
@@ -6,117 +8,66 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <section class="content">
-
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
-            </div>
             <br />
             <h4 class="display-6 text-warning text-center text-bold">PATIENT MEDICAL HISTORY</h4>
         </div>
-    </div>    
+    </div>
     <div class="row">
         <div class="col-md-8">
-            <h4 class="card-title text-bold"> Patient: John Doe</h4>
-        </div>
-        <div class="col-md-1 text-right">
-            <a href="@Url.Action("Prescriptions", "Surgeon")" class="btn btn-warning text-bold">View Prescriptions</a>
-        </div>
-        <div class="col-md-3 text-right">
-            <a href="@Url.Action("NewSurgery", "Surgeon")" class="btn btn-warning text-bold">Book Surgery</a>
+            <h4 class="card-title text-bold"> Patient: @(Model.Patient?.Name ?? "N/A") @(Model.Patient?.Surname ?? "N/A")</h4>
         </div>
     </div>
     <div class="container p-3 text-md-center">
         <table class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
-                    <th>
-                        Date of Birth
-                    </th>
-                    <th>
-                        Gender
-                    </th>
-                    <th>
-                        Age
-                    </th>
-                    <th>
-                        Admission Date
-                    </th>
+                    <th>Date of Birth</th>
+                    <th>Gender</th>
+                    <th>Contact No.</th>
                 </tr>
             </thead>
-
             <tbody>
                 <tr>
-                    <td width="20%">1994-04-01</td>
-                    <td width="10%">M</td>
-                    <td width="10%">30</td>
-                    <td width="20%">2024-05-01</td>
+                    <td>@(Model.Patient.DateOfBirth)</td>
+                    <td>@(Model.Patient?.Gender ?? "N/A")</td>
+                    <td>@(Model.Patient?.ContactNo ?? "N/A")</td>
                 </tr>
             </tbody>
         </table>
         <div class="col-md-14">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title text-bold">Patient History</h4>
+                    <h4 class="card-title text-bold">Patient Allergies</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <!-- Allergies -->
                             <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title text-bold">Allergies</h4>
-                                </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table id="allergiesTable" class="table table-bordered table-striped">
-                                            <thead></thead>
+                                            <thead>
+                                            <th>Allergy</th>
+                                            <th>Description</th>
+                                            </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>Peanuts</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <!-- Current Medication -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title text-bold">Current Medication</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="medicationTable" class="table table-bordered table-striped">
-                                            <thead></thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Asthavent</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <!-- Conditions -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title text-bold">Conditions</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="conditionsTable" class="table table-bordered table-striped">
-                                            <thead></thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Asthma</td>
-                                                </tr>
+                                                @if (Model.Allergies.Any())
+                                                {
+                                                    foreach (var allergy in Model.Allergies)
+                                                    {
+                                                        <tr>
+                                                            <td>@allergy.Name</td>
+                                                            <td>@allergy.Description</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td colspan="2">No allergies found.</td></tr>
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
@@ -135,45 +86,34 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <!-- Allergies -->
+                            <!-- Vitals -->
                             <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title text-bold">Allergies</h4>
-                                </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table id="allergiesTable" class="table table-bordered table-striped">
+                                        <table id="vitalsTable" class="table table-bordered table-striped">
                                             <thead>
                                                 <tr>
-
-                                                    <th>Time</th>
-                                                    <th>Temperature</th>
-                                                    <th>Blood Pressure</th>
-                                                    <th>Pluse Rate</th>
-                                                    <th>Respiratory Rate </th>
-                                                    <th>Blood Oxygen</th>
-                                                    <th>Blood Glucose Level</th>
+                                                    <th>Vital</th>
+                                                    <th>Min</th>
+                                                    <th>Max</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>10:00</td>
-                                                    <td>35°C</td>
-                                                    <td>120 bpm</td>
-                                                    <td>60bpm</td>
-                                                    <td>14bpm</td>
-                                                    <td>95%</td>
-                                                    <td>80/120 mmol/l</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>10:30</td>
-                                                    <td>35°C</td>
-                                                    <td>120 bpm</td>
-                                                    <td>100bpm</td>
-                                                    <td>14bpm</td>
-                                                    <td>95%</td>
-                                                    <td>80/120 mmol/l</td>
-                                                </tr>
+                                                @if (Model.Vitals != null && Model.Vitals.Any())
+                                                {
+                                                    @foreach (var vital in Model.Vitals)
+                                                    {
+                                                        <tr>
+                                                            <td>@(vital?.Vital ?? "N/A")</td>
+                                                            <td>@(vital?.Min?.ToString() ?? "N/A")</td>
+                                                            <td>@(vital?.Max?.ToString() ?? "N/A")</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td colspan="3">No vitals recorded</td></tr>
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
@@ -184,17 +124,50 @@
                 </div>
             </div>
         </div>
-        @*}*@
-        @*else
-            {
-            <p>No assignment has been added yet.</p>
-            }*@
-        @*<div class="col-7 text-right">
-            <a asp-controller="Surgeon" asp-action="Create" class="btn btn-outline-warning">Add Assignment</a>
-            <button type="submit" class="btn btn-md btn-outline-danger" onclick="location.href = '@Url.Action("Index","TutorAssign")'">BACK</button>
-            </div>*@
+        <div class="col-md-14">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title text-bold">Patient Conditions</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- Conditions -->
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="conditionsTable" class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Condition</th>
+                                                    <th>ICD-10 Code</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.Conditions != null && Model.Conditions.Any())
+                                                {
+                                                    @foreach (var condition in Model.Conditions)
+                                                    {
+                                                        <tr>
+                                                            <td>@(condition?.Name ?? "N/A")</td>
+                                                            <td>@(condition?.ICD_10_Code ?? "N/A")</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr><td colspan="2">No conditions recorded</td></tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
+        </div>
     </div>
-    <div class="row">
-    </div>
-
 </section>

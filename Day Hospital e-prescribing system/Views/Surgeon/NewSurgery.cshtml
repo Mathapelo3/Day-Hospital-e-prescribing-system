@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Day_Hospital_e_prescribing_system.ViewModel
+@model SurgeryViewModel
+@{
     ViewData["Title"] = "NewSurgery";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
@@ -6,78 +8,109 @@
 
 <div class="card">
     <div class="card-header">
-        <div class="text-center ">
-            @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-            *@
-        </div>
         <br />
         <h4 class="display-6 text-warning text-center text-bold">BOOK NEW SURGERY</h4>
     </div>
 </div>
 <section class="content">
     <div class="container-fluid">
+        <div style="text-align:end">
+            <button type="button" class="btn btn-warning text-sm text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
+                New Patient
+            </button>
+        </div>
+        <br />
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form id="orderForm">
+                        <form asp-action="NewSurgery" asp-controller="Surgeon" method="post">
+                            @Html.AntiForgeryToken()
                             <div class="form-group">
                                 <label for="date">Date:</label>
-                                <input type="date" class="form-control" id="date" name="date">
+                                <input type="date" class="form-control" id="date" asp-for="Date">
                             </div>
                             <div class="form-group">
                                 <label for="time">Time Slot:</label>
-                                <select class="form-control" id="time" name="time">
-                                    <option value="time">---</option>
-                                    <option value="time">AM</option>
-                                    <option value="time">PM</option>
+                                <select asp-for="Time" class="form-control">
+                                    <option value="">---Select---</option>
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
                                 </select>
 
                             </div>
                             <div class="form-group">
                                 <label for="patient">Patient:</label>
-                                <input type="text" class="form-control" id="patient" name="patient">
+                                <select asp-for="PatientID" class="form-control" id="patientID" name="PatientID">
+                                    <option value="">---Select---</option>
+                                    @foreach (var item in Model.PatientList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="anaesthesiologist">Surgeon:</label>
+                                <select asp-for="SurgeonID" class="form-control" id="surgeonID" name="SurgeonID">
+                                    <option value="">---Select---</option>
+                                    @foreach (var item in Model.SurgeonList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+
                             </div>
                             <div class="form-group">
                                 <label for="anaesthesiologist">Anaesthesiologist:</label>
-                                <select class="form-control" id="anaesthesiologist" name="anaesthesiologist">
-                                    <option value="anaesthesiologist">---</option>
-                                    <option value="anaesthesiologist">Dr Lee Jones</option>
-                                    <option value="anaesthesiologist">Dr Anne Wood</option>
+                                <select asp-for="AnaesthesiologistID" class="form-control" id="anaesthesiologistID" name="AnaesthesiologistID">
+                                    <option value="">---Select---</option>
+                                    @foreach (var item in Model.AnaesthesiologistList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
                                 </select>
+
                             </div>
                             <div class="form-group">
-                                <label for="nurse">Nurse:</label>
-                                <select class="form-control" id="nurse" name="nurse">
-                                    <option value="anaesthesiologist">---</option>
-                                    <option value="nurse">Paul Lee</option>
+                                <label for="nurse">Theatre:</label>
+                                <select asp-for="TheatreID" class="form-control" id="theatreID" name="TheatreID">
+                                    <option value="">---Select---</option>
+                                    @foreach (var item in Model.TheatreList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
                                 </select>
+
                             </div>
                             <div class="form-row">
+                                <!-- Modify the treatment selection area -->
                                 <div class="form-group col-md-11">
-                                    <label for="treatment">Treatment Code:</label>
-                                    <select class="form-control" id="treatment">
-                                        <option value="treatment">gwm456</option>
-                                        <option value="treatment">Cxs764</option>
-                                        <!-- Add more medication options here -->
+                                    <label for="treatment">Treatment Codes:</label>
+                                    <select multiple class="form-control" id="treatmentCodeSelect">
+                                        @foreach (var item in Model.TreatmentCodeList)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
                                     </select>
                                 </div>
-
                                 <div class="form-group col-md-1">
                                     <label>&nbsp;</label>
-                                    <button type="button" class="btn btn-primary form-control" id="addMedication">
-                                        <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                                    <button type="button" class="btn btn-primary form-control" id="addTreatment">
+                                        <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
                                 <div class="form-group col-md-12">
-                                    <label for="medicationList">Treatment Code List:</label>
-                                    <select multiple class="form-control" id="medicationList">
-                                        <!-- Medication will be populated here -->
+                                    <label for="SelectedTreatmentCodes">Selected Treatment Codes:</label>
+                                    <select multiple class="form-control" asp-for="SelectedTreatmentCodes" id="treatmentList">
+                                        <!-- Selected TreatmentCodes will be populated here -->
                                     </select>
                                 </div>
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-warning text-bold">SUBMIT</button>
+                                <input type="submit" value="Add" class="btn text-bold btn-warning" />
+                                <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Surgeries", "Surgeon")'">
+                                    Back
+                                </button>
                             </div>
                             <br />
                         </form>
@@ -87,3 +120,20 @@
         </div>
     </div>
 </section>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#addTreatment').click(function () {
+            var selectedTreatmentCodes = $('#treatmentCodeSelect option:selected');
+            if (selectedTreatmentCodes.length > 0) {
+                selectedTreatmentCodes.each(function () {
+                    // Clone the selected option and append it to the treatmentList
+                    $(this).clone().appendTo('#treatmentList');
+                });
+                // Remove the selected options from the source list
+                selectedTreatmentCodes.remove();
+            }
+        });
+    });
+</script>

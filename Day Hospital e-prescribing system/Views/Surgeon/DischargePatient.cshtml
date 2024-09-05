@@ -1,15 +1,11 @@
-﻿@using Day_Hospital_e_prescribing_system.Models
-@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
-
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
 @{
     ViewData["Title"] = "DischargePatient";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
     var items = ViewBag.Patient as IEnumerable<Patient>;
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
 <section class="content">
-
     <div class="card">
         <div class="card-header">
             <br />
@@ -19,63 +15,52 @@
     <div class="container p-3 text-md-center">
         <div class="col-md-4">
             <!-- Search bar -->
-            <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search Patient Name">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                        <i class="fas fa-search"></i>
-                    </button>
+            <form asp-action="DischargePatient" method="get">
+                <div class="input-group">
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
         <br />
-        @* @if (Model.Count() > 0)
-            {*@
-        <table id="patientsTable" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>
-                        Patient Name
-                    </th>
-                    <th>
-                        Email Address
-                    </th>
-                    <th>
-                        Cell Number
-                    </th>
-                    <th>
-                        Gender
-                    </th>
-                    <th>
-                        Treatment Code
-                    </th>
-                    <th>
-                        Action
-                    </th>
-                </tr>
-            </thead>
-
-            @foreach (var item in items)
-            {
-                <tbody>
+        @if (Model.Any())
+        {
+            <table id="patientsTable" class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Email</td>
-                        <td>@item.ContactNo</td>
-                        <td>@item.Gender</td>
-                        <td>@item.TreatmentCodes</td>
-                        <td>
-                            <a asp-action="Discharged" asp-route-id="@item.PatientID" class="btn btn-warning">
-                                Discharge
-                            </a>
-                        </td>
+                        <th>Patient Name</th>
+                        <th>Email Address</th>
+                        <th>Gender</th>
+                        <th>ID Number</th>
+                        <th>Action</th>
                     </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name @item.Surname</td>
+                            <td>@item.Email</td>
+                            <td>@item.Gender</td>
+                            <td>@item.IDNo</td>
+                            <td>
+                                <a asp-action="Discharged" asp-route-id="@item.PatientID" class="btn btn-warning">
+                                    Discharge
+                                </a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
-            }
-        </table>
-        <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
+            </table>
+        }
+        else
+        {
+            <p>No patients to discharge.</p>
+        }
+        <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
     </div>
-    <div class="row">
-    </div>
-
 </section>
