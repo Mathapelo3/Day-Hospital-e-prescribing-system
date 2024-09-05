@@ -30,13 +30,13 @@
                     @*<p class="fw-bold">Personal Details:</p>*@
                     <div class="form-group col-6">
                         <label class="control-label required">First Name:</label>
-                        <input asp-for="Name" class="form-control" />
+                    <input asp-for="@Model.Name" class="form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
                     <div class="form-group col-6">
                         <label class="control-label required">Last Name:</label>
-                        <input asp-for="Surname" class="form-control" />
-                        <span asp-validation-for="Surname" class="text-danger"></span>
+                        <input asp-for="@Model.Surname" class="form-control" />
+                      @*  <span asp-validation-for="Surname" class="text-danger"></span>*@
                     </div>
                 </div>
                 <div class="row">
@@ -47,24 +47,24 @@
                             <option value="M">Male</option>
                             <option value="F">Female</option>
                         </select>
-                        <span asp-validation-for="Gender" class="text-danger"></span>
+                       @* <span asp-validation-for="Gender" class="text-danger"></span>*@
                     </div>
                     <div class="form-group col-6">
                         <label class="control-label required">Date Of Birth:</label>
                         <input asp-for="DateOfBirth" class="form-control" id="idNumber" pattern="[0-9]*" placeholder="" type="date" />
-                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                      @*  <span asp-validation-for="DateOfBirth" class="text-danger"></span>*@
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-6">
                         <label class="control-label required">ID Number:</label>
                         <input asp-for="IDNo" class="form-control" maxlength="13" placeholder="" />
-                        <span asp-validation-for="IDNo" class="text-danger"></span>
+                       @* <span asp-validation-for="IDNo" class="text-danger"></span>*@
                     </div>
                     <div class="form-group col-6">
                         <label class="control-label required">Email:</label>
                         <input asp-for="Email" class="form-control" placeholder="" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+                       @* <span asp-validation-for="Email" class="text-danger"></span>*@
                     </div>
                 </div>
                 <div class="row">

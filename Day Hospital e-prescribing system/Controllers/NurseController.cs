@@ -1267,6 +1267,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         };
 
                         _context.Admissions.Add(admission);
+                        TempData["SuccessMessage"] = "Patient successfully admitted.";
                         await _context.SaveChangesAsync();
 
                         // Optionally, add additional logic here like inserting specific treatment codes
@@ -1802,6 +1803,41 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Suburbs = await GetSuburbsByCityAsync(model.CityID);
 
             return View(model);
+        }
+        public async Task<ActionResult> PatientsAd()
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+
+
+            var patientAd = _context.Surgeries
+                             .Include(s => s.Patients)
+                              .ThenInclude(s => s.Beds)
+                             //.Include(s => s.Theatres)
+                             //.Include(s => s.Anaesthesiologists)
+                             //.Include(s => s.Surgery_TreatmentCodes)
+                             .Select(s => new AdmissionVM
+                             {
+                                 SurgeryID = s.SurgeryID,
+                                 PatientID = s.PatientID,
+                                 //AnaesthesiologistID = s.AnaesthesiologistID,
+                                 //TheatreID = s.TheatreID,
+                                 BedName=s.Patients.Beds.BedName,
+                                 WardName=s.Patients.Beds.Wards.WardName,
+                                 //Surgery_TreatmentCodeID = s.Surgery_TreatmentCodeID,
+                                 //ICD_Code_10 = s.Surgery_TreatmentCodes.ICD_10_Code,
+                                 Name = s.Patients.Name,
+                                 Surname = s.Patients.Surname,
+                                 //TheatreName = s.Theatres.Name,
+                                 //AnaesthesiologistName = s.Anaesthesiologists.User.Name,
+                                 //AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
+                                 Date = s.Date,
+                                 Time = s.Time // Assuming these properties exist on your Surgery entity
+                             })
+                              .ToList();
+
+
+            return View(patientAd);
         }
     }
 }

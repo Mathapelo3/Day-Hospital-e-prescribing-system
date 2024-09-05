@@ -14,7 +14,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         [Required]
         [Column(TypeName = "date")]
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Required]
         [StringLength(20)]
@@ -60,7 +60,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("NurseID")]
         public virtual Nurse Nurses { get; set; }
 
-        public int? PatientID { get; set; }
+        public int PatientID { get; set; }
         // Navigation property
         [ForeignKey("PatientID")]
         public virtual Patient Patients { get; set; }
