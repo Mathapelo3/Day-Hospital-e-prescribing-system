@@ -25,14 +25,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AnaesthesiologistController> _logger;
-        private readonly EmailService _emailService;
+       
         private readonly IConfiguration _configuration;
         private readonly CommonHelper _helper;
-        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger, EmailService emailService, IConfiguration configuration)
+        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger,  IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
-            _emailService = emailService;
+           
             _configuration = configuration;
             _helper = new CommonHelper(_configuration);
 
@@ -147,7 +147,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(result); ;
         }
-        public async Task<ActionResult> MedicalHistory(int id )
+        public async Task<ActionResult> MedicalHistory(int id)
         {
             _logger.LogInformation("MedicalHistory action started for patient ID: {PatientId}", id);
 
@@ -157,15 +157,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 PatientID = id // Ensure this is set
             };
+
             using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
+                await connection.OpenAsync();
+
+                // Query to get the patient's name and surname
+                var patientCommand = new SqlCommand("SELECT Name, Surname FROM Patients WHERE PatientID = @PatientID", connection);
+                patientCommand.Parameters.Add(new SqlParameter("@PatientID", id));
+
+                using (var reader = await patientCommand.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        model.Name = reader.GetString(reader.GetOrdinal("Name"));
+                        model.Surname = reader.GetString(reader.GetOrdinal("Surname"));
+                    }
+                }
+
+                // Move on to retrieve the medical history
                 var command = new SqlCommand("GetPatientMedicalHistory", connection)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
                 command.Parameters.Add(new SqlParameter("@PatientID", id));
-
-                await connection.OpenAsync();
 
                 using (var reader = await command.ExecuteReaderAsync())
                 {
@@ -229,6 +244,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             // Assuming you have a view named MedicalHistory.cshtml
             return View(model);
         }
+
         public async Task<ActionResult> Prescriptions(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");

@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Day_Hospital_e_prescribing_system.Helper;
 
-
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     [Authorize]
@@ -32,7 +31,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             _config = config;
             _helper = new CommonHelper(_config);
         }
-    
         public IActionResult Index()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -72,6 +70,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(viewModelList);
         }
+
+        [HttpGet]
         public async Task<IActionResult> EditHospitalRecord(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -201,6 +201,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 provinceName = suburb.City.Province.Name
             });
         }
+
         [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
@@ -212,7 +213,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new RegisterViewModel();
             viewModel.Roles = GetRoles().ToList(); // Assign the result to the Roles property
             return View(viewModel);
+
         }
+
 
 
         [HttpPost]
@@ -359,6 +362,24 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             // Using bcrypt to hash the password
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
+
+        //[HttpPost, ActionName("DeleteUser")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteUserConfirmed(int id)
+        //{
+        //    var user = await _context.Users.FindAsync(id);
+        //    if (user != null)
+        //    {
+        //        _context.Users.Remove(user);
+        //        await _context.SaveChangesAsync();
+        //        TempData["SuccessMessage"] = "User deleted successfully.";
+        //    }
+        //    else
+        //    {
+        //        TempData["ErrorMessage"] = "User not found.";
+        //    }
+        //    return RedirectToAction(nameof(MedicalProfessionals));
+        //}
 
         [HttpGet]
         public IActionResult EditMedicalProfessional(int id)
@@ -538,103 +559,103 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View();
         }
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> AddCondition(ConditionViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            var condition = new Condition
-        //            {
-        //                Description = model.Description,
-        //                Name = model.Name
-        //            };
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddCondition(ConditionViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var condition = new Condition
+                    {
+                        ICD_10_Code = model.ICD_10_Code,
+                        Name = model.Name
+                    };
 
-        //            _context.Add(condition);
-        //            await _context.SaveChangesAsync();
-        //            _logger.LogInformation("Condition added successfully.");
-        //            return RedirectToAction("ConditionRecords", "Admin");
-        //        }
-        //        catch (DbUpdateException ex)
-        //        {
-        //            _logger.LogError(ex, "An error occurred while adding condition: {Message}", ex.Message);
-        //            ModelState.AddModelError("", "Unable to save changes.");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-        //    }
+                    _context.Add(condition);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Condition added successfully.");
+                    return RedirectToAction("ConditionRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while adding condition: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
 
-        //    return View(model);
-        //}
-        //public async Task<IActionResult> EditCondition(int? id)
-        //{
-        //    ViewBag.Username = HttpContext.Session.GetString("Username");
+            return View(model);
+        }
+        public async Task<IActionResult> EditCondition(int? id)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
 
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        //    var condition = await _context.Conditions.FindAsync(id);
-        //    if (condition == null)
-        //    {
-        //        return NotFound();
-        //    }
+            var condition = await _context.Conditions.FindAsync(id);
+            if (condition == null)
+            {
+                return NotFound();
+            }
 
-        //    var viewModel = new ConditionViewModel
-        //    {
-        //        ConditionID = condition.ConditionID,
-        //        Description = condition.Description,
-        //        Name = condition.Name
-        //    };
+            var viewModel = new ConditionViewModel
+            {
+                ConditionID = condition.ConditionID,
+                ICD_10_Code = condition.ICD_10_Code,
+                Name = condition.Name
+            };
 
-        //    return View(viewModel);
-        //}
+            return View(viewModel);
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> EditCondition(int id, ConditionViewModel model)
-        //{
-        //    if (id != model.ConditionID)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCondition(int id, ConditionViewModel model)
+        {
+            if (id != model.ConditionID)
+            {
+                return NotFound();
+            }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            var condition = await _context.Conditions.FindAsync(id);
-        //            if (condition == null)
-        //            {
-        //                return NotFound();
-        //            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var condition = await _context.Conditions.FindAsync(id);
+                    if (condition == null)
+                    {
+                        return NotFound();
+                    }
 
-        //            condition.Description = model.Description;
-        //            condition.Name = model.Name;
+                    condition.ICD_10_Code = model.ICD_10_Code;
+                    condition.Name = model.Name;
 
-        //            _context.Update(condition);
-        //            await _context.SaveChangesAsync();
-        //            _logger.LogInformation("Condition record updated successfully.");
-        //            return RedirectToAction("ConditionRecords", "Admin");
-        //        }
-        //        catch (DbUpdateException ex)
-        //        {
-        //            _logger.LogError(ex, "An error occurred while updating the condition record: {Message}", ex.Message);
-        //            ModelState.AddModelError("", "Unable to save changes.");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-        //    }
+                    _context.Update(condition);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Condition record updated successfully.");
+                    return RedirectToAction("ConditionRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while updating the condition record: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
         public IActionResult AddContraIndication()
         {
             var icd = _context.ICDCodes.ToList();
@@ -673,7 +694,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("ContraIndicationRecords", new { selectedICD_ID, selectedActive_IngredientID});
+            return RedirectToAction("ContraIndicationRecords", new { selectedICD_ID, selectedActive_IngredientID });
 
         }
 

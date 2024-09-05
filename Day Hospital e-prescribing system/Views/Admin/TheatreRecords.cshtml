@@ -66,22 +66,22 @@
                                         <tr>
                                             <td>@theatre.TheatreID</td>
                                             <td>@theatre.Name</td>
-                                            <td>
-                                                <button type="button" class="btn  btn-primary" onclick="editVital()">
-                                                    <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
-                                                </button>
-                                            </td>
+                                            @* <td>
+                                        <button type="button" class="btn  btn-primary" onclick="editVital()">
+                                        <i class="fas fa-edit"></i> <!-- Font Awesome edit icon -->
+                                        </button>
+                                        </td> *@
                                         </tr>
                                     </tbody>
                                 }
                             </table>
                             <div class="text-center">
                                 @* <div class="btn-group">*@
-                                <button type="button" class="btn btn-primary" id="addTheatre">
-                                    <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
-                                </button>
+                                @* <button type="button" class="btn btn-primary" id="addTheatre">
+                                <i class="fas fa-plus"></i> <!-- Font Awesome plus icon -->
+                                </button> *@
 
-                                <button type="button" class="btn btn-dark-green" onclick="saveChanges()">Save</button>
+                                <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("AdminDashboard", "Admin")'">Back</button>
                             </div>
                         </div>
                     </div>
