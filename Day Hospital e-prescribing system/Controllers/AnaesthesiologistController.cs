@@ -105,7 +105,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      SurgeryID = s.SurgeryID,
                                      PatientID = p.PatientID,
                                      Patient = (p.Name ?? string.Empty) + " " + (p.Surname ?? string.Empty),
-                                     Date = s.Date ?? default(DateTime),
+                                     Date = s.Date,
                                      Time = s.Time,
                                      WardName = w != null ? w.WardName : "N/A",  // Null check for Ward
                                      BedName = b != null ? b.BedName : "N/A",  // Null check for Bed
@@ -163,7 +163,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 await connection.OpenAsync();
 
                 // Query to get the patient's name and surname
-                var patientCommand = new SqlCommand("SELECT Name, Surname FROM Patients WHERE PatientID = @PatientID", connection);
+                var patientCommand = new SqlCommand("SELECT Name, Surname FROM Patient WHERE PatientID = @PatientID", connection);
                 patientCommand.Parameters.Add(new SqlParameter("@PatientID", id));
 
                 using (var reader = await patientCommand.ExecuteReaderAsync())
@@ -288,45 +288,58 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
-        //public async Task<ActionResult> Orders(int id)
-        //{
-        //    ViewBag.Username = HttpContext.Session.GetString("Username");
-        //    _logger.LogInformation("Orders action called with id: {Id}", id);
+        public IActionResult Orders(int id, DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            List<OrderViewModel> orders = new List<OrderViewModel>();
 
-        //    if (id <= 0)
-        //    {
-        //        _logger.LogWarning("Invalid patient id: {Id}", id);
-        //        return NotFound();
-        //    }
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-        //    var patient = await _context.Patients.FindAsync(id);
-        //    if (patient == null)
-        //    {
-        //        _logger.LogWarning("Patient not found with id: {Id}", id);
-        //        return NotFound();
-        //    }
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("GetOrdersForPatient", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@PatientID", id);
 
-        //    var orders = await _context.Orders
-        //        .Where(o => o.PatientID == id)
-        //        .Include(o => o.Medication)
-        //        .ToListAsync();
+                        // Add startDate and endDate parameters, handle nulls if not provided
+                        cmd.Parameters.AddWithValue("@StartDate", (object)startDate ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@EndDate", (object)endDate ?? DBNull.Value);
 
-        //    var orderViewModels = orders.Select(o => new OrderViewModel
-        //    {
-                
-        //        Date = o.Date,
-        //        Medication = o.Medication?.Name ?? "No Medication",
-        //        Quantity = o.Quantity,
-        //        Status = o.Status,
-        //        Name = patient.Name,
-        //        Surname = patient.Surname,
-        //        MedicationID = o.MedicationID,
-        //        PatientID = o.PatientID,
+                        conn.Open();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                OrderViewModel order = new OrderViewModel
+                                {
+                                    OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
+                                    Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                    MedicationName = reader.GetString(reader.GetOrdinal("Medication")),
+                                    Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
+                                    Status = reader.GetString(reader.GetOrdinal("Status")),
+                                    PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                    PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
+                                    PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname"))
+                                };
+                                orders.Add(order);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle exception
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, "Internal server error");
+            }
 
-        //    }).ToList();
-
-        //    return View(orderViewModels);
-        //}
+            return View(orders);
+        }
+        
         public async Task<ActionResult> CaptureOrders(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");

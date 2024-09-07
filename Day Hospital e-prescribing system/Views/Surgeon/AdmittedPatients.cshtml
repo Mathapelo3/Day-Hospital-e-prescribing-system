@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
 @{
-    ViewData["Title"] = "DischargePatient";
+    ViewData["Title"] = "AdmittedPatients";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
     var items = ViewBag.Patient as IEnumerable<Patient>;
 }
@@ -9,13 +9,13 @@
     <div class="card">
         <div class="card-header">
             <br />
-            <h4 class="display-6 text-warning text-center text-bold">DISCHARGE PATIENTS</h4>
+            <h4 class="display-6 text-warning text-center text-bold">ADMITTED PATIENTS</h4>
         </div>
     </div>
     <div class="container p-3 text-md-center">
         <div class="col-md-4">
             <!-- Search bar -->
-            <form asp-action="DischargePatient" method="get">
+            <form asp-action="AdmittedPatients" method="get">
                 <div class="input-group">
                     <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number">
                     <div class="input-group-append">
@@ -36,7 +36,7 @@
                         <th>Email Address</th>
                         <th>Gender</th>
                         <th>ID Number</th>
-                        <th>Action</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,11 +47,7 @@
                             <td>@item.Email</td>
                             <td>@item.Gender</td>
                             <td>@item.IDNo</td>
-                            <td>
-                                <a asp-action="Discharged" asp-route-id="@item.PatientID" class="btn btn-warning">
-                                    Discharge
-                                </a>
-                            </td>
+                            <td>@item.Status</td>
                         </tr>
                     }
                 </tbody>

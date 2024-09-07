@@ -5,6 +5,7 @@
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
     .card-title {
@@ -30,19 +31,25 @@
         </div>
     </div>
     <div><br /></div>
-   
-     <form id="filterForm" asp-action="Orders" method="get">
-        <div class="form-row">
-            <div class="col-md-4">
-                
-                    <input type="date" name="Date" value="@ViewData["CurrentDate"]" class="form-control" id="dateFilter" />
-                    
+
+    <form  asp-action="Orders" method="get" class="form-inline mb-3">
+       
+
+
+        <div class="form-group mr-2">
+            <label for="startDate" class="mr-2">Start Date:</label>
+            <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
+        </div>
+                <div class="form-group mr-2">
+                    <label for="endDate" class="mr-2">End Date:</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
+                </div>
                         
-                    </div>
+                    
                     <div class="col-md-1 ml-auto">
                         <a href="@Url.Action("Orders", "Anaesthesiologist")" class="btn btn-danger btn-block">Reset</a>
                     </div>
-                </div>
+               
                 </form>
             
 
@@ -55,7 +62,7 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-md-8">
-                                @*<h3 class="card-title">@Model.FirstOrDefault()?.Name @Model.FirstOrDefault()?.Surname</h3>*@
+                                <h3 class="card-title">@Model.FirstOrDefault()?.PatientName @Model.FirstOrDefault()?.PatientSurname</h3>
                                 </div>
                             
                             <div class="col-md-2 text-right">
@@ -72,7 +79,7 @@
                                 <thead>
                                     <tr>
                                         <th>Date</th>
-                                        <th>Medciation</th>
+                                        <th>Medication</th>
                                         <th>Quantity</th>
                                         <th>Status</th>
                                         <th></th>

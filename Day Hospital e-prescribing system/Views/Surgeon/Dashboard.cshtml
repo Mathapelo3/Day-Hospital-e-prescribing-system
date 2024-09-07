@@ -21,7 +21,7 @@
                     <img src="~/Images/Surgeon/patients.png" width="60" />
                     <h5 class="text-bold">VIEW PATIENTS</h5>
                     <p class="card-text text-secondary">View patients details.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Patients","Surgeon")'" class="btn btn-outline-warning">VIEW</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Patients","Surgeon")'" class="btn btn-outline-warning text-bold">VIEW</button>
                 </div>
             </div>
         </div>
@@ -31,27 +31,27 @@
                     <img src="~/Images/Surgeon/surgery.png" width="60" />
                     <h5 class="text-bold">SURGERIES</h5>
                     <p class="card-text text-secondary">View surgery details.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Surgeries","Surgeon")'" class="btn btn-outline-warning">VIEW</button>
+                    <button type="button" onclick="location.href = '@Url.Action("Surgeries","Surgeon")'" class="btn btn-outline-warning text-bold">VIEW</button>
                 </div>
             </div>
         </div>
         @* <div class="col-sm-4">
-            <div class="card text-center" style="height:200px">
-                <div class="card-body text-warning">
-                    <img src="~/Images/Surgeon/admissions.png" width="60" />
-                    <h5 class="text-bold">VIEW MEDICAL RECORDS</h5>
-                    <p class="card-text text-secondary">View admission records.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("PatientRecord","Surgeon")'" class="btn btn-outline-warning">VIEW</button>
-                </div>
-            </div>
+        <div class="card text-center" style="height:200px">
+        <div class="card-body text-warning">
+        <img src="~/Images/Surgeon/admissions.png" width="60" />
+        <h5 class="text-bold">VIEW MEDICAL RECORDS</h5>
+        <p class="card-text text-secondary">View admission records.</p>
+        <button type="button" onclick="location.href = '@Url.Action("PatientRecord","Surgeon")'" class="btn btn-outline-warning">VIEW</button>
+        </div>
+        </div>
         </div> *@
         <div class="col-sm-6">
             <div class="card text-center" style="height:200px">
                 <div class="card-body text-warning">
                     <img src="~/Images/Surgeon/prescription.png" width="60" />
-                    <h5 class="text-bold">PRESCRIPTION</h5>
-                    <p class="card-text text-secondary">Submit prescription for patient.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("NewPrescription","Surgeon")'" class="btn btn-outline-warning">VIEW</button>
+                    <h5 class="text-bold">VIEW PRESCRIPTIONS</h5>
+                    <p class="card-text text-secondary">View all prescribed prescriptios for patients.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("AllPrescriptions","Surgeon")'" class="btn btn-outline-warning text-bold">VIEW</button>
                 </div>
             </div>
         </div>
@@ -59,9 +59,9 @@
             <div class="card text-center" style="height:200px">
                 <div class="card-body text-warning">
                     <img src="~/Images/Surgeon/dischargeform.png" width="80" />
-                    <h5 class="text-bold">DISCHARGE PATIENT</h5>
-                    <p class="card-text text-secondary">Indicate which patient to discharge.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("DischargePatient","Surgeon")'" class="btn btn-outline-warning">VIEW</button>
+                    <h5 class="text-bold">DISCHARGED PATIENTS</h5>
+                    <p class="card-text text-secondary">View discharged patients.</p>
+                    <button type="button" onclick="location.href = '@Url.Action("DischargePatient","Surgeon")'" class="btn btn-outline-warning text-bold">VIEW</button>
                 </div>
             </div>
         </div>

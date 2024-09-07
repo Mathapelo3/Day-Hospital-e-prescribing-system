@@ -1,20 +1,20 @@
 ﻿@using Day_Hospital_e_prescribing_system.ViewModel
-@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.SurgeryDetailsViewModel>
+@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.AllPrescriptionsViewModel>
 @{
-    ViewData["Title"] = "Surgeries";
+    ViewData["Title"] = "AllPrescriptions";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <h4 class="display-6 text-warning text-center text-bold">BOOKED SURGERIES</h4>
+            <h4 class="display-6 text-warning text-center text-bold">PRESCRIBED PRESCRIPTIONS</h4>
         </div>
     </div>
     <br />
     <div class="row mb-3">
         <div class="col-md-4">
-            <form method="get" asp-controller="Surgeon" asp-action="Surgeries">
+            <form method="get" asp-controller="Surgeon" asp-action="AllPrescriptions">
                 <div class="input-group">
                     <input type="date" name="filterDate" value="@(((DateTime?)ViewBag.FilterDate)?.ToString("yyyy-MM-dd"))" class="form-control" id="dateFilter" />
                     <div class="input-group-append">
@@ -25,8 +25,8 @@
         </div>
     </div>
     <div style="text-align:end">
-        <button type="button" class="btn btn-warning text-sm text-bold" onclick="location.href='@Url.Action("NewSurgery", "Surgeon")'">
-            New Surgery
+        <button type="button" class="btn btn-warning text-sm text-bold" onclick="location.href='@Url.Action("NewPrescription", "Surgeon")'">
+            New Prescription
         </button>
     </div>
     <div class="container p-3 text-md-center">
@@ -34,18 +34,19 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Time</th>
                     <th>Patient</th>
-                    <th>Treatment Code</th>
-                    <th>Theatre</th>
-                    <th>Anesthesiologist</th>
+                    <th>Medication</th>
+                    <th>Instruction</th>
+                    <th>Quantity</th>
+                    <th>Urgency</th>
+                    <th>Surgeon</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="6">No surgeries found for the selected date.</td>
+                        <td colspan="6">No prescriptions found for the selected date.</td>
                     </tr>
                 }
                 else
@@ -53,22 +54,13 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Date </td>
-                            <td>@(item.Time ?? " ")</td>
+                            <td>@item.Date.ToString("dd/MM/yyyy")</td>
                             <td>@item.PatientName @item.PatientSurname</td>
-                            <td>
-                                @if (item.TreatmentCodes != null && item.TreatmentCodes.Any())
-                                {
-                                    @string.Join(", ", item.TreatmentCodes)
-                                }
-                                else
-                                {
-                                    <span>No treatment codes</span>
-                                }
-                            </td>
-                            <td>@item.TheatreName</td>
-                            <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
-
+                            <td>@item.MedicationName</td>
+                            <td>@item.Instruction</td>
+                            <td>@item.Quantity</td>
+                            <td>@(item.Urgency ? "Yes" : "No")</td>
+                            <td>@item.SurgeonName @item.SurgeonSurname</td>
                         </tr>
                     }
                 }
