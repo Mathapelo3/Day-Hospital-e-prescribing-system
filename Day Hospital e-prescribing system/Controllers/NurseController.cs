@@ -911,192 +911,122 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
         [HttpGet]
-        public async Task<ActionResult> RetakeVitals2(int selectedId)
+        public async Task<ActionResult> RetakeVitals2(int id)
         {
-            //if (selectedId <= 0)
-            //{
-            //    _logger.LogWarning("Invalid admission id: {Id}", selectedId);
-            //    return NotFound("Invalid admission ID.");
-            //}
 
-            //var selectedAdmission = await _context.Surgeries
-            //    .Include(a => a.Patients)
-            //    .FirstOrDefaultAsync(a => a.SurgeryID == selectedId);
 
-            //if (selectedAdmission == null)
-            //{
-            //    _logger.LogWarning("Admission not found with id: {Id}", selectedId);
-            //    return NotFound("Admission not found.");
-            //}
-
-            var patient = await _context.Patients
-                .Include(p => p.Patient_Vitals)
-                .ThenInclude(pv => pv.Vitals)
-                .FirstOrDefaultAsync(p => p.PatientID == selectedId);
-
-            //if (patient == null)
-            //{
-            //    _logger.LogWarning("Patient not found with id: {Id}", model.PatientID);
-            //    return NotFound("Patient not found.");
-            //}
-
-            var vitalsList = await _context.Vitals
-       .Select(v => new Patient_VitalsVM
-       {
-           Vital = v.Vital,
-           Min = v.Min,
-           Max = v.Max,
-           Notes = string.Empty
-       }).ToListAsync();
-
-            //Initialize the view model with the necessary data
-            var model = new VitalsVM
+            try
             {
-                //SurgeryID = selectedAdmission.SurgeryID,
-                PatientID = patient.PatientID,
-                Name = patient.Name,
-                Surname = patient.Surname,
-                Date = DateTime.Now.Date,
-                Time = DateTime.Now.TimeOfDay,
-                Weight = patient.Patient_Vitals.FirstOrDefault()?.Weight,
-                Height = patient.Patient_Vitals.FirstOrDefault()?.Height,
-                Vitals = vitalsList // Populate with the available vitals
-            };
+                var model = new VitalsVM();
 
-            return View(model);
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
 
+                    // Get patient information
+                    using (var command = new SqlCommand("sp_GetPatientInfo", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@PatientID", id);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                model.PatientID = id;
+                                model.Name = reader["Name"].ToString();
+                                model.Surname = reader["Surname"].ToString();
+                                model.Weight = reader["Weight"] != DBNull.Value ? (string?)reader["Weight"] : null;
+                                model.Height = reader["Height"] != DBNull.Value ? (string?)reader["Height"] : null;
+                            }
+                            else
+                            {
+                                return NotFound("Patient not found.");
+                            }
+                        }
+                    }
+
+                    // Get vitals list
+                    model.Vitals = new List<Patient_VitalsVM>();
+                    using (var command = new SqlCommand("sp_GetVitalsList", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                model.Vitals.Add(new Patient_VitalsVM
+                                {
+                                    Vital = reader["Vital"].ToString(),
+                                    Min = (string)reader["Min"],
+                                    Max = (string)reader["Max"],
+                                    Value = string.Empty,
+                                    Notes = string.Empty
+                                });
+                            }
+                        }
+                    }
+                }
+
+                model.Date = DateTime.Now.Date;
+                model.Time = DateTime.Now.TimeOfDay;
+
+                return View(model);
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception
+                return StatusCode(500, "An error occurred while retrieving patient data.");
+            }
         }
+
         [HttpPost]
         public async Task<IActionResult> RetakeVitals2(VitalsVM model)
         {
 
             if (!ModelState.IsValid)
             {
-                //foreach (var state in ModelState)
-                //{
-                //    foreach (var error in state.Value.Errors)
-                //    {
-                //        _logger.LogWarning("ModelState Error: {Key} - {ErrorMessage}", state.Key, error.ErrorMessage);
-                //    }
-                //}
-
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors));
-                //// Existing logic to repopulate the model and return the view
-                var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientID == model.PatientID);
-                if (patient != null)
-                {
-                    model.Name = patient.Name;
-                    model.Surname = patient.Surname;
-                }
-                // Re-populate Vitals list with normal ranges
-                var vitalsList = new List<Patient_VitalsVM>();
-                foreach (var v in await _context.Vitals.ToListAsync())
-                {
-                    var vitalVM = model.Vitals.FirstOrDefault(vm => vm.Vital == v.Vital);
-
-                    vitalsList.Add(new Patient_VitalsVM
-                    {
-                        Vital = v.Vital,
-                        Min = v.Min,
-                        Max = v.Max,
-                        Value = vitalVM?.Value ?? string.Empty,
-                        Notes = vitalVM?.Notes ?? string.Empty
-                    });
-                }
-                model.Vitals = vitalsList;
+                // Handle invalid model state
                 return View(model);
-            }
-            // Debug and inspect model.Vitals
-            foreach (var vital in model.Vitals)
-            {
-                System.Diagnostics.Debug.WriteLine($"Vital: {vital.Vital}, Value: {vital.Value}");
             }
 
             try
             {
-                // Verify that the PatientID exists in the Patients table
-                var patientExists = await _context.Patients.AnyAsync(p => p.PatientID == model.PatientID);
-                if (!patientExists)
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
                 {
-                    _logger.LogWarning("Patient with ID: {PatientID} does not exist.", model.PatientID);
-                    return NotFound("Patient not found.");
-                }
+                    await connection.OpenAsync();
 
-                // List to hold all vitals being added
-                var vitalsList = new List<Patient_Vitals>();
-
-                foreach (var vitalVM in model.Vitals)
-                {
-                    var vital = new Patient_Vitals
+                    using (var command = new SqlCommand("InsertRetakeVitals", connection))
                     {
-                        PatientID = model.PatientID,
-                        VitalsID = _context.Vitals
-                            .Where(v => v.Vital == vitalVM.Vital)
-                            .Select(v => v.VitalsID)
-                            .FirstOrDefault(), // Assuming Vital is unique
-                        Date = model.Date,
-                        Time = model.Time,
-                        Value = vitalVM.Value,
-                        Notes = vitalVM.Notes,
-                        //Weight = model.Weight,
-                        //Height = model.Height
-                    };
+                        command.CommandType = CommandType.StoredProcedure;
 
-                    // Log the vital information being added
-                    _logger.LogInformation($"Adding vital for PatientID: {model.PatientID}, VitalID: {vital.VitalsID}, Value: {vital.Value}");
+                        command.Parameters.AddWithValue("@PatientID", model.PatientID);
+                        command.Parameters.AddWithValue("@Date", model.Date);
+                        command.Parameters.AddWithValue("@Time", model.Time);
+                        command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
 
-                    vitalsList.Add(vital);
-                }
-                // Check if any vitals were added before saving
-                if (vitalsList.Any())
-                {
-                    _context.Patient_Vitals.AddRange(vitalsList);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Vitals data saved successfully.");
-                }
-                else
-                {
-                    _logger.LogWarning("No valid vitals to save for PatientID: {PatientID}.", model.PatientID);
-                    ModelState.AddModelError(string.Empty, "No valid vitals to save.");
-                    return View(model);
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            // Process the results if needed
+                            while (await reader.ReadAsync())
+                            {
+                                // Read and process each row
+                            }
+                        }
+                    }
                 }
 
-
-                return RedirectToAction("DisplayVitals", "Nurse");
+                return RedirectToAction("DisplayVitals");
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
-                _logger.LogError(ex, "An error occurred while saving vitals data.");
+                // Log the exception
                 ModelState.AddModelError(string.Empty, "An error occurred while saving vitals data.");
-
-                // Ensure patient data is included in the model returned to the view
-                var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientID == model.PatientID);
-                if (patient != null)
-                {
-                    model.Name = patient.Name;
-                    model.Surname = patient.Surname;
-                }
-
-                // Re-populate Vitals list with normal ranges
-                var vitalsList = new List<Patient_VitalsVM>();
-                foreach (var v in await _context.Vitals.ToListAsync())
-                {
-                    var vitalVM = model.Vitals.FirstOrDefault(vm => vm.Vital == v.Vital);
-
-                    vitalsList.Add(new Patient_VitalsVM
-                    {
-                        Vital = v.Vital,
-                        Min = v.Min,
-                        Max = v.Max,
-                        Value = vitalVM?.Value ?? string.Empty, // Handling null values
-                        Notes = vitalVM?.Notes ?? string.Empty,
-                    });
-                }
-
-                model.Vitals = vitalsList;
                 return View(model);
             }
         }
+    
         public IActionResult RetakeVitals3()
         {
             return View();

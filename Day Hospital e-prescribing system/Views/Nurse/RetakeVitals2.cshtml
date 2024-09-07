@@ -100,11 +100,11 @@
         </div>
     </div>
     <form asp-action="RetakeVitals2" method="post">
-     @*   <input type="hidden" asp-for="SurgeryID" />*@
+        <input type="hidden" asp-for="PatientID" />
         <div class="card">
             <div class="body">
                 <div class="card-header text-bold">
-                  @*  @Model.Name @Model.Surname*@
+                    @Model.Name @Model.Surname
                 </div>
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
