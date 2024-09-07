@@ -9,6 +9,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Security.Claims;
 using WebApplication27.Models;
+using static Day_Hospital_e_prescribing_system.ViewModel.DisplayVitalsVM;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -219,11 +220,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
 
         }
-        public async Task<ActionResult> PatientsVitals(string searchString)
+        public async Task<ActionResult> PatientsVitals()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            //var patient = _context.Surgeries.FirstOrDefault(p => p.SurgeryID == id);
+          
 
             //if (patient == null)
             //{
@@ -1557,47 +1558,75 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
         [HttpGet]
-        public async Task<IActionResult> DisplayVitalsPerPatient(string id)
+        public async Task<IActionResult> DisplayVitalsPerPatient(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
-            var viewModel = new PatientRecordViewModel();
+            var viewModel = new DisplayVitalsVM();
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
-                connection.Open();
+                await connection.OpenAsync();
                 using (var command = new SqlCommand("GetPatientVitals", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@IDNo", id);
-
-                    using (var reader = command.ExecuteReader())
+                    command.Parameters.AddWithValue("@PatientID", id);
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         // Read patient details
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             viewModel.Patient = new Patient
                             {
                                 Name = reader.IsDBNull(reader.GetOrdinal("Name")) ? null : reader.GetString(reader.GetOrdinal("Name")),
                                 Surname = reader.IsDBNull(reader.GetOrdinal("Surname")) ? null : reader.GetString(reader.GetOrdinal("Surname")),
-
+                                // Add other patient properties as needed
                             };
                         }
-
-                        // Move to next result set (vitals)
-                        if (reader.NextResult())
+                        // Read patient details
+                        if (await reader.ReadAsync())
                         {
-                            viewModel.Vitals = new List<Vitals>();
-                            while (reader.Read())
+                            viewModel.Patient_Vitals = new Patient_Vitals
                             {
-                                viewModel.Vitals.Add(new Vitals
+                                Weight = reader.IsDBNull(reader.GetOrdinal("Weight")) ? null : reader.GetString(reader.GetOrdinal("Weight")),
+                                Height = reader.IsDBNull(reader.GetOrdinal("Height")) ? null : reader.GetString(reader.GetOrdinal("Height")),
+                                
+                            };
+                        }
+                        // Move to next result set (vitals)
+                        if (await reader.NextResultAsync())
+                        {
+                            viewModel.Vitals = new List<VitalsViewM>();
+                            while (await reader.ReadAsync())
+                            {
+                                viewModel.Vitals.Add(new VitalsViewM
                                 {
                                     Vital = reader.IsDBNull(reader.GetOrdinal("Vital")) ? null : reader.GetString(reader.GetOrdinal("Vital")),
-                                    Min = reader.IsDBNull(reader.GetOrdinal("Min")) ? null : reader.GetString(reader.GetOrdinal("Min")),
-                                    Max = reader.IsDBNull(reader.GetOrdinal("Max")) ? null : reader.GetString(reader.GetOrdinal("Max")),
-
+                                    Value = reader.IsDBNull(reader.GetOrdinal("Value")) ? null : reader.GetString(reader.GetOrdinal("Value")),
+                                    //Weight = reader.IsDBNull(reader.GetOrdinal("Weight")) ? null : reader.GetString(reader.GetOrdinal("Weight")),
+                                    //Height = reader.IsDBNull(reader.GetOrdinal("Height")) ? null : reader.GetString(reader.GetOrdinal("Height")),
+                                    Notes = reader.IsDBNull(reader.GetOrdinal("Notes")) ? null : reader.GetString(reader.GetOrdinal("Notes")),
+                                    Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                    Time = reader.GetTimeSpan(reader.GetOrdinal("Time")),
                                 });
                             }
                         }
+                        // Move to next result set (vitals)
+                        //if (await reader.NextResultAsync())
+                        //{
+                        //    viewModel.Patient_Vitals = new List<Patient_Vitals>();
+                        //    while (await reader.ReadAsync())
+                        //    {
+                        //        viewModel.Patient_Vitals.Add(new Patient_Vitals
+                        //        {
+                        //            Value = reader.IsDBNull(reader.GetOrdinal("Value")) ? null : reader.GetString(reader.GetOrdinal("Value")),
+                        //            Weight = reader.IsDBNull(reader.GetOrdinal("Weight")) ? null : reader.GetString(reader.GetOrdinal("Weight")),
+                        //            Height = reader.IsDBNull(reader.GetOrdinal("Height")) ? null : reader.GetString(reader.GetOrdinal("Height")),
+                        //            Notes = reader.IsDBNull(reader.GetOrdinal("Notes")) ? null : reader.GetString(reader.GetOrdinal("Notes")),
+                        //            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                        //            Time = reader.GetTimeSpan(reader.GetOrdinal("Time")),
+                        //            // Add other vital properties as needed
+                        //        });
+                        //    }
+                        //}
                     }
                 }
             }

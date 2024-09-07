@@ -1,4 +1,4 @@
-﻿
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.DisplayVitalsVM
 @{
     ViewData["Title"] = "DisplayVitalsPerPatient";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -108,6 +108,31 @@
                                     @* <h3 class="card-title">@Model.Date.ToString("dd MMM yyyy")</h3>*@
                                 </div>
                             </div>
+                        <div class="card-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        @* <h3 class="card-title">@Model.Date.ToString("dd MMM yyyy")</h3>*@
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="allergiesTable" class="table table-bordered table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Weight</th>
+                                                    <th>Height</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody readonly>
+                                                    <tr>
+                                                    <td>@(Model.Patient_Vitals?.Weight?? "Not added")</td>
+                                                    <td>@(Model.Patient_Vitals?.Height ?? "Not added")</td>
+                                                    </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
 <div class="card-body">
     <div class="row">
         <div class="col-md-12">
@@ -118,23 +143,25 @@
                         <table id="vitalsTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
                                     <th>Vital</th>
-                                    <th>Min</th>
-                                    <th>Max</th>
+                                    <th>Value</th>
+                                    <th>Notes</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (Model.Vitals != null && Model.Vitals.Any())
+                                @if (Model.Vitals != null)
                                 {
                                     @foreach (var vital in Model.Vitals)
                                     {
                                         <tr>
+                                            <td>@vital?.Date.ToShortDateString()</td>
+                                            <td>@vital?.Time.ToString(@"hh\:mm")</td>
                                             <td>@(vital?.Vital ?? "N/A")</td>
-                                            <td>@(vital?.Min?.ToString() ?? "N/A")</td>
-                                            <td>@(vital?.Max?.ToString() ?? "N/A")</td>
-                                                                    <td>@(vital?.Vital ?? "N/A")</td>
-                                                                    <td>@(vital?.Min?.ToString() ?? "N/A")</td>
-                                                                    <td>@(vital?.Max?.ToString() ?? "N/A")</td>
+                                            <td>@(vital?.Value?.ToString() ?? "N/A")</td>
+                                            <td>@(vital?.Notes ?? "N/A")</td>
+                                                                  
                                         </tr>
                                     }
                                 }
@@ -144,6 +171,11 @@
                                 }
                             </tbody>
                         </table>
+                                                        <div style="overflow:auto;">
+                                                            <div style="float:right;">
+                                                                <button type="button" onclick="location.href='@Url.Action("RetakeVitals2", new { id = Model.PatientID })'">Retake</button>
+                                                            </div>
+                                                        </div>
                     </div>
                 </div>
             </div>

@@ -63,7 +63,7 @@
                                                        @* <td>@item.TheatreName</td>*@
                                                         <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
                                                         <td>
-                                                            <a asp-action="DisplayVitalsPerPatient" asp-route-selectedId="@item.IDNo" class="btn btn-primary">
+                                                            <a asp-action="DisplayVitalsPerPatient" asp-route-id="@item.PatientID" class="btn btn-primary">
                                                                 VITALS RECORD
                                                             </a>
                                                             <a asp-action="SaveVitals" asp-route-selectedId="@item.SurgeryID" class="btn btn-primary">
