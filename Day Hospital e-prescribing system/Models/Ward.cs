@@ -15,7 +15,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string WardName { get; set; }
 
         [Required]
-        public int NumberOfBeds { get; set; }
+        public string NumberOfBeds { get; set; }
 
         public virtual ICollection<Bed> Bed { get; set; }
     }
