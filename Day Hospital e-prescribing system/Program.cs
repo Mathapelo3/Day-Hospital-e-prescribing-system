@@ -1,7 +1,7 @@
 using Day_Hospital_e_prescribing_system.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using Day_Hospital_e_prescribing_system;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +28,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+// Register OrderReportGenerator with the DI container
+builder.Services.AddTransient<OrderReportGenerator>();
 
 // Configure logging
 builder.Logging.ClearProviders();

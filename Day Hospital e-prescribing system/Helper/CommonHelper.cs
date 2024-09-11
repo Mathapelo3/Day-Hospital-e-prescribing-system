@@ -250,7 +250,9 @@ namespace Day_Hospital_e_prescribing_system.Helper
                             {
                                 AnaesthesiologistID = reader.GetInt32(reader.GetOrdinal("AnaesthesiologistID")),
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
-                                Username = reader["Username"].ToString()
+                                Username = reader["Username"].ToString(),
+                                Name = reader["Name"].ToString(),
+                                Surname = reader["Surname"].ToString()
                             };
                         }
                     }

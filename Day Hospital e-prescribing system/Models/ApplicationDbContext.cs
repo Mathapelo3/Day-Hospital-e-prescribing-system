@@ -64,6 +64,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<PConditionViewModel> PConditionViewModels { get; set; }
         public DbSet<PMedicationViewModel> PMedicationViewModels { get; set; }
 
+        public DbSet<OrderReportDataViewModel> OrderReportDataViewModel { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -123,6 +125,7 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<PatientMHViewModel>().HasNoKey();
             modelBuilder.Entity<OrderViewModel>().HasNoKey();
             modelBuilder.Entity<APatientViewModel>().HasNoKey();
+            modelBuilder.Entity<OrderReportDataViewModel>().HasNoKey();
             modelBuilder.Entity<Patient>().ToTable("Patient");
             //base.OnModelCreating(modelBuilder);
 

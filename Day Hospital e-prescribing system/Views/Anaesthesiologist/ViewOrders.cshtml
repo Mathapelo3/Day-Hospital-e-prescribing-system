@@ -37,8 +37,20 @@
         </div>
     </div>
     <div><br></div>
-
+    <h2>Generate Report:</h2>
+    <form asp-action="GenerateOrderReport" method="get" class="form-inline mb-3">
+        <div class="form-group mr-2">
+            <label for="startDate" class="mr-2">Start Date:</label>
+            <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
+        </div>
+        <div class="form-group mr-2">
+            <label for="endDate" class="mr-2">End Date:</label>
+            <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
+        </div>
+        <button type="submit" class="btn btn-purple">Generate</button>
+    </form>
     <!-- Date filter form -->
+    <h2>Filter Table:</h2>
     <form asp-action="ViewOrders" method="get" class="form-inline mb-3">
         <div class="form-group mr-2">
             <label for="startDate" class="mr-2">Start Date:</label>
@@ -52,6 +64,7 @@
         <div class="col-md-1 ml-auto">
             <a href="@Url.Action("ViewOrders", "Anaesthesiologist")" class="btn btn-danger btn-block">Reset</a>
         </div>
+       
     </form>
 
     <!-- Display orders -->
@@ -95,7 +108,7 @@
                                 }
                             </tbody>
                             <i class="fa fa-edit"></i>
-                            <i class="fa fa-trash"></i>
+                            <i class="fa fa-trash-alt"></i>
 
                         </table>
                     </div>
@@ -104,3 +117,27 @@
         </div>
     </div>
 </section>
+
+<script>
+    $(document).ready(function () {
+        $('#generate-report').click(function () {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GenerateOrderReport", "Anaesthesiologist")',
+                data: { startDate: startDate, endDate: endDate },
+                success: function (data) {
+                    // The PDF report has been generated successfully
+                    // You can display a message to the user or redirect them to a new page
+                    window.location.href = '@Url.Action("DownloadReport", "Anaesthesiologist")';
+                },
+                error: function (xhr, status, error) {
+                    // An error occurred while generating the report
+                    console.log(error);
+                }
+            });
+        });
+    });
+</script>

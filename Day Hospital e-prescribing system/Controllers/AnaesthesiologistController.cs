@@ -17,10 +17,12 @@ using System.Security.Claims;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using Day_Hospital_e_prescribing_system.Helper;
-
+using Microsoft.AspNetCore.Authorization;
+using iText.Kernel.Pdf;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
+    [Authorize]
     public class AnaesthesiologistController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,11 +30,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
        
         private readonly IConfiguration _configuration;
         private readonly CommonHelper _helper;
-        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger,  IConfiguration configuration)
+        private readonly OrderReportGenerator _orderReportGenerator;
+        public AnaesthesiologistController(ApplicationDbContext context, ILogger<AnaesthesiologistController> logger,  IConfiguration configuration, OrderReportGenerator orderReportGenerator)
         {
             _context = context;
             _logger = logger;
-           
+            _orderReportGenerator = orderReportGenerator;
             _configuration = configuration;
             _helper = new CommonHelper(_configuration);
 
@@ -432,6 +435,31 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(orders);
         }
+
+        [HttpGet]
+        public IActionResult GenerateOrderReport(DateTime startDate, DateTime endDate)
+        {
+            var anaesthesiologistName = HttpContext.Session.GetString("Name");
+            var anaesthesiologistSurname = HttpContext.Session.GetString("Surname");
+
+            if (string.IsNullOrEmpty(anaesthesiologistName) || string.IsNullOrEmpty(anaesthesiologistSurname))
+            {
+                _logger.LogWarning("Anesthesiologist name or surname could not be retrieved from the session.");
+                return BadRequest("Unable to retrieve anesthesiologist details.");
+            }
+
+            var reportStream = _orderReportGenerator.GenerateOrderReport(startDate, endDate, anaesthesiologistName, anaesthesiologistSurname);
+
+            // Ensure the stream is not disposed prematurely
+            if (reportStream == null || reportStream.Length == 0)
+            {
+                return NotFound(); // Or handle as appropriate
+            }
+
+            // Return the PDF file
+            return File(reportStream, "application/pdf", "OrderReport.pdf");
+        }
+
         public IActionResult EditOrders(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -642,7 +670,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 return NotFound();
             }
-
+             
             if (ModelState.IsValid)
             {
                 try

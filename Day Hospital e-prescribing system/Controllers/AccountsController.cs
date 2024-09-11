@@ -207,7 +207,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private async Task SignInAnaesthesiologist(string email, string role)
         {
             var anaesthesiologistDetails = _helper.GetAnaesthesiologistByEmail(@"
-                SELECT a.AnaesthesiologistID, a.UserID, u.Username 
+                SELECT a.AnaesthesiologistID, a.UserID, u.Username ,u.Name,u.Surname
                 FROM Anaesthesiologist a
                 INNER JOIN [User] u ON a.UserID = u.UserID
                 WHERE u.Email = @Email", email);
@@ -217,6 +217,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     new Claim(ClaimTypes.Email, email),
                     new Claim(ClaimTypes.NameIdentifier, anaesthesiologistDetails.AnaesthesiologistID.ToString()),
+                     new Claim(ClaimTypes.Name, $" {anaesthesiologistDetails.Name} {anaesthesiologistDetails.Surname}"), // Add this line
                     new Claim("Role", role),
                     new Claim("AnaesthesiologistID", anaesthesiologistDetails.AnaesthesiologistID.ToString())
                 };
@@ -228,6 +229,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 HttpContext.Session.SetString("Email", email);
                 HttpContext.Session.SetString("Username", anaesthesiologistDetails.Username);
+                HttpContext.Session.SetString("Name", anaesthesiologistDetails.Name);
+                HttpContext.Session.SetString("Surname", anaesthesiologistDetails.Surname);
                 HttpContext.Session.SetString("Role", role);
             }
         }
