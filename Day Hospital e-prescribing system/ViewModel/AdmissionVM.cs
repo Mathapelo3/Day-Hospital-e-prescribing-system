@@ -23,6 +23,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         public string Name { get; set; }
         public string Surname { get; set; }
+        public string Gender { get; set; }
+
+
 
         public string BedName { get; set; }
         public string WardName { get; set; }
@@ -34,6 +37,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public int BedId { get; set; }
 
         public int SurgeryID { get; set; }
+
+        public string SurgeonName { get; set; }
+        public string SurgeonSurname { get; set; }
 
         //public virtual Bed Beds { get; set; }
         public bool IsAvailable { get; set; }

@@ -266,35 +266,35 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Username = HttpContext.Session.GetString("Username");
             ViewData["CurrentFilter"] = searchString;
 
+            var patientAd = _context.Surgeries
+                                       .Include(s => s.Patients)
+                                        .ThenInclude(s => s.Beds)
+                                       //.Include(s => s.Theatres)
+                                       .Include(s => s.Surgeons)
+                                       //.Include(s => s.Surgery_TreatmentCodes)
+                                       .Select(s => new AdmissionVM
+                                       {
+                                           SurgeryID = s.SurgeryID,
+                                           PatientID = s.PatientID,
+                                           //AnaesthesiologistID = s.AnaesthesiologistID,
+                                           //TheatreID = s.TheatreID,
+                                           Gender=s.Patients.Gender,
+                                           BedName = s.Patients.Beds.BedName,
+                                           WardName = s.Patients.Beds.Wards.WardName,
+                                           //Surgery_TreatmentCodeID = s.Surgery_TreatmentCodeID,
+                                           //ICD_Code_10 = s.Surgery_TreatmentCodes.ICD_10_Code,
+                                           Name = s.Patients.Name,
+                                           Surname = s.Patients.Surname,
+                                           //TheatreName = s.Theatres.Name,
+                                           SurgeonName = s.Surgeons.User.Name,
+                                           SurgeonSurname = s.Surgeons.User.Surname,
+                                           //Date = s.Date,
+                                           //Time = s.Time // Assuming these properties exist on your Surgery entity
+                                       })
+                                        .ToList();
 
-            var patientAdmission = from a in _context.Admissions
-                                   join p in _context.Patients on a.PatientID equals p.PatientID
-                                   join b in _context.Bed on p.BedId equals b.BedId
-                                   join t in _context.TreatmentCodes on p.TreatmentCodeID equals t.TreatmentCodeID
-                                   join n in _context.Anaesthesiologists on a.AnaesthesiologistID equals n.AnaesthesiologistID
-                                   join s in _context.Surgeons on a.SurgeonID equals s.SurgeonID
-                                   join u_surgeon in _context.Users on s.UserID equals u_surgeon.UserID
-                                   join u_anaesth in _context.Users on n.UserID equals u_anaesth.UserID
-                                   select new AdmittedPatientsVM
-                                   {
-                                       AdmissionID = a.AdmissionID,
-                                       Date = a.Date,
-                                       Time = a.Time,
-                                       Patients = p.Name + " " + p.Surname,
-                                       Gender = p.Gender,
-                                       Bed = b.BedName,
-                                       TreatmentCodes = t.Description,
-                                       Anaesthesiologists = u_anaesth.Name + " " + u_anaesth.Surname,
-                                       Surgeons = u_surgeon.Name + " " + u_surgeon.Surname
-                                   };
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                patientAdmission = patientAdmission.Where(pa => pa.Patients.Contains(searchString));
-            }
-
-            var result = await patientAdmission.ToListAsync();
-            return View(result);
+            return View(patientAd);
         }
         public IActionResult Prescription()
         {
@@ -310,8 +310,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  PatientID = s.PatientID,
                                  SurgeonID = s.SurgeonID,
                                  MedicationID = s.MedicationID,
-                                 PatientName = s.Patient.Name + " " + s.Patient.Surname,
-                                 //SurgeonName = s.Name + " " + s.Surname,
+                                 Name = s.Patient.Name,
+                                 Surname = s.Patient.Surname,
+                                 SurgeonName = s.Surgeon.User.Name,
+                                 SurgeonSurname = s.Surgeon.User.Surname,
                                  Instruction =s.Instruction,
                                  Medication = s.Medication.Name,
                                  Status = s.Status,

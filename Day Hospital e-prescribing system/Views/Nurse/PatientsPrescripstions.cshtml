@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.AdmittedPatientsVM>
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.AdmissionVM>
 @{
     ViewData["Title"] = "PatientsPrescripstions";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -115,12 +115,13 @@
                                 <tr>
                                     <th>Patient</th>
                                     <th>Gender</th>
-                                    <th>Admission Date</th>
-                                    <th>Admission Time</th>
+                                   @* <th>Admission Date</th>
+                                    <th>Admission Time</th>*@
                                     <th>Bed</th>
+                                    <th>Ward</th>
                                    @* <th>TreatmentCode</th>*@
                                     <th>Surgeon</th>
-                                    <th>Anaesthesiologist</th>
+                                   @* <th>Anaesthesiologist</th>*@
 
                                 </tr>
                             </thead>
@@ -128,19 +129,20 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td>@item.Patients</td>
+                                        <td>@item.Name @item.Surname</td>
                                         <td>@item.Gender</td>
-                                        <td>@item.Date.ToShortDateString()</td>
-                                        <td>@item.Time</td>
-                                        <td>@item.Bed</td>
+                                       @* <td>@item.Date.ToShortDateString()</td>
+                                        <td>@item.Time</td>*@
+                                        <td>@item.BedName</td>
+                                        <td>@item.WardName</td>
                                        @* <td>@item.TreatmentCodes</td>*@
-                                        <td>@item.Surgeons</td>
-                                        <td>@item.Anaesthesiologists</td>
+                                        <td>@item.SurgeonName @item.SurgeonSurname</td>
+                                       @* <td>@item.Anaesthesiologists</td>*@
                                         <td>
                                             @if (item != null)
                                             {
-                                                <a asp-action="AddCodition2" asp-route-selectedId="@item.AdmissionID" class="btn btn-primary">
-                                                    Add Health Details
+                                                <a asp-action="Prescription" asp-route-selectedId="@item.PatientID" class="btn btn-primary">
+                                                    View Prescription
                                                 </a>
                                             }
 
