@@ -363,7 +363,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 model.PatientList = new SelectList(patients, "Value", "Text");
 
-                var medications = await _context.DayHospitalMedication
+                var medications = await _context.DayHospitalMedications
                     .Where(m => m.MedicationName != null)
                     .Select(m => new SelectListItem
                     {

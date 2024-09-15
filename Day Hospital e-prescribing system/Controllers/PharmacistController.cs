@@ -43,7 +43,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var selectListItems = _context.DayHospitalMedication.Select(m => new SelectListItem
+            var selectListItems = _context.DayHospitalMedications.Select(m => new SelectListItem
             {
                 Value = m.StockID.ToString(),
                 Text = m.MedicationName
@@ -117,7 +117,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 join p in _context.Patients on pr.PatientID equals p.PatientID
                                 join s in _context.Surgeons on pr.SurgeonID equals s.SurgeonID
                                 join u in _context.Users on s.UserID equals u.UserID
-                                join d in _context.DayHospitalMedication on pr.MedicationID equals d.StockID
+                                join d in _context.DayHospitalMedications on pr.MedicationID equals d.StockID
                                 where pr.Status != "Dispensed"
                                 select new ViewModel.PrescriptionViewModel
                                 {
@@ -129,8 +129,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                     Status = pr.Status,
                                     PatientID = pr.PatientID,
                                     Name = $"{p.Name} {p.Surname}",
-                                    Surgeon = $"{u.Username} {u.Surname}"
-
+                                    Surgeon = $"{u.Username} {u.Surname}",
+                                    Urgency = pr.Urgency
 
                                 };
 

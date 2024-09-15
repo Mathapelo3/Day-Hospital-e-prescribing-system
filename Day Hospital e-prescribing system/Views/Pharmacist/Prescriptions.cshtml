@@ -63,16 +63,15 @@
                         @foreach (var item in Model)
                         {
                             <tbody>
-                                <tr>
-                                   
+                                <tr class="@(item.Urgency ? "solved" : "")">
                                     <td>@item.Date.ToShortDateString()</td>
                                     <td>@item.Medication</td>
                                     <td>@item.Name</td>
                                     <td>@item.Surgeon</td>
                                     <td>
                                         <a asp-controller="Pharmacist"
-                                            asp-route-PatientID="@item.PatientID"
-                                            asp-action="PatientPrescriptions"
+                                           asp-route-PatientID="@item.PatientID"
+                                           asp-action="PatientPrescriptions"
                                            class="btn btn-info">View Details</a>
                                     </td>
                                 </tr>
@@ -103,3 +102,15 @@
     
 
 </section>
+
+<style>
+    tr.solved td {
+        background-color: #fb0e0e;
+        color: #ffff
+    }
+
+    tr.unsolved td {
+        background-color: #FFFFFF;
+        color: black;
+    }
+</style>
