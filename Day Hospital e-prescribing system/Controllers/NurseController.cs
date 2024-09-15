@@ -299,7 +299,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult Prescription()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            return View();
+          
+            var patientPrescript = _context.Prescriptions
+                             .Include(s => s.Patient)
+                              .Include(s => s.Surgeon)
+                               .Include(s => s.Medication)
+                             .Select(s => new PrescriptionVM
+                             {
+                                 PrescriptionID = s.PrescriptionID,
+                                 PatientID = s.PatientID,
+                                 SurgeonID = s.SurgeonID,
+                                 MedicationID = s.MedicationID,
+                                 PatientName = s.Patient.Name + " " + s.Patient.Surname,
+                                 //SurgeonName = s.Name + " " + s.Surname,
+                                 Instruction =s.Instruction,
+                                 Medication = s.Medication.Name,
+                                 Status = s.Status,
+                                 Date = s.Date,
+                                 Quantity = s.Quantity 
+                             })
+                              .ToList();
+
+            return View(patientPrescript);
         }
 
         public async Task<ActionResult> Discharge(int id)
