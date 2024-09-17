@@ -11,23 +11,31 @@ using Day_Hospital_e_prescribing_system.ViewModel;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SqlTypes;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using Day_Hospital_e_prescribing_system.ViewModels;
 using Newtonsoft.Json;
-
+using Microsoft.Extensions.Configuration;
+using Day_Hospital_e_prescribing_system.Helper;
+using Microsoft.AspNetCore.Authorization;
+using iText.Kernel.Pdf;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
+    [Authorize]
     public class SurgeonController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SurgeonController> _logger;
         private readonly IConfiguration _config;
-        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config)
+        private readonly CommonHelper _helper;
+        private readonly SurgeriesReportGenerator _surgeriesReportGenerator;
+        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config, SurgeriesReportGenerator surgeriesReportGenerator)
         {
             _context = context;
             _logger = logger;
             _config = config;
+            _surgeriesReportGenerator = surgeriesReportGenerator;
+            _helper = new CommonHelper(_config);
         }
 
         public ActionResult Dashboard()
@@ -200,6 +208,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             ViewBag.FilterDate = filterDate;
             return View(surgeries);
+        }
+
+        [HttpGet]
+        public IActionResult GenerateSurgeriesReport(DateTime startDate, DateTime endDate)
+        {
+            var surgeonName = HttpContext.Session.GetString("Name");
+            var surgeonSurname = HttpContext.Session.GetString("Surname");
+
+            if (string.IsNullOrEmpty(surgeonName) || string.IsNullOrEmpty(surgeonSurname))
+            {
+                _logger.LogWarning("Surgeon name or surname could not be retrieved from the session.");
+                return BadRequest("Unable to retrieve surgeon details.");
+            }
+
+            var reportStream = _surgeriesReportGenerator.GenerateSurgeriesReport(startDate, endDate, surgeonName, surgeonSurname);
+
+            // Ensure the stream is not disposed prematurely
+            if (reportStream == null || reportStream.Length == 0)
+            {
+                return NotFound(); // Or handle as appropriate
+            }
+
+            // Return the PDF file
+            return File(reportStream, "application/pdf", "SurgeriesReport.pdf");
         }
 
         [HttpGet]

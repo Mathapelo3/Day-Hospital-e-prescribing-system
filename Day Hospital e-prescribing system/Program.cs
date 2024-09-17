@@ -30,6 +30,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddControllersWithViews();
 // Register OrderReportGenerator with the DI container
 builder.Services.AddTransient<OrderReportGenerator>();
+// Register SurgeriesReportGenerator with the DI container
+builder.Services.AddTransient<SurgeriesReportGenerator>();
 
 // Configure logging
 builder.Logging.ClearProviders();

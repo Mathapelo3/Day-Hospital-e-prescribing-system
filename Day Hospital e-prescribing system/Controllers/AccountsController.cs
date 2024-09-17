@@ -121,20 +121,20 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private async Task SignInSurgeon(string email, string role)
         {
             var surgeonDetails = _helper.GetSurgeonByEmail(@"
-        SELECT s.SurgeonID, s.UserID, u.Username 
-        FROM Surgeon s
-        INNER JOIN [User] u ON s.UserID = u.UserID
-        WHERE u.Email = @Email", email);
-
+                SELECT s.SurgeonID, s.UserID, u.Username ,u.Name, u.Surname
+                FROM Surgeon s
+                INNER JOIN [User] u ON s.UserID = u.UserID
+                WHERE u.Email = @Email", email);
             if (surgeonDetails != null)
             {
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.NameIdentifier, surgeonDetails.SurgeonID.ToString()),
-            new Claim("Role", role),
-            new Claim("SurgeonID", surgeonDetails.SurgeonID.ToString())
-        };
+                {
+                    new Claim(ClaimTypes.Email, email),
+                    new Claim(ClaimTypes.NameIdentifier, surgeonDetails.SurgeonID.ToString()),
+                    new Claim(ClaimTypes.Name, $" {surgeonDetails.Name} {surgeonDetails.Surname}"), // Add this line
+                    new Claim("Role", role),
+                    new Claim("SurgeonID", surgeonDetails.SurgeonID.ToString())
+                };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties { IsPersistent = true };
@@ -143,6 +143,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 HttpContext.Session.SetString("Email", email);
                 HttpContext.Session.SetString("Username", surgeonDetails.Username); // Updated to get username
+                HttpContext.Session.SetString("Name", surgeonDetails.Name);
+                HttpContext.Session.SetString("Surname", surgeonDetails.Surname);
                 HttpContext.Session.SetString("Role", role);
             }
         }
