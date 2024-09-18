@@ -167,26 +167,17 @@ namespace Day_Hospital_e_prescribing_system
                          .SetBorderLeft(Border.NO_BORDER)
                          .SetBorderRight(Border.NO_BORDER));
 
-                        table2.AddCell(new Cell().Add(new Paragraph("QTY"))
-                            .SetBorderBottom(bottomBorder) // Add bottom border
-                            .SetBorderTop(Border.NO_BORDER)
-                            .SetBorderLeft(Border.NO_BORDER)
-                            .SetBorderRight(Border.NO_BORDER));
                         // Add the rest of the rows with no borders
                         var codeQuantities = codes
                             .GroupBy(o => o.TreatmentCode)
                             .Select(g => new
                             {
-                                TreatmentCode = g.Key,
-                                Quantity = g.Sum(o => int.TryParse(o.Quantity, out int qty) ? qty : 0)
+                                TreatmentCode = g.Key
                             });
 
                         foreach (var codeQuantity in codeQuantities)
                         {
                             table2.AddCell(new Cell().Add(new Paragraph(codeQuantity.TreatmentCode))
-                                .SetBorder(Border.NO_BORDER));
-
-                            table2.AddCell(new Cell().Add(new Paragraph(codeQuantity.Quantity.ToString()))
                                 .SetBorder(Border.NO_BORDER));
                         }
 
@@ -231,8 +222,6 @@ namespace Day_Hospital_e_prescribing_system
                 pdfCanvas.Release();
             }
         }
-
-
 
     }
 }

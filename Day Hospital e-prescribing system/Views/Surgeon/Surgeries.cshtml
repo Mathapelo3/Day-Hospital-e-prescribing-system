@@ -14,17 +14,21 @@
     <br />
     <div class="row mb-3">
         <div class="col-md-4">
+            <h5>Filter Table:</h5>
             <form method="get" asp-controller="Surgeon" asp-action="Surgeries">
                 <div class="input-group">
                     <input type="date" name="filterDate" value="@(((DateTime?)ViewBag.FilterDate)?.ToString("yyyy-MM-dd"))" class="form-control" id="dateFilter" />
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary">Filter</button>
                     </div>
+                    <div class="col-md-4">
+                        <a href="@Url.Action("Surgeries", "Surgeon")" class="btn btn-danger btn-block">Reset</a>
+                    </div>
                 </div>
             </form>
         </div>
-        <div class="col-md-4">
-            <h4>Generate Report:</h4>
+        <div class="col-md-8">
+            <h5>Generate Report:</h5>
             <form asp-action="GenerateSurgeriesReport" method="get" class="form-inline mb-3">
                 <div class="form-group mr-2">
                     <label for="startDate" class="mr-2">Start Date:</label>
@@ -34,7 +38,7 @@
                     <label for="endDate" class="mr-2">End Date:</label>
                     <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
                 </div>
-                <button type="submit" class="btn btn-warning">Generate</button>
+                <button type="submit" class="btn btn-warning text-bold">Generate</button>
             </form>
         </div>
     </div>
