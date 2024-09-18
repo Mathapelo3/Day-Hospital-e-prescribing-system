@@ -21,7 +21,6 @@ using iText.Kernel.Pdf;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
-    [Authorize]
     public class SurgeonController : Controller
     {
         private readonly ApplicationDbContext _context;
