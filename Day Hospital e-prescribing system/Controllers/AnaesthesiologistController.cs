@@ -460,60 +460,62 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return File(reportStream, "application/pdf", "OrderReport.pdf");
         }
 
-        public IActionResult EditOrders(int id)
+        public ActionResult EditOrders(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var order = _context.Orders.Find(id);
+            _logger.LogInformation($"EditOrders action triggered with id: {id}");
+
+            var order = _context.OrderEditViewModel
+        .FromSqlRaw("EXEC sp_GetOrder @OrderId = {0}", id)
+        .AsEnumerable()
+        .FirstOrDefault();
+
             if (order == null)
             {
+                _logger.LogWarning($"Order not found for id: {id}");
                 return NotFound();
             }
 
-            if (order.Status != "ordered")
-            {
-                return RedirectToAction("ViewOrders");
-            }
+            _logger.LogInformation($"ViewModel: {order}");
 
-            var viewModel = new OrderViewModel
-            {
-                OrderID = order.OrderID,
-                Date = order.Date,
-                Quantity = order.Quantity
-            };
-
-            return View(viewModel);
+            return View(order);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditOrders(OrderViewModel viewModel)
+        public async Task<ActionResult> EditOrders(OrderEditViewModel editOrder)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-
-
             if (ModelState.IsValid)
             {
-                var order = _context.Orders.Find(viewModel.OrderID);
-                if (order != null)
+                _logger.LogInformation($"Updating order with ID {editOrder.OrderID}, Date: {editOrder.Date}, Quantity: {editOrder.Quantity}");
+
+                try
                 {
-                    order.Date = viewModel.Date;
-                    order.Quantity = viewModel.Quantity;
-                    _context.SaveChanges();
+                    await _context.Database.ExecuteSqlRawAsync("EXEC sp_UpdateOrder @OrderId = {0}, @Date = {1}, @Quantity = {2}",
+                        editOrder.OrderID, editOrder.Date, editOrder.Quantity);
+
+                    _logger.LogInformation("Order update successful.");
                     return RedirectToAction("ViewOrders");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating order.");
+                    ModelState.AddModelError("", "Error updating order.");
                 }
             }
 
-            return View(viewModel);
+            return View(editOrder);
         }
-
-
 
         private bool OrderExists(int id)
         {
 
             return _context.Orders.Any(e => e.OrderID == id);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -524,13 +526,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return NotFound();
             }
 
-            if (order.Status != "ordered")
+            if (order.Status != "Ordered")
             {
                 return RedirectToAction("ViewOrders");
             }
 
             _context.Orders.Remove(order);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("ViewOrders");
         }
 
