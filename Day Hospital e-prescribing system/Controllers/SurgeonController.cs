@@ -180,32 +180,34 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Surgeries(DateTime? filterDate)
+        public async Task<ActionResult> Surgeries(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var surgeries = _context.Surgeries
-                            .Include(s => s.Patients)
-                            .Include(s => s.Theatres)
-                            .Include(s => s.Anaesthesiologists)
-                            .Include(s => s.Surgery_TreatmentCodes)
-                            .Select(s => new SurgeryDetailsViewModel
-                            {
-                                SurgeryID = s.SurgeryID,
-                                PatientID = s.PatientID,
-                                AnaesthesiologistID = s.AnaesthesiologistID,
-                                TheatreID = s.TheatreID,
-                                PatientName = s.Patients.Name,
-                                PatientSurname = s.Patients.Surname,
-                                TheatreName = s.Theatres.Name,
-                                AnaesthesiologistName = s.Anaesthesiologists.User.Name,
-                                AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
-                                Date = s.Date,
-                                Time = s.Time,
-                            })
-                             .ToList();
+            var surgeries = await _context.SurgeryDetailsViewModel.FromSqlRaw(
+                "EXEC GetBookedSurgeryDetails"
+            ).ToListAsync();
 
-            ViewBag.FilterDate = filterDate;
+            // Apply date filtering in memory
+            if (startDate.HasValue)
+            {
+                surgeries = surgeries.Where(s => s.Date >= startDate.Value.Date).ToList();
+            }
+            if (endDate.HasValue)
+            {
+                surgeries = surgeries.Where(s => s.Date <= endDate.Value.Date).ToList();
+            }
+
+            // Convert the comma-separated string of surgery codes to a list
+            foreach (var surgery in surgeries)
+            {
+                surgery.SurgeryCodes = surgery.SurgeryCode?.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            }
+
+            // Pass the date values to the view for maintaining filter state
+            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
+            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
+
             return View(surgeries);
         }
 

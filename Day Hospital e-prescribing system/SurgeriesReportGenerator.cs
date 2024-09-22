@@ -35,32 +35,31 @@ namespace Day_Hospital_e_prescribing_system
             {
                 _logger.LogInformation($"Executing stored procedure with StartDate: {startDate}, EndDate: {endDate}");
 
-                var codes = _context.SurgeryReportDataViewModel
+                var surgeries = _context.SurgeryReportDataViewModel
                     .FromSqlInterpolated($"EXEC GetSurgeriesReportData @StartDate = {startDate}, @EndDate = {endDate}")
                     .ToList();
 
-                _logger.LogInformation($"Retrieved {codes.Count} order(s) from the database.");
-                return codes;
+                _logger.LogInformation($"Retrieved {surgeries.Count} surgery(ies) from the database.");
+                return surgeries;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while retrieving order report data.");
+                _logger.LogError(ex, "Error occurred while retrieving surgery report data.");
                 throw;
             }
         }
 
         public MemoryStream GenerateSurgeriesReport(DateTime startDate, DateTime endDate, string surgeonName, string surgeonSurname)
         {
-            var codes = GetSurgeriesReportData(startDate, endDate);
+            var surgeries = GetSurgeriesReportData(startDate, endDate);
             var ms = new MemoryStream();
 
             try
             {
-                using (var writer = new PdfWriter(ms, new WriterProperties().SetCompressionLevel(9)))
+                using (var writer = new PdfWriter(ms))
                 {
                     using (var pdf = new PdfDocument(writer))
                     {
-                        // Attach the page number event handler
                         pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new PageNumberEventHandler());
 
                         var document = new Document(pdf);
@@ -68,7 +67,7 @@ namespace Day_Hospital_e_prescribing_system
                         // Add title "SURGEON REPORT" aligned to the left
                         var title = new Paragraph("SURGEON REPORT")
                             .SetTextAlignment(TextAlignment.LEFT)
-                            .SetFontSize(16); // Adjust font size as needed
+                            .SetFontSize(16);
 
                         document.Add(title);
 
@@ -83,7 +82,7 @@ namespace Day_Hospital_e_prescribing_system
 
                         // Create a table with two columns for the date range and generated date
                         var infoTable = new Table(UnitValue.CreatePercentArray(2))
-                            .SetWidth(UnitValue.CreatePercentValue(100)); // Set table width to 100%
+                            .SetWidth(UnitValue.CreatePercentValue(100));
 
                         infoTable.AddCell(new Cell()
                             .Add(new Paragraph($"Date Range: {startDate:yyyy-MM-dd} - {endDate:yyyy-MM-dd}")
@@ -97,100 +96,79 @@ namespace Day_Hospital_e_prescribing_system
 
                         document.Add(infoTable);
 
-                        // Sort codes by date and group them
-                        var groupedCodes = codes
-                            .GroupBy(o => o.Date)
-                            .OrderBy(g => g.Key)
-                            .ToList();
+                        // Create the table for surgeries data
+                        var table1 = new Table(UnitValue.CreatePercentArray(new float[] { 20, 20, 40 }))
+                            .SetWidth(UnitValue.CreatePercentValue(80));
 
-                        // Create the table for codes data (without borders except for the header)
-                        var table1 = new Table(UnitValue.CreatePercentArray(new float[] { 20, 20, 20, 10 }))
-                            .SetWidth(UnitValue.CreatePercentValue(70)); // Set table width to 70%
+                        var bottomBorder = new SolidBorder(1);
 
-                        // Define the border for the bottom of the header row
-                        var bottomBorder = new SolidBorder(1); // You can adjust the thickness here
-
-                        // Add header row for the first table with bottom border only
+                        // Add header row
                         table1.AddCell(new Cell().Add(new Paragraph("DATE")).SetBorderBottom(bottomBorder).SetBorderTop(Border.NO_BORDER).SetBorderLeft(Border.NO_BORDER).SetBorderRight(Border.NO_BORDER));
                         table1.AddCell(new Cell().Add(new Paragraph("PATIENT")).SetBorderBottom(bottomBorder).SetBorderTop(Border.NO_BORDER).SetBorderLeft(Border.NO_BORDER).SetBorderRight(Border.NO_BORDER));
-                        table1.AddCell(new Cell().Add(new Paragraph("TREATMENT CODES")).SetBorderBottom(bottomBorder).SetBorderTop(Border.NO_BORDER).SetBorderLeft(Border.NO_BORDER).SetBorderRight(Border.NO_BORDER));
+                        table1.AddCell(new Cell().Add(new Paragraph("TREATMENT CODE")).SetBorderBottom(bottomBorder).SetBorderTop(Border.NO_BORDER).SetBorderLeft(Border.NO_BORDER).SetBorderRight(Border.NO_BORDER));
 
-                        // Add the rest of the rows with no borders
-                        foreach (var group in groupedCodes)
+                        foreach (var group in surgeries.GroupBy(s => s.Date).OrderBy(g => g.Key))
                         {
-                            // Add the date once for each date group without borders
                             table1.AddCell(new Cell().Add(new Paragraph(group.Key.ToString("yyyy-MM-dd"))).SetBorder(Border.NO_BORDER));
                             table1.AddCell(new Cell().Add(new Paragraph("")).SetBorder(Border.NO_BORDER));
                             table1.AddCell(new Cell().Add(new Paragraph("")).SetBorder(Border.NO_BORDER));
 
-                            foreach (var code in group)
+                            foreach (var surgery in group)
                             {
-                                // Remove borders for all other cells
                                 table1.AddCell(new Cell().Add(new Paragraph("")).SetBorder(Border.NO_BORDER));
-                                table1.AddCell(new Cell().Add(new Paragraph($"{code.PatientName} {code.PatientSurname}")).SetBorder(Border.NO_BORDER));
-                                table1.AddCell(new Cell().Add(new Paragraph(code.TreatmentCode)).SetBorder(Border.NO_BORDER));
+                                table1.AddCell(new Cell().Add(new Paragraph($"{surgery.PatientName} {surgery.PatientSurname}")).SetBorder(Border.NO_BORDER));
+                                table1.AddCell(new Cell().Add(new Paragraph(surgery.TreatmentCodes)).SetBorder(Border.NO_BORDER));
                             }
                         }
 
-                        // Add the table to the document
                         document.Add(table1);
 
                         // Add total patients paragraph
-                        int totalPatients = codes.Select(o => o.PatientName).Distinct().Count();
+                        int totalPatients = surgeries.Select(s => $"{s.PatientName} {s.PatientSurname}").Distinct().Count();
                         var totalPatientsParagraph = new Paragraph($"TOTAL PATIENTS: {totalPatients}")
                             .SetTextAlignment(TextAlignment.LEFT)
                             .SetBold()
-                            .SetMarginTop(10); // Add margin to create space
+                            .SetMarginTop(10);
 
                         document.Add(totalPatientsParagraph);
 
                         // Add title above the second table
-                        var summaryTitle = new Paragraph("SUMMARY PER TEATMENT CODE:")
+                        var summaryTitle = new Paragraph("SUMMARY PER TREATMENT CODE:")
                             .SetTextAlignment(TextAlignment.LEFT)
                             .SetBold()
                             .SetFontSize(12)
-                            .SetMarginTop(20); // Add margin to create space above the title
+                            .SetMarginTop(20);
 
                         document.Add(summaryTitle);
 
-                        // Create the second table with medication summary
-                        var table2 = new Table(UnitValue.CreatePercentArray(new float[] { 30, 10 }))
-                            .SetWidth(UnitValue.CreatePercentValue(30)); // Set table width to 30%
+                        // Create the second table with treatment code summary
+                        var table2 = new Table(UnitValue.CreatePercentArray(new float[] { 30 }))
+                            .SetWidth(UnitValue.CreatePercentValue(30));
 
-                        // Define the border for the bottom of the header row
-                        /*var bottomBorder = new SolidBorder(1);*/ // Adjust the thickness as needed
+                        table2.AddCell(new Cell().Add(new Paragraph("TREATMENT CODES"))
+                            .SetBorderBottom(bottomBorder)
+                            .SetBorderTop(Border.NO_BORDER)
+                            .SetBorderLeft(Border.NO_BORDER)
+                            .SetBorderRight(Border.NO_BORDER));
 
-                        // Add header row with bottom border only
-                        table2.AddCell(new Cell().Add(new Paragraph("TREATMENT CODE"))
-                         .SetBorderBottom(bottomBorder) // Add bottom border
-                         .SetBorderTop(Border.NO_BORDER)
-                         .SetBorderLeft(Border.NO_BORDER)
-                         .SetBorderRight(Border.NO_BORDER));
+                        var uniqueTreatmentCodes = surgeries
+                            .SelectMany(s => s.TreatmentCodes.Split(", ", StringSplitOptions.RemoveEmptyEntries))
+                            .Distinct()
+                            .OrderBy(code => code);
 
-                        // Add the rest of the rows with no borders
-                        var codeQuantities = codes
-                            .GroupBy(o => o.TreatmentCode)
-                            .Select(g => new
-                            {
-                                TreatmentCode = g.Key
-                            });
-
-                        foreach (var codeQuantity in codeQuantities)
+                        foreach (var code in uniqueTreatmentCodes)
                         {
-                            table2.AddCell(new Cell().Add(new Paragraph(codeQuantity.TreatmentCode))
+                            table2.AddCell(new Cell().Add(new Paragraph(code))
                                 .SetBorder(Border.NO_BORDER));
                         }
 
-                        // Add the second table to the document
                         document.Add(table2);
 
                         document.Close();
                     }
                 }
 
-                // Create a copy of the MemoryStream to return
-                var reportStream = new MemoryStream(ms.ToArray());
-                return reportStream;
+                return new MemoryStream(ms.ToArray());
             }
             catch (Exception ex)
             {
@@ -210,13 +188,11 @@ namespace Day_Hospital_e_prescribing_system
                 int pageNumber = pdfDoc.GetPageNumber(page);
                 int totalPages = pdfDoc.GetNumberOfPages();
 
-                // Create the PdfCanvas to write the page number
                 PdfCanvas pdfCanvas = new PdfCanvas(page.NewContentStreamAfter(), page.GetResources(), pdfDoc);
 
-                // Write the page number at the bottom of the page
                 pdfCanvas.BeginText();
                 pdfCanvas.SetFontAndSize(PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.HELVETICA), 10);
-                pdfCanvas.MoveText(page.GetPageSize().GetWidth() / 2 - 10, 20); // Adjust position for your needs
+                pdfCanvas.MoveText(page.GetPageSize().GetWidth() / 2 - 10, 20);
                 pdfCanvas.ShowText($"Page {pageNumber} of {totalPages}");
                 pdfCanvas.EndText();
                 pdfCanvas.Release();

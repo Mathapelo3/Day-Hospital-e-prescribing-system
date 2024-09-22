@@ -1,5 +1,6 @@
 ﻿using Day_Hospital_e_prescribing_system.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Permissions;
 using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
@@ -59,6 +60,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<PatientMHViewModel> PatientMHViewModel { get; set; }
         public DbSet<OrderViewModel> OrderViewModel { get; set; }
+        public DbSet<SurgeryDetailsViewModel> SurgeryDetailsViewModel { get; set; }
         public DbSet<APatientViewModel> APatientViewModel { get; set; }
         public DbSet<PAllergyViewModel> PAllergyViewModels { get; set; }
         public DbSet<PConditionViewModel> PConditionViewModels { get; set; }
@@ -66,7 +68,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<OrderReportDataViewModel> OrderReportDataViewModel { get; set; }
         public DbSet<SurgeryReportDataViewModel> SurgeryReportDataViewModel { get; set; }
-        public DbSet<OrderEditViewModel> OrderEditViewModel { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -125,7 +127,7 @@ namespace Day_Hospital_e_prescribing_system.Models
             //base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<PatientMHViewModel>().HasNoKey();
             modelBuilder.Entity<OrderViewModel>().HasNoKey();
-            modelBuilder.Entity<OrderEditViewModel>().HasNoKey();
+            modelBuilder.Entity<SurgeryDetailsViewModel>().HasNoKey();
             modelBuilder.Entity<APatientViewModel>().HasNoKey();
             modelBuilder.Entity<OrderReportDataViewModel>().HasNoKey();
             modelBuilder.Entity<SurgeryReportDataViewModel>().HasNoKey();

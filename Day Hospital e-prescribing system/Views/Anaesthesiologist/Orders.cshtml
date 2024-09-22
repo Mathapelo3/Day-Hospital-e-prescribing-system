@@ -82,7 +82,7 @@
                                         <th>Medication</th>
                                         <th>Quantity</th>
                                         <th>Status</th>
-                                       @* <th></th>*@
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -94,7 +94,7 @@
                                             <td>@order.MedicationName</td>
                                             <td>@order.Quantity</td>
                                             <td>@order.Status</td>
-                                             @* <td>
+                                              <td>
                                                 @if (order.Status == "ordered")
                                                 {
                                                         <a href="#" class="btn btn-primary edit-order" data-id="@order.OrderID" title="Edit">
@@ -106,7 +106,7 @@
                                                             <i class="fas fa-trash-alt"></i>
                                                         </a>
                                                 }
-                                        </td>*@
+                                        </td>
                                         </tr>
                                     }
                                 </tbody>
