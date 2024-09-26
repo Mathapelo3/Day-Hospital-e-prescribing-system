@@ -1,5 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Index1";
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientPrescriptionVM
+
+@{
+    ViewData["Title"] = "View Prescription";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
@@ -18,26 +20,31 @@
 
         <!-- Display patients -->
         <div class="row">
-            <div  class="col-md-8">
+            @*Patient's Prescription*@
+            <div class="col-md-8">
                 <img src="~/images/cybermedlogo.png" style="display:none" alt="Company Logo" id="logo" />
                 <hr style="display:none" id="logo" />
                 <br />
                 <!-- Button trigger modal -->
-               @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    Launch static backdrop modal
+                @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                Launch static backdrop modal
                 </button>*@
-
                 <!-- Modal -->
-
                 <div class="card" id="container">
-                    
+
                     <div class="card-header">
-                        <h5 style="color:#268aab">Patient Prescription</h5>
+                        <h5 style="color:#268aab">@Model.PatientName @Model.Surname Prescription</h5>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-info">Joe Doe Prescription History</button>
+                            <form asp-action="PatientPrescriptions" asp-route-id="@Model.PatientID" asp-controller="Pharmacist">
+                                <button type="submit" class="btn btn-info"> Patient's Prescription History</button>
+
+                            </form>
                         </div>
                     </div>
+
+
                     <div class="card-body">
+
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="inputState" class="form-label">Prescription No: </label>
@@ -45,77 +52,55 @@
                             </div>
                             <div class="col-md-4">
                                 <label for="inputState" class="form-label">Date</label>
-                                <lable type="date">07/04/2027</lable>
+                                <lable type="date">@Model.Date.ToString("yyyy-MM-dd")</lable>
                             </div>
 
                         </div>
-                        
+
                         <br />
                         <div class="row" style="justify-content:space-between">
-                            
+
                             <div class="col-md-4">
                                 <label class="form-label">Patient Name: </label>
-                                <lable>Shaiur</lable>
+                                <lable>@Model.PatientName @Model.Surname</lable>
                             </div>
-                            <div class="col-md-1">
-                                <label class="form-label">Age: </label>
-                                <lable>30</lable>
-                            </div>
+                            
                             <div class="col-md-2">
                                 <label class="form-label">Gender</label>
-                                <lable>Female</lable>
+                                <lable>@Model.Gender</lable>
                             </div>
                         </div>
                         <hr />
                         <br />
                         <div class="row" id="presTable">
-
-                            <table class="table table-borderless" >
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Drug</th>
-                                        <th scope="col">Dosage</th>
-                                        <th scope="col">Units</th>
-                                        <th scope="col">Dispense</th>
-                                        <th scope="col">Avail. Qty</th>
-                                        <th scope="col">Refills</th>
-                                       
+                                        
+                                        <th>Medication Name</th>
+                                        <th>Instructions</th>
+                                        <th>Quantity</th>
+                                        <th>Available Quantity</th>
+                                        <th>Refills</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <th scope="row">1</th>
-                                        <td>Napa Rapid 500mg oral tablet</td>
-                                        <td>2 Morning, 2 Night
-                                            <br />
-                                            (Before Meal)
-                                        </td>
-                                        <td>tablet</td>
-                                        <td>20(twenty)</td>
-                                        <td class="bg-success">500</td>
+                                        
+                                        <td>@(Model.DayHospitalMedicationName ?? "N/A")</td>
+                                        <td>@Html.Raw(Model.Instruction)</td>
+                                        <td>@(Model.Quantity ?? "N/A")</td>
+                                        <td class="bg-success">@((Model.QtyLeft).ToString())</td>
                                         <td>0</td>
-
                                     </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>Finix 20mg oral tablet</td>
-                                        <td>
-                                            1 tablet/ day
-                                            <br />
-                                            (With Meal)
-                                        </td>
-                                        <td>tablet</td>
-                                        <td>20(twenty)</td>
-                                        <td class="bg-success">400</td>
-                                        <td>0</td>
 
-                                    </tr>
+
                                 </tbody>
                             </table>
+
                             <br />
                             <div class="d-grid gap-2 col-6 mx-auto">
-                                <button class="btn btn-info" type="button" >Dispense Prescription</button>
+                                <button class="btn btn-info" type="button">Dispense Prescription</button>
                                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectPrescription">
                                     Reject Prescription
                                 </button>
@@ -132,11 +117,11 @@
                                             </div>
                                             <div class="modal-body">
                                                 @*<form method="post">
-                                                    <textarea asp-for="" class="form-control">
+                                                <textarea asp-for="" class="form-control">
 
-                                                    </textarea>
+                                                </textarea>
 
-                                                    
+
                                                 </form>*@
                                             </div>
                                             <div class="modal-footer">
@@ -150,18 +135,17 @@
                             </div>
 
                             <!-- Button trigger modal -->
-                            
-
                             <!-- Modal -->
 
-                            
+
                         </div>
                     </div>
                 </div>
-                @*<button onclick="window.print();return false;">Print this page</button>*@
 
             </div>
+                @*<button onclick="window.print();return false;">Print this page</button>*@
 
+                @*Patient Allergies*@
             <div class="col-md-4">
                 <br />
                 <div class="card">
@@ -174,22 +158,16 @@
                                 <tr>
 
                                     <th scope="col">Name</th>
-                                    <th scope="col">Serverity</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Penicilin</td>
-                                    <td class="bg-gradient-warning">Morderate</td>
+                                    <form>
+                                        <td>@Model.AllergyName</td>
+                                    </form>
+                                    
                                 </tr>
-                                <tr>
-                                    <td>Ibuprofen</td>
-                                    <td class="bg-gradient-success">Mild</td>
-                                </tr>
-                                <tr>
-                                    <td>Carbamazepine</td>
-                                    <td class="bg-gradient-danger">Server</td>
-                                </tr>
+                                
                             </tbody>
                         </table>
                     </div>
@@ -197,7 +175,7 @@
             </div>
         </div>
 
-
+        @*PAtient Vitals*@
         <div class="row">
             <div class="col-md-8">
                 <br />
@@ -208,66 +186,29 @@
                     </div>
                     <div class="card-body">
                         <table class="table table-bordered">
-                            <thead>
+                            
                                 <tr>
 
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Time</th>
-                                    <th scope="col">hgt.(cm)</th>
-                                    <th scope="col">wgt.(kg)</th>
-                                    <th scope="col">
-                                        TEMP
-                                        <br />(°C)
-                                    </th>
-                                    <th scope="col">
-                                        BP
-                                        <br />(bpm)
-                                    </th>
-                                    <th scope="col">
-                                        bpm.
-                                        <br />(bpm)
-                                    </th>
-                                    <th scope="col">
-                                        RR
-                                        <br />(%)
-                                    </th>
-                                    <th scope="col">
-                                        sO2
-                                        <br />(%)
-                                    </th>
-                                    <th scope="col">
-                                        BG
-                                        <br />(mmHg)
-                                    </th>
+                                    <td scope="col">Date</td>
+                                    <td scope="col">Time</td>
+                                    <td scope="col">Body Temperature</td>
+                                    <td scope="col">Heart Rate </td>
+                                    <td scope="col">Blood Pressure:</td>
+                                    <td scope="col">Oxygen Saturation</td>
+                                    
                                 </tr>
-                            </thead>
-                            <tbody>
+                            
                                 <tr>
-                                    <td>23-04-2024</td>
-                                    <td>10:00</td>
-                                    <td>160</td>
-                                    <td>70</td>
-                                    <td>35</td>
-                                    <td>120</td>
-                                    <td>8b</td>
-                                    <td>100</td>
-                                    <td>60</td>
-                                    <td>180/120</td>
+                                    <td>@Model.VitalDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@Model.VitalTime</td>
+                                    <td>@Model.BodyTemp</td>
+                                    <td>@Model.HeartRate</td>
+                                    <td>@Model.BloodPressure</td>
+                                    <td>@Model.Oxygen</td>
+                                    
                                 </tr>
-                                <tr>
-                                    <td>23-04-2024</td>
-                                    <td>15:00</td>
-                                    <td>160</td>
-                                    <td>71</td>
-                                    <td>35</td>
-                                    <td>40</td>
-                                    <td>10</td>
-                                    <td>70</td>
-                                    <td>80</td>
-                                    <td>180/120</td>
-                                </tr>
-
-                            </tbody>
+                               
+                            
                         </table>
                     </div>
                 </div>
@@ -284,15 +225,12 @@
                         <table class="table table-bordered">
 
                             <tbody>
-                                <tr>
-                                    <td>Diabetes</td>
-                                </tr>
-                                <tr>
-                                    <td>Asthma</td>
-                                </tr>
-                                <tr>
-                                    <td>Carbamazepine</td>
-                                </tr>
+                                <form asp-route-id="@Model.ConditionID" asp-action="" asp-controller="" >
+                                    <tr>
+                                        <td>@Model.ConditionName</td>
+                                    </tr>
+                                </form>
+                                
                             </tbody>
                         </table>
                     </div>
@@ -309,15 +247,12 @@
                         <table class="table table-bordered">
 
                             <tbody>
-                                <tr>
-                                    <td>Asprin</td>
-                                </tr>
-                                <tr>
-                                    <td>Amoxicillin</td>
-                                </tr>
-                                <tr>
-                                    <td>Carbamazepine</td>
-                                </tr>
+                               <form asp-action="" asp-route-id="@Model.MedicationID">
+                                    <tr>
+                                        <td>@Model.MedicationName</td>
+                                    </tr>
+                               </form>
+                                
                             </tbody>
                         </table>
                     </div>
@@ -330,10 +265,11 @@
 </html>
 
 <script>
-    function rejectPrescription() {
+    function rejectPrescription(id) {
         $.ajax({
             type: "Get",
             url: "/Pharmacist/RejectPrescription",
+            data: { id: id },
             success: function (result) {
                 $("#presTable").html(result);
                 setTimeout(function () { // Delay showing the modal
@@ -343,6 +279,20 @@
         });
     }
 
+    $(document).ready(function () {
+        $('.btn-info').on('click', function (e) {
+            e.preventDefault();
+            var link = $(this).attr('href');
+            window.location.href = link;
+        });
+
+        $('.btn-danger').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            rejectPrescription(id);
+        });
+    });
+
 
 </script>
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -351,3 +301,4 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 
+ 

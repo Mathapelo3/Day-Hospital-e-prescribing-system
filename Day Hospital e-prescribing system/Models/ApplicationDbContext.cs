@@ -19,7 +19,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Nurse> Nurses { get; set; }
         public DbSet<Surgeon> Surgeons { get; set; }
-        public DbSet<Pharmacist> Pharmacists { get; set; }
+        public DbSet<Pharmacist> Pharmacist { get; set; }
         public DbSet<Anaesthesiologist> Anaesthesiologists { get; set; }
         public DbSet<Vitals> Vitals { get; set; }
        
@@ -34,8 +34,9 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Medication> Medication { get; set; }
 
-
-
+        public DbSet<DayHospitalMedication> DayHospitalMedication { get; set; }
+        public DbSet<MedicationType> medicationType { get; set; }
+        public DbSet<Rejected_Prescriptions> Rejected_Prescriptions { get; set; }
 
         public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
@@ -120,6 +121,20 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .HasOne(pa => pa.Allergy)
                 .WithMany(p => p.Patient_Allergy)
                 .HasForeignKey(pa => pa.AllergyID);
+
+            modelBuilder.Entity<Prescription>()
+            .HasKey(p => p.PrescriptionID);
+
+            modelBuilder.Entity<Prescription>()
+                .HasOne(p => p.Patient)
+                .WithMany()
+                .HasForeignKey(p => p.PatientID);
+
+            modelBuilder.Entity<Prescription>()
+                .HasOne(p => p.DayHospitalMedication)
+                .WithMany()
+                .HasForeignKey(p => p.MedicationID);
+
 
             modelBuilder.Entity<PMedicationViewModel>().HasNoKey();
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();

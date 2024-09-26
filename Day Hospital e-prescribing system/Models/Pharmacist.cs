@@ -17,5 +17,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         // Navigation property
         [ForeignKey("UserID")]
         public virtual User User { get; set; }
+
+        public ICollection<Rejected_Prescriptions> Prescriptions { get; set; } = new HashSet<Rejected_Prescriptions>();
     }
 }
