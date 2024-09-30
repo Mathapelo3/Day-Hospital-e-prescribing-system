@@ -4,6 +4,20 @@
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+    .spaced {
+        margin-left: 10px;
+    }
+
+    .secondSpace {
+        margin-left: 80px;
+    }
+
+    .buttonSize {
+        width: 100px
+    }
+
+</style>
 <section class="content">
     <div class="card">
         <div class="card-header">
@@ -13,7 +27,8 @@
     </div>
     <div class="container p-3 text-md-center">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-12 text-left">
+                <h5>Filter Table:</h5>
                 <form asp-action="Patients" method="get">
                     <div class="input-group">
                         <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number" />
@@ -22,17 +37,18 @@
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
+                        <a href="@Url.Action("Patients", "Surgeon")" class="btn spaced btn-danger btn-block text-bold buttonSize">Reset</a>
+                        <button type="button" class="btn secondSpace btn-warning text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
+                            Add Patient
+                        </button>
+                        <button type="button" class="btn spaced btn-warning text-bold" onclick="location.href='@Url.Action("AdmittedPatients", "Surgeon")'">
+                            Admitted Patients
+                        </button>
                     </div>
                 </form>
             </div>
-            <div class="col-md-8" style="text-align:end">
-                <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("AddPatients", "Surgeon")'">
-                    Add Patient
-                </button>
-                <button type="button" class="btn btn-warning text-bold" onclick="location.href='@Url.Action("AdmittedPatients", "Surgeon")'">
-                    Admitted Patients
-                </button>
-            </div>
+            <br />
+            
         </div>
         <br />
         <table id="patientsTable" class="table table-bordered table-striped">
