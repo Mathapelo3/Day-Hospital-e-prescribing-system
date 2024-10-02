@@ -5,7 +5,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
     public class PatientPrescriptionVM
     {
         public int PrescriptionID { get; set; }
-        public string Instruction { get; set; }
+        public string InstructionText { get; set; }
         public DateTime Date { get; set; }
         public string Quantity { get; set; }
 

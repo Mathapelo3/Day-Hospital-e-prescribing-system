@@ -1,0 +1,35 @@
+﻿/* Style sheet file */
+
+/* Base styles for allergy rows */
+/*.allergy-row {
+    transition: background-color 0.2s ease;
+}*/
+
+/* Blinking effect */
+/*.blinking-allergy {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}*/
+
+/* Styles for allergy rows when allergies exist */
+/*.allergies-present .allergy-row {
+    background-color: #ffcccc;*/ /* Light red background */
+/*}*/
+
+/* Styles for allergy rows when allergies don't exist */
+/*.no-allergies .allergy-row {
+    background-color: #ccffff;*/ /* Light blue background */
+/*}*/

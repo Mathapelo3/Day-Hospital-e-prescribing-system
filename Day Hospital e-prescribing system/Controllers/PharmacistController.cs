@@ -3,6 +3,7 @@ using Dapper;
 using Day_Hospital_e_prescribing_system.Helper;
 using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
+using Day_Hospital_e_prescribing_system.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -102,34 +103,70 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult ViewPrescription(int? id = null)
         {
-            //try
-            //{
-                var prescription = _connection.QueryFirstOrDefault<PatientPrescriptionVM>(
+            if (!id.HasValue)
+            {
+                return NotFound("No prescription ID provided.");
+            }
+
+            var viewModel = GetPatientPrescriptionWithRelatedData(id.Value);
+
+            if (viewModel == null || !viewModel.Prescription.Any())
+            {
+                return NotFound($"No prescription found with ID: {id}");
+            }
+
+            _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
+
+            return View(viewModel);
+        }
+
+
+        private PatientPrescriptionWithRelatedDataVM GetPatientPrescriptionWithRelatedData(int id)
+        {
+            try
+            {
+                var prescriptions = _connection.Query<PatientPrescriptionVM>(
                     "GetPatientPrescriptionByPrescriptionID",
                     new { PrescriptionID = id },
-                    commandType: CommandType.StoredProcedure
-                );
+                    commandType: CommandType.StoredProcedure);
 
-                if (prescription == null)
+                var allergies = _connection.Query<PatientAllergiesViewModel>(
+                    "GetPatientAllergiesByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var conditions = _connection.Query<PatientConditionsViewModel>(
+                    "GetPatientConditionsByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var vitals = _connection.Query<PatientVitalsViewModel>(
+                    "GetPatientVitalsByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var medication = _connection.Query<PatientMedicationVM>(
+                    "GetPatientMedicationByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                return new PatientPrescriptionWithRelatedDataVM
                 {
-                    return NotFound($"No prescription found with ID: {id}");
-                }
-
-                // Log successful retrieval
-                _logger.LogInformation($"Retrieved prescription details for ID: {id}");
-
-               
-
-                return View(prescription);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log the exception
-            //    _logger.LogError(ex, $"Error occurred while retrieving prescription details for ID: {id}");
-            //    return StatusCode(500/*, "An unexpected error occurred."*/);
-            //}
+                    Prescription = prescriptions,
+                    Allergies = allergies,
+                    Conditions = conditions,
+                    Vitals = vitals,
+                    Medications = medication
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving patient prescription details for ID: {id}");
+                throw;
+            }
         }
-       
+
+
 
 
 

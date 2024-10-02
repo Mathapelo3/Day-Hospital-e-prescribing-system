@@ -17,5 +17,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [Required]
         [ForeignKey("PatientID")]
         public int PatientID { get; set; }
+
+        public string AllergyName { get; set; }
     }
 }

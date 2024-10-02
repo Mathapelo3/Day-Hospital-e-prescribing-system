@@ -34,6 +34,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Medication> Medication { get; set; }
 
+        public DbSet<Prescription_Medications> prescription_Medications { get; set; }
         public DbSet<DayHospitalMedication> DayHospitalMedication { get; set; }
         public DbSet<MedicationType> medicationType { get; set; }
         public DbSet<Rejected_Prescriptions> Rejected_Prescriptions { get; set; }

@@ -28,6 +28,18 @@ namespace Day_Hospital_e_prescribing_system.ViewModels
         [Required]
         public int PatientID { get; set; }
 
+       
+        public decimal BodyTemp { get; set; }
+
+        public TimeSpan VitalTime { get; set; }
+        public int HeartRate { get; set; }
+
+        public string BloodPressure { get; set; }
+
+        public int Oxygen {  get; set; }
+
+
+
 
 
 
