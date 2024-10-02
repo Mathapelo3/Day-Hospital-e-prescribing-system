@@ -28,6 +28,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly IConfiguration _config;
         private readonly CommonHelper _helper;
         private readonly SurgeriesReportGenerator _surgeriesReportGenerator;
+
         public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config, SurgeriesReportGenerator surgeriesReportGenerator)
         {
             _context = context;
@@ -139,44 +140,45 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult AddPatients()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
             return View();
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPatients(AddPatientsViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
+                return View(model);
+            }
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
                 {
-                    var patient = new Patient
+                    await connection.OpenAsync();
+
+                    using (SqlCommand command = new SqlCommand("dbo.AddPatient", connection))
                     {
-                        Name = model.Name,
-                        Surname = model.Surname,
-                        Gender = model.Gender,
-                        Email = model.Email,
-                        IDNo = model.IDNo,
-                        Status = model.Status,
-                    };
+                        command.CommandType = CommandType.StoredProcedure;
 
-                    _context.Add(patient);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Patient added successfully.");
-                    return RedirectToAction("Patients", "Surgeon");
+                        command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                        command.Parameters.Add(new SqlParameter("@Surname", model.Surname));
+                        command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                        command.Parameters.Add(new SqlParameter("@IDNo", model.IDNo));
+                        command.Parameters.Add(new SqlParameter("@Gender", model.Gender));
+                        command.Parameters.Add(new SqlParameter("@Status", model.Status));
+
+                        await command.ExecuteNonQueryAsync();
+                    }
                 }
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogError(ex, "An error occurred while adding patient: {Message}", ex.Message);
-                    ModelState.AddModelError("", "Unable to save changes.");
-                }
+
+                return RedirectToAction("Patients", "Surgeon");
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                ModelState.AddModelError("", "An error occurred while adding the patient: " + ex.Message);
+                return View(model);
             }
-
-            return View(model);
         }
 
         [HttpGet]
