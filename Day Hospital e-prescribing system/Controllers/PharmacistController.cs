@@ -20,13 +20,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly IConfiguration _config;
         private readonly CommonHelper _helper;
         private IDbConnection _connection;
-        private readonly SurgeriesReportGenerator _surgeriesReportGenerator;
-        public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, SurgeriesReportGenerator surgeriesReportGenerator, IDbConnection connection)
+        private readonly PharmacistReportGenerator _pharmacistReportGenerator;
+        public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, PharmacistReportGenerator pharmacistReportGenerator, IDbConnection connection)
         {
             _context = context;
             _logger = logger;
             _config = config;
-            _surgeriesReportGenerator = surgeriesReportGenerator;
+            _pharmacistReportGenerator = pharmacistReportGenerator;
             _helper = new CommonHelper(_config);
             _connection = connection;   
         }
