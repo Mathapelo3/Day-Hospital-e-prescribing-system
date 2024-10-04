@@ -1,10 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Dapper;
+using Day_Hospital_e_prescribing_system.Helper;
+using Day_Hospital_e_prescribing_system.Models;
+using Day_Hospital_e_prescribing_system.ViewModel;
+using Day_Hospital_e_prescribing_system.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     public class PharmacistController : Controller
     {
-        
+
+
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<PharmacistController> _logger;
+        private readonly IConfiguration _config;
+        private readonly CommonHelper _helper;
+        private IDbConnection _connection;
+        private readonly PharmacistReportGenerator _pharmacistReportGenerator;
+        public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, PharmacistReportGenerator pharmacistReportGenerator, IDbConnection connection)
+        {
+            _context = context;
+            _logger = logger;
+            _config = config;
+            _pharmacistReportGenerator = pharmacistReportGenerator;
+            _helper = new CommonHelper(_config);
+            _connection = connection;   
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -33,15 +59,116 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult Prescriptions()
+        public async Task<ActionResult> Prescriptions(DateTime? startDate, DateTime? endDate)
         {
-            return View();
+
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            ViewData["CurrentDate"] = startDate?.ToString("dd-MM-yyyy");
+
+
+            var prescriptionsQuery = from pr in _context.Prescriptions
+                                     join p in _context.Patients on pr.PatientID equals p.PatientID
+                                     join s in _context.Surgeons on pr.SurgeonID equals s.SurgeonID
+                                     join u in _context.Users on s.UserID equals u.UserID
+                                     join d in _context.DayHospitalMedication on pr.MedicationID equals d.StockID
+                                     where pr.Status != "Dispensed"
+                                     select new ViewModel.PrescriptionViewModel
+                                     {
+                                         PrescriptionID = pr.PrescriptionID,
+                                         Medication = d.MedicationName,
+                                         Instruction = pr.Instruction,
+                                         Date = pr.Date,
+                                         Quantity = pr.Quantity,
+                                         Status = pr.Status,
+                                         PatientID = pr.PatientID,
+                                         Name = $"{p.Name} {p.Surname}",
+                                         Surgeon = $"{u.Username} {u.Surname}",
+                                         Urgency = pr.Urgency
+
+                                     };
+
+            if (startDate.HasValue)
+            {
+                prescriptionsQuery = prescriptionsQuery.Where(pa => pa.Date.Date >= startDate.Value.Date);
+            }
+
+            var prescriptions = await prescriptionsQuery.ToListAsync();
+
+            return View(prescriptions);
+
         }
 
-        public IActionResult ViewPrescription()
+
+        [HttpGet]
+        public IActionResult ViewPrescription(int? id = null)
         {
-            return View();
+            if (!id.HasValue)
+            {
+                return NotFound("No prescription ID provided.");
+            }
+
+            var viewModel = GetPatientPrescriptionWithRelatedData(id.Value);
+
+            if (viewModel == null || !viewModel.Prescription.Any())
+            {
+                return NotFound($"No prescription found with ID: {id}");
+            }
+
+            _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
+
+            return View(viewModel);
         }
+
+
+        private PatientPrescriptionWithRelatedDataVM GetPatientPrescriptionWithRelatedData(int id)
+        {
+            try
+            {
+                var prescriptions = _connection.Query<PatientPrescriptionVM>(
+                    "GetPatientPrescriptionByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var allergies = _connection.Query<PatientAllergiesViewModel>(
+                    "GetPatientAllergiesByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var conditions = _connection.Query<PatientConditionsViewModel>(
+                    "GetPatientConditionsByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var vitals = _connection.Query<PatientVitalsViewModel>(
+                    "GetPatientVitalsByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                var medication = _connection.Query<PatientMedicationVM>(
+                    "GetPatientMedicationByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+
+                return new PatientPrescriptionWithRelatedDataVM
+                {
+                    Prescription = prescriptions,
+                    Allergies = allergies,
+                    Conditions = conditions,
+                    Vitals = vitals,
+                    Medications = medication
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving patient prescription details for ID: {id}");
+                throw;
+            }
+        }
+
+
+
+
 
         public IActionResult RejectPrescription()
         {

@@ -299,7 +299,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     else if (model.RoleId == 2)
                     {
                         var pharmacist = new Pharmacist { UserID = user.UserID };
-                        _context.Pharmacists.Add(pharmacist);
+                        _context.Pharmacist.Add(pharmacist);
                         _logger.LogInformation("Pharmacist added.");
                     }
                     else if (model.RoleId == 5)

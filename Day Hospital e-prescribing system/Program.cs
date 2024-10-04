@@ -2,6 +2,8 @@ using Day_Hospital_e_prescribing_system.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Day_Hospital_e_prescribing_system;
+using System.Data;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,12 @@ builder.Services.AddSession(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+//Register Dapper 
+builder.Services.AddTransient<IDbConnection>(options =>
+        new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 // Add authentication services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -30,6 +38,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddControllersWithViews();
 // Register OrderReportGenerator with the DI container
 builder.Services.AddTransient<OrderReportGenerator>();
+// Register SurgeriesReportGenerator with the DI container
+builder.Services.AddTransient<SurgeriesReportGenerator>();
 
 // Configure logging
 builder.Logging.ClearProviders();
@@ -55,6 +65,9 @@ app.UseRouting();
 // Use authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+
 
 app.MapControllerRoute(
     name: "default",

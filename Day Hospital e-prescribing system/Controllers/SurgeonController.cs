@@ -11,10 +11,13 @@ using Day_Hospital_e_prescribing_system.ViewModel;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.SqlTypes;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using Day_Hospital_e_prescribing_system.ViewModels;
 using Newtonsoft.Json;
-
+using Microsoft.Extensions.Configuration;
+using Day_Hospital_e_prescribing_system.Helper;
+using Microsoft.AspNetCore.Authorization;
+using iText.Kernel.Pdf;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -23,11 +26,16 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SurgeonController> _logger;
         private readonly IConfiguration _config;
-        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config)
+        private readonly CommonHelper _helper;
+        private readonly SurgeriesReportGenerator _surgeriesReportGenerator;
+
+        public SurgeonController(ApplicationDbContext context, ILogger<SurgeonController> logger, IConfiguration config, SurgeriesReportGenerator surgeriesReportGenerator)
         {
             _context = context;
             _logger = logger;
             _config = config;
+            _surgeriesReportGenerator = surgeriesReportGenerator;
+            _helper = new CommonHelper(_config);
         }
 
         public ActionResult Dashboard()
@@ -132,74 +140,101 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult AddPatients()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
             return View();
         }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPatients(AddPatientsViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
+                return View(model);
+            }
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
                 {
-                    var patient = new Patient
+                    await connection.OpenAsync();
+
+                    using (SqlCommand command = new SqlCommand("dbo.AddPatient", connection))
                     {
-                        Name = model.Name,
-                        Surname = model.Surname,
-                        Gender = model.Gender,
-                        Email = model.Email,
-                        IDNo = model.IDNo,
-                        Status = model.Status,
-                    };
+                        command.CommandType = CommandType.StoredProcedure;
 
-                    _context.Add(patient);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Patient added successfully.");
-                    return RedirectToAction("Patients", "Surgeon");
+                        command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                        command.Parameters.Add(new SqlParameter("@Surname", model.Surname));
+                        command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                        command.Parameters.Add(new SqlParameter("@IDNo", model.IDNo));
+                        command.Parameters.Add(new SqlParameter("@Gender", model.Gender));
+                        command.Parameters.Add(new SqlParameter("@Status", model.Status));
+
+                        await command.ExecuteNonQueryAsync();
+                    }
                 }
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogError(ex, "An error occurred while adding patient: {Message}", ex.Message);
-                    ModelState.AddModelError("", "Unable to save changes.");
-                }
+
+                return RedirectToAction("Patients", "Surgeon");
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                ModelState.AddModelError("", "An error occurred while adding the patient: " + ex.Message);
+                return View(model);
             }
-
-            return View(model);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Surgeries(DateTime? filterDate)
+        public async Task<ActionResult> Surgeries(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var surgeries = _context.Surgeries
-                            .Include(s => s.Patients)
-                            .Include(s => s.Theatres)
-                            .Include(s => s.Anaesthesiologists)
-                            .Include(s => s.Surgery_TreatmentCodes)
-                            .Select(s => new SurgeryDetailsViewModel
-                            {
-                                SurgeryID = s.SurgeryID,
-                                PatientID = s.PatientID,
-                                AnaesthesiologistID = s.AnaesthesiologistID,
-                                TheatreID = s.TheatreID,
-                                PatientName = s.Patients.Name,
-                                PatientSurname = s.Patients.Surname,
-                                TheatreName = s.Theatres.Name,
-                                AnaesthesiologistName = s.Anaesthesiologists.User.Name,
-                                AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
-                                Date = s.Date,
-                                Time = s.Time,
-                            })
-                             .ToList();
+            var surgeries = await _context.SurgeryDetailsViewModel.FromSqlRaw(
+                "EXEC GetBookedSurgeryDetails"
+            ).ToListAsync();
 
-            ViewBag.FilterDate = filterDate;
+            // Apply date filtering in memory
+            if (startDate.HasValue)
+            {
+                surgeries = surgeries.Where(s => s.Date >= startDate.Value.Date).ToList();
+            }
+            if (endDate.HasValue)
+            {
+                surgeries = surgeries.Where(s => s.Date <= endDate.Value.Date).ToList();
+            }
+
+            // Convert the comma-separated string of surgery codes to a list
+            foreach (var surgery in surgeries)
+            {
+                surgery.SurgeryCodes = surgery.SurgeryCode?.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            }
+
+            // Pass the date values to the view for maintaining filter state
+            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
+            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
+
             return View(surgeries);
+        }
+
+        [HttpGet]
+        public IActionResult GenerateSurgeriesReport(DateTime startDate, DateTime endDate)
+        {
+            var surgeonName = HttpContext.Session.GetString("Name");
+            var surgeonSurname = HttpContext.Session.GetString("Surname");
+
+            if (string.IsNullOrEmpty(surgeonName) || string.IsNullOrEmpty(surgeonSurname))
+            {
+                _logger.LogWarning("Surgeon name or surname could not be retrieved from the session.");
+                return BadRequest("Unable to retrieve surgeon details.");
+            }
+
+            var reportStream = _surgeriesReportGenerator.GenerateSurgeriesReport(startDate, endDate, surgeonName, surgeonSurname);
+
+            // Ensure the stream is not disposed prematurely
+            if (reportStream == null || reportStream.Length == 0)
+            {
+                return NotFound(); // Or handle as appropriate
+            }
+
+            // Return the PDF file
+            return File(reportStream, "application/pdf", "SurgeriesReport.pdf");
         }
 
         [HttpGet]

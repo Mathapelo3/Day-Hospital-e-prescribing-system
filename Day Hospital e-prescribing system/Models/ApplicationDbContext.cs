@@ -1,5 +1,6 @@
 ﻿using Day_Hospital_e_prescribing_system.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Permissions;
 using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
@@ -18,7 +19,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Nurse> Nurses { get; set; }
         public DbSet<Surgeon> Surgeons { get; set; }
-        public DbSet<Pharmacist> Pharmacists { get; set; }
+        public DbSet<Pharmacist> Pharmacist { get; set; }
         public DbSet<Anaesthesiologist> Anaesthesiologists { get; set; }
         public DbSet<Vitals> Vitals { get; set; }
        
@@ -33,8 +34,10 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Medication> Medication { get; set; }
 
-
-
+        public DbSet<Prescription_Medications> prescription_Medications { get; set; }
+        public DbSet<DayHospitalMedication> DayHospitalMedication { get; set; }
+        public DbSet<MedicationType> medicationType { get; set; }
+        public DbSet<Rejected_Prescriptions> Rejected_Prescriptions { get; set; }
 
         public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
@@ -59,12 +62,15 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<PatientMHViewModel> PatientMHViewModel { get; set; }
         public DbSet<OrderViewModel> OrderViewModel { get; set; }
+        public DbSet<SurgeryDetailsViewModel> SurgeryDetailsViewModel { get; set; }
         public DbSet<APatientViewModel> APatientViewModel { get; set; }
         public DbSet<PAllergyViewModel> PAllergyViewModels { get; set; }
         public DbSet<PConditionViewModel> PConditionViewModels { get; set; }
         public DbSet<PMedicationViewModel> PMedicationViewModels { get; set; }
 
         public DbSet<OrderReportDataViewModel> OrderReportDataViewModel { get; set; }
+        public DbSet<SurgeryReportDataViewModel> SurgeryReportDataViewModel { get; set; }
+        public DbSet<DispenseReportDataViewModel> PrescriptionReportDataViewModel { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -118,14 +124,30 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany(p => p.Patient_Allergy)
                 .HasForeignKey(pa => pa.AllergyID);
 
+            modelBuilder.Entity<Prescription>()
+            .HasKey(p => p.PrescriptionID);
+
+            modelBuilder.Entity<Prescription>()
+                .HasOne(p => p.Patient)
+                .WithMany()
+                .HasForeignKey(p => p.PatientID);
+
+            modelBuilder.Entity<Prescription>()
+                .HasOne(p => p.DayHospitalMedication)
+                .WithMany()
+                .HasForeignKey(p => p.MedicationID);
+
+
             modelBuilder.Entity<PMedicationViewModel>().HasNoKey();
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();
             modelBuilder.Entity<PAllergyViewModel>().HasNoKey();
             //base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<PatientMHViewModel>().HasNoKey();
             modelBuilder.Entity<OrderViewModel>().HasNoKey();
+            modelBuilder.Entity<SurgeryDetailsViewModel>().HasNoKey();
             modelBuilder.Entity<APatientViewModel>().HasNoKey();
             modelBuilder.Entity<OrderReportDataViewModel>().HasNoKey();
+            modelBuilder.Entity<SurgeryReportDataViewModel>().HasNoKey();
             modelBuilder.Entity<Patient>().ToTable("Patient");
             //base.OnModelCreating(modelBuilder);
 
