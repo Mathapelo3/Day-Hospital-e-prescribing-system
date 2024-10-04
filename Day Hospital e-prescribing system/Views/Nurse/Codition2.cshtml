@@ -1,4 +1,4 @@
-﻿@model Day_Hospital_e_prescribing_system.ViewModel.ConditionsVM
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.AddConditionsVM
 @{
     ViewData["Title"] = "Codition2";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
@@ -95,22 +95,28 @@
             <h3 class="display-6 text-primary text-center text-bold">CONDITIONS, ALLERGIES, MEDICATION</h3>
         </div>
     </div>
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
     <body>
-        <br />
-        <form asp-action="Condition2" asp-controller="Nurse" method="post">
-           
+        <form asp-action="Codition2" asp-controller="Nurse" method="post">
+            <input type="hidden" asp-for="PatientID" />
             <!-- Search bar -->
             @* <form id="filterForm" asp-action="ViewPatients" method="get">*@
             <div class="card-body">
                
             </div>
-            <br />
             <div class="col-md-14">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title text-bold">  @*@(Model.Patient?.Name ??) @(Model.Patient?.Surname ??)*@</h4>
+                        <h4 class="card-title text-bold">   @Model.Name @Model.Surname</h4>
                     </div>
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    </div>
+            </div>
+                    <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
@@ -126,10 +132,12 @@
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <select asp-for="SelectedAllergy" asp-items="Model.Allergy" class="form-control"></select>
+                                                    <select asp-for="SelectedAllergy" asp-items="Model.Allergy" class="form-control">
+                                                        <option value="">-- Select Allergy --</option>
+                                                            </select>
                                                         </td>
                                                     </tr>
-                                                    <span asp-validation-for="SelectedAllergy" class="text-danger"></span>
+                                            <span asp-validation-for="SelectedAllergy" class="text-danger"></span>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -149,10 +157,12 @@
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <select asp-for="SelectedMedication" asp-items="Model.General_Medication" class="form-control"></select>
+                                                    <select asp-for="SelectedMedication" asp-items="Model.General_Medication" class="form-control">
+                                                        <option value="">-- Select Medication --</option>
+                                                            </select>
                                                         </td>
                                                     </tr>
-                                                    <span asp-validation-for="SelectedMedication" class="text-danger"></span>
+                                            <span asp-validation-for="SelectedMedication" class="text-danger"></span>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -172,10 +182,12 @@
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <select asp-for="SelectedCondition" asp-items="Model.Condition" class="form-control"></select>
+                                                    <select asp-for="SelectedCondition" asp-items="Model.Condition" class="form-control">
+                                                        <option value="">-- Select Condition --</option>
+                                                            </select>
                                                         </td>
                                                     </tr>
-                                                    <span asp-validation-for="SelectedCondition" class="text-danger"></span>
+                                            <span asp-validation-for="SelectedCondition" class="text-danger"></span>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -184,11 +196,22 @@
                             </div>
                         </div>
                     </div>
-                    <input asp-for="IDNo" type="hidden" />
+                 
+                    <div style="overflow:auto;">
+                        <div style="float:right;">
+                            @*  <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>*@
+                            <button type="submit">ADD</button>
+                        </div>
+                    </div>
         </form>
     </body>
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 
 
 
