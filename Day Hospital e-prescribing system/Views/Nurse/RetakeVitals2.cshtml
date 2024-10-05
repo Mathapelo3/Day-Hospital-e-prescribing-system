@@ -99,6 +99,12 @@
             <h3 class="display-6 text-primary text-center text-bold">VITALS</h3>
         </div>
     </div>
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
     <form asp-action="RetakeVitals2" method="post">
         <input type="hidden" asp-for="PatientID" />
         <div class="card">
@@ -107,7 +113,7 @@
                     @Model.Name @Model.Surname
                 </div>
                 @Html.AntiForgeryToken()
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div asp-validation-summary="All" class="text-danger"></div>
                 <div class="card">
                     <div class="card-header">
                         <div class="text-center"></div>
@@ -156,6 +162,14 @@
             </div>
         </div>
     </form>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+
+
 
 
 

@@ -76,7 +76,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var model = new VitalsVM
             {
-                SurgeryID = selectedAdmission.SurgeryID,
+                //SurgeryID = selectedAdmission.SurgeryID,
                 PatientID = patient.PatientID,
                 Name = patient.Name,
                 Surname = patient.Surname,
@@ -198,7 +198,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var model = new VitalsVM
             {
-                SurgeryID = selectedSurgery.SurgeryID,
+                //SurgeryID = selectedSurgery.SurgeryID,
                 PatientID = patient.PatientID,
                 Name = patient.Name,
                 Surname = patient.Surname,
@@ -1154,6 +1154,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         command.Parameters.AddWithValue("@PatientID", model.PatientID);
                         command.Parameters.AddWithValue("@Date", model.Date);
                         command.Parameters.AddWithValue("@Time", model.Time);
+                        command.Parameters.AddWithValue("@Notes", model.Notes);
                         command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
 
                         using (var reader = await command.ExecuteReaderAsync())
@@ -1167,7 +1168,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     }
                 }
 
-                return RedirectToAction("DisplayVitals");
+                return RedirectToAction("DisplayVitalsPerPatient", new { model.PatientID });
             }
             catch (SqlException ex)
             {
@@ -1600,48 +1601,126 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
             return View(viewModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> SaveVitals(int id)
+        {
+            try
+            {
+                var model = new VitalsVM();
+
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+
+                    // Get patient information
+                    using (var command = new SqlCommand("sp_GetPatientInfo", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@PatientID", id);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                model.PatientID = id;
+                                model.Name = reader["Name"].ToString();
+                                model.Surname = reader["Surname"].ToString();
+                                //model.Weight = reader["Weight"] != DBNull.Value ? (string?)reader["Weight"] : null;
+                                //model.Height = reader["Height"] != DBNull.Value ? (string?)reader["Height"] : null;
+                            }
+                            else
+                            {
+                                return NotFound("Patient not found.");
+                            }
+                        }
+                    }
+
+                    // Get vitals list
+                    model.Vitals = new List<Patient_VitalsVM>();
+                    using (var command = new SqlCommand("sp_GetVitalsList", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                model.Vitals.Add(new Patient_VitalsVM
+                                {
+                                    Vital = reader["Vital"].ToString(),
+                                    Min = (string)reader["Min"],
+                                    Max = (string)reader["Max"],
+                                    Value = string.Empty,
+                                    Height=string.Empty,
+                                    Weight=string.Empty,
+                                    Notes = string.Empty
+                                });
+                            }
+                        }
+                    }
+                }
+
+                model.Date = DateTime.Now.Date;
+                model.Time = DateTime.Now.TimeOfDay;
+
+                return View(model);
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception
+                return StatusCode(500, "An error occurred while retrieving patient data.");
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveVitals(VitalsVM model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    foreach (var vital in model.Vitals)
-                    {
-                        var parameters = new[]
-                        {
-                        new SqlParameter("@PatientID", model.PatientID),
-                        new SqlParameter("@VitalsID", vital.VitalsID),
-                        new SqlParameter("@Date", model.Date),
-                        new SqlParameter("@Time", model.Time),
-                        new SqlParameter("@Value", vital.Value),
-                        new SqlParameter("@Notes", model.Notes ?? string.Empty),
-                        new SqlParameter("@Height", model.Height ?? string.Empty),
-                        new SqlParameter("@Weight", model.Weight ?? string.Empty)
-                    };
-
-                        _context.Database.ExecuteSqlRaw("EXEC sp_InsertPatientVitals @PatientID, @VitalsID, @Date, @Time, @Value, @Notes, @Height, @Weight", parameters);
-                    }
-
-                    return RedirectToAction("SuccessPage");  // Redirect to a success page after saving
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception (ex) and handle it as necessary
-                    ModelState.AddModelError(string.Empty, "An error occurred while saving the vitals. Please try again.");
-                }
+                // Handle invalid model state
+                return View(model);
             }
 
-            // Reinitialize any necessary view data and return to the same view in case of failure
-            return View(model);
+            try
+            {
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = new SqlCommand("InsertVitals", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@PatientID", model.PatientID);
+                        command.Parameters.AddWithValue("@Date", model.Date);
+                        command.Parameters.AddWithValue("@Time", model.Time);
+                        command.Parameters.AddWithValue("@Height", model.Height ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Weight", model.Weight ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
+                        command.Parameters.AddWithValue("@Notes", model.Notes);
+
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+
+                return RedirectToAction("DisplayVitalsPerPatient", new { model.PatientID });
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception
+                ModelState.AddModelError(string.Empty, "An error occurred while saving vitals data.");
+                return View(model);
+            }
         }
         [HttpGet]
         public async Task<IActionResult> DisplayVitalsPerPatient(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             var viewModel = new DisplayVitalsVM();
+            viewModel.PatientID = id; // Add this line to set the PatientID
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
                 await connection.OpenAsync();
