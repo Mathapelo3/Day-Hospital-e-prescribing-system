@@ -5,9 +5,11 @@ using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Day_Hospital_e_prescribing_system.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Security.Claims;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -21,6 +23,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly CommonHelper _helper;
         private IDbConnection _connection;
         private readonly PharmacistReportGenerator _pharmacistReportGenerator;
+        
         public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, PharmacistReportGenerator pharmacistReportGenerator, IDbConnection connection)
         {
             _context = context;
@@ -59,7 +62,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public async Task<ActionResult> Prescriptions(DateTime? startDate, DateTime? endDate)
+        public async Task<ActionResult> Prescriptions(DateTime? startDate, DateTime? endDate, string message)
         {
 
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -94,6 +97,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
 
             var prescriptions = await prescriptionsQuery.ToListAsync();
+
+            ViewBag.SuccessMessage = message;
 
             return View(prescriptions);
 
@@ -166,8 +171,64 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult DispensePrescription(int prescriptionId)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    connection.Open();
+
+                    var result = connection.Execute(@"EXECUTE DispensePrescription @PrescriptionID", new { PrescriptionID = prescriptionId });
+
+                    if (result > 0)
+                    {
+                        _logger.LogInformation($"Prescription {prescriptionId} dispatched successfully.");
+                        return RedirectToAction("Prescriptions,Pharmacist", new { id = prescriptionId });
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Failed to dispatch prescription.");
+                        return View("ViewPrescription", GetPatientPrescriptionWithRelatedData(prescriptionId));
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError("", $"Database error occurred: {ex.Message}");
+                return View("ViewPrescription", GetPatientPrescriptionWithRelatedData(prescriptionId));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"An unexpected error occurred: {ex.Message}");
+                return View("ViewPrescription", GetPatientPrescriptionWithRelatedData(prescriptionId));
+            }
+        }
 
 
+        public async Task<ActionResult> AllPrescriptions(DateTime startDate, DateTime endDate)
+        {
+            var pharmacistName = HttpContext.Session.GetString("Name");
+            var pharmacistSurname = HttpContext.Session.GetString("Surname");
+
+            if (string.IsNullOrEmpty(pharmacistName) || string.IsNullOrEmpty(pharmacistSurname))
+            {
+                _logger.LogWarning("Anesthesiologist name or surname could not be retrieved from the session.");
+                return BadRequest("Unable to retrieve anesthesiologist details.");
+            }
+
+            var reportStream = _pharmacistReportGenerator.GenerateDispensaryReport(startDate, endDate, pharmacistSurname, pharmacistSurname);
+
+            // Ensure the stream is not disposed prematurely
+            if (reportStream == null || reportStream.Length == 0)
+            {
+                return NotFound(); // Or handle as appropriate
+            }
+
+            // Return the PDF file
+            return File(reportStream, "application/pdf", "OrderReport.pdf");
+        }
 
 
         public IActionResult RejectPrescription()

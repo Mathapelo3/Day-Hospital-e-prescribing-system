@@ -12,8 +12,12 @@
     <div class="card">
         <div class="card-header">
             <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @ViewBag.SuccessMessage
+                    </div>
+                }
             </div>
             <br />
             <h4 style="color:#268aab">List Of Prescriptions</h4>
@@ -35,6 +39,7 @@
                 </div>
             </div>
         </form>
+
     </div>
 
    
