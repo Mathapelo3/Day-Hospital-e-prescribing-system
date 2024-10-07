@@ -116,7 +116,7 @@
                                 <h4></h4>
                             </div>
                             <div class="col-md-12 text-right">
-                                <a type="button" onclick="location.href = '@Url.Action("Condition2","Nurse")'" class="btn btn-primary">ADD DETAILS</a>
+                                <a type="button" onclick="location.href = '@Url.Action("Codition2","Nurse")'" class="btn btn-primary">BACK</a>
                             </div>
                         </div>
                     </div>
@@ -149,9 +149,12 @@
                                         <td>
                                             @if (patient != null)
                                             {
-                                                <a asp-action= "PatientConditions" asp-route-id="@patient.IDNo" class="btn btn-primary">
+                                                <a asp-action= "PatientConditions" asp-route-id="@patient.PatientID" class="btn btn-primary">
                                                     VIEW DETAILS
                                                 </a>
+                                                        <a asp-action="Codition2" asp-route-id="@patient.PatientID" class="btn btn-primary">
+                                                            ADD DETAILS
+                                                        </a>
            
                                               @*  <a asp-action="Condition2" asp-route-id="@patient.IDNo" class="btn btn-primary">
                                                     ADD HEALTH DETAILS

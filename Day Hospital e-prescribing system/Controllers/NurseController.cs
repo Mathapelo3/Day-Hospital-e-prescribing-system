@@ -1,4 +1,4 @@
-﻿ using Day_Hospital_e_prescribing_system.Models;
+﻿using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -76,7 +76,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var model = new VitalsVM
             {
-                SurgeryID = selectedAdmission.SurgeryID,
+                //SurgeryID = selectedAdmission.SurgeryID,
                 PatientID = patient.PatientID,
                 Name = patient.Name,
                 Surname = patient.Surname,
@@ -198,7 +198,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var model = new VitalsVM
             {
-                SurgeryID = selectedSurgery.SurgeryID,
+                //SurgeryID = selectedSurgery.SurgeryID,
                 PatientID = patient.PatientID,
                 Name = patient.Name,
                 Surname = patient.Surname,
@@ -708,123 +708,250 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Codition2(string id)
-        {
-            var viewModel = new ConditionsVM
-            {
-                IDNo = id,
-                Condition = await GetConditionsAsync(),
-                Allergy = await GetAllergiesAsync(),
-                General_Medication = await GetMedicationsAsync()
-            };
-
-            return View(viewModel);
-        }
-        [HttpPost]
-        public async Task<IActionResult> Codition2(ConditionsVM model)
+        public async Task<ActionResult> Codition2(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            var patient = await _context.Patients
+               .Where(p => p.PatientID == id)
+               .Select(p => new AddConditionsVM
+               {
+                   PatientID = p.PatientID,
+                   Name = p.Name,
+                   Surname = p.Surname,
+                   // Populate existing conditions, allergies, and medications here
+                   //Conditions = p.Patient_Condition.Select(pc => pc.Condition.Name).ToList(),
+                   //Allergies = p.Patient_Allergy.Select(pa => pa.Allergy.Name).ToList(),
+                   //General_Medications = p.Patient_Medication.Select(pm => pm.General_Medication.Name).ToList()
+               })
+        .FirstOrDefaultAsync();
+
+            if (patient == null)
+            {
+                // Handle the case where the patient was not found
+                return NotFound();
+            }
+
+
+            await ReloadDropdownData(patient);
+            return View(patient);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Codition2(AddConditionsVM model)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
             if (!ModelState.IsValid)
             {
-                // If the model is invalid, reload the dropdown data and return to the view
-                model.Condition = await GetConditionsAsync();
-                model.Allergy = await GetAllergiesAsync();
-                model.General_Medication = await GetMedicationsAsync();
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { x.Key, x.Value.Errors })
+                    .ToArray();
+
+                foreach (var error in errors)
+                {
+                    _logger.LogError($"Error in {error.Key}: {string.Join(", ", error.Errors.Select(e => e.ErrorMessage))}");
+                }
+
+                // Reload patient data
+                var patient = await _context.Patients
+                    .Where(p => p.PatientID == model.PatientID)
+                    .Select(p => new { p.Name, p.Surname })
+                    .FirstOrDefaultAsync();
+
+                if (patient != null)
+                {
+                    model.Name = patient.Name;
+                    model.Surname = patient.Surname;
+
+                }
+
+                await ReloadDropdownData(model);
                 return View(model);
             }
 
             try
             {
-                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                _logger.LogInformation($"Attempting to add condition details: PatientID={model.PatientID}, Condition={model.SelectedCondition}, Allergy={model.SelectedAllergy}, Medication={model.SelectedMedication}");
+
+                var successParam = new SqlParameter("@Success", SqlDbType.Bit) { Direction = ParameterDirection.Output };
+                var errorMessageParam = new SqlParameter("@ErrorMessage", SqlDbType.NVarChar, -1) { Direction = ParameterDirection.Output };
+
+                // Convert SelectedCondition to a name if it's an ID
+                string conditionName = await GetConditionNameById(model.SelectedCondition);
+                string allergyName = await GetAllergyNameById(model.SelectedAllergy);
+                string medicationName = await GetMedicationNameById(model.SelectedMedication);
+
+                var parameters = new[]
                 {
-                    await connection.OpenAsync();
+            new SqlParameter("@PatientID", SqlDbType.Int) { Value = model.PatientID },
+            new SqlParameter("@ConditionName", SqlDbType.NVarChar, 50) { Value = (object)conditionName ?? DBNull.Value },
+            new SqlParameter("@AllergyName", SqlDbType.NVarChar, 50) { Value = (object)allergyName ?? DBNull.Value },
+            new SqlParameter("@MedicationName", SqlDbType.NVarChar, 50) { Value = (object)medicationName ?? DBNull.Value },
+            successParam,
+            errorMessageParam
+        };
 
-                    using (var command = new SqlCommand("AddPatientDetails", connection))
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
+                var sql = "EXEC dbo.AddConditionDetails @PatientID, @ConditionName, @AllergyName, @MedicationName, @Success OUTPUT, @ErrorMessage OUTPUT";
 
-                        command.Parameters.AddWithValue("@IDNo", model.IDNo);
-                        command.Parameters.AddWithValue("@ConditionName", model.SelectedCondition);
-                        command.Parameters.AddWithValue("@AllergyName", model.SelectedAllergy);
-                        command.Parameters.AddWithValue("@MedicationName", model.SelectedMedication);
+                await _context.Database.ExecuteSqlRawAsync(sql, parameters);
 
-                        await command.ExecuteNonQueryAsync();
-                    }
+                bool success = (bool)successParam.Value;
+                string errorMessage = errorMessageParam.Value as string;
+
+                _logger.LogInformation($"AddConditionDetails procedure executed. Success: {success}, ErrorMessage: {errorMessage}");
+
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Condition details added successfully.";
+                    return RedirectToAction("Codition2", new { id = model.PatientID });
                 }
-
-                return RedirectToAction("PatientConditions", new { id = model.IDNo });
+                else
+                {
+                    ModelState.AddModelError(string.Empty, $"Failed to add condition details: {errorMessage}");
+                    _logger.LogError($"Failed to add condition details for PatientID: {model.PatientID}. Error: {errorMessage}");
+                }
             }
             catch (Exception ex)
             {
-                // Log the exception
-                Console.WriteLine($"An error occurred: {ex.Message}");
-
-                // Reload dropdown data
-                model.Condition = await GetConditionsAsync();
-                model.Allergy = await GetAllergiesAsync();
-                model.General_Medication = await GetMedicationsAsync();
-
-                ModelState.AddModelError("", "An error occurred while saving the data. Please try again.");
-                return View(model);
+                _logger.LogError(ex, $"Exception occurred while adding condition details for PatientID: {model.PatientID}");
+                ModelState.AddModelError(string.Empty, $"An unexpected error occurred: {ex.Message}");
             }
+
+            // Reload patient data
+            var patientData = await _context.Patients
+                .Where(p => p.PatientID == model.PatientID)
+                .Select(p => new { p.Name, p.Surname })
+                .FirstOrDefaultAsync();
+
+            if (patientData != null)
+            {
+                model.Name = patientData.Name;
+                model.Surname = patientData.Surname;
+            }
+
+            await ReloadDropdownData(model);
+            return View(model);
+        }
+    
+        private async Task ReloadDropdownData(AddConditionsVM model)
+        {
+            model.Condition = await GetConditionsAsync();
+            model.Allergy = await GetAllergiesAsync();
+            model.General_Medication = await GetMedicationsAsync();
+        }
+        private async Task<string> GetConditionNameById(string selectedCondition)
+        {
+            if (int.TryParse(selectedCondition, out int conditionId))
+            {
+                var condition = await _context.Conditions.FindAsync(conditionId);
+                return condition?.Name;
+            }
+            return selectedCondition;
         }
 
+        private async Task<string> GetAllergyNameById(string selectedAllergy)
+        {
+            if (int.TryParse(selectedAllergy, out int allergyId))
+            {
+                var allergy = await _context.Allergies.FindAsync(allergyId);
+                return allergy?.Name;
+            }
+            return selectedAllergy;
+        }
 
-
+        private async Task<string> GetMedicationNameById(string selectedMedication)
+        {
+            if (int.TryParse(selectedMedication, out int medicationId))
+            {
+                var medication = await _context.General_Medication.FindAsync(medicationId);
+                return medication?.Name;
+            }
+            return selectedMedication;
+        }
 
         private async Task<List<SelectListItem>> GetConditionsAsync()
         {
-            // Fetch conditions from database and return as SelectListItems
-            // This is a placeholder implementation
-            return new List<SelectListItem>
-        {
-            new SelectListItem { Value = "9", Text = "Attention Deficit Disorder" },
-            new SelectListItem { Value = "10", Text = "Hyperthyroidism" },
-             new SelectListItem { Value = "11", Text = "Migraine" },
-            new SelectListItem { Value = "12", Text = "Back Pain" },
-             new SelectListItem { Value = "13", Text = "Hypertension" },
-            new SelectListItem { Value = "14", Text = "Asthma " },
-             new SelectListItem { Value = "15", Text = "High Cholesterol" },
-           
-            // Add more conditions...
-        };
+            var conditions = new List<SelectListItem>();
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("SELECT ConditionID, Name FROM Condition", connection))
+                {
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            conditions.Add(new SelectListItem
+                            {
+                                Value = reader["ConditionID"].ToString(),
+                                Text = reader["Name"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return conditions;
         }
 
         private async Task<List<SelectListItem>> GetAllergiesAsync()
         {
-            // Fetch allergies from database and return as SelectListItems
-            // This is a placeholder implementation
-            return new List<SelectListItem>
-        {
-            new SelectListItem { Value = "1", Text = "Food Allergies" },
-            new SelectListItem { Value = "2", Text = "Seasonal Allergies" },
-             new SelectListItem { Value = "3", Text = "Mold Allergies" },
-            // Add more allergies...
-        };
+            var allergies = new List<SelectListItem>();
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("SELECT AllergyID, Name FROM Allergy", connection))
+                {
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            allergies.Add(new SelectListItem
+                            {
+                                Value = reader["AllergyID"].ToString(),
+                                Text = reader["Name"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return allergies;
         }
 
         private async Task<List<SelectListItem>> GetMedicationsAsync()
         {
-            // Fetch medications from database and return as SelectListItems
-            // This is a placeholder implementation
-            return new List<SelectListItem>
-        {
-            new SelectListItem { Value = "1", Text = "Ibupain" },
-            //new SelectListItem { Value = "Medication2", Text = "Medication 2" },
-            // Add more medications...
-        };
+            var medications = new List<SelectListItem>();
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("SELECT General_MedicationID, Name FROM General_Medication", connection))
+                {
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            medications.Add(new SelectListItem
+                            {
+                                Value = reader["General_MedicationID"].ToString(),
+                                Text = reader["Name"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return medications;
         }
 
         [HttpGet]
-        public async Task<ActionResult> AddCodition2(int selectedId)
+        public async Task<ActionResult> AddCodition2(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var selectedAdmission = await _context.Surgeries
-                .Include(a => a.Patients)
-                .FirstOrDefaultAsync(a => a.SurgeryID == selectedId);
+            //var selectedAdmission = await _context.Surgeries
+            //    .Include(a => a.Patients)
+            //    .FirstOrDefaultAsync(a => a.SurgeryID == selectedId);
 
-            if (selectedAdmission == null)
+            if (id == null)
             {
                 return NotFound("Patient not found.");
             }
@@ -836,7 +963,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                  .ThenInclude(pc => pc.Condition)
                  .Include(p => p.Patient_Medication)
                  .ThenInclude(pm => pm.General_Medication)
-                 .FirstOrDefaultAsync(p => p.PatientID == selectedAdmission.PatientID);
+                 .FirstOrDefaultAsync(p => p.PatientID == id);
 
             if (patient == null)
             {
@@ -1027,6 +1154,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         command.Parameters.AddWithValue("@PatientID", model.PatientID);
                         command.Parameters.AddWithValue("@Date", model.Date);
                         command.Parameters.AddWithValue("@Time", model.Time);
+                        command.Parameters.AddWithValue("@Notes", model.Notes);
                         command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
 
                         using (var reader = await command.ExecuteReaderAsync())
@@ -1040,7 +1168,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     }
                 }
 
-                return RedirectToAction("DisplayVitals");
+                return RedirectToAction("DisplayVitalsPerPatient", new { model.PatientID });
             }
             catch (SqlException ex)
             {
@@ -1473,48 +1601,126 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
             return View(viewModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> SaveVitals(int id)
+        {
+            try
+            {
+                var model = new VitalsVM();
+
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+
+                    // Get patient information
+                    using (var command = new SqlCommand("sp_GetPatientInfo", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@PatientID", id);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                model.PatientID = id;
+                                model.Name = reader["Name"].ToString();
+                                model.Surname = reader["Surname"].ToString();
+                                //model.Weight = reader["Weight"] != DBNull.Value ? (string?)reader["Weight"] : null;
+                                //model.Height = reader["Height"] != DBNull.Value ? (string?)reader["Height"] : null;
+                            }
+                            else
+                            {
+                                return NotFound("Patient not found.");
+                            }
+                        }
+                    }
+
+                    // Get vitals list
+                    model.Vitals = new List<Patient_VitalsVM>();
+                    using (var command = new SqlCommand("sp_GetVitalsList", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                model.Vitals.Add(new Patient_VitalsVM
+                                {
+                                    Vital = reader["Vital"].ToString(),
+                                    Min = (string)reader["Min"],
+                                    Max = (string)reader["Max"],
+                                    Value = string.Empty,
+                                    Height=string.Empty,
+                                    Weight=string.Empty,
+                                    Notes = string.Empty
+                                });
+                            }
+                        }
+                    }
+                }
+
+                model.Date = DateTime.Now.Date;
+                model.Time = DateTime.Now.TimeOfDay;
+
+                return View(model);
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception
+                return StatusCode(500, "An error occurred while retrieving patient data.");
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveVitals(VitalsVM model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    foreach (var vital in model.Vitals)
-                    {
-                        var parameters = new[]
-                        {
-                        new SqlParameter("@PatientID", model.PatientID),
-                        new SqlParameter("@VitalsID", vital.VitalsID),
-                        new SqlParameter("@Date", model.Date),
-                        new SqlParameter("@Time", model.Time),
-                        new SqlParameter("@Value", vital.Value),
-                        new SqlParameter("@Notes", model.Notes ?? string.Empty),
-                        new SqlParameter("@Height", model.Height ?? string.Empty),
-                        new SqlParameter("@Weight", model.Weight ?? string.Empty)
-                    };
-
-                        _context.Database.ExecuteSqlRaw("EXEC sp_InsertPatientVitals @PatientID, @VitalsID, @Date, @Time, @Value, @Notes, @Height, @Weight", parameters);
-                    }
-
-                    return RedirectToAction("SuccessPage");  // Redirect to a success page after saving
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception (ex) and handle it as necessary
-                    ModelState.AddModelError(string.Empty, "An error occurred while saving the vitals. Please try again.");
-                }
+                // Handle invalid model state
+                return View(model);
             }
 
-            // Reinitialize any necessary view data and return to the same view in case of failure
-            return View(model);
+            try
+            {
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = new SqlCommand("InsertVitals", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@PatientID", model.PatientID);
+                        command.Parameters.AddWithValue("@Date", model.Date);
+                        command.Parameters.AddWithValue("@Time", model.Time);
+                        command.Parameters.AddWithValue("@Height", model.Height ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Weight", model.Weight ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
+                        command.Parameters.AddWithValue("@Notes", model.Notes);
+
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+
+                return RedirectToAction("DisplayVitalsPerPatient", new { model.PatientID });
+            }
+            catch (SqlException ex)
+            {
+                // Log the exception
+                ModelState.AddModelError(string.Empty, "An error occurred while saving vitals data.");
+                return View(model);
+            }
         }
         [HttpGet]
         public async Task<IActionResult> DisplayVitalsPerPatient(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             var viewModel = new DisplayVitalsVM();
+            viewModel.PatientID = id; // Add this line to set the PatientID
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
                 await connection.OpenAsync();

@@ -44,11 +44,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
 
         public string SelectedMedication { get; set; }
-        //public List<SelectListItem> Medications { get; set; }
-
-        //    public virtual ICollection<Patient_Allergy> Patient_Allergy { get; set; }
-        //    public virtual ICollection<Patient_Condition> Patient_Condition { get; set; }
-        //    public virtual ICollection<Patient_Medication> Patient_Medication { get; set; }
-        //}
+       
     }
 }
