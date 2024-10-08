@@ -85,6 +85,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewData["EndDate"] = endDate?.ToString("dd-MM-yyyy");
 
             var bookedPatients = from s in _context.Surgeries
+                                 .Include(s => s.Surgery_TreatmentCodes)
                                  join p in _context.Patients on s.PatientID equals p.PatientID into patientGroup
                                  from p in patientGroup.DefaultIfEmpty()
                                  join n in _context.Nurses on s.NurseID equals n.NurseID into nurseGroup
@@ -97,8 +98,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  from b in bedGroup.DefaultIfEmpty()
                                  join w in _context.Ward on b.WardId equals w.WardId into wardGroup
                                  from w in wardGroup.DefaultIfEmpty()
-                                 join c in _context.Surgery_TreatmentCodes on s.SurgeryID equals c.SurgeryID into codeGroup
-                                 from c in codeGroup.DefaultIfEmpty()
+                                 join tc in _context.TreatmentCodes on s.Surgery_TreatmentCodes.Select(stc => stc.TreatmentCodeID).FirstOrDefault() equals tc.TreatmentCodeID into treatmentGroup
+                                 from tc in treatmentGroup.DefaultIfEmpty()
                                  join u in _context.Users on n.UserID equals u.UserID into nurseUserGroup
                                  from u in nurseUserGroup.DefaultIfEmpty()
                                  join us in _context.Users on su.UserID equals us.UserID into surgeonUserGroup
@@ -114,8 +115,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      BedName = b != null ? b.BedName : "N/A",  // Null check for Bed
                                      Nurse = u != null ? u.Name + " " + u.Surname : "N/A",  // Null check for Nurse User
                                      Theatre = t != null ? t.Name : "N/A",  // Null check for Theatre
-                                     Surgeon = us != null ? us.Name + " " + us.Surname : "N/A",  // Null check for Surgeon User
-                                     Surgery_TreatmentCode = c != null ? c.Description : "N/A"  // Null check for Surgery_TreatmentCode
+                                     Surgeon = us != null ? us.Name + " " + us.Surname : "N/A",
+                                     ICD_10_Code = tc != null ? tc.ICD_10_Code : "N/A",  // Fetch the ICD-10 Code from TreatmentCode
+                                     Surgery_TreatmentCode = s.Surgery_TreatmentCodes != null && s.Surgery_TreatmentCodes.Any()
+                                   ? s.Surgery_TreatmentCodes.FirstOrDefault().Description ?? "N/A"
+                                   : "N/A"
                                  };
 
 
@@ -150,6 +154,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(result); ;
         }
+       
         public async Task<ActionResult> MedicalHistory(int id)
         {
             _logger.LogInformation("MedicalHistory action started for patient ID: {PatientId}", id);

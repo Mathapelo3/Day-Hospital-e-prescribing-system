@@ -81,7 +81,7 @@
                                     <th>Medication</th>
                                     <th>Quantity</th>
                                     <th>Status</th>
-                                    <th></th>
+                                   @* <th></th>*@
                                 </tr>
                             </thead>
                             <tbody>
@@ -93,7 +93,7 @@
                                         <td>@order.MedicationName</td>
                                         <td>@order.Quantity</td>
                                         <td>@order.Status</td>
-                                        <td>
+                                        @*<td>
                                             @if (order.Status == "ordered")
                                             {
                                                 <a href="@Url.Action("EditOrders", "Anaesthesiologist", new { id = order.OrderID })" class="btn btn-primary" title="Edit">
@@ -103,12 +103,11 @@
                                                     <i class="fa fa-trash"></i>
                                                 </a>
                                             }
-                                        </td>
+                                        </td>*@
                                     </tr>
                                 }
                             </tbody>
-                            <i class="fa fa-edit"></i>
-                            <i class="fa fa-trash-alt"></i>
+                           
 
                         </table>
                     </div>

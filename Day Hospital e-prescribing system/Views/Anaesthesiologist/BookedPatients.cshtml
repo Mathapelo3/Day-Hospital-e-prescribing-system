@@ -74,9 +74,7 @@
                                     <th>Time</th>
                                     <th>Ward</th>
                                     <th>Bed</th>
-                                    
-                                    <th>Surgery TC</th>
-                                    <th>Nurse</th>
+                                    <th>Treatment Code</th>
                                     <th>Theatre</th>
                                     <th>Surgeon</th>
                                     <th></th>
@@ -91,9 +89,7 @@
                                         <td>@patient.Time</td>
                                         <td>@patient.WardName</td>
                                         <td>@patient.BedName</td>
-                                       
-                                        <td>@patient.Surgery_TreatmentCode</td>
-                                        <td>@patient.Nurse</td>
+                                        <td>@patient.ICD_10_Code</td>
                                         <td>@patient.Theatre</td>
                                         <td>@patient.Surgeon</td>
                                         <td> <a asp-action="MedicalHistory" asp-route-id="@patient.PatientID" class="btn btn-view btn-purple">
