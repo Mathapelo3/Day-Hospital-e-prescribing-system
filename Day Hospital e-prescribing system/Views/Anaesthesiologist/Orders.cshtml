@@ -83,7 +83,7 @@
                                         <th>Medication</th>
                                         <th>Quantity</th>
                                         <th>Status</th>
-                                        @*<th></th>*@
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -95,8 +95,8 @@
                                             <td>@order.MedicationName</td>
                                             <td>@order.Quantity</td>
                                             <td>@order.Status</td>
-                                            @*<td>
-                                                @* Show edit icon only if the order status is 'ordered' *@
+                                            <td>
+                                               
                                                 @if (order.Status == "Ordered")
                                                 {
                                                     <a class="btn btn-primary" asp-action="EditOrders" asp-route-id="@order.OrderID" title="Edit">
@@ -112,7 +112,7 @@
                                                 </form>
 
 
-                                            </td>*@
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
