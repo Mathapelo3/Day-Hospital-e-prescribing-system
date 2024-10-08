@@ -30,7 +30,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>@(Model.Patient.DateOfBirth)</td>
+                    <td>@(Model.Patient.DateOfBirth.ToString("d"))</td>
                     <td>@(Model.Patient?.Gender ?? "N/A")</td>
                     <td>@(Model.Patient?.ContactNo ?? "N/A")</td>
                 </tr>
