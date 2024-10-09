@@ -391,7 +391,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     _logger.LogError("Logged-in user's email is null or empty.");
                     // Handle the error or return an error message
                 }
-                var anaesthesiologistID = _helper.GetAnaesthesiologistByEmail("SELECT a.AnaesthesiologistID, a.UserID, u.Username FROM Anaesthesiologist a INNER JOIN [User] u ON a.UserID = u.UserID WHERE u.Email = @Email", loggedInUserEmail).AnaesthesiologistID;
+                var anaesthesiologistID = _helper.GetAnaesthesiologistByEmail("SELECT a.AnaesthesiologistID, a.UserID, u.Username, u.Name, u.Surname FROM Anaesthesiologist a INNER JOIN [User ] u ON a.UserID = u.UserID WHERE u.Email = @Email", loggedInUserEmail).AnaesthesiologistID;
 
 
                 if (model.SelectedMedications != null)
@@ -564,7 +564,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             _context.Orders.Remove(order);
             _context.SaveChanges();
-            return RedirectToAction("Orders");
+            // Redirect to the specific patient's orders page after saving
+            return RedirectToAction("Orders", new { id = order.PatientID });
         }
 
         [HttpGet]
