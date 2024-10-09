@@ -305,12 +305,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Value = p.SurgeonID.ToString(),
                         Text = $"{p.User.Name} {p.User.Surname}"
                     }).ToList(),
-                MedicationList = _context.Medication
-                    .Where(m => m.Name != null)
+                MedicationList = _context.DayHospitalMedication
+                    .Where(m => m.MedicationName != null)
                     .Select(m => new SelectListItem
                     {
-                        Value = m.MedicationID.ToString(),
-                        Text = m.Name
+                        Value = m.StockID.ToString(),
+                        Text = m.MedicationName
                     }).ToList(),
                 Date = DateTime.Today
             };
@@ -370,12 +370,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     Value = p.PatientID.ToString(),
                     Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
                 }).ToList();
-            model.MedicationList = _context.Medication
-                .Where(m => m.Name != null)
+            model.MedicationList = _context.DayHospitalMedication
+                .Where(m => m.MedicationName != null)
                 .Select(m => new SelectListItem
                 {
-                    Value = m.MedicationID.ToString(),
-                    Text = m.Name
+                    Value = m.StockID.ToString(),
+                    Text = m.MedicationName
                 }).ToList();
             model.SurgeonList = _context.Surgeons
                 .Select(p => new SelectListItem
