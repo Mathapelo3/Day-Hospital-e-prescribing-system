@@ -18,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Day_Hospital_e_prescribing_system.Helper;
 using Microsoft.AspNetCore.Authorization;
 using iText.Kernel.Pdf;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -238,33 +240,48 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AllPrescriptions(DateTime? filterDate)
+        public IActionResult AllPrescriptions(DateTime? filterDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var prescriptions = _context.Prescriptions
-                            .Include(p => p.Patient)
-                            .Include(p => p.Surgeon)
-                            .ThenInclude(s => s.User)
-                            .Include(p => p.Medication)
-                            .Select(p => new AllPrescriptionsViewModel()
-                            {
-                                PrescriptionID = p.PrescriptionID,
-                                PatientID = p.PatientID,
-                                SurgeonID = p.SurgeonID,
-                                MedicationID = p.MedicationID,
-                                PatientName = p.Patient.Name,
-                                PatientSurname = p.Patient.Surname,
-                                SurgeonName = p.Surgeon.User.Name,
-                                SurgeonSurname = p.Surgeon.User.Surname,
-                                MedicationName = p.Medication.Name,
-                                Date = p.Date,
-                                Instruction = p.Instruction,
-                                Quantity = p.Quantity,
-                                Status = p.Status,
-                                Urgency = p.Urgency
-                            })
-                             .ToList();
+            var prescriptions = new List<AllPrescriptionsViewModel>();
+
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = "EXEC GetPrescriptionsForAllPatients @FilterDate";
+                command.CommandType = System.Data.CommandType.Text;
+
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@FilterDate";
+                parameter.Value = (object)filterDate ?? DBNull.Value;
+                command.Parameters.Add(parameter);
+
+                _context.Database.OpenConnection();
+
+                using (var result = command.ExecuteReader())
+                {
+                    while (result.Read())
+                    {
+                        prescriptions.Add(new AllPrescriptionsViewModel
+                        {
+                            PrescriptionID = result.GetInt32(result.GetOrdinal("PrescriptionID")),
+                            PatientID = result.GetInt32(result.GetOrdinal("PatientID")),
+                            SurgeonID = result.GetInt32(result.GetOrdinal("SurgeonID")),
+                            MedicationID = result.IsDBNull(result.GetOrdinal("MedicationID")) ? (int?)null : result.GetInt32(result.GetOrdinal("MedicationID")),
+                            PatientName = result.GetString(result.GetOrdinal("PatientName")),
+                            PatientSurname = result.GetString(result.GetOrdinal("PatientSurname")),
+                            SurgeonName = result.IsDBNull(result.GetOrdinal("SurgeonName")) ? null : result.GetString(result.GetOrdinal("SurgeonName")),
+                            SurgeonSurname = result.IsDBNull(result.GetOrdinal("SurgeonSurname")) ? null : result.GetString(result.GetOrdinal("SurgeonSurname")),
+                            MedicationName = result.IsDBNull(result.GetOrdinal("MedicationName")) ? null : result.GetString(result.GetOrdinal("MedicationName")),
+                            Date = result.GetDateTime(result.GetOrdinal("Date")),
+                            Instruction = result.GetString(result.GetOrdinal("Instruction")),
+                            Quantity = result.GetString(result.GetOrdinal("Quantity")),
+                            Status = result.GetString(result.GetOrdinal("Status")),
+                            Urgency = result.GetBoolean(result.GetOrdinal("Urgency"))
+                        });
+                    }
+                }
+            }
 
             ViewBag.FilterDate = filterDate;
             return View(prescriptions);

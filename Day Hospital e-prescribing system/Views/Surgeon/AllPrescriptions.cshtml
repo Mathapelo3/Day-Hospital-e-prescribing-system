@@ -4,6 +4,13 @@
     ViewData["Title"] = "AllPrescriptions";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
+
+<style>
+    .spaced {
+        margin-left: 10px;
+    }
+</style>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <section class="content">
     <div class="card">
@@ -14,11 +21,15 @@
     <br />
     <div class="row mb-3">
         <div class="col-md-4">
+            <h5>Filter Table:</h5>
             <form method="get" asp-controller="Surgeon" asp-action="AllPrescriptions">
                 <div class="input-group">
                     <input type="date" name="filterDate" value="@(((DateTime?)ViewBag.FilterDate)?.ToString("yyyy-MM-dd"))" class="form-control" id="dateFilter" />
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary">Filter</button>
+                    </div>
+                    <div>
+                        <a href="@Url.Action("AllPrescriptions", "Surgeon")" class="btn spaced btn-danger btn-block text-bold">Reset</a>
                     </div>
                 </div>
             </form>
