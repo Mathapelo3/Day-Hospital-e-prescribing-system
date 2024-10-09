@@ -89,15 +89,23 @@
                         <div class="form-group">
                             <label>Selected Medications:</label>
                             <ul id="medicationList">
-                                @for (int i = 0; i < Model.SelectedMedications.Count; i++)
+                                @if (Model.SelectedMedications != null && Model.SelectedMedications.Any())
                                 {
-                                    <li>
-                                        @Html.HiddenFor(m => m.SelectedMedications[i].MedicationID)
-                                        @Html.HiddenFor(m => m.SelectedMedications[i].Name)
-                                        @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
-                                        @Model.SelectedMedications[i].Name - @Model.SelectedMedications[i].Quantity
-                                    </li>
+                                    @for (int i = 0; i < Model.SelectedMedications.Count; i++)
+                                    {
+                                        <li>
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].MedicationID)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].Name)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
+                                            @Model.SelectedMedications[i].Name - @Model.SelectedMedications[i].Quantity
+                                        </li>
+                                    }
                                 }
+                                else
+                                {
+                                    <p>No medications selected yet.</p>
+                                }
+
                             </ul>
                             <input type="hidden" name="Medications" value="" />
                         </div>

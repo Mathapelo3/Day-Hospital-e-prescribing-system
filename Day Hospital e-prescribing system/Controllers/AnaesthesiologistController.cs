@@ -200,12 +200,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             VitalDate = reader.GetDateTime(reader.GetOrdinal("VitalDate")),
                             VitalTime = reader.GetTimeSpan(reader.GetOrdinal("VitalTime")),
-                            VitalHeight = reader.GetString(reader.GetOrdinal("VitalHeight")),
-                            VitalWeight = reader.GetString(reader.GetOrdinal("VitalWeight")),
-                            VitalName = reader.GetString(reader.GetOrdinal("VitalName")),
-                            VitalValue = reader.GetString(reader.GetOrdinal("VitalValue")),
-                            VitalNotes = reader.GetString(reader.GetOrdinal("VitalNotes"))
-                        });
+                            VitalHeight = reader.IsDBNull(reader.GetOrdinal("VitalHeight")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalHeight")),
+                            VitalWeight = reader.IsDBNull(reader.GetOrdinal("VitalWeight")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalWeight")),
+                            VitalName = reader.IsDBNull(reader.GetOrdinal("VitalName")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalName")),
+                            VitalValue = reader.IsDBNull(reader.GetOrdinal("VitalValue")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalValue")),
+                            VitalNotes = reader.IsDBNull(reader.GetOrdinal("VitalNotes")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalNotes"))
+                        }); ;
                     }
 
                     // Move reader to the next result set
@@ -468,25 +468,52 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult EditOrders(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var order = _context.Orders.Find(id);
+
+            var order = (from o in _context.Orders
+                         join p in _context.Patients on o.PatientID equals p.PatientID
+                         join m in _context.Medication on o.MedicationID equals m.MedicationID
+                         where o.OrderID == id
+                         select new OrderViewModel
+                         {
+                             OrderID = o.OrderID,
+                             Date = o.Date,
+                             Quantity = o.Quantity,
+                             Status = o.Status,
+                             PatientName = p.Name,
+                             PatientSurname = p.Surname,
+                             MedicationName = m.Name
+                         }).FirstOrDefault();
+
             if (order == null)
             {
                 return NotFound();
             }
 
-            if (order.Status != "ordered")
+            if (order.Status != "Ordered")
             {
-                return RedirectToAction("ViewOrders");
+                return RedirectToAction("Orders");
             }
 
-            var viewModel = new OrderViewModel
-            {
-                OrderID = order.OrderID,
-                Date = order.Date,
-                Quantity = order.Quantity
-            };
+            return View(order);
+            //var order = _context.Orders.Find(id);
+            //if (order == null)
+            //{
+            //    return NotFound();
+            //}
 
-            return View(viewModel);
+            //if (order.Status != "Ordered")
+            //{
+            //    return RedirectToAction("Orders");
+            //}
+
+            //var viewModel = new OrderViewModel
+            //{
+            //    OrderID = order.OrderID,
+            //    Date = order.Date,
+            //    Quantity = order.Quantity
+            //};
+
+            //return View(viewModel);
         }
 
         [HttpPost]
@@ -505,7 +532,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     order.Date = viewModel.Date;
                     order.Quantity = viewModel.Quantity;
                     _context.SaveChanges();
-                    return RedirectToAction("ViewOrders");
+                    // Redirect to the specific patient's orders page after saving
+                    return RedirectToAction("Orders", new { id = order.PatientID });
                 }
             }
 
@@ -531,12 +559,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (order.Status != "ordered")
             {
-                return RedirectToAction("ViewOrders");
+                return RedirectToAction("Orders");
             }
 
             _context.Orders.Remove(order);
             _context.SaveChanges();
-            return RedirectToAction("ViewOrders");
+            return RedirectToAction("Orders");
         }
 
         [HttpGet]
