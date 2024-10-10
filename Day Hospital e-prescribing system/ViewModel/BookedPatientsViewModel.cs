@@ -9,6 +9,7 @@
         public DateTime Date { get; set; }
         public string Time { get; set; }
 
+        public  string ICD_10_Code { get; set; }
         public string? Surgery_TreatmentCode { get; set; }
         public string WardName { get; set; }
         public string BedName { get; set; }

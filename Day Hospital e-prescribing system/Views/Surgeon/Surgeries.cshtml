@@ -81,7 +81,7 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Date </td>
+                            <td>@item.Date.Value.ToString("d") </td>
                             <td>@(item.Time ?? " ")</td>
                             <td>@item.PatientName @item.PatientSurname</td>
                             <td>

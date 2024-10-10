@@ -246,6 +246,7 @@ namespace Day_Hospital_e_prescribing_system.Helper
                     command.Parameters.AddWithValue("@Email", email);
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
+
                         if (reader.Read())
                         {
                             anaesthesiologist = new AnaesthesiologistWithUserDetails
