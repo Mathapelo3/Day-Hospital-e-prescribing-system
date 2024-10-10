@@ -111,9 +111,11 @@
                                                 <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
                                                 <button class="btn btn-info" type="submit">Dispense Prescription</button>
                                             </form>
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                                                Reject Prescription
-                                            </button>
+                                            <form>
+                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                                    Reject Prescription
+                                                </button>
+                                            </form>
 
 
                                                     <!-- Modal -->
@@ -139,10 +141,10 @@
                                         <!-- Modal -->
 
 
-                                    </div>
+                                        </div>
+                                     </div>
                                 </div>
-                            </div>
-                 
+                            </div>                 
 
                 </div>
                     @*<button onclick="window.print();return false;">Print this page</button>*@
