@@ -20,6 +20,16 @@ using Day_Hospital_e_prescribing_system.Helper;
 using Microsoft.AspNetCore.Authorization;
 using iText.Kernel.Pdf;
 
+using SendGrid;
+using SendGrid.Helpers.Mail;
+using System.Net;
+using System.Net.Mail;
+using System.Threading.Tasks;
+
+
+
+using Microsoft.Extensions.Logging;
+
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     [Authorize]
@@ -722,6 +732,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     _context.Update(vitals);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Vital record updated successfully.");
+
+                    // Send notification email
+                    await SendVitalChangeEmail("Vital Record Updated", $"Vital record '{model.Vital}' has been updated with Min: {model.Min}, Max: {model.Max}");
+
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
                 catch (DbUpdateException ex)
@@ -754,6 +768,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 _context.Vitals.Remove(vitals);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Vital record deleted successfully.");
+
+                // Send notification email
+                await SendVitalChangeEmail("Vital Record Deleted", $"Vital record '{vitals.Vital}' has been deleted.");
+
             }
             catch (SqlNullValueException ex)
             {
@@ -795,6 +813,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     _context.Add(vitals);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Vital record created successfully.");
+
+                    // Send notification email
+                    await SendVitalChangeEmail("Vital Record Added", $"A new vital record '{model.Vital}' has been added with Min: {model.Min}, Max: {model.Max}");
+
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
                 catch (DbUpdateException ex)
@@ -810,5 +832,83 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
+
+        private async Task SendVitalChangeEmail(string subject, string body)
+        {
+            try
+            {
+                // Log the start of the email sending process
+                _logger.LogInformation("Starting to send email with subject: {Subject}", subject);
+
+                string smtpHost = _configuration["Smtp:Host"];  // Fetch SMTP host from config
+                int smtpPort = int.Parse(_configuration["Smtp:Port"]);  // Fetch SMTP port from config
+                string smtpUsername = _configuration["Smtp:Username"];  // Fetch SMTP username from config
+                string smtpPassword = _configuration["Smtp:Password"];  // Fetch SMTP password from config
+                string fromEmail = "bbdayhospital@gmail.com";  // From email address
+                string fromName = "GRP 10-CyberMed-Vital Records";  // From name
+
+                // Create the email message
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(fromEmail, fromName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true,  // Set to true if the body is in HTML format
+                };
+                mailMessage.To.Add("s219865345@mandela.ac.za");
+
+                // Configure the SMTP client
+                using (var smtpClient = new SmtpClient(smtpHost, smtpPort))
+                {
+                    smtpClient.EnableSsl = true;  // Enable SSL
+                    smtpClient.UseDefaultCredentials = false;
+                    smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+
+                    smtpClient.Timeout = 30000; // Set the timeout to 30 seconds (30000 milliseconds)
+
+                    int retryCount = 0;
+                    bool emailSent = false;
+
+                    while (!emailSent && retryCount < 5) // Change here to allow up to 5 attempts
+                    {
+                        try
+                        {
+                            retryCount++;
+                            _logger.LogInformation("Attempting to send email. Attempt number: {AttemptNumber}", retryCount);
+                            await smtpClient.SendMailAsync(mailMessage);
+                            emailSent = true;
+                            _logger.LogInformation("Email sent successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Attempt {RetryCount} failed to send email. Error: {Message}", retryCount, ex.Message);
+
+                            // Implement exponential backoff
+                            if (retryCount < 5) // Change here to check for 5 attempts
+                            {
+                                await Task.Delay(1000 * retryCount);
+                            }
+                            else
+                            {
+                                _logger.LogError("All retry attempts to send email have failed. Last error: {Message}", ex.Message);
+                            }
+                        }
+                    }
+
+                    if (!emailSent)
+                    {
+                        _logger.LogError("Failed to send email after {RetryCount} retries.", retryCount);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error occurred while sending email: {Message}", ex.Message);
+            }
+        }
+
+
+        //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
+        //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
     }
 }
