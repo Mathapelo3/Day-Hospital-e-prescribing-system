@@ -180,34 +180,56 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Surgeries(DateTime? startDate, DateTime? endDate)
+        public IActionResult Surgeries(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            var surgeries = new List<SurgeryDetailsViewModel>();
 
-            var surgeries = await _context.SurgeryDetailsViewModel.FromSqlRaw(
-                "EXEC GetBookedSurgeryDetails"
-            ).ToListAsync();
-
-            // Apply date filtering in memory
-            if (startDate.HasValue)
+            using (var connection = _context.Database.GetDbConnection())
             {
-                surgeries = surgeries.Where(s => s.Date >= startDate.Value.Date).ToList();
-            }
-            if (endDate.HasValue)
-            {
-                surgeries = surgeries.Where(s => s.Date <= endDate.Value.Date).ToList();
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "GetBookedSurgeryDetails";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@StartDate";
+                    parameter.Value = startDate.HasValue ? (object)startDate.Value.Date : DBNull.Value;
+                    command.Parameters.Add(parameter);
+
+                    var parameter2 = command.CreateParameter();
+                    parameter2.ParameterName = "@EndDate";
+                    parameter2.Value = endDate.HasValue ? (object)endDate.Value.Date : DBNull.Value;
+                    command.Parameters.Add(parameter2);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            surgeries.Add(new SurgeryDetailsViewModel
+                            {
+                                SurgeryID = reader.GetInt32(reader.GetOrdinal("SurgeryID")),
+                                PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                AnaesthesiologistID = reader.GetInt32(reader.GetOrdinal("AnaesthesiologistID")),
+                                TheatreID = reader.GetInt32(reader.GetOrdinal("TheatreID")),
+                                PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
+                                PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname")),
+                                AnaesthesiologistName = reader.IsDBNull(reader.GetOrdinal("AnaesthesiologistName")) ? null : reader.GetString(reader.GetOrdinal("AnaesthesiologistName")),
+                                AnaesthesiologistSurname = reader.IsDBNull(reader.GetOrdinal("AnaesthesiologistSurname")) ? null : reader.GetString(reader.GetOrdinal("AnaesthesiologistSurname")),
+                                TheatreName = reader.IsDBNull(reader.GetOrdinal("TheatreName")) ? null : reader.GetString(reader.GetOrdinal("TheatreName")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Time = reader.GetString(reader.GetOrdinal("Time")),
+                                ICD_10_Code = reader.IsDBNull(reader.GetOrdinal("ICD_10_Code")) ? null : reader.GetString(reader.GetOrdinal("ICD_10_Code")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
+                            });
+                        }
+                    }
+                }
             }
 
-            // Convert the comma-separated string of surgery codes to a list
-            foreach (var surgery in surgeries)
-            {
-                surgery.SurgeryCodes = surgery.SurgeryCode?.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
-            }
-
-            // Pass the date values to the view for maintaining filter state
-            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
-            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
-
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
             return View(surgeries);
         }
 
