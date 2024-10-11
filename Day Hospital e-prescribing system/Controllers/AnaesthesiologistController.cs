@@ -908,7 +908,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
 
-        //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
-        //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
+        
     }
 }
