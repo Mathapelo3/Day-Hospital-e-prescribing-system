@@ -86,7 +86,7 @@
                     @foreach (var prescription in Model.Prescriptions)
                     {
                         <tr>
-                            <td>@prescription.Date.ToString("dd/MM/yyyy")</td>
+                            <td>@prescription.Date.ToString("d")</td>
                             <td>@prescription.MedicationName</td>
                             <td>@prescription.Quantity</td>
                             <td>@prescription.InstructionText</td>
