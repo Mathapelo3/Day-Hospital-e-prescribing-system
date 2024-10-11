@@ -243,42 +243,43 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult AllPrescriptions(DateTime? filterDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-
             var prescriptions = new List<AllPrescriptionsViewModel>();
 
-            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            using (var connection = _context.Database.GetDbConnection())
             {
-                command.CommandText = "EXEC GetPrescriptionsForAllPatients @FilterDate";
-                command.CommandType = System.Data.CommandType.Text;
-
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = "@FilterDate";
-                parameter.Value = (object)filterDate ?? DBNull.Value;
-                command.Parameters.Add(parameter);
-
-                _context.Database.OpenConnection();
-
-                using (var result = command.ExecuteReader())
+                connection.Open();
+                using (var command = connection.CreateCommand())
                 {
-                    while (result.Read())
+                    command.CommandText = "GetPrescriptionsForAllPatients";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@FilterDate";
+                    parameter.Value = filterDate.HasValue ? (object)filterDate.Value.Date : DBNull.Value;
+                    command.Parameters.Add(parameter);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        prescriptions.Add(new AllPrescriptionsViewModel
+                        while (reader.Read())
                         {
-                            PrescriptionID = result.GetInt32(result.GetOrdinal("PrescriptionID")),
-                            PatientID = result.GetInt32(result.GetOrdinal("PatientID")),
-                            SurgeonID = result.GetInt32(result.GetOrdinal("SurgeonID")),
-                            MedicationID = result.IsDBNull(result.GetOrdinal("MedicationID")) ? (int?)null : result.GetInt32(result.GetOrdinal("MedicationID")),
-                            PatientName = result.GetString(result.GetOrdinal("PatientName")),
-                            PatientSurname = result.GetString(result.GetOrdinal("PatientSurname")),
-                            SurgeonName = result.IsDBNull(result.GetOrdinal("SurgeonName")) ? null : result.GetString(result.GetOrdinal("SurgeonName")),
-                            SurgeonSurname = result.IsDBNull(result.GetOrdinal("SurgeonSurname")) ? null : result.GetString(result.GetOrdinal("SurgeonSurname")),
-                            MedicationName = result.IsDBNull(result.GetOrdinal("MedicationName")) ? null : result.GetString(result.GetOrdinal("MedicationName")),
-                            Date = result.GetDateTime(result.GetOrdinal("Date")),
-                            Instruction = result.GetString(result.GetOrdinal("Instruction")),
-                            Quantity = result.GetString(result.GetOrdinal("Quantity")),
-                            Status = result.GetString(result.GetOrdinal("Status")),
-                            Urgency = result.GetBoolean(result.GetOrdinal("Urgency"))
-                        });
+                            prescriptions.Add(new AllPrescriptionsViewModel
+                            {
+                                PrescriptionID = reader.GetInt32(reader.GetOrdinal("PrescriptionID")),
+                                PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                SurgeonID = reader.GetInt32(reader.GetOrdinal("SurgeonID")),
+                                StockID = reader.IsDBNull(reader.GetOrdinal("StockID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("StockID")),
+                                PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
+                                PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname")),
+                                SurgeonName = reader.IsDBNull(reader.GetOrdinal("SurgeonName")) ? null : reader.GetString(reader.GetOrdinal("SurgeonName")),
+                                SurgeonSurname = reader.IsDBNull(reader.GetOrdinal("SurgeonSurname")) ? null : reader.GetString(reader.GetOrdinal("SurgeonSurname")),
+                                MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? null : reader.GetString(reader.GetOrdinal("MedicationName")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                InstructionText = reader.IsDBNull(reader.GetOrdinal("InstructionText")) ? null : reader.GetString(reader.GetOrdinal("InstructionText")),
+                                Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("Quantity")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency"))
+                            });
+                        }
                     }
                 }
             }
