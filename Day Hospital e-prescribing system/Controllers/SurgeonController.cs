@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using iText.Kernel.Pdf;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -47,7 +48,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public IActionResult Prescriptions(string id)
+        public IActionResult Prescriptions(string id, DateTime? startDate, DateTime? endDate)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -59,11 +60,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
                 connection.Open();
-
                 using (var command = new SqlCommand("GetPatientPrescriptions", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@IDNo", id);
+                    command.Parameters.AddWithValue("@StartDate", (object)startDate ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EndDate", (object)endDate ?? DBNull.Value);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -75,7 +77,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         }
                         else
                         {
-                            // Handle case where no patient found
                             //return View("Error", new ErrorViewModel { Message = "No patient found with this ID." });
                         }
 
@@ -89,21 +90,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             viewModel.Prescriptions.Add(new PatientPrescriptionViewModel.PrescriptionDetails
                             {
                                 PrescriptionID = reader.GetInt32(reader.GetOrdinal("PrescriptionID")),
-                                Instruction = reader.GetString(reader.GetOrdinal("Instruction")),
+                                InstructionText = reader.IsDBNull(reader.GetOrdinal("InstructionText")) ? null : reader.GetString(reader.GetOrdinal("InstructionText")),
                                 Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                                Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
+                                Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("Quantity")),
                                 Status = reader.GetString(reader.GetOrdinal("Status")),
                                 Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency")),
-                                GeneralMedicationName = reader.GetString(reader.GetOrdinal("GeneralMedicationName")),
+                                MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? null : reader.GetString(reader.GetOrdinal("MedicationName")),
                             });
-                        }
-
-                        // Check if there are any prescriptions in the debug result set
-                        reader.NextResult();
-                        if (!reader.HasRows)
-                        {
-                            // Handle case where no prescriptions found
-                            ViewBag.DebugMessage = "No prescriptions found for this patient.";
                         }
                     }
                 }
@@ -111,8 +104,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (viewModel.Prescriptions.Count == 0)
             {
-                ViewBag.Message = "No prescriptions found for this patient.";
+                ViewBag.Message = "No prescriptions found for this patient within the specified date range.";
             }
+
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
 
             return View(viewModel);
         }
