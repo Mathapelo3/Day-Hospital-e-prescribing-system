@@ -5,6 +5,7 @@ using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
 using Day_Hospital_e_prescribing_system.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -48,20 +49,119 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         // Medicine
-        public IActionResult MedicineList()
+        public async Task<ActionResult> MedicineList()
         {
-            return View();
+            var medicationQuery = from dm in _context.DayHospitalMedication
+                                  join mt in _context.medicationType on dm.MedTypeId equals mt.MedTypeId
+                                  orderby dm.MedicationName ascending
+                                  select new ViewModel.DayHospitalMedicationVM
+                                  {
+                                      StockID = dm.StockID,
+                                      MedTypeId = dm.MedTypeId,
+                                      MedicationName = dm.MedicationName,
+                                      QtyLeft = dm.QtyLeft,
+                                      ReOrderLevel = dm.ReOrderLevel,
+                                      DosageForm = mt.DosageForm,
+                                      IsBelowReorderLevel = dm.QtyLeft < dm.ReOrderLevel
+
+
+                                  };
+
+           
+
+            var medications = await medicationQuery.ToListAsync();
+
+            
+            return View(medications);
         }
+
         public IActionResult ReceiveMedicine()
         {
             return View();
         }
 
-        public IActionResult OrderMedicine()
+
+        public IActionResult AddMedicine()
         {
             return View();
         }
 
+        //[HttpPost]
+        //public async Task<IActionResult> AddMedicine(DayHospitalMedicationVM model)
+        //{
+        //    try
+        //    {
+        //        var medicine = new DayHospitalMedication
+        //        {
+        //            MedicationName = model.MedicationName,
+        //            Schedule = model.Schedule,
+        //            ReOrderLevel = model.ReOrderLevel,
+        //            MedTypeId = model.MedicationType != null ? model.MedicationType.Value : (int?)null,
+        //            DosageForm = model.DosageForm // Assuming this field exists in your VM
+        //        };
+
+        //        _context.DayHospitalMedication.Add(medicine);
+        //        await _context.SaveChangesAsync();
+
+        //        // Get active ingredients from the select list
+        //        var activeIngredients = model.Active_Ingredients.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+        //        foreach (var ingredient in activeIngredients)
+        //        {
+        //            var parts = ingredient.Trim().Split(' ');
+        //            if (parts.Length == 2)
+        //            {
+        //                int ingredientId;
+        //                if (int.TryParse(parts[0], out ingredientId))
+        //                {
+        //                    _context.dayHospitalMed_ActiveIngredients.Add(new DayHospitalMed_ActiveIngredients
+        //                    {
+        //                        StockID = medicine.StockID,
+        //                        Active_IngredientID = ingredientId,
+        //                        Strenght =  strenght
+        //                    });
+        //                }
+        //            }
+        //        }
+
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        return StatusCode(500, $"An error occurred while processing your request: {ex.Message}");
+        //    }
+        //}
+
+
+        public ActionResult LoadActiveIngredients()
+        {
+            var activeIngredients = _context.Active_Ingredient
+                .Select(ai => new SelectListItem
+                {
+                    Value = ai.Active_IngredientID.ToString(),
+                    Text = ai.Description
+                })
+                .ToList();
+
+            return Json(activeIngredients);
+        }
+
+        public ActionResult LoadMedicationType()
+        {
+            var medicationType = _context.medicationType
+                .Select(mt => new SelectListItem
+                {
+                    Value = mt.MedTypeId.ToString(),
+                    Text = mt.DosageForm
+                })
+                .ToList();
+
+            return Json(medicationType);
+        }
+
+        //Prescriptions
         public async Task<ActionResult> Prescriptions(DateTime? startDate, DateTime? endDate, string message)
         {
 

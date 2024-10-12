@@ -1,4 +1,7 @@
-﻿@{
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.DayHospitalMedicationVM>
+
+
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
@@ -15,14 +18,14 @@
                     *@
                 </div>
                 <br />
-                <h4 class="display-6  text-center text-bold" style="color: #268aab">MEDICINE lIST</h4>
+                <h4 class="display-6  text-center text-bold" style="color: #268aab">Medicine List</h4>
             </div>
         </div>
     </div>
     <br />
     <div class="row">
         <div class="col-md-4">
-            <!-- Calendar to select date -->
+            <!-- Filter by dosage form -->
             <br />
             <div class="card">
                 <div class="card-body">
@@ -63,69 +66,93 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row" style="justify-content:space-between" >
-                        <button type="submit" class="d-grid gap-1 d-md-flex justify-content-md-start btn" style="background-color:#268aab; color:#ffffff">Add Medicine</button>
-                    
+                        <a style="background-color:#268aab; color:#ffffff" class="btn btn-info" asp-action="AddMedicine" asp-controller="Pharmacist">
+                            Add Medicine
+                        </a>
                        
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="patientsTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table id="patientsTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Medicine Name</th>
+                                        <th>Type</th>
+                                        <th>Available Qty</th>
+                                        <th>Re-Order Level</th>
+                                        <th>Order Qty</th>
+                                        <th>Active Ingredients</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                               
+                                                 @item.MedicationName
+                                            </td>
+                                            <td>@item.DosageForm</td>
+                                            <td class="@(item.QtyLeft < item.ReOrderLevel ? "red-bg" : "")">@item.QtyLeft</td>
+                                            <td>@item.ReOrderLevel</td>
+                                            <td>
+                                                <form asp-route-id="@item.StockID">
+                                                    <input type="number" class="form-control" />
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingridients</button>
+                                            </td>
+                                        </tr>
 
+                                    }
 
-                                    <th>Medicine Info</th>
-                                    <th>Type</th>
-                                    <th>Available Qty</th>
-                                    <th>Re-Order Level</th>
-                                    <th>Order Qty</th>
-                                    <th>Active Ingridients</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>MID: 1
-                                        <br />
-                                        Name: Brufen
-                                        
-                                    </td>
-                                    <td>Tablet</td>
-                                    <td>5000</td>
-                                    <td>2000</td>
-                                    <td><input type="number" class="form-control" /></td>
-                                    <td><button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingridients</button></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        MID: 2
-                                        <br />
-                                        Name: Anxiolytics
-                                    </td>
-                                    <td>Liquid</td>
-                                    <td>400</td>
-                                    <td class="bg-danger">390</td>
-                                    <td><input type="number" class="form-control" /></td>
-                                    <td><button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingridients</button></td>
-                                </tr>
-                                <!-- Patient data will be populated here -->
-                            </tbody>
-                            
-                        </table>
-                        <br />
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="d-grid gap-2 d-md-flex justify-content-md-end btn" style="background-color:#268aab; color:#ffffff">Order Medicine</button>
+                                </tbody>
+                            </table>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="d-grid gap-2 d-md-flex justify-content-md-end btn" style="background-color:#268aab; color:#ffffff">Order Medicine</button>
+                            </div>
+                            <br />
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                                    Back
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                    }
+
+                    else
+                    {
+                        <div>
+                            <h3 class=" display-6 text-center text-bold" style="color:#268aab">No Hospital Medication found</h3>
+
+                            <br />
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                                Back
+                            </a>
+                        </div>
+
+
+                    }
                 </div>
             </div>
         </div>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">Back</button>
-        </div>
+        
     </div>
    
 </section>
+
+<style>
+    .red-bg {
+        background-color: #e63946;
+        color: white;
+    }
+</style>
 
 <script>
     $(document).ready(function () {
@@ -178,4 +205,4 @@
 
 
 
-</section>
+

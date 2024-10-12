@@ -17,13 +17,15 @@
                     <h3 style="color:#268aab">Add Medicine</h3>
                 </div>
                 <div class="card-body">
-                    <form>
+                    <form asp-action="AddMedicine" method="post">
                         <div class="row">
                             <div class="col-md-3">
                                 <label for="inputState" class="form-label">Medicine type </label>
-                                <select id="inputState" class="form-select form-control ">
-                                    <option selected>Pill</option>
-                                    <option>...</option>
+                                <select id="medTypeId" name="NewMedTypeId" class="form-control" required>
+                                    <option value="">Select Type</option>
+                                    
+                                        <option value=""></option>
+                                    
                                 </select>
                             </div>
 

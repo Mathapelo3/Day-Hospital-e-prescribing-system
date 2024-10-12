@@ -31,7 +31,7 @@
                     </button>*@
                     <!-- Modal -->
                
-                            <div class="card" id="container">
+                        <div class="card" id="container">
 
                                 <div class="card-header">
                                     <h5 style="color:#268aab">@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.Surname Prescription</h5>
@@ -44,7 +44,7 @@
                                 </div>
 
 
-                                <div class="card-body">
+                            <div class="card-body">
 
                                     <div class="row">
                                         <div class="col-md-6">
@@ -73,7 +73,7 @@
                                     </div>
                                     <hr />
                                     <br />
-                                    <div class="row" id="presTable">
+                                <div class="row" id="presTable">
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                                 <tr>
@@ -106,46 +106,25 @@
                                         </table>
 
                                         <br />
-                                        <div class="d-grid gap-2 col-6 mx-auto">
-                                            <form asp-action="DispensePrescription" asp-controller="Pharmacist" method="post">
-                                                <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
-                                                <button class="btn btn-info" type="submit">Dispense Prescription</button>
-                                            </form>
-                                            <form>
-                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                                                    Reject Prescription
-                                                </button>
-                                            </form>
+                                    <div class="d-grid gap-2 col-6 mx-auto">
+                                                <form asp-action="DispensePrescription" asp-controller="Pharmacist" method="post">
+                                                    <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
+                                                    <button class="btn btn-info w-100" type="submit">Dispense Prescription</button>
+                                                </form>
+                                                <form asp-action="RejectPrescription" asp-controller="Pharmacist" method="post" >
+                                                    <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
+                                                    <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                                        Reject Prescription
+                                                    </button>
+                                                </form>
+                                            
+                                       
+                                        
 
-
-                                                    <!-- Modal -->
-                                            <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="rejectModalLabel">Reject Prescription</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <!-- Your modal content here -->
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="button" class="btn btn-primary">Understood</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        <!-- Button trigger modal -->
-                                        <!-- Modal -->
-
-
-                                        </div>
-                                     </div>
+                                    </div>
                                 </div>
                             </div>                 
-
+                        </div>
                 </div>
                     @*<button onclick="window.print();return false;">Print this page</button>*@
 
@@ -316,34 +295,12 @@
 
 
 <script>
-    function rejectPrescription(id) {
-        $.ajax({
-            type: "Get",
-            url: "/Pharmacist/RejectPrescription",
-            data: { id: id },
-            success: function (result) {
-                $("#presTable").html(result);
-                setTimeout(function () { // Delay showing the modal
-                    $("#rejectPrescription").modal('show');
-                }, 300); // Wait for 300 milliseconds
-            }
-        });
-    }
+    var myModal = document.getElementById('myModal')
+    var myInput = document.getElementById('myInput')
 
-    $(document).ready(function () {
-        $('.btn-info').on('click', function (e) {
-            e.preventDefault();
-            var link = $(this).attr('href');
-            window.location.href = link;
-        });
-
-        $('.btn-danger').on('click', function (e) {
-            e.preventDefault();
-            var id = $(this).data('id');
-            rejectPrescription(id);
-        });
-    });
-
+    myModal.addEventListener('shown.bs.modal', function () {
+        myInput.focus()
+    })
 
 </script>
 
