@@ -65,6 +65,7 @@
                     <th>Time</th>
                     <th>Patient</th>
                     <th>Treatment Code</th>
+                    <th>Description</th>
                     <th>Theatre</th>
                     <th>Anesthesiologist</th>
                 </tr>
@@ -84,16 +85,8 @@
                             <td>@item.Date.Value.ToString("d") </td>
                             <td>@(item.Time ?? " ")</td>
                             <td>@item.PatientName @item.PatientSurname</td>
-                            <td>
-                                @if (item.SurgeryCodes != null && item.SurgeryCodes.Any())
-                                {
-                                    @string.Join(", ", item.SurgeryCodes)
-                                }
-                                else
-                                {
-                                    <span>No treatment codes</span>
-                                }
-                            </td>
+                            <td>@item.ICD_10_Code</td>
+                            <td>@item.Description</td>
                             <td>@item.TheatreName</td>
                             <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
 

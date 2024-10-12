@@ -65,10 +65,10 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Date.ToString("d") </td>
                             <td>@item.PatientName @item.PatientSurname</td>
                             <td>@item.MedicationName</td>
-                            <td>@item.Instruction</td>
+                            <td>@item.InstructionText</td>
                             <td>@item.Quantity</td>
                             <td>@(item.Urgency ? "Yes" : "No")</td>
                             <td>@item.SurgeonName @item.SurgeonSurname</td>
