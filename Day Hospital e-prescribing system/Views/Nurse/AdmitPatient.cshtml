@@ -97,11 +97,11 @@
         </div>
     </div>
      </div>
- 
-        <form asp-action="AdmitPatient" asp-controller="Nurse" method="post">
-   @* <input type="hidden" asp-for="PatientID" />*@
+
+<form asp-action="AdmitPatient" asp-controller="Nurse" method="post">
+    <input type="hidden" asp-for="PatientID" />
             @Html.AntiForgeryToken()
-          @*  <input type="hidden" asp-for="SurgeryID" />*@
+    <div asp-validation-summary="All" class="text-danger"></div>
             <br />
             <br />
             <div class="card">
@@ -131,6 +131,7 @@
                         @Html.DropDownList("WardId", ViewBag.Wards as SelectList, "Select Ward", new { id = "wardDropdown", @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.WardId, "", new { @class = "text-danger" })
                     </div>
+                   
                     @if (bedSelectList != null)
                     {
                         <div class="form-group col-md-6">
@@ -194,7 +195,7 @@
                              <div style="overflow:auto;">
                 <div style="float:right;">
                     <button type="button" id="prevBtn" onclick="location.href = '@Url.Action("AdmissionWizard","Nurse")'">Previous</button>
-            <button type="submit" onclick="location.href = '@Url.Action("DisplayPatientInfo","Nurse")'" id="nextBtn">Next</button>
+            <button type="submit" id="nextBtn">Next</button>
                 </div>
             </div>
 
@@ -244,4 +245,7 @@
         });
 
     </script>
+
+
+
 }

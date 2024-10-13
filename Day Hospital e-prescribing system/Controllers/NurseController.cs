@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using WebApplication27.Models;
 using static Day_Hospital_e_prescribing_system.ViewModel.DisplayVitalsVM;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -718,10 +719,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                    PatientID = p.PatientID,
                    Name = p.Name,
                    Surname = p.Surname,
-                   // Populate existing conditions, allergies, and medications here
-                   //Conditions = p.Patient_Condition.Select(pc => pc.Condition.Name).ToList(),
-                   //Allergies = p.Patient_Allergy.Select(pa => pa.Allergy.Name).ToList(),
-                   //General_Medications = p.Patient_Medication.Select(pm => pm.General_Medication.Name).ToList()
                })
         .FirstOrDefaultAsync();
 
@@ -1056,13 +1053,187 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(surgeries);
         }
-        public IActionResult RetakeVitals()
+        [HttpGet]
+        public async Task<ActionResult> AdministerMeds(int id)
         {
-            return View();
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation("GET AdministerMeds called for PatientID: {PatientID}", id);
+
+            try
+            {
+                //var model = new AdministerMedicationVM();
+                var model = new AdministerMedicationVM();
+
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+
+                    // Get patient information
+                    using (var command = new SqlCommand("sp_GetPatientInfo", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@PatientID", id);
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                model.PatientID = id;
+                                model.Name = reader["Name"].ToString();
+                                model.Surname = reader["Surname"].ToString();
+                                _logger.LogInformation("Patient info retrieved: ID {PatientID}, Name {Name} {Surname}", id, model.Name, model.Surname);
+
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Patient not found for ID: {PatientID}", id);
+                                return NotFound("Patient not found.");
+                            }
+                        }
+                    }
+
+                    // Get medications and quantity
+                    using (var command = new SqlCommand("sp_GetPrescriptionMeds", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@PatientID", id); // Ensure the patient ID is passed to this stored procedure
+
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                model.PrescriptionID = (int)reader["PrescriptionID"];
+                                model.Medication = reader["Medication"]?.ToString() ?? string.Empty;
+                                model.Quantity = reader["Quantity"]?.ToString() ?? string.Empty;
+                                _logger.LogInformation("Prescription info retrieved: ID {PrescriptionID}, Medication {Medication}, Quantity {Quantity}",
+                                    model.PrescriptionID, model.Medication, model.Quantity);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("No prescription found for PatientID: {PatientID}", id);
+                                return RedirectToAction("NoPrescription", new { patientId = id });
+                            }
+                        }
+                    }
+
+                    //await connection.OpenAsync();
+                    //using (var reader = await command.ExecuteReaderAsync())
+                    //{
+                    //    if (await reader.ReadAsync())
+                    //    {
+                    //        model.PrescriptionID = (int)reader["PrescriptionID"];
+                    //        model.Medication = reader["Medication"]?.ToString() ?? string.Empty;
+                    //        model.Quantity = reader["Quantity"]?.ToString() ?? string.Empty;
+                    //    }
+                    //    else
+                    //    {
+                    //        return RedirectToAction("NoPrescription", new { patientId = id });
+                    //    }
+                    //}
+
+
+                    model.Date = DateTime.Now.Date;
+                model.Time = DateTime.Now.TimeOfDay;
+
+                return View(model);
+            }
+                }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error occurred while retrieving patient data for ID: {PatientID}", id);
+                return StatusCode(500, "An error occurred while retrieving patient data.");
+            }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AdministerMeds(AdministerMedicationVM model)
+        {
+
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            _logger.LogInformation("POST AdministerMeds called with PatientID: {PatientID}, PrescriptionID: {PrescriptionID}",
+       model.PatientID, model.PrescriptionID);
+
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model state for AdministerMeds");
+                return View(model);
+            }
+
+            if (model.PrescriptionID <= 0)
+            {
+                _logger.LogWarning("Invalid PrescriptionID: {PrescriptionID}", model.PrescriptionID);
+                ModelState.AddModelError(string.Empty, "Invalid prescription. Please try again.");
+                return View(model);
+            }
+
+            // In your POST method, before inserting
+            if (!await IsPrescriptionValidForPatient(model.PatientID, model.PrescriptionID))
+            {
+                _logger.LogWarning("Invalid prescription for patient. PatientID: {PatientID}, PrescriptionID: {PrescriptionID}",
+                    model.PatientID, model.PrescriptionID);
+                ModelState.AddModelError(string.Empty, "The selected prescription is not valid for this patient.");
+                return View(model);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = new SqlCommand("InsertAdministerMedication", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@Date", model.Date);
+                        command.Parameters.AddWithValue("@Time", model.Time);
+                        command.Parameters.AddWithValue("@Administer", model.Administer);
+                        command.Parameters.AddWithValue("@PrescriptionID", model.PrescriptionID);
+                        command.Parameters.AddWithValue("@NurseID", model.NurseID);
+
+                        _logger.LogInformation("Executing InsertAdministerMedication with PrescriptionID: {PrescriptionID}", model.PrescriptionID);
+                        await command.ExecuteNonQueryAsync();
+                        _logger.LogInformation("Successfully administered medication for PatientID: {PatientID}, PrescriptionID: {PrescriptionID}",
+                            model.PatientID, model.PrescriptionID);
+                    }
+                }
+                
+
+                return RedirectToAction("AdministeredMeds", new { model.PatientID });
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error occurred while saving medication administration data. PatientID: {PatientID}, PrescriptionID: {PrescriptionID}",
+            model.PatientID, model.PrescriptionID);
+                ModelState.AddModelError(string.Empty, "An error occurred while saving data. Please try again.");
+                return View(model);
+            }
+           
+        }
+        //Add this method to your controller
+        private async Task<bool> IsPrescriptionValidForPatient(int patientId, int prescriptionId)
+        {
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("SELECT COUNT(*) FROM Prescription WHERE PrescriptionID = @PrescriptionID", connection))
+                {
+                    //command.Parameters.AddWithValue("@PatientID", patientId);
+                    command.Parameters.AddWithValue("@PrescriptionID", prescriptionId);
+                    var result = (int)await command.ExecuteScalarAsync() > 0;
+                    _logger.LogInformation("Prescription validation result: {Result}. PatientID: {PatientID}, PrescriptionID: {PrescriptionID}",
+                        result, patientId, prescriptionId);
+                    return result;
+                }
+            }
+        }
+
+
         [HttpGet]
         public async Task<ActionResult> RetakeVitals2(int id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
 
 
             try
@@ -1134,6 +1305,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpPost]
         public async Task<IActionResult> RetakeVitals2(VitalsVM model)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
 
             if (!ModelState.IsValid)
             {
@@ -1186,9 +1358,44 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             return View();
         }
-        public IActionResult AdministeredMeds()
+        public IActionResult AdministeredMeds(int id, DateTime? startDate, DateTime? endDate)
         {
-            return View();
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            var patientPrescript = _context.Administer_Medication
+                             .Include(s => s.Prescription)
+                              .ThenInclude(s => s.Patient)
+                             .Select(s => new AdministeredMedsVM
+                             {
+                                 PrescriptionID = s.PrescriptionID,
+                                 PatientID = s.Prescription.Patient.PatientID,
+                                 MedicationID = s.Prescription.MedicationID,
+                                 Name = s.Prescription.Patient.Name,
+                                 Surname = s.Prescription.Patient.Surname,
+                                 Instruction = s.Prescription.Instruction,
+                                 Medication = s.Prescription.Medication.Name,
+                                 Time = s.Time,
+                                 Date = s.Date,
+                                 Quantity = s.Prescription.Quantity,
+                                 Administer = s.Administer
+                             })
+                              .ToList();
+
+            // Apply date filtering in memory
+            if (startDate.HasValue)
+            {
+                patientPrescript = patientPrescript.Where(s => s.Date >= startDate.Value.Date).ToList();
+            }
+            if (endDate.HasValue)
+            {
+                patientPrescript = patientPrescript.Where(s => s.Date <= endDate.Value.Date).ToList();
+            }
+
+            // Pass the date values to the view for maintaining filter state
+            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
+            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
+
+            return View(patientPrescript);
         }
         public async Task<ActionResult> AdmittedPatients()
         {
@@ -1287,6 +1494,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 Time = DateTime.Now.ToString("tt"),
                 //TreatmentCode = treatmentCode,
                 SurgeryID = selectedSurgery.SurgeryID,
+                PatientID= selectedSurgery.PatientID,
                 Name = selectedSurgery.Patients.Name ?? "Unknown",
                 Surname = selectedSurgery.Patients.Surname ?? "Unknown",
                 //Description = selectedSurgery.Surgery_TreatmentCodes.Description
@@ -1310,8 +1518,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AdmitPatient(AdmissionVM model, int selectedId)
         {
-            //int nurseID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "NurseID").Value);
-            //int nurseID = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "NurseID").Value);
+            
             var nurseClaim = User.Claims.FirstOrDefault(c => c.Type == "NurseID");
             if (nurseClaim != null && int.TryParse(nurseClaim.Value, out int nurseID))
             {
@@ -1319,12 +1526,26 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     try
                     {
+                        // Validate Ward selection
+                        if (model.WardId <= 0)
+                        {
+                            ModelState.AddModelError("WardId", "Ward selection is required");
+                            return View(model);
+                        }
+
+                        // Validate Bed selection
+                        if (model.BedId <= 0)
+                        {
+                            ModelState.AddModelError("BedId", "Bed selection is required");
+                            return View(model);
+                        }
+
                         var selectedSurgery = await _context.Surgeries
                                                     .Include(s => s.Patients)
                                                     //.Include(s => s.Surgery_TreatmentCodes)
                                                     .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
 
-                        var patient = selectedSurgery.Patients;
+                      
 
                         if (selectedSurgery?.Patients == null)
                         {
@@ -1332,19 +1553,46 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             return NotFound();
                         }
 
-                        patient.BedId = model.BedId;
+                        var patient = selectedSurgery.Patients;
 
+                        // Get the selected bed
+                        var selectedBed = await _context.Bed
+                            .Include(b => b.Wards)
+                            .FirstOrDefaultAsync(b => b.BedId == model.BedId);
+
+                        if (selectedBed == null)
+                        {
+                            _logger.LogWarning("Selected bed not found: {BedId}", model.BedId);
+                            ModelState.AddModelError("BedId", "Selected bed not found.");
+                            return View(model);
+                        }
+
+                        // Ensure the selected bed is in the correct ward
+                        if (selectedBed.Wards.WardId != model.WardId)
+                        {
+                            _logger.LogWarning("Selected bed {BedId} is not in the selected ward {WardId}", model.BedId, model.WardId);
+                            ModelState.AddModelError("BedId", "Selected bed is not in the selected ward.");
+                            return View(model);
+                        }
+
+                          // Save BedId to the patient
+                           patient.BedId = model.BedId;
+                            _context.Update(patient);
 
                         //patient.TreatmentCodeID = model.Surgery_TreatmentCodeID;
                         //patient.WardId = model.WardId;
                         //selectedSurgery.Patient.BedId = model.BedId;
+                        // Convert SelectedCondition to a name if it's an ID
 
+                        string bedName = await GetBedById(model.SelectedBed);
+                        string wardName = await GetWardById(model.SelectedWard);
 
                         var admission = new Admission
                         {
                             Date = model.Date,
                             Time = model.Time,
-                            //PatientID = selectedSurgery.PatientID,
+                            PatientID = selectedSurgery.PatientID,
+
 
                         };
 
@@ -1386,6 +1634,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
+        private async Task<int> GetBedIdByName(string selectedBed)
+        {
+            if (int.TryParse(selectedBed, out int bedId))
+            {
+                return bedId;
+            }
+            var bed = await _context.Bed.FirstOrDefaultAsync(b => b.BedName == selectedBed);
+            return bed?.BedId ?? 0;
+        }
+
+        private async Task<int> GetWardIdByName(string selectedWard)
+        {
+            if (int.TryParse(selectedWard, out int wardId))
+            {
+                return wardId;
+            }
+            var ward = await _context.Ward.FirstOrDefaultAsync(w => w.WardName == selectedWard);
+            return ward?.WardId ?? 0;
+        }
 
         public async Task<JsonResult> GetBedsByWard(int wardId)
         {
@@ -1399,6 +1666,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      .ToListAsync();
 
             return Json(beds);
+        }
+        private async Task<string> GetBedById(string selectedBed)
+        {
+            if (int.TryParse(selectedBed, out int bedId))
+            {
+                var bed = await _context.Bed.FindAsync(bedId);
+                return bed?.BedName;
+            }
+            return selectedBed;
+        }
+
+        private async Task<string> GetWardById(string selectedWard)
+        {
+            if (int.TryParse(selectedWard, out int wardId))
+            {
+                var ward = await _context.Ward.FindAsync(wardId);
+                return ward?.WardName;
+            }
+            return selectedWard;
         }
 
         [HttpPost]
@@ -1760,8 +2046,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 {
                                     Vital = reader.IsDBNull(reader.GetOrdinal("Vital")) ? null : reader.GetString(reader.GetOrdinal("Vital")),
                                     Value = reader.IsDBNull(reader.GetOrdinal("Value")) ? null : reader.GetString(reader.GetOrdinal("Value")),
-                                    //Weight = reader.IsDBNull(reader.GetOrdinal("Weight")) ? null : reader.GetString(reader.GetOrdinal("Weight")),
-                                    //Height = reader.IsDBNull(reader.GetOrdinal("Height")) ? null : reader.GetString(reader.GetOrdinal("Height")),
                                     Notes = reader.IsDBNull(reader.GetOrdinal("Notes")) ? null : reader.GetString(reader.GetOrdinal("Notes")),
                                     Date = reader.GetDateTime(reader.GetOrdinal("Date")),
                                     Time = reader.GetTimeSpan(reader.GetOrdinal("Time")),
@@ -2027,8 +2311,77 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(patientAd);
         }
+        [HttpGet]
+        public async Task<ActionResult> SurgeriesBooked(DateTime? startDate, DateTime? endDate)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            var surgeries = await _context.SurgeryDetailsViewModel.FromSqlRaw(
+                "EXEC GetBookedSurgeryDetails"
+            ).ToListAsync();
+
+            // Apply date filtering in memory
+            if (startDate.HasValue)
+            {
+                surgeries = surgeries.Where(s => s.Date >= startDate.Value.Date).ToList();
+            }
+            if (endDate.HasValue)
+            {
+                surgeries = surgeries.Where(s => s.Date <= endDate.Value.Date).ToList();
+            }
+
+            // Convert the comma-separated string of surgery codes to a list
+            //foreach (var surgery in surgeries)
+            //{
+            //    surgery.SurgeryCodes = surgery.SurgeryCode?.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            //}
+
+            // Pass the date values to the view for maintaining filter state
+            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
+            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
+
+            return View(surgeries);
+        }
+        [HttpGet]
+        public async Task<ActionResult>GetBookedSurgeries(DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.Surgeries
+                .Include(s => s.Patients)
+                .Include(s => s.Anaesthesiologists).ThenInclude(a => a.User)
+                  .Include(s => s.Surgeons).ThenInclude(a => a.User)
+                .Include(s => s.Theatres)
+                .AsQueryable();
+
+            if (startDate.HasValue)
+                query = query.Where(s => s.Date >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(s => s.Date <= endDate.Value);
+
+            var bookedSurgeries = await query
+                .Select(s => new BookedSurgeriesVM
+                {
+                    SurgeryID = s.SurgeryID,
+                    Date = s.Date,
+                    Time = s.Time,
+                    PatientName = s.Patients.Name,
+                    PatientSurname = s.Patients.Surname,
+                    AnaesthesiologistName = s.Anaesthesiologists.User.Name,
+                    AnaesthesiologistSurname = s.Anaesthesiologists.User.Surname,
+                    SurgeonName=s.Surgeons.User.Name,
+                    SurgeonSurname=s.Surgeons.User.Surname,
+                    TheatreName = s.Theatres.Name
+                    
+                })
+                .OrderBy(s => s.Date)
+                .ThenBy(s => s.Time)
+                .ToListAsync();
+
+            return View(bookedSurgeries);
+        }
     }
 }
+
         
        
 

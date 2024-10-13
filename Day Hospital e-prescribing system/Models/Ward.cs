@@ -4,7 +4,7 @@ using WebApplication27.Models;
 
 namespace Day_Hospital_e_prescribing_system.Models
 {
-    [Table("Ward")] // Specify the table name explicitly if it differs from the default
+    [Table("Ward")] 
     public class Ward
     {
         [Key]
