@@ -543,13 +543,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     return View(model);
                 }
 
-                // Serialize selected treatment codes to JSON
-                var treatmentCodesData = JsonConvert.SerializeObject(model.SelectedTreatmentCodes.Select(tc => new { TreatmentCodeID = tc }));
+                // Convert SelectedTreatmentCodes to the expected format
+                var treatmentCodesData = JsonConvert.SerializeObject(
+                    model.SelectedTreatmentCodes.Select(tc => new { TreatmentCodeID = int.Parse(tc) })
+                );
 
                 // Execute stored procedure
-                var newSurgeryIdParam = new SqlParameter("@NewSurgeryID", System.Data.SqlDbType.Int)
+                var newSurgeryIdParam = new SqlParameter("@NewSurgeryID", SqlDbType.Int)
                 {
-                    Direction = System.Data.ParameterDirection.Output
+                    Direction = ParameterDirection.Output
                 };
 
                 await _context.Database.ExecuteSqlRawAsync(

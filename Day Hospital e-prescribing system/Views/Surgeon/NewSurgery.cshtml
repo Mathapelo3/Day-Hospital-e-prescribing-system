@@ -1,7 +1,6 @@
-﻿@using Day_Hospital_e_prescribing_system.ViewModel
-@model SurgeryViewModel
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.SurgeryViewModel
 @{
-    ViewData["Title"] = "New Surgery";
+    ViewData["Title"] = "NewSurgery";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 
@@ -82,8 +81,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label asp-for="SelectedTreatmentCodes">Treatment Codes:</label>
-                                <ul id="treatmentList" class="list-group">
+                                <ul id="selectedTreatmentList" class="list-group">
                                 </ul>
                             </div>
                             <div class="text-center">
@@ -99,12 +97,11 @@
 </section>
 
 @section Scripts {
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
             var $select = $('#treatmentCodeSelect');
             var $addButton = $('#addTreatmentCode');
-            var $selectedList = $('#treatmentList');
+            var $selectedList = $('#selectedTreatmentList');
             var $form = $('#newSurgeryForm');
             var selectedCodes = [];
 
@@ -150,18 +147,11 @@
             }
 
             $form.on('submit', function (e) {
-                if (!validateForm()) {
+                if (selectedCodes.length === 0) {
                     e.preventDefault();
+                    alert("Please select at least one treatment code.");
                 }
             });
-
-            function validateForm() {
-                if (selectedCodes.length === 0) {
-                    alert("Please select at least one treatment code.");
-                    return false;
-                }
-                return true;
-            }
         });
     </script>
 }
