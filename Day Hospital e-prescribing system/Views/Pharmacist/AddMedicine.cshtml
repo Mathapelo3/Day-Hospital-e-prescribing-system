@@ -17,13 +17,12 @@
                     <h3 style="color:#268aab">Add Medicine</h3>
                 </div>
                 <div class="card-body">
-                    <form>
+                    <form asp-action="AddMedicine" method="post">
                         <div class="row">
                             <div class="col-md-3">
                                 <label for="inputState" class="form-label">Medicine type </label>
-                                <select id="inputState" class="form-select form-control ">
-                                    <option selected>Pill</option>
-                                    <option>...</option>
+                                <select id="medType" name="MedicationType" class="form-control" required>
+                                    <option value="">Select Type</option>
                                 </select>
                             </div>
 
@@ -45,9 +44,8 @@
                             </div>
                             <div class="col-md-5">
                                 <label class="form-label">Active Ingerdients</label>
-                                <select id="inputState" class="form-select form-control ">
-                                    <option selected>Penecilline</option>
-                                    <option>...</option>
+                                <select id="activeIngredients" class="form-control" required>
+                                    <option value="">Select an active ingredient</option>
                                 </select>
                                 <br />
                                 <label class="form-label">mg</label>
@@ -74,3 +72,37 @@
     </div>
 
 </section>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function loadSelectList(selector, url) {
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                success: function (data) {
+                    $(selector).empty();
+                    $.each(data, function (index, item) {
+                        $('<option>').val(item.Value).text(item.Text).appendTo(selector);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error loading " + selector + ": ", xhr.responseText);
+                }
+            });
+        }
+
+        loadSelectList('#medType', '@Url.Action("LoadMedicationType")');
+        loadSelectList('#activeIngredients', '@Url.Action("LoadActiveIngredients")');
+
+        $('#medType').change(function () {
+            var medTypeId = $(this).val();
+            if (medTypeId !== '') {
+                loadSelectList('#activeIngredients', '@Url.Action("LoadActiveIngredients")?medTypeId=' + medTypeId);
+            } else {
+                loadSelectList('#activeIngredients', '@Url.Action("LoadActiveIngredients")');
+            }
+        });
+    });
+</script>
+

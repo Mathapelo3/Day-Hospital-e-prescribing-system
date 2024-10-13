@@ -12,8 +12,12 @@
     <div class="card">
         <div class="card-header">
             <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @ViewBag.SuccessMessage
+                    </div>
+                }
             </div>
             <br />
             <h4 style="color:#268aab">List Of Prescriptions</h4>
@@ -35,6 +39,7 @@
                 </div>
             </div>
         </form>
+
     </div>
 
    
@@ -43,9 +48,7 @@
     <div class="card-body">
        
 
-        <form asp-action="Prescriptions">
-
-
+        
             @if (Model != null && Model.Any())
             {
                 <div class="row">
@@ -74,7 +77,9 @@
                                         <a asp-controller="Pharmacist"
                                            asp-route-id="@item.PrescriptionID"
                                            asp-action="ViewPrescription"
-                                           class="btn btn-info">View Details</a>
+                                           class="btn btn-info">
+                                           View Details
+                                       </a>
                                     </td>
                                 </tr>
 
@@ -89,11 +94,22 @@
             }
             else
             {
-                <h3 class=" display-6 text-center text-bold" style="color:#268aab">Search not Found</h3>
+                <div>
+                    <h3 class=" display-6 text-center text-bold" style="color:#268aab">No undispensed prescriptions found</h3>
+
+                    <br />
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                        Back
+                    </a>
+                </div>
+                
+
             }
 
 
-        </form>
+        
 
 
 

@@ -4,6 +4,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PatientPrescriptionWithRelatedDataVM
     {
+        public RejectedPrescriptionVM RejectedPrescription { get; set; }
         public IEnumerable<PatientPrescriptionVM> Prescription { get; set; }
         public IEnumerable<PatientAllergiesViewModel> Allergies { get; set; }
         public IEnumerable<PatientConditionsViewModel> Conditions { get; set; }

@@ -18,6 +18,9 @@ using Microsoft.Extensions.Configuration;
 using Day_Hospital_e_prescribing_system.Helper;
 using Microsoft.AspNetCore.Authorization;
 using iText.Kernel.Pdf;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -45,7 +48,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public IActionResult Prescriptions(string id)
+        public IActionResult Prescriptions(string id, DateTime? startDate, DateTime? endDate)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -57,11 +60,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
                 connection.Open();
-
                 using (var command = new SqlCommand("GetPatientPrescriptions", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@IDNo", id);
+                    command.Parameters.AddWithValue("@StartDate", (object)startDate ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@EndDate", (object)endDate ?? DBNull.Value);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -73,7 +77,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         }
                         else
                         {
-                            // Handle case where no patient found
                             //return View("Error", new ErrorViewModel { Message = "No patient found with this ID." });
                         }
 
@@ -87,21 +90,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             viewModel.Prescriptions.Add(new PatientPrescriptionViewModel.PrescriptionDetails
                             {
                                 PrescriptionID = reader.GetInt32(reader.GetOrdinal("PrescriptionID")),
-                                Instruction = reader.GetString(reader.GetOrdinal("Instruction")),
+                                InstructionText = reader.IsDBNull(reader.GetOrdinal("InstructionText")) ? null : reader.GetString(reader.GetOrdinal("InstructionText")),
                                 Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                                Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
+                                Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("Quantity")),
                                 Status = reader.GetString(reader.GetOrdinal("Status")),
                                 Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency")),
-                                GeneralMedicationName = reader.GetString(reader.GetOrdinal("GeneralMedicationName")),
+                                MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? null : reader.GetString(reader.GetOrdinal("MedicationName")),
                             });
-                        }
-
-                        // Check if there are any prescriptions in the debug result set
-                        reader.NextResult();
-                        if (!reader.HasRows)
-                        {
-                            // Handle case where no prescriptions found
-                            ViewBag.DebugMessage = "No prescriptions found for this patient.";
                         }
                     }
                 }
@@ -109,8 +104,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (viewModel.Prescriptions.Count == 0)
             {
-                ViewBag.Message = "No prescriptions found for this patient.";
+                ViewBag.Message = "No prescriptions found for this patient within the specified date range.";
             }
+
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
 
             return View(viewModel);
         }
@@ -182,34 +180,64 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Surgeries(DateTime? startDate, DateTime? endDate)
+        public IActionResult Surgeries(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            var surgeries = new List<SurgeryDetailsViewModel>();
 
-            var surgeries = await _context.SurgeryDetailsViewModel.FromSqlRaw(
-                "EXEC GetBookedSurgeryDetails"
-            ).ToListAsync();
-
-            // Apply date filtering in memory
-            if (startDate.HasValue)
+            try
             {
-                surgeries = surgeries.Where(s => s.Date >= startDate.Value.Date).ToList();
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "GetBookedSurgeryDetails";
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                        command.Parameters.Add(new SqlParameter("@StartDate", SqlDbType.Date)
+                        {
+                            Value = startDate.HasValue ? (object)startDate.Value.Date : DBNull.Value
+                        });
+                        command.Parameters.Add(new SqlParameter("@EndDate", SqlDbType.Date)
+                        {
+                            Value = endDate.HasValue ? (object)endDate.Value.Date : DBNull.Value
+                        });
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                surgeries.Add(new SurgeryDetailsViewModel
+                                {
+                                    SurgeryID = reader.GetInt32(reader.GetOrdinal("SurgeryID")),
+                                    PatientID = reader.IsDBNull(reader.GetOrdinal("PatientID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                    AnaesthesiologistID = reader.IsDBNull(reader.GetOrdinal("AnaesthesiologistID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("AnaesthesiologistID")),
+                                    TheatreID = reader.IsDBNull(reader.GetOrdinal("TheatreID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("TheatreID")),
+                                    PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
+                                    PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname")),
+                                    AnaesthesiologistName = reader.IsDBNull(reader.GetOrdinal("AnaesthesiologistName")) ? null : reader.GetString(reader.GetOrdinal("AnaesthesiologistName")),
+                                    AnaesthesiologistSurname = reader.IsDBNull(reader.GetOrdinal("AnaesthesiologistSurname")) ? null : reader.GetString(reader.GetOrdinal("AnaesthesiologistSurname")),
+                                    TheatreName = reader.IsDBNull(reader.GetOrdinal("TheatreName")) ? null : reader.GetString(reader.GetOrdinal("TheatreName")),
+                                    Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                    Time = reader.GetString(reader.GetOrdinal("Time")),
+                                    ICD_10_Code = reader.IsDBNull(reader.GetOrdinal("ICD_10_Code")) ? null : reader.GetString(reader.GetOrdinal("ICD_10_Code")),
+                                    Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
+                                });
+                            }
+                        }
+                    }
+                }
             }
-            if (endDate.HasValue)
+            catch (Exception ex)
             {
-                surgeries = surgeries.Where(s => s.Date <= endDate.Value.Date).ToList();
+                // Log the exception
+                // You might want to add proper logging here
+                return View("Error");
             }
 
-            // Convert the comma-separated string of surgery codes to a list
-            foreach (var surgery in surgeries)
-            {
-                surgery.SurgeryCodes = surgery.SurgeryCode?.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
-            }
-
-            // Pass the date values to the view for maintaining filter state
-            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
-            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
-
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
             return View(surgeries);
         }
 
@@ -238,33 +266,49 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AllPrescriptions(DateTime? filterDate)
+        public IActionResult AllPrescriptions(DateTime? filterDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            var prescriptions = new List<AllPrescriptionsViewModel>();
 
-            var prescriptions = _context.Prescriptions
-                            .Include(p => p.Patient)
-                            .Include(p => p.Surgeon)
-                            .ThenInclude(s => s.User)
-                            .Include(p => p.Medication)
-                            .Select(p => new AllPrescriptionsViewModel()
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "GetPrescriptionsForAllPatients";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@FilterDate";
+                    parameter.Value = filterDate.HasValue ? (object)filterDate.Value.Date : DBNull.Value;
+                    command.Parameters.Add(parameter);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            prescriptions.Add(new AllPrescriptionsViewModel
                             {
-                                PrescriptionID = p.PrescriptionID,
-                                PatientID = p.PatientID,
-                                SurgeonID = p.SurgeonID,
-                                MedicationID = p.MedicationID,
-                                PatientName = p.Patient.Name,
-                                PatientSurname = p.Patient.Surname,
-                                SurgeonName = p.Surgeon.User.Name,
-                                SurgeonSurname = p.Surgeon.User.Surname,
-                                MedicationName = p.Medication.Name,
-                                Date = p.Date,
-                                Instruction = p.Instruction,
-                                Quantity = p.Quantity,
-                                Status = p.Status,
-                                Urgency = p.Urgency
-                            })
-                             .ToList();
+                                PrescriptionID = reader.GetInt32(reader.GetOrdinal("PrescriptionID")),
+                                PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                SurgeonID = reader.GetInt32(reader.GetOrdinal("SurgeonID")),
+                                StockID = reader.IsDBNull(reader.GetOrdinal("StockID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("StockID")),
+                                PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
+                                PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname")),
+                                SurgeonName = reader.IsDBNull(reader.GetOrdinal("SurgeonName")) ? null : reader.GetString(reader.GetOrdinal("SurgeonName")),
+                                SurgeonSurname = reader.IsDBNull(reader.GetOrdinal("SurgeonSurname")) ? null : reader.GetString(reader.GetOrdinal("SurgeonSurname")),
+                                MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? null : reader.GetString(reader.GetOrdinal("MedicationName")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                InstructionText = reader.IsDBNull(reader.GetOrdinal("InstructionText")) ? null : reader.GetString(reader.GetOrdinal("InstructionText")),
+                                Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("Quantity")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency"))
+                            });
+                        }
+                    }
+                }
+            }
 
             ViewBag.FilterDate = filterDate;
             return View(prescriptions);
@@ -288,12 +332,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Value = p.SurgeonID.ToString(),
                         Text = $"{p.User.Name} {p.User.Surname}"
                     }).ToList(),
-                MedicationList = _context.Medication
-                    .Where(m => m.Name != null)
+                MedicationList = _context.DayHospitalMedication
+                    .Where(m => m.MedicationName != null)
                     .Select(m => new SelectListItem
                     {
-                        Value = m.MedicationID.ToString(),
-                        Text = m.Name
+                        Value = m.StockID.ToString(),
+                        Text = m.MedicationName
                     }).ToList(),
                 Date = DateTime.Today
             };
@@ -353,12 +397,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     Value = p.PatientID.ToString(),
                     Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
                 }).ToList();
-            model.MedicationList = _context.Medication
-                .Where(m => m.Name != null)
+            model.MedicationList = _context.DayHospitalMedication
+                .Where(m => m.MedicationName != null)
                 .Select(m => new SelectListItem
                 {
-                    Value = m.MedicationID.ToString(),
-                    Text = m.Name
+                    Value = m.StockID.ToString(),
+                    Text = m.MedicationName
                 }).ToList();
             model.SurgeonList = _context.Surgeons
                 .Select(p => new SelectListItem
@@ -440,120 +484,134 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         //    return View(model);
         //}
 
-
-        [HttpGet]
         public IActionResult NewSurgery()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             var viewModel = new SurgeryViewModel
             {
+                PatientList = _context.Patients
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.PatientID.ToString(),
+                        Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
+                    }).ToList(),
+                SurgeonList = _context.Surgeons
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.SurgeonID.ToString(),
+                        Text = $"{s.User.Name} {s.User.Surname}"
+                    }).ToList(),
                 AnaesthesiologistList = _context.Anaesthesiologists
                     .Select(a => new SelectListItem
                     {
                         Value = a.AnaesthesiologistID.ToString(),
                         Text = $"{a.User.Name} {a.User.Surname}"
                     }).ToList(),
-                PatientList = _context.Patients
-                    .Select(p => new SelectListItem
-                    {
-                        Value = p.PatientID.ToString(),
-                        Text = $"{p.Name} {p.Surname}"
-                    }).ToList(),
                 TheatreList = _context.Theatres
-                    .Select(n => new SelectListItem
-                    {
-                        Value = n.TheatreID.ToString(),
-                        Text = n.Name
-                    }).ToList(),
-                TreatmentCodeList = _context.TreatmentCodes
                     .Select(t => new SelectListItem
                     {
-                        Value = t.TreatmentCodeID.ToString(),
-                        Text = $"{t.ICD_10_Code} - {t.Description}"
+                        Value = t.TheatreID.ToString(),
+                        Text = t.Name
                     }).ToList(),
-
-                SurgeonList = _context.Surgeons
-                    .Select(s => new SelectListItem
+                TreatmentCodeList = _context.TreatmentCodes
+                    .Select(tc => new SelectListItem
                     {
-                        Value = s.SurgeonID.ToString(),
-                        Text = $"{s.User.Name} {s.User.Surname}"
-                    }).ToList()
+                        Value = tc.TreatmentCodeID.ToString(),
+                        Text = $"{tc.ICD_10_Code} - {tc.Description}"
+                    }).ToList(),
+                Date = DateTime.Today
             };
             return View(viewModel);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewSurgery(SurgeryViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    var newSurgery = new Surgery
-                    {
-                        Date = model.Date,
-                        Time = model.Time,
-                        PatientID = model.PatientID,
-                        SurgeonID = model.SurgeonID,
-                        AnaesthesiologistID = model.AnaesthesiologistID,
-                        TheatreID = model.TheatreID,
-                    };
-                    _context.Surgeries.Add(newSurgery);
-                    await _context.SaveChangesAsync();
-
-                    // Add selected treatment codes
-                    if (model.SelectedTreatmentCodes != null && model.SelectedTreatmentCodes.Any())
-                    {
-                        foreach (var treatmentCodeId in model.SelectedTreatmentCodes)
-                        {
-                            var surgeryTreatmentCode = new Surgery_TreatmentCode
-                            {
-                                SurgeryID = newSurgery.SurgeryID,
-                                TreatmentCodeID = treatmentCodeId
-                            };
-                            _context.Surgery_TreatmentCodes.Add(surgeryTreatmentCode);
-                        }
-                        await _context.SaveChangesAsync();
-                    }
-
-                    return RedirectToAction(nameof(Surgeries));
-                }
-                catch (DbUpdateException ex)
-                {
-                    ModelState.AddModelError(string.Empty, "Unable to save changes. " + ex.Message);
-                }
+                PopulateDropdownLists(model);
+                return View(model);
             }
 
-            // If we got this far, something failed, redisplay form
-            // Repopulate the dropdown lists
-            model.AnaesthesiologistList = _context.Anaesthesiologists.Select(a => new SelectListItem
+            try
             {
-                Value = a.AnaesthesiologistID.ToString(),
-                Text = $"{a.User.Name} {a.User.Surname}"
-            }).ToList();
-            model.PatientList = _context.Patients.Select(p => new SelectListItem
-            {
-                Value = p.PatientID.ToString(),
-                Text = $"{p.Name} {p.Surname}"
-            }).ToList();
-            model.SurgeonList = _context.Surgeons.Select(s => new SelectListItem
-            {
-                Value = s.SurgeonID.ToString(),
-                Text = $"{s.User.Name} {s.User.Surname}"
-            }).ToList();
-            model.TheatreList = _context.Theatres.Select(n => new SelectListItem
-            {
-                Value = n.TheatreID.ToString(),
-                Text = n.Name
-            }).ToList();
-            model.TreatmentCodeList = _context.TreatmentCodes.Select(t => new SelectListItem
-            {
-                Value = t.TreatmentCodeID.ToString(),
-                Text = $"{t.ICD_10_Code} - {t.Description}"
-            }).ToList();
+                // Validate selected treatment codes
+                if (model.SelectedTreatmentCodes == null || !model.SelectedTreatmentCodes.Any())
+                {
+                    ModelState.AddModelError(string.Empty, "Please select at least one treatment code.");
+                    PopulateDropdownLists(model);
+                    return View(model);
+                }
 
-            return View(model);
+                // Convert SelectedTreatmentCodes to the expected format
+                var treatmentCodesData = JsonConvert.SerializeObject(
+                    model.SelectedTreatmentCodes.Select(tc => new { TreatmentCodeID = int.Parse(tc) })
+                );
+
+                // Execute stored procedure
+                var newSurgeryIdParam = new SqlParameter("@NewSurgeryID", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC dbo.AddNewSurgery @Date, @Time, @PatientID, @SurgeonID, @AnaesthesiologistID, @TheatreID, @TreatmentCodesData, @NewSurgeryID OUTPUT",
+                    new SqlParameter("@Date", model.Date),
+                    new SqlParameter("@Time", model.Time),
+                    new SqlParameter("@PatientID", model.PatientID),
+                    new SqlParameter("@SurgeonID", model.SurgeonID),
+                    new SqlParameter("@AnaesthesiologistID", model.AnaesthesiologistID),
+                    new SqlParameter("@TheatreID", model.TheatreID),
+                    new SqlParameter("@TreatmentCodesData", treatmentCodesData),
+                    newSurgeryIdParam
+                );
+
+                int newSurgeryId = (int)newSurgeryIdParam.Value;
+
+                // If successful, redirect to a details or list page
+                return RedirectToAction("SurgeryDetails", new { id = newSurgeryId });
+            }
+            catch (Exception ex)
+            {
+                // Log exception details here
+                ModelState.AddModelError(string.Empty, $"An error occurred: {ex.Message}");
+                PopulateDropdownLists(model);
+                return View(model);
+            }
+        }
+
+        private void PopulateDropdownLists(SurgeryViewModel model)
+        {
+            model.PatientList = _context.Patients
+                .Select(p => new SelectListItem
+                {
+                    Value = p.PatientID.ToString(),
+                    Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
+                }).ToList();
+            model.SurgeonList = _context.Surgeons
+                .Select(s => new SelectListItem
+                {
+                    Value = s.SurgeonID.ToString(),
+                    Text = $"{s.User.Name} {s.User.Surname}"
+                }).ToList();
+            model.AnaesthesiologistList = _context.Anaesthesiologists
+                .Select(a => new SelectListItem
+                {
+                    Value = a.AnaesthesiologistID.ToString(),
+                    Text = $"{a.User.Name} {a.User.Surname}"
+                }).ToList();
+            model.TheatreList = _context.Theatres
+                .Select(t => new SelectListItem
+                {
+                    Value = t.TheatreID.ToString(),
+                    Text = t.Name
+                }).ToList();
+            model.TreatmentCodeList = _context.TreatmentCodes
+                .Select(tc => new SelectListItem
+                {
+                    Value = tc.TreatmentCodeID.ToString(),
+                    Text = $"{tc.ICD_10_Code} - {tc.Description}"
+                }).ToList();
         }
 
         [HttpGet]

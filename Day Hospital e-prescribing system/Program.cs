@@ -40,6 +40,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<OrderReportGenerator>();
 // Register SurgeriesReportGenerator with the DI container
 builder.Services.AddTransient<SurgeriesReportGenerator>();
+//Register PharmacistReportGenerator with the DI container
+builder.Services.AddTransient<PharmacistReportGenerator>();
+
 
 // Configure logging
 builder.Logging.ClearProviders();

@@ -3,6 +3,13 @@
     ViewData["Title"] = "Prescriptions";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
+
+<style>
+    .spaced {
+        margin-left: 10px;
+    }
+</style>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <section class="content">
     <div class="card">
@@ -11,11 +18,25 @@
             <h4 class="display-6 text-warning text-center text-bold">PRESCRIPTIONS</h4>
         </div>
     </div>
-    <h5 class="display-6 text-bold">@Model.PatientName @Model.PatientSurname</h5>
+    <h5>Patient Name: @Model.PatientName @Model.PatientSurname</h5>
     <br />
     <div class="row mb-3">
-        <div class="col-md-4">
-            <input type="date" name="Date" value="@ViewData["CurrentDate"]" class="form-control" id="dateFilter" />
+        <div class="col-md-12">
+            <h5>Filter Table:</h5>
+            <form asp-action="Prescriptions" method="get" class="form-inline mb-3">
+                <div class="form-group mr-2">
+                    <label for="startDate" class="mr-2">Start Date:</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
+                </div>
+                <div class="form-group mr-2">
+                    <label for="endDate" class="mr-2">End Date:</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
+                </div>
+                <button type="submit" class="btn btn-warning text-bold">Filter</button>
+                <div>
+                    <a href="@Url.Action("Prescriptions", "Surgeon")" class="btn spaced btn-danger btn-block text-bold">Reset</a>
+                </div>
+            </form>
         </div>
     </div>
     <div style="text-align:end">
@@ -65,10 +86,10 @@
                     @foreach (var prescription in Model.Prescriptions)
                     {
                         <tr>
-                            <td>@prescription.Date.ToString("dd MMM yyyy")</td>
-                            <td>@prescription.GeneralMedicationName</td>
+                            <td>@prescription.Date.ToString("d")</td>
+                            <td>@prescription.MedicationName</td>
                             <td>@prescription.Quantity</td>
-                            <td>@prescription.Instruction</td>
+                            <td>@prescription.InstructionText</td>
                             <td>@(prescription.Urgency ? "Yes" : "No")</td>
                             <td>@prescription.Status</td>
                             @*                             <td>@($"{prescription.SurgeonName} {prescription.SurgeonSurname}")</td>
@@ -81,9 +102,13 @@
                     }
                 </tbody>
             </table>
-            <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
         </div>
     }
+
+    <div class="container p-3 text-md-center">
+        <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Patients", "Surgeon")'">Back</button>
+    </div>
+
 </section>
 <script>
     $(document).ready(function () {

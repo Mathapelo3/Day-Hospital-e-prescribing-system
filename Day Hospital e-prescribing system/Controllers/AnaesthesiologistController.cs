@@ -20,6 +20,16 @@ using Day_Hospital_e_prescribing_system.Helper;
 using Microsoft.AspNetCore.Authorization;
 using iText.Kernel.Pdf;
 
+using SendGrid;
+using SendGrid.Helpers.Mail;
+using System.Net;
+using System.Net.Mail;
+using System.Threading.Tasks;
+
+
+
+using Microsoft.Extensions.Logging;
+
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     [Authorize]
@@ -85,6 +95,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewData["EndDate"] = endDate?.ToString("dd-MM-yyyy");
 
             var bookedPatients = from s in _context.Surgeries
+                                 .Include(s => s.Surgery_TreatmentCodes)
                                  join p in _context.Patients on s.PatientID equals p.PatientID into patientGroup
                                  from p in patientGroup.DefaultIfEmpty()
                                  join n in _context.Nurses on s.NurseID equals n.NurseID into nurseGroup
@@ -97,8 +108,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  from b in bedGroup.DefaultIfEmpty()
                                  join w in _context.Ward on b.WardId equals w.WardId into wardGroup
                                  from w in wardGroup.DefaultIfEmpty()
-                                 join c in _context.Surgery_TreatmentCodes on s.SurgeryID equals c.SurgeryID into codeGroup
-                                 from c in codeGroup.DefaultIfEmpty()
+                                 join tc in _context.TreatmentCodes on s.Surgery_TreatmentCodes.Select(stc => stc.TreatmentCodeID).FirstOrDefault() equals tc.TreatmentCodeID into treatmentGroup
+                                 from tc in treatmentGroup.DefaultIfEmpty()
                                  join u in _context.Users on n.UserID equals u.UserID into nurseUserGroup
                                  from u in nurseUserGroup.DefaultIfEmpty()
                                  join us in _context.Users on su.UserID equals us.UserID into surgeonUserGroup
@@ -114,8 +125,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                      BedName = b != null ? b.BedName : "N/A",  // Null check for Bed
                                      Nurse = u != null ? u.Name + " " + u.Surname : "N/A",  // Null check for Nurse User
                                      Theatre = t != null ? t.Name : "N/A",  // Null check for Theatre
-                                     Surgeon = us != null ? us.Name + " " + us.Surname : "N/A",  // Null check for Surgeon User
-                                     Surgery_TreatmentCode = c != null ? c.Description : "N/A"  // Null check for Surgery_TreatmentCode
+                                     Surgeon = us != null ? us.Name + " " + us.Surname : "N/A",
+                                     ICD_10_Code = tc != null ? tc.ICD_10_Code : "N/A",  // Fetch the ICD-10 Code from TreatmentCode
+                                     Surgery_TreatmentCode = s.Surgery_TreatmentCodes != null && s.Surgery_TreatmentCodes.Any()
+                                   ? s.Surgery_TreatmentCodes.FirstOrDefault().Description ?? "N/A"
+                                   : "N/A"
                                  };
 
 
@@ -150,6 +164,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(result); ;
         }
+       
         public async Task<ActionResult> MedicalHistory(int id)
         {
             _logger.LogInformation("MedicalHistory action started for patient ID: {PatientId}", id);
@@ -195,12 +210,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             VitalDate = reader.GetDateTime(reader.GetOrdinal("VitalDate")),
                             VitalTime = reader.GetTimeSpan(reader.GetOrdinal("VitalTime")),
-                            VitalHeight = reader.GetString(reader.GetOrdinal("VitalHeight")),
-                            VitalWeight = reader.GetString(reader.GetOrdinal("VitalWeight")),
-                            VitalName = reader.GetString(reader.GetOrdinal("VitalName")),
-                            VitalValue = reader.GetString(reader.GetOrdinal("VitalValue")),
-                            VitalNotes = reader.GetString(reader.GetOrdinal("VitalNotes"))
-                        });
+                            VitalHeight = reader.IsDBNull(reader.GetOrdinal("VitalHeight")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalHeight")),
+                            VitalWeight = reader.IsDBNull(reader.GetOrdinal("VitalWeight")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalWeight")),
+                            VitalName = reader.IsDBNull(reader.GetOrdinal("VitalName")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalName")),
+                            VitalValue = reader.IsDBNull(reader.GetOrdinal("VitalValue")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalValue")),
+                            VitalNotes = reader.IsDBNull(reader.GetOrdinal("VitalNotes")) ? string.Empty : reader.GetString(reader.GetOrdinal("VitalNotes"))
+                        }); ;
                     }
 
                     // Move reader to the next result set
@@ -386,7 +401,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     _logger.LogError("Logged-in user's email is null or empty.");
                     // Handle the error or return an error message
                 }
-                var anaesthesiologistID = _helper.GetAnaesthesiologistByEmail("SELECT a.AnaesthesiologistID, a.UserID, u.Username FROM Anaesthesiologist a INNER JOIN [User] u ON a.UserID = u.UserID WHERE u.Email = @Email", loggedInUserEmail).AnaesthesiologistID;
+                var anaesthesiologistID = _helper.GetAnaesthesiologistByEmail("SELECT a.AnaesthesiologistID, a.UserID, u.Username, u.Name, u.Surname FROM Anaesthesiologist a INNER JOIN [User ] u ON a.UserID = u.UserID WHERE u.Email = @Email", loggedInUserEmail).AnaesthesiologistID;
 
 
                 if (model.SelectedMedications != null)
@@ -463,25 +478,52 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public IActionResult EditOrders(int id)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var order = _context.Orders.Find(id);
+
+            var order = (from o in _context.Orders
+                         join p in _context.Patients on o.PatientID equals p.PatientID
+                         join m in _context.Medication on o.MedicationID equals m.MedicationID
+                         where o.OrderID == id
+                         select new OrderViewModel
+                         {
+                             OrderID = o.OrderID,
+                             Date = o.Date,
+                             Quantity = o.Quantity,
+                             Status = o.Status,
+                             PatientName = p.Name,
+                             PatientSurname = p.Surname,
+                             MedicationName = m.Name
+                         }).FirstOrDefault();
+
             if (order == null)
             {
                 return NotFound();
             }
 
-            if (order.Status != "ordered")
+            if (order.Status != "Ordered")
             {
-                return RedirectToAction("ViewOrders");
+                return RedirectToAction("Orders");
             }
 
-            var viewModel = new OrderViewModel
-            {
-                OrderID = order.OrderID,
-                Date = order.Date,
-                Quantity = order.Quantity
-            };
+            return View(order);
+            //var order = _context.Orders.Find(id);
+            //if (order == null)
+            //{
+            //    return NotFound();
+            //}
 
-            return View(viewModel);
+            //if (order.Status != "Ordered")
+            //{
+            //    return RedirectToAction("Orders");
+            //}
+
+            //var viewModel = new OrderViewModel
+            //{
+            //    OrderID = order.OrderID,
+            //    Date = order.Date,
+            //    Quantity = order.Quantity
+            //};
+
+            //return View(viewModel);
         }
 
         [HttpPost]
@@ -500,7 +542,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     order.Date = viewModel.Date;
                     order.Quantity = viewModel.Quantity;
                     _context.SaveChanges();
-                    return RedirectToAction("ViewOrders");
+                    // Redirect to the specific patient's orders page after saving
+                    return RedirectToAction("Orders", new { id = order.PatientID });
                 }
             }
 
@@ -526,12 +569,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (order.Status != "ordered")
             {
-                return RedirectToAction("ViewOrders");
+                return RedirectToAction("Orders");
             }
 
             _context.Orders.Remove(order);
             _context.SaveChanges();
-            return RedirectToAction("ViewOrders");
+            // Redirect to the specific patient's orders page after saving
+            return RedirectToAction("Orders", new { id = order.PatientID });
         }
 
         [HttpGet]
@@ -688,6 +732,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     _context.Update(vitals);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Vital record updated successfully.");
+
+                    // Send notification email
+                    await SendVitalChangeEmail("Vital Record Updated", $"Vital record '{model.Vital}' has been updated with Min: {model.Min}, Max: {model.Max}");
+
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
                 catch (DbUpdateException ex)
@@ -720,6 +768,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 _context.Vitals.Remove(vitals);
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("Vital record deleted successfully.");
+
+                // Send notification email
+                await SendVitalChangeEmail("Vital Record Deleted", $"Vital record '{vitals.Vital}' has been deleted.");
+
             }
             catch (SqlNullValueException ex)
             {
@@ -761,6 +813,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     _context.Add(vitals);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Vital record created successfully.");
+
+                    // Send notification email
+                    await SendVitalChangeEmail("Vital Record Added", $"A new vital record '{model.Vital}' has been added with Min: {model.Min}, Max: {model.Max}");
+
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
                 catch (DbUpdateException ex)
@@ -776,5 +832,82 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(model);
         }
+
+        private async Task SendVitalChangeEmail(string subject, string body)
+        {
+            try
+            {
+                // Log the start of the email sending process
+                _logger.LogInformation("Starting to send email with subject: {Subject}", subject);
+
+                string smtpHost = _configuration["Smtp:Host"];  // Fetch SMTP host from config
+                int smtpPort = int.Parse(_configuration["Smtp:Port"]);  // Fetch SMTP port from config
+                string smtpUsername = _configuration["Smtp:Username"];  // Fetch SMTP username from config
+                string smtpPassword = _configuration["Smtp:Password"];  // Fetch SMTP password from config
+                string fromEmail = "bbdayhospital@gmail.com";  // From email address
+                string fromName = "GRP 10-CyberMed-Vital Records";  // From name
+
+                // Create the email message
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(fromEmail, fromName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true,  // Set to true if the body is in HTML format
+                };
+                mailMessage.To.Add("s219865345@mandela.ac.za");
+
+                // Configure the SMTP client
+                using (var smtpClient = new SmtpClient(smtpHost, smtpPort))
+                {
+                    smtpClient.EnableSsl = true;  // Enable SSL
+                    smtpClient.UseDefaultCredentials = false;
+                    smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+
+                    smtpClient.Timeout = 30000; // Set the timeout to 30 seconds (30000 milliseconds)
+
+                    int retryCount = 0;
+                    bool emailSent = false;
+
+                    while (!emailSent && retryCount < 5) // Change here to allow up to 5 attempts
+                    {
+                        try
+                        {
+                            retryCount++;
+                            _logger.LogInformation("Attempting to send email. Attempt number: {AttemptNumber}", retryCount);
+                            await smtpClient.SendMailAsync(mailMessage);
+                            emailSent = true;
+                            _logger.LogInformation("Email sent successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Attempt {RetryCount} failed to send email. Error: {Message}", retryCount, ex.Message);
+
+                            // Implement exponential backoff
+                            if (retryCount < 5) // Change here to check for 5 attempts
+                            {
+                                await Task.Delay(1000 * retryCount);
+                            }
+                            else
+                            {
+                                _logger.LogError("All retry attempts to send email have failed. Last error: {Message}", ex.Message);
+                            }
+                        }
+                    }
+
+                    if (!emailSent)
+                    {
+                        _logger.LogError("Failed to send email after {RetryCount} retries.", retryCount);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error occurred while sending email: {Message}", ex.Message);
+            }
+        }
+
+
+        
     }
 }

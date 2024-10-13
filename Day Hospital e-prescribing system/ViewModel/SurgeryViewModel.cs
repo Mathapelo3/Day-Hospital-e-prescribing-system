@@ -8,34 +8,27 @@ namespace Day_Hospital_e_prescribing_system.Models
 {
     public class SurgeryViewModel
     {
-        public SurgeryViewModel()
-        {
-            AnaesthesiologistList = new List<SelectListItem>();
-            SurgeonList = new List<SelectListItem>();
-            TheatreList = new List<SelectListItem>();
-            TreatmentCodeList = new List<SelectListItem>();
-            PatientList = new List<SelectListItem>();
-            SelectedTreatmentCodes = new List<int>();
-        }
-
-        //public int SurgeryID { get; set; }
-
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
+        [Required]
         public string Time { get; set; }
+
         public int PatientID { get; set; }
-        public int TreatmentCodeID { get; set; }
+
+        public int SurgeonID { get; set; }
+
+        public int AnaesthesiologistID { get; set; }
 
         public int TheatreID { get; set; }
 
-        public int AnaesthesiologistID { get; set; }
-        public int SurgeonID { get; set; }
-        public IEnumerable<SelectListItem> SurgeonList { get; set; }
+        public List<string> SelectedTreatmentCodes { get; set; }
 
-        public IEnumerable<SelectListItem> AnaesthesiologistList { get; set; }
-        public IEnumerable<SelectListItem> TreatmentCodeList { get; set; }
-        public IEnumerable<SelectListItem> TheatreList { get; set; }
-        public IEnumerable<SelectListItem> PatientList { get; set; }
-        public List<int> SelectedTreatmentCodes { get; set; }
+        public List<SelectListItem> PatientList { get; set; }
+        public List<SelectListItem> SurgeonList { get; set; }
+        public List<SelectListItem> AnaesthesiologistList { get; set; }
+        public List<SelectListItem> TheatreList { get; set; }
+        public List<SelectListItem> TreatmentCodeList { get; set; }
     }
 }

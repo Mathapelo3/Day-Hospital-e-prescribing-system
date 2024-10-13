@@ -23,8 +23,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public bool IsEditing { get; set; }
 
         public DateTime Date { get; set; }
-        public string Time { get; set; }
-        public string Notes { get; set; }
+        public string? Time { get; set; }
+        public string? Notes { get; set; }
 
 
     }

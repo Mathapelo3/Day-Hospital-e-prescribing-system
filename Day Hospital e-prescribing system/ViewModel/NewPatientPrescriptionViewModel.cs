@@ -55,7 +55,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         public class MedicationItem
         {
-            public int MedicationID { get; set; }
+            public int StockID { get; set; }
 
             [Required(ErrorMessage = "Medication name is required")]
             [Display(Name = "Medication Name")]
@@ -77,7 +77,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         public void RemoveMedication(int medID)
         {
-            SelectedMedications.RemoveAll(m => m.MedicationID == medID);
+            SelectedMedications.RemoveAll(m => m.StockID == medID);
         }
 
         public void ClearMedications()

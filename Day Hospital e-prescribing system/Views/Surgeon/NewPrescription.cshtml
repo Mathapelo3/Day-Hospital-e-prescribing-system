@@ -103,14 +103,16 @@
             var li = document.createElement('li');
             var index = medicationList.children.length;
 
-            // Adjusted the name attributes to follow the indexing convention expected by the model binder
             li.innerHTML = `
-                        ${option.text} - ${quantity} - ${instruction}
-                        <input type="hidden" name="SelectedMedications[${index}].MedicationID" value="${option.value}" />
-                        <input type="hidden" name="SelectedMedications[${index}].MedicationName" value="${option.text}" />
-                        <input type="hidden" name="SelectedMedications[${index}].Quantity" value="${quantity}" />
-                        <input type="hidden" name="SelectedMedications[${index}].Instruction" value="${instruction}" />
-                    `;
+                    ${option.text} - ${quantity} - ${instruction}
+                    <input type="hidden" name="SelectedMedications[${index}].StockID" value="${option.value}" />
+                    <input type="hidden" name="SelectedMedications[${index}].MedicationName" value="${option.text}" />
+                    <input type="hidden" name="SelectedMedications[${index}].Quantity" value="${quantity}" />
+                    <input type="hidden" name="SelectedMedications[${index}].Instruction" value="${instruction}" />
+                    <button type="button" class="btn btn-danger btn-sm float-right remove-medication">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
 
             li.className = 'list-group-item';
             medicationList.appendChild(li);
@@ -124,4 +126,23 @@
         }
     });
 
+    // Event delegation for remove buttons
+    document.getElementById('medicationList').addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-medication') || e.target.closest('.remove-medication')) {
+            e.target.closest('li').remove();
+            updateMedicationIndices();
+        }
+    });
+
+    function updateMedicationIndices() {
+        var medicationItems = document.querySelectorAll('#medicationList li');
+        medicationItems.forEach((item, index) => {
+            var inputs = item.querySelectorAll('input[type="hidden"]');
+            inputs.forEach(input => {
+                var name = input.getAttribute('name');
+                var newName = name.replace(/\[\d+\]/, `[${index}]`);
+                input.setAttribute('name', newName);
+            });
+        });
+    }
 </script>
