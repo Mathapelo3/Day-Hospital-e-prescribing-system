@@ -17,6 +17,12 @@ namespace Day_Hospital_e_prescribing_system.Models
         public virtual Patient Patient { get; set; }
 
         [Required]
+        public int MedicationID { get; set; }
+        // Navigation property
+        [ForeignKey("MedicationID")]
+        public virtual Medication Medications { get; set; }
+
+        [Required]
         public int General_MedicationID { get; set; }
         // Navigation property
         [ForeignKey("General_MedicationID")]

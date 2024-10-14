@@ -15,7 +15,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public DateTime Date { get; set; }
         public bool Urgency { get; set; }
 
-        public MultiSelectList? Medications { get; set; }
+        public MultiSelectList? DayHospitalMedication { get; set; }
 
         //public string SelectedMedicationsJson { get; set; } = "[]";
         [Required(ErrorMessage = "Medications are required.")]
