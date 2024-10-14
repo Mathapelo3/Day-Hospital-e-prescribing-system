@@ -13,7 +13,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string Surname { get; set; }
 
         public List<VitalViewModel> Vitals { get; set; }
-        public List<PAllergyViewModel> Allergies { get; set; }
+        public List<PAllergyViewModel> Active_Ingredient { get; set; }
         public List<PConditionViewModel> Conditions { get; set; }
         public List<PMedicationViewModel> Medications { get; set; }
     }
@@ -31,7 +31,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
     public class PAllergyViewModel
     {
-        public string AllergyName { get; set; }
+        public string Active_IngredientDescription { get; set; }
     }
 
     public class PConditionViewModel
