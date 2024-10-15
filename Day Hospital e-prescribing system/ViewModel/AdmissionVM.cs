@@ -67,6 +67,21 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         //[Required(ErrorMessage = "Bed selection is required")]
         public string? SelectedBed { get; set; }
 
+        public List<Ward> Ward { get; set; }
+
+      
+        public int? SurgeonID { get; set; }
+        // Navigation property
+        [ForeignKey("SurgeonID")]
+        public virtual Surgeon Surgeons { get; set; }
+
+   
+        public int? AnaesthesiologistID { get; set; }
+
+        // Navigation property
+        [ForeignKey("AnaesthesiologistID")]
+        public virtual Anaesthesiologist Anaesthesiologists { get; set; }
+
 
         //[BindNever]
         //public IEnumerable<SelectListItem> WardList { get; set; }

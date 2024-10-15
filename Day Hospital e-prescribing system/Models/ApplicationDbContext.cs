@@ -154,8 +154,10 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<APatientViewModel>().HasNoKey();
             modelBuilder.Entity<OrderReportDataViewModel>().HasNoKey();
             modelBuilder.Entity<SurgeryReportDataViewModel>().HasNoKey();
+            modelBuilder.Entity<AdministerMedsReportVM>().HasNoKey();
             modelBuilder.Entity<Patient>().ToTable("Patient");
             //base.OnModelCreating(modelBuilder);
+
 
         }
     }

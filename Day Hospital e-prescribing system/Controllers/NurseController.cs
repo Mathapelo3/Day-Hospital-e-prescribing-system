@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using System.Data;
 using System.Diagnostics;
 using System.Security.Claims;
-using WebApplication27.Models;
 using static Day_Hospital_e_prescribing_system.ViewModel.DisplayVitalsVM;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -20,12 +19,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<NurseController> _logger;
         private readonly IConfiguration _config;
+        private readonly AdministerMedsReportGenerator _medsReportGenerator;
 
-        public NurseController(ApplicationDbContext context, ILogger<NurseController> logger, IConfiguration config)
+        public NurseController(ApplicationDbContext context, ILogger<NurseController> logger, IConfiguration config, AdministerMedsReportGenerator medsReportGenerator)
         {
             _context = context;
             _logger = logger;
             _config = config;
+            _medsReportGenerator = medsReportGenerator;
         }
         public IActionResult Dashboard()
         {
@@ -1491,6 +1492,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 BedId = 0,
                 Date = DateTime.Now,
+                //Time = DateTime.Now.ToString("tt"),
                 Time = DateTime.Now.ToString("tt"),
                 //TreatmentCode = treatmentCode,
                 SurgeryID = selectedSurgery.SurgeryID,
@@ -1585,7 +1587,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         // Convert SelectedCondition to a name if it's an ID
 
                         string bedName = await GetBedById(model.SelectedBed);
-                        string wardName = await GetWardById(model.SelectedWard);
+                      
 
                         var admission = new Admission
                         {
@@ -2378,6 +2380,107 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 .ToListAsync();
 
             return View(bookedSurgeries);
+        }
+
+        [HttpGet]
+        public IActionResult GenerateMedsReport(DateTime startDate, DateTime endDate)
+        {
+            var nurseName = HttpContext.Session.GetString("Name");
+            var nurseSurname = HttpContext.Session.GetString("Surname");
+
+            if (string.IsNullOrEmpty(nurseName) || string.IsNullOrEmpty(nurseSurname))
+            {
+                _logger.LogWarning("Nurse's name or surname could not be retrieved from the session.");
+                return BadRequest("Unable to retrieve nurse details.");
+            }
+
+            var reportStream = _medsReportGenerator.GenerateMedsReport(startDate, endDate, nurseName, nurseSurname);
+
+            // Ensure the stream is not disposed prematurely
+            if (reportStream == null || reportStream.Length == 0)
+            {
+                return NotFound(); // Or handle as appropriate
+            }
+
+            // Return the PDF file
+            return File(reportStream, "application/pdf", "MedicationReport.pdf");
+        }
+        public async Task<IActionResult> Index(int selectedId)
+        {
+
+            var selectedSurgery = await _context.Surgeries
+                              .Include(s => s.Patients)
+                              //.Include(s => s.Surgery_TreatmentCodes)
+                              .DefaultIfEmpty()
+                              .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
+
+
+
+
+
+            if (selectedSurgery == null)
+            {
+                _logger.LogWarning("Selected surgery is null for SurgeryID: {SurgeryID}", selectedId);
+                return NotFound();
+            }
+
+          
+            var model = new AdmissionVM
+            {
+                Date = DateTime.Today,
+                Time = "AM" ,// Default to AM
+                PatientID= selectedSurgery.PatientID,
+                SurgeonID= selectedSurgery.SurgeonID,
+                AnaesthesiologistID = selectedSurgery.AnaesthesiologistID,
+
+            };
+           
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Index(int id, AdmissionVM model)
+        {
+            var patient = _context.Patients.Find(id);
+            if (patient == null)
+            {
+                return NotFound("Patient not found");
+            }
+
+            var bed = _context.Bed.Find(model.BedId);
+            if (bed == null)
+            {
+                return NotFound("Bed not found");
+            }
+
+            // Update patient's bed
+            patient.BedId = model.BedId;
+            _context.Patients.Update(patient);
+
+            // Create admission record
+            var admission = new Admission
+            {
+                PatientID = id,
+                Date = model.Date,
+                Time = model.Time,
+                SurgeonID = model.SurgeonID ?? 0,
+                AnaesthesiologistID = model.AnaesthesiologistID ?? 0,
+            };
+            _context.Admissions.Add(admission);
+
+            _context.SaveChanges();
+
+            return View("Patient assigned to bed and admission recorded successfully");
+        }
+
+        [HttpGet]
+        public JsonResult GetBedss(int wardId)
+        {
+            var beds = _context.Bed
+                .Where(b => b.WardId == wardId)
+                .Select(b => new { id = b.BedId, name = b.BedName })
+                .ToList();
+            return Json(beds);
         }
     }
 }

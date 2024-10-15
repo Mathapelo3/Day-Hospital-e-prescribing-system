@@ -42,6 +42,7 @@ builder.Services.AddTransient<OrderReportGenerator>();
 builder.Services.AddTransient<SurgeriesReportGenerator>();
 //Register PharmacistReportGenerator with the DI container
 builder.Services.AddTransient<PharmacistReportGenerator>();
+builder.Services.AddTransient<AdministerMedsReportGenerator>();
 
 
 // Configure logging
