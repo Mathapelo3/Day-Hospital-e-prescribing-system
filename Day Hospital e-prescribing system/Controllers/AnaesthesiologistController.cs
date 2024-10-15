@@ -152,7 +152,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 bookedPatients = bookedPatients.Where(pa => pa.Date.Date <= endDate.Value.Date);
                 _logger.LogInformation($"Applying end date filter: {endDate}");
             }
-
+            // Sort patients by name
+            bookedPatients = bookedPatients.OrderBy(pa => pa.Patient);
 
             var result = await bookedPatients.ToListAsync();
             _logger.LogInformation($"Retrieved {result.Count} booked patients");
@@ -227,7 +228,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         model.Active_Ingredient.Add(new PAllergyViewModel
                         {
-                            Active_IngredientDescription = reader.GetString(reader.GetOrdinal("Active_IngredientDescription"))
+                            Active_IngredientDescription = reader.IsDBNull(reader.GetOrdinal("Active_IngredientDescription")) ? "None" : reader.GetString(reader.GetOrdinal("Active_IngredientDescription"))
                         });
                     }
 
@@ -243,7 +244,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         model.Conditions.Add(new PConditionViewModel
                         {
-                            ConditionName = reader.GetString(reader.GetOrdinal("ConditionName"))
+                            ConditionName = reader.IsDBNull(reader.GetOrdinal("ConditionName")) ? "None" : reader.GetString(reader.GetOrdinal("ConditionName"))
                         });
                     }
 
@@ -259,7 +260,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         model.Medications.Add(new PMedicationViewModel
                         {
-                            MedicationName = reader.GetString(reader.GetOrdinal("MedicationName"))
+                           MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? "None" : reader.GetString(reader.GetOrdinal("MedicationName"))
                         });
                     }
                     // Sort medications alphabetically
@@ -323,18 +324,22 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             try
             {
+                // Log method entry
+                _logger.LogInformation("Orders action started for Patient ID: {PatientID}, StartDate: {StartDate}, EndDate: {EndDate}", id, startDate, endDate);
+
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
+                    _logger.LogInformation("Opening database connection.");
+                    conn.Open();
+
                     using (SqlCommand cmd = new SqlCommand("GetOrdersForPatient", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@PatientID", id);
-
-                        // Add startDate and endDate parameters, handle nulls if not provided
                         cmd.Parameters.AddWithValue("@StartDate", (object)startDate ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@EndDate", (object)endDate ?? DBNull.Value);
 
-                        conn.Open();
+                        _logger.LogInformation("Executing stored procedure: GetOrdersForPatient for Patient ID: {PatientID}", id);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
@@ -343,23 +348,33 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 {
                                     OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
                                     Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                                    MedicationName = reader.GetString(reader.GetOrdinal("Medication")),
-                                    Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
-                                    Status = reader.GetString(reader.GetOrdinal("Status")),
+                                    StockID = reader.GetInt32(reader.GetOrdinal("StockID")) , // Provide a default value (e.g., 0)
+
+                                    MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? "Unknown" : reader.GetString(reader.GetOrdinal("MedicationName")),
+                                    Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? "N/A" : reader.GetString(reader.GetOrdinal("Quantity")),
+                                    Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? "Unknown" : reader.GetString(reader.GetOrdinal("Status")),
                                     PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
                                     PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
                                     PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname"))
                                 };
+
+                                // Log each order retrieved
+                                _logger.LogInformation("Retrieved Order: {OrderID}, Medication: {MedicationName}, Quantity: {Quantity}, Status: {Status}",
+                                    order.OrderID, order.MedicationName, order.Quantity, order.Status);
+
                                 orders.Add(order);
                             }
                         }
                     }
                 }
+
+                // Log method exit
+                _logger.LogInformation("Orders action completed for Patient ID: {PatientID}. Total Orders Retrieved: {OrderCount}", id, orders.Count);
             }
             catch (Exception ex)
             {
-                // Log or handle exception
-                Console.WriteLine(ex.Message);
+                // Log the exception with stack trace for debugging
+                _logger.LogError(ex, "An error occurred while retrieving orders for Patient ID: {PatientID}.", id);
                 return StatusCode(500, "Internal server error");
             }
 
@@ -368,6 +383,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         
         public async Task<ActionResult> CaptureOrders(int id)
         {
+            // Log the call to the CaptureOrders action with the PatientID
+            _logger.LogInformation("CaptureOrders action called for PatientID: {id}", id);
+
             ViewBag.Username = HttpContext.Session.GetString("Username");
             var patient = await _context.Patients
                 .Where(p => p.PatientID == id)
@@ -376,7 +394,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (patient == null)
             {
-                // Handle the case where the patient was not found
+                // Log the error if the patient is not found
+                _logger.LogError("Patient with ID {id} not found", id);
                 return NotFound();
             }
 
@@ -490,7 +509,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var order = (from o in _context.Orders
                          join p in _context.Patients on o.PatientID equals p.PatientID
-                         join d in _context.DayHospitalMedication on o.MedicationID equals d.StockID
+                         join d in _context.DayHospitalMedication on o.StockID equals d.StockID
                          where o.OrderID == id
                          select new OrderViewModel
                          {
@@ -570,20 +589,38 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var order = _context.Orders.Find(id);
+            var order = await _context.Orders.FindAsync(id); // Use async find method
             if (order == null)
             {
                 return NotFound();
             }
 
-            if (order.Status != "ordered")
+            if (order.Status != "Ordered")
             {
                 return RedirectToAction("Orders");
             }
 
+            _logger.LogInformation("Attempting to delete order with ID: {OrderID}", id);
             _context.Orders.Remove(order);
-            _context.SaveChanges();
-            // Redirect to the specific patient's orders page after saving
+
+            try
+            {
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    _logger.LogInformation("Order with ID: {OrderID} deleted successfully.", id);
+                }
+                else
+                {
+                    _logger.LogError("Order with ID: {OrderID} was not deleted. SaveChanges result: {Result}", id, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while attempting to delete order with ID: {OrderID}", id);
+                return StatusCode(500, "Internal server error");
+            }
+
             return RedirectToAction("Orders", new { id = order.PatientID });
         }
 
@@ -630,7 +667,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         OrderID = o.OrderID,
                         Date = o.Date,
-                        MedicationName = o.Medication.Name,
+                        MedicationName = o.DayHospitalMedication.MedicationName,
                         Quantity = o.Quantity,
                         Status = o.Status,
                         Urgency = o.Urgency,
@@ -677,7 +714,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 VitalsID = v.VitalsID,
                 Vital = v.Vital,
                 Min = v.Min,
-                Max = v.Max
+                Max = v.Max,
+                Normal = v.Normal
             }).ToList();
 
             // Debugging output
@@ -904,7 +942,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     smtpClient.UseDefaultCredentials = false;
                     smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
 
-                    smtpClient.Timeout = 30000; // Set the timeout to 30 seconds (30000 milliseconds)
+                    smtpClient.Timeout = 60000; // Set the timeout to 30 seconds (30000 milliseconds)
 
                     int retryCount = 0;
                     bool emailSent = false;
