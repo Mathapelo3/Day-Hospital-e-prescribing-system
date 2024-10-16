@@ -51,13 +51,14 @@ namespace Day_Hospital_e_prescribing_system.Models
         [ForeignKey("AnaesthesiologistID")]
         public virtual Anaesthesiologist Anaesthesiologist { get; set; }
 
-
-
         [Required]
-        public int MedicationID { get; set; }
+        public int StockID { get; set; }
         // Navigation property
-        [ForeignKey("MedicationID")]
-        public virtual Medication Medication { get; set; }
+        [ForeignKey("StockID")]
+        public virtual DayHospitalMedication DayHospitalMedication { get; set; }
+
+       
+        
     }
 
 }

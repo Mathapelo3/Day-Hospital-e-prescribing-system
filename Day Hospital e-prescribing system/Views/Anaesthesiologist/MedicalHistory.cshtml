@@ -38,11 +38,14 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <h3 class="card-title">@Model.Name @Model.Surname</h3>
                             </div>
                             <div class="col-md-2 text-right">
                                 <a href="@Url.Action("Prescriptions", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Prescriptions</a>
+                            </div>
+                             <div class="col-md-2 text-right">
+                                <a href="@Url.Action("CaptureOrders", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Order Form</a>
                             </div>
                             <div class="col-md-2 text-right">
                                 <a href="@Url.Action("Orders", "Anaesthesiologist", new { id = Model.PatientID })" class="btn btn-purple">Orders</a>
@@ -90,10 +93,10 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var item in Model.Allergies)
+                                            @foreach (var item in Model.Active_Ingredient)
                                             {
                                                 <tr>
-                                                    <td>@item.AllergyName</td>
+                                                    <td>@item.Active_IngredientDescription</td>
                                                 </tr>
                                             }
                                         </tbody>

@@ -152,7 +152,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 bookedPatients = bookedPatients.Where(pa => pa.Date.Date <= endDate.Value.Date);
                 _logger.LogInformation($"Applying end date filter: {endDate}");
             }
-
+            // Sort patients by name
+            bookedPatients = bookedPatients.OrderBy(pa => pa.Patient);
 
             var result = await bookedPatients.ToListAsync();
             _logger.LogInformation($"Retrieved {result.Count} booked patients");
@@ -222,14 +223,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     await reader.NextResultAsync();
 
                     // Allergies
-                    model.Allergies = new List<PAllergyViewModel>();
+                    model.Active_Ingredient = new List<PAllergyViewModel>();
                     while (await reader.ReadAsync())
                     {
-                        model.Allergies.Add(new PAllergyViewModel
+                        model.Active_Ingredient.Add(new PAllergyViewModel
                         {
-                            AllergyName = reader.GetString(reader.GetOrdinal("AllergyName"))
+                            Active_IngredientDescription = reader.IsDBNull(reader.GetOrdinal("Active_IngredientDescription")) ? "None" : reader.GetString(reader.GetOrdinal("Active_IngredientDescription"))
                         });
                     }
+
+                    // Sort allergies alphabetically
+                    model.Active_Ingredient = model.Active_Ingredient.OrderBy(a => a.Active_IngredientDescription).ToList();
 
                     // Move reader to the next result set
                     await reader.NextResultAsync();
@@ -240,9 +244,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         model.Conditions.Add(new PConditionViewModel
                         {
-                            ConditionName = reader.GetString(reader.GetOrdinal("ConditionName"))
+                            ConditionName = reader.IsDBNull(reader.GetOrdinal("ConditionName")) ? "None" : reader.GetString(reader.GetOrdinal("ConditionName"))
                         });
                     }
+
+                    // Sort conditions alphabetically
+                    model.Conditions = model.Conditions.OrderBy(c => c.ConditionName).ToList();
 
                     // Move reader to the next result set
                     await reader.NextResultAsync();
@@ -253,9 +260,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         model.Medications.Add(new PMedicationViewModel
                         {
-                            MedicationName = reader.GetString(reader.GetOrdinal("MedicationName"))
+                           MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? "None" : reader.GetString(reader.GetOrdinal("MedicationName"))
                         });
                     }
+                    // Sort medications alphabetically
+                    model.Medications = model.Medications.OrderBy(m => m.MedicationName).ToList();
                 }
             }
 
@@ -315,18 +324,22 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             try
             {
+                // Log method entry
+                _logger.LogInformation("Orders action started for Patient ID: {PatientID}, StartDate: {StartDate}, EndDate: {EndDate}", id, startDate, endDate);
+
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
+                    _logger.LogInformation("Opening database connection.");
+                    conn.Open();
+
                     using (SqlCommand cmd = new SqlCommand("GetOrdersForPatient", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@PatientID", id);
-
-                        // Add startDate and endDate parameters, handle nulls if not provided
                         cmd.Parameters.AddWithValue("@StartDate", (object)startDate ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@EndDate", (object)endDate ?? DBNull.Value);
 
-                        conn.Open();
+                        _logger.LogInformation("Executing stored procedure: GetOrdersForPatient for Patient ID: {PatientID}", id);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
@@ -335,23 +348,33 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 {
                                     OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
                                     Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                                    MedicationName = reader.GetString(reader.GetOrdinal("Medication")),
-                                    Quantity = reader.GetString(reader.GetOrdinal("Quantity")),
-                                    Status = reader.GetString(reader.GetOrdinal("Status")),
+                                    StockID = reader.GetInt32(reader.GetOrdinal("StockID")) , // Provide a default value (e.g., 0)
+
+                                    MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? "Unknown" : reader.GetString(reader.GetOrdinal("MedicationName")),
+                                    Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? "N/A" : reader.GetString(reader.GetOrdinal("Quantity")),
+                                    Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? "Unknown" : reader.GetString(reader.GetOrdinal("Status")),
                                     PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
                                     PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
                                     PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname"))
                                 };
+
+                                // Log each order retrieved
+                                _logger.LogInformation("Retrieved Order: {OrderID}, Medication: {MedicationName}, Quantity: {Quantity}, Status: {Status}",
+                                    order.OrderID, order.MedicationName, order.Quantity, order.Status);
+
                                 orders.Add(order);
                             }
                         }
                     }
                 }
+
+                // Log method exit
+                _logger.LogInformation("Orders action completed for Patient ID: {PatientID}. Total Orders Retrieved: {OrderCount}", id, orders.Count);
             }
             catch (Exception ex)
             {
-                // Log or handle exception
-                Console.WriteLine(ex.Message);
+                // Log the exception with stack trace for debugging
+                _logger.LogError(ex, "An error occurred while retrieving orders for Patient ID: {PatientID}.", id);
                 return StatusCode(500, "Internal server error");
             }
 
@@ -360,6 +383,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         
         public async Task<ActionResult> CaptureOrders(int id)
         {
+            // Log the call to the CaptureOrders action with the PatientID
+            _logger.LogInformation("CaptureOrders action called for PatientID: {id}", id);
+
             ViewBag.Username = HttpContext.Session.GetString("Username");
             var patient = await _context.Patients
                 .Where(p => p.PatientID == id)
@@ -368,17 +394,19 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             if (patient == null)
             {
-                // Handle the case where the patient was not found
+                // Log the error if the patient is not found
+                _logger.LogError("Patient with ID {id} not found", id);
                 return NotFound();
             }
 
-            var medications = await _context.Medication.ToListAsync();
+            var dayhospitalmedication = await _context.DayHospitalMedication.OrderBy(m => m.MedicationName).ToListAsync();
+           
             var model = new OrderFormViewModel
             {
                 PatientID = id,
                 Name = patient.Name,
                 Surname = patient.Surname,
-                Medications = new SelectList(medications, "MedicationID", "Name"),
+                DayHospitalMedication = new SelectList(dayhospitalmedication, "StockID", "MedicationName"),
                 SelectedMedications = new List<SPMedicationViewModel>(),
                 Date = DateTime.Now
             };
@@ -409,7 +437,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     foreach (var selectedMedication in model.SelectedMedications)
                     {
                         // Call the stored procedure or use EF to add each selected medication
-                        _context.Database.ExecuteSqlRaw("EXEC InsertOrder @Date, @Quantity, @Status, @Urgency, @Administered, @QAdministered, @Notes, @PatientID, @AnaesthesiologistID, @MedicationID",
+                        _context.Database.ExecuteSqlRaw("EXEC InsertOrder @Date, @Quantity, @Status, @Urgency, @Administered, @QAdministered, @Notes, @PatientID, @AnaesthesiologistID, @StockID",
                             new SqlParameter("@Date", model.Date),
                             new SqlParameter("@Quantity", selectedMedication.Quantity),
                             new SqlParameter("@Status", "Ordered"), // Assuming the status is "Ordered" for new orders
@@ -419,7 +447,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             new SqlParameter("@Notes", DBNull.Value), // Since Notes is not provided in the view model
                             new SqlParameter("@PatientID", model.PatientID),
                             new SqlParameter("@AnaesthesiologistID", anaesthesiologistID),
-                            new SqlParameter("@MedicationID", selectedMedication.MedicationID)
+                            new SqlParameter("@StockID", selectedMedication.StockID)
                         );
                     }
                 }
@@ -429,7 +457,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
 
             // If model is not valid, re-populate the medications list and return the view
-            model.Medications = new SelectList(await _context.Medication.ToListAsync(), "MedicationID", "Name");
+            model.DayHospitalMedication = new SelectList(await _context.DayHospitalMedication.ToListAsync(), "StockID", "MedicationName");
             return View(model);
         }
 
@@ -481,7 +509,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var order = (from o in _context.Orders
                          join p in _context.Patients on o.PatientID equals p.PatientID
-                         join m in _context.Medication on o.MedicationID equals m.MedicationID
+                         join d in _context.DayHospitalMedication on o.StockID equals d.StockID
                          where o.OrderID == id
                          select new OrderViewModel
                          {
@@ -491,7 +519,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                              Status = o.Status,
                              PatientName = p.Name,
                              PatientSurname = p.Surname,
-                             MedicationName = m.Name
+                             MedicationName = d.MedicationName
                          }).FirstOrDefault();
 
             if (order == null)
@@ -561,20 +589,38 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            var order = _context.Orders.Find(id);
+            var order = await _context.Orders.FindAsync(id); // Use async find method
             if (order == null)
             {
                 return NotFound();
             }
 
-            if (order.Status != "ordered")
+            if (order.Status != "Ordered")
             {
                 return RedirectToAction("Orders");
             }
 
+            _logger.LogInformation("Attempting to delete order with ID: {OrderID}", id);
             _context.Orders.Remove(order);
-            _context.SaveChanges();
-            // Redirect to the specific patient's orders page after saving
+
+            try
+            {
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    _logger.LogInformation("Order with ID: {OrderID} deleted successfully.", id);
+                }
+                else
+                {
+                    _logger.LogError("Order with ID: {OrderID} was not deleted. SaveChanges result: {Result}", id, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while attempting to delete order with ID: {OrderID}", id);
+                return StatusCode(500, "Internal server error");
+            }
+
             return RedirectToAction("Orders", new { id = order.PatientID });
         }
 
@@ -621,7 +667,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         OrderID = o.OrderID,
                         Date = o.Date,
-                        MedicationName = o.Medication.Name,
+                        MedicationName = o.DayHospitalMedication.MedicationName,
                         Quantity = o.Quantity,
                         Status = o.Status,
                         Urgency = o.Urgency,
@@ -668,7 +714,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 VitalsID = v.VitalsID,
                 Vital = v.Vital,
                 Min = v.Min,
-                Max = v.Max
+                Max = v.Max,
+                Normal = v.Normal
             }).ToList();
 
             // Debugging output
@@ -699,7 +746,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 VitalsID = vitals.VitalsID,
                 Vital = vitals.Vital,
                 Min = vitals.Min,
-                Max = vitals.Max
+                Max = vitals.Max,
+                Normal = vitals.Normal
             };
 
             return View(viewModel);
@@ -728,13 +776,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     vitals.Vital = model.Vital;
                     vitals.Min = model.Min;
                     vitals.Max = model.Max;
+                    vitals.Normal = model.Normal;
 
                     _context.Update(vitals);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Vital record updated successfully.");
 
+                    // Handle empty/null values for Min, Max, and Normal
+                    string minValue = string.IsNullOrEmpty(model.Min) ? "Not specified" : model.Min;
+                    string maxValue = string.IsNullOrEmpty(model.Max) ? "Not specified" : model.Max;
+                    string normalValue = string.IsNullOrEmpty(model.Normal) ? "Not specified" : model.Normal;
+
+                    // Prepare email body with all values
+                    string emailBody = $@"
+                GRP 10 -Vital Update'{model.Vital}' has been updated.<br/>
+                <strong>Min:</strong> {minValue}<br/>
+                <strong>Max:</strong> {maxValue}<br/>
+                <strong>Normal:</strong> {normalValue}
+            ";
+
                     // Send notification email
-                    await SendVitalChangeEmail("Vital Record Updated", $"Vital record '{model.Vital}' has been updated with Min: {model.Min}, Max: {model.Max}");
+                    await SendVitalChangeEmail("Vital Record Updated", emailBody);
+
 
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
@@ -770,7 +833,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 _logger.LogInformation("Vital record deleted successfully.");
 
                 // Send notification email
-                await SendVitalChangeEmail("Vital Record Deleted", $"Vital record '{vitals.Vital}' has been deleted.");
+                await SendVitalChangeEmail("Vital Record Deleted", $"GRP 10-Vital deleted '{vitals.Vital}' has been deleted.");
 
             }
             catch (SqlNullValueException ex)
@@ -807,15 +870,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     {
                         Vital = model.Vital,
                         Min = model.Min,
-                        Max = model.Max
+                        Max = model.Max,
+                        Normal = model.Normal
                     };
 
                     _context.Add(vitals);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Vital record created successfully.");
 
+                    // Handle empty/null values for Min, Max, and Normal
+                    string minValue = string.IsNullOrEmpty(model.Min) ? "Not specified" : model.Min;
+                    string maxValue = string.IsNullOrEmpty(model.Max) ? "Not specified" : model.Max;
+                    string normalValue = string.IsNullOrEmpty(model.Normal) ? "Not specified" : model.Normal;
+
+                    // Prepare email body with all values
+                    string emailBody = $@"
+                GRP 10-A new vital record '{model.Vital}' has been added.<br/>
+                <strong>Min:</strong> {minValue}<br/>
+                <strong>Max:</strong> {maxValue}<br/>
+                <strong>Normal:</strong> {normalValue}
+            ";
+
                     // Send notification email
-                    await SendVitalChangeEmail("Vital Record Added", $"A new vital record '{model.Vital}' has been added with Min: {model.Min}, Max: {model.Max}");
+                    await SendVitalChangeEmail("Vital Record Added", emailBody);
+
 
                     return RedirectToAction("MaintainVitals", "Anaesthesiologist");
                 }
@@ -864,7 +942,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     smtpClient.UseDefaultCredentials = false;
                     smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
 
-                    smtpClient.Timeout = 30000; // Set the timeout to 30 seconds (30000 milliseconds)
+                    smtpClient.Timeout = 60000; // Set the timeout to 30 seconds (30000 milliseconds)
 
                     int retryCount = 0;
                     bool emailSent = false;

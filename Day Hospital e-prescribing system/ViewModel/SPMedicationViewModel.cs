@@ -2,8 +2,9 @@
 {
     public class SPMedicationViewModel
     {
-        public int MedicationID { get; set; }
-        public string Name { get; set; }
+        public int StockID { get; set; }
+        public string MedicationName { get; set; }
+
         public string Quantity { get; set; }
     }
 }

@@ -74,7 +74,7 @@
                             <label>Medications:</label>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <select class="form-control" id="medicationSelect" asp-items="Model.Medications"></select>
+                                    <select class="form-control" id="medicationSelect" asp-items="Model.DayHospitalMedication"></select>
                                 </div>
                                 <div class="col-md-3">
                                     <input type="text" id="quantityInput" class="form-control" placeholder="Quantity" />
@@ -94,16 +94,16 @@
                                     @for (int i = 0; i < Model.SelectedMedications.Count; i++)
                                     {
                                         <li>
-                                            @Html.HiddenFor(m => m.SelectedMedications[i].MedicationID)
-                                            @Html.HiddenFor(m => m.SelectedMedications[i].Name)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].StockID)
+                                            @Html.HiddenFor(m => m.SelectedMedications[i].MedicationName)
                                             @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
-                                            @Model.SelectedMedications[i].Name - @Model.SelectedMedications[i].Quantity
+                                            @Model.SelectedMedications[i].MedicationName - @Model.SelectedMedications[i].Quantity
                                         </li>
                                     }
                                 }
                                 else
                                 {
-                                    <p>No medications selected yet.</p>
+                                    <p id="noMedicationsMessage">No medications selected yet.</p>
                                 }
 
                             </ul>
@@ -139,14 +139,18 @@
 <script>
     $(document).ready(function () {
         $('#addMedication').click(function () {
-            var medicationID = $('#medicationSelect').val();
+            var StockID = $('#medicationSelect').val();
             var medicationName = $('#medicationSelect option:selected').text();
             var quantity = $('#quantityInput').val();
 
             if (quantity) {
+
+                 // Hide the "No medications selected yet" message
+            $('#noMedicationsMessage').hide();
+
                 var newItem = `<li>
-                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].MedicationID" value="${medicationID}" />
-                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Name" value="${medicationName}" />
+                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].StockID" value="${StockID}" />
+                                        <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].MedicationName" value="${medicationName}" />
                                         <input type="hidden" name="SelectedMedications[${$('#medicationList li').length}].Quantity" value="${quantity}" />
                                         ${medicationName} - ${quantity}
                                     </li>`;

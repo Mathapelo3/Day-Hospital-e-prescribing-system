@@ -8,7 +8,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         [Key]
         public int StockID {get;set;}
         
-        public int QtyRecieved { get;set;}
+        public int QtyReceived { get;set;}
 
         public int QtyUsed { get; set; }
 
