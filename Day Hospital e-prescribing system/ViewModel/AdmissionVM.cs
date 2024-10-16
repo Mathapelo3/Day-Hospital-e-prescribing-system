@@ -12,11 +12,11 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         public int AdmissionID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Date is required")]
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; }
 
-        [Required]
+        public DateTime Date { get; set; }
+        [Required(ErrorMessage = "Time is required")]
         public string? Time { get; set; }
 
         public int PatientID { get; set; }
@@ -34,7 +34,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         //[Required(ErrorMessage = "Ward is required")]
         public int WardId { get; set; }
 
-        //[Required(ErrorMessage = "Bed is required")]
+        [Required(ErrorMessage = "Bed is required")]
         public int BedId { get; set; }
 
         public int SurgeryID { get; set; }
@@ -67,20 +67,23 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         //[Required(ErrorMessage = "Bed selection is required")]
         public string? SelectedBed { get; set; }
 
-        public List<Ward> Ward { get; set; }
+      public List<Ward> Wards { get; set; } = new List<Ward>();
 
-      
-        public int? SurgeonID { get; set; }
+
+        [Required(ErrorMessage = "Surgeon ID is required.")]
+        public int SurgeonID { get; set; }
         // Navigation property
-        [ForeignKey("SurgeonID")]
-        public virtual Surgeon Surgeons { get; set; }
+        //[ForeignKey("SurgeonID")]
+        //public virtual Surgeon Surgeons { get; set; }
 
-   
-        public int? AnaesthesiologistID { get; set; }
+
+        [Required(ErrorMessage = "Anaesthesiologist ID is required.")]
+        public int AnaesthesiologistID { get; set; }
+        public int NurseID { get; set; }
 
         // Navigation property
-        [ForeignKey("AnaesthesiologistID")]
-        public virtual Anaesthesiologist Anaesthesiologists { get; set; }
+        //[ForeignKey("AnaesthesiologistID")]
+        //public virtual Anaesthesiologist Anaesthesiologists { get; set; }
 
 
         //[BindNever]

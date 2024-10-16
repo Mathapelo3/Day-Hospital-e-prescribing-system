@@ -388,7 +388,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Name = patientVM.Name,
                         Surname = patientVM.Surname,
                         Gender = patientVM.Gender,
-                        DateOfBirth = patientVM.DateOfBirth,
+                        //DateOfBirth = patientVM.DateOfBirth,
                         IDNo = patientVM.IDNo,
                         Email = patientVM.Email,
                         SuburbID = patientVM.SuburbID,
@@ -1490,7 +1490,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var model = new AdmissionVM
             {
-                BedId = 0,
+                //BedId = 0,
                 Date = DateTime.Now,
                 //Time = DateTime.Now.ToString("tt"),
                 Time = DateTime.Now.ToString("tt"),
@@ -1499,14 +1499,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 PatientID= selectedSurgery.PatientID,
                 Name = selectedSurgery.Patients.Name ?? "Unknown",
                 Surname = selectedSurgery.Patients.Surname ?? "Unknown",
+                SurgeonID = selectedSurgery.SurgeonID,
+                AnaesthesiologistID = selectedSurgery.AnaesthesiologistID ?? 0,
+                NurseID = selectedSurgery.NurseID ?? 0,
                 //Description = selectedSurgery.Surgery_TreatmentCodes.Description
 
             };
 
             ViewBag.Wards = new SelectList(_context.Ward.Select(w => new
             {
-                WardId = w.WardId.ToString(),  // Convert to string
-                w.WardName
+                WardId = w.WardId,
+                WardName = $"{w.WardName} ({w.NumberOfBeds} beds)"
             }).ToList(), "WardId", "WardName");
             ViewBag.Bed = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"); // Initially empty, will be populated on ward selection
             //ViewBag.TreatmentCodes = new SelectList(_context.Ward.ToList(), "Surgery_TreatmentCodeID", "Description");
@@ -1522,61 +1525,54 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             
             var nurseClaim = User.Claims.FirstOrDefault(c => c.Type == "NurseID");
-            if (nurseClaim != null && int.TryParse(nurseClaim.Value, out int nurseID))
+            if (nurseClaim == null || !int.TryParse(nurseClaim.Value, out int nurseID))
             {
-                if (ModelState.IsValid)
+                _logger.LogWarning("Nurse ID claim is missing or invalid.");
+                ModelState.AddModelError("", "Unable to identify nurse.");
+                return View(model);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Wards = new SelectList(_context.Ward.Select(w => new
                 {
-                    try
-                    {
-                        // Validate Ward selection
-                        if (model.WardId <= 0)
-                        {
-                            ModelState.AddModelError("WardId", "Ward selection is required");
-                            return View(model);
-                        }
+                    WardId = w.WardId,
+                    WardName = $"{w.WardName} ({w.NumberOfBeds} beds)"
+                }).ToList(), "WardId", "WardName");
+                return View(model);
+            }
 
-                        // Validate Bed selection
-                        if (model.BedId <= 0)
-                        {
-                            ModelState.AddModelError("BedId", "Bed selection is required");
-                            return View(model);
-                        }
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var selectedSurgery = await _context.Surgeries
+             .Include(s => s.Patients)
+             .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
 
-                        var selectedSurgery = await _context.Surgeries
-                                                    .Include(s => s.Patients)
-                                                    //.Include(s => s.Surgery_TreatmentCodes)
-                                                    .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
+                if (selectedSurgery?.Patients == null)
+                {
+                    _logger.LogWarning("Patient information is missing for SurgeryID: {SurgeryID}", selectedId);
+                    return NotFound();
+                }
 
-                      
+                var patient = selectedSurgery.Patients;
 
-                        if (selectedSurgery?.Patients == null)
-                        {
-                            _logger.LogWarning("Patient information is missing for SurgeryID: {SurgeryID}", selectedId);
-                            return NotFound();
-                        }
+                var selectedBed = await _context.Bed
+                    .Include(b => b.Wards)
+                    .FirstOrDefaultAsync(b => b.BedId == model.BedId);
 
-                        var patient = selectedSurgery.Patients;
+                if (selectedBed == null || selectedBed.Wards.WardId != model.WardId)
+                {
+                    _logger.LogWarning("Invalid bed selection: BedId {BedId}, WardId {WardId}", model.BedId, model.WardId);
+                    ModelState.AddModelError("BedId", "Invalid bed selection.");
+                    return View(model);
+                }
+                // Get the selected bed
+                //var selectedBed = await _context.Bed
+                //            .Include(b => b.Wards)
+                //            .FirstOrDefaultAsync(b => b.BedId == model.BedId);
 
-                        // Get the selected bed
-                        var selectedBed = await _context.Bed
-                            .Include(b => b.Wards)
-                            .FirstOrDefaultAsync(b => b.BedId == model.BedId);
-
-                        if (selectedBed == null)
-                        {
-                            _logger.LogWarning("Selected bed not found: {BedId}", model.BedId);
-                            ModelState.AddModelError("BedId", "Selected bed not found.");
-                            return View(model);
-                        }
-
-                        // Ensure the selected bed is in the correct ward
-                        if (selectedBed.Wards.WardId != model.WardId)
-                        {
-                            _logger.LogWarning("Selected bed {BedId} is not in the selected ward {WardId}", model.BedId, model.WardId);
-                            ModelState.AddModelError("BedId", "Selected bed is not in the selected ward.");
-                            return View(model);
-                        }
-
+                       
                           // Save BedId to the patient
                            patient.BedId = model.BedId;
                             _context.Update(patient);
@@ -1586,7 +1582,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         //selectedSurgery.Patient.BedId = model.BedId;
                         // Convert SelectedCondition to a name if it's an ID
 
-                        string bedName = await GetBedById(model.SelectedBed);
+                        //string bedName = await GetBedById(model.SelectedBed);
                       
 
                         var admission = new Admission
@@ -1594,47 +1590,47 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             Date = model.Date,
                             Time = model.Time,
                             PatientID = selectedSurgery.PatientID,
+                            SurgeonID = model.SurgeonID,
+                            AnaesthesiologistID = model.AnaesthesiologistID,
+                            NurseID = model.NurseID,
 
 
                         };
 
-                        _context.Admissions.Add(admission);
-                        TempData["SuccessMessage"] = "Patient successfully admitted.";
-                        await _context.SaveChangesAsync();
+                foreach (var entry in _context.ChangeTracker.Entries())
+                {
+                    _logger.LogInformation($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+                }
 
-                        // Optionally, add additional logic here like inserting specific treatment codes
-                        //await InsertSpecificTreatmentCode(model.Surgery_TreatmentCodeID, nurseID);
+                 _context.Admissions.Add(admission);
+                var saveResult = await _context.SaveChangesAsync();
+                _logger.LogInformation("SaveChangesAsync result: {SaveResult}", saveResult);
 
-                        _logger.LogInformation("Patient admitted successfully.");
-                        return RedirectToAction("DisplayPatientInfo");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "An error occurred while admitting the patient: {Message}", ex.Message);
-                        ModelState.AddModelError("", "Unable to save changes.");
-                    }
+                if (saveResult > 0)
+                {
+                    await transaction.CommitAsync();
+                    TempData["SuccessMessage"] = "Patient successfully admitted.";
+                    _logger.LogInformation("Patient admitted successfully. AdmissionId: {AdmissionId}", admission.AdmissionID);
+                    return RedirectToAction("AdmitPatient");
                 }
                 else
                 {
-                    _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                    _logger.LogWarning("No changes were saved to the database.");
+                    ModelState.AddModelError("", "No changes were saved to the database.");
+                    return View(model);
                 }
-
-                // Reload dropdowns or other necessary data for the view
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while saving admission");
+                ModelState.AddModelError("", "An error occurred while saving the admission. Please try again.");
                 ViewBag.Wards = new SelectList(_context.Ward.Select(w => new
                 {
-                    WardId = w.WardId.ToString(),  // Convert to string
-                    w.WardName
+                    WardId = w.WardId,
+                    WardName = $"{w.WardName} ({w.NumberOfBeds} beds)"
                 }).ToList(), "WardId", "WardName");
-                ViewBag.Beds = new SelectList(_context.Bed.Where(b => b.WardId == model.WardId).ToList(), "BedId", "BedName");
-                //ViewBag.TreatmentCodes = new SelectList(_context.Surgery_TreatmentCodes.ToList(), "Surgery_TreatmentCodeID", "Description");
+                return View(model);
             }
-            else
-            {
-                _logger.LogWarning("Nurse ID claim is missing or invalid.");
-                ModelState.AddModelError("", "Unable to identify nurse.");
-            }
-
-            return View(model);
         }
         private async Task<int> GetBedIdByName(string selectedBed)
         {
@@ -2128,7 +2124,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 patient.Name = model.Name;
                 patient.Surname = model.Surname;
-                patient.DateOfBirth = model.DateOfBirth;
+                //patient.DateOfBirth = model.DateOfBirth;
                 patient.IDNo = model.IDNo;
                 patient.Gender = model.Gender;
                 patient.AddressLine1 = model.AddressLine1;
@@ -2203,19 +2199,29 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         .ThenInclude(c => c.Province)
         .FirstOrDefaultAsync(p => p.PatientID == id);
 
+            // Check if the patient is null
+            if (pateint == null)
+            {
+                // Log the error or show a message to the user
+                return NotFound($"Patient with ID {id} was not found.");
+            }
+
             var updatePatient = new PatientVM
             {
                 PatientID = pateint.PatientID,
-                Name = pateint.Name,
-                Gender = pateint.Gender,
-                Surname = pateint.Surname,
-                Email = pateint.Email,
-                ContactNo = pateint.ContactNo,
-                IDNo = pateint.IDNo,
-                DateOfBirth = pateint.DateOfBirth,
-                NextOfKinNo = pateint.NextOfKinNo,
-                AddressLine1 = pateint.AddressLine1,
-                AddressLine2 = pateint.AddressLine2,
+                Name = pateint.Name ?? "",
+                Gender = pateint.Gender ?? "",
+                Surname = pateint.Surname ?? "",
+                Email = pateint.Email ?? "",
+                ContactNo = pateint.ContactNo ?? "",
+                IDNo = pateint.IDNo ?? "",
+                //DateOfBirth = pateint.DateOfBirth,
+                NextOfKinNo = pateint.NextOfKinNo ?? "",
+                AddressLine1 = pateint.AddressLine1 ?? "",
+                AddressLine2 = pateint.AddressLine2 ?? "",
+                SuburbID = pateint.SuburbID,
+                CityID = pateint.Suburbs?.CityID ?? 0,
+                ProvinceID = pateint.Suburbs?.City?.ProvinceID ?? 0
 
             };
             ViewBag.Provinces = await GetProvincesAsync();
@@ -2225,6 +2231,45 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
 
             return View(updatePatient);
+        }
+
+        public async Task<IActionResult> GetPatientProfile(int id)
+        {
+            var patient = await _context.Patients
+                .Include(p => p.Suburbs)
+                    .ThenInclude(s => s.City)
+                        .ThenInclude(c => c.Province)
+                .FirstOrDefaultAsync(p => p.PatientID == id);
+
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            var model = new PatientVM
+            {
+                PatientID = patient.PatientID,
+                Name = patient.Name,
+                Surname = patient.Surname,
+                Gender = patient.Gender,
+                Email = patient.Email,
+                ContactNo = patient.ContactNo,
+                IDNo = patient.IDNo,
+                AddressLine1 = patient.AddressLine1,
+                AddressLine2 = patient.AddressLine2,
+                DateOfBirth = patient.DateOfBirth,
+                NextOfKinNo = patient.NextOfKinNo,
+                SuburbID = patient.SuburbID,
+                CityID = patient.Suburbs?.CityID ?? 0,
+                ProvinceID = patient.Suburbs?.City?.ProvinceID ?? 0
+            };
+
+            // Populate ViewBag with dropdown data
+            ViewBag.Provinces = await GetProvincesAsync();
+            ViewBag.Cities = await GetCitiesByProvinceAsync(model.ProvinceID);
+            ViewBag.Suburbs = await GetSuburbsByCityAsync(model.CityID);
+
+            return View("PatientProfile", model);
         }
 
         public async Task<IActionResult> SubmitPatientProfile(PatientVM model, int provinceId)
@@ -2241,7 +2286,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     return NotFound();
                 }
 
-
+                //pateint.PatientID = model.PatientID;
                 pateint.Name = model.Name;
                 pateint.Surname = model.Surname;
                 pateint.Gender = model.Gender;
@@ -2250,7 +2295,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 pateint.IDNo = model.IDNo;
                 pateint.AddressLine1 = model.AddressLine1;
                 pateint.AddressLine2 = model.AddressLine2;
-                pateint.DateOfBirth = model.DateOfBirth;
+                //pateint.DateOfBirth = model.DateOfBirth;
                 pateint.NextOfKinNo = model.NextOfKinNo;
                 pateint.SuburbID = model.SuburbID;
                 //pateint.Suburbs.CityID = model.CityID;
@@ -2268,13 +2313,46 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 _context.Patients.Update(pateint);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("PatientProfile", "Profile");
+                return RedirectToAction("PatientProfile", "Nurse");
             }
 
             // If we got this far, something failed, redisplay form
             ViewBag.Provinces = await GetProvincesAsync();
             ViewBag.Cities = await GetCitiesByProvinceAsync(model.ProvinceID);
             ViewBag.Suburbs = await GetSuburbsByCityAsync(model.CityID);
+
+            return View(model);
+        }
+        public async Task<IActionResult> PatientProfile(int id)
+        {
+            var patient = await _context.Patients
+                .Include(p => p.Suburbs)
+                    .ThenInclude(s => s.City)
+                        .ThenInclude(c => c.Province)
+                .FirstOrDefaultAsync(p => p.PatientID == id);
+
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            var model = new PatientVM
+            {
+                PatientID = patient.PatientID,
+                Name = patient.Name,
+                Surname = patient.Surname,
+                Gender = patient.Gender,
+                Email = patient.Email,
+                ContactNo = patient.ContactNo,
+                IDNo = patient.IDNo,
+                AddressLine1 = patient.AddressLine1,
+                AddressLine2 = patient.AddressLine2,
+                DateOfBirth = patient.DateOfBirth,
+                NextOfKinNo = patient.NextOfKinNo,
+                SuburbName = patient.Suburbs?.Name,
+                CityName = patient.Suburbs?.City?.Name,
+                ProvinceName = patient.Suburbs?.City?.Province?.Name
+            };
 
             return View(model);
         }
@@ -2405,85 +2483,184 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             // Return the PDF file
             return File(reportStream, "application/pdf", "MedicationReport.pdf");
         }
-        public async Task<IActionResult> Index(int selectedId)
+        [HttpGet]
+        public async Task<IActionResult> EditPatientProfile(int id)
         {
-
-            var selectedSurgery = await _context.Surgeries
-                              .Include(s => s.Patients)
-                              //.Include(s => s.Surgery_TreatmentCodes)
-                              .DefaultIfEmpty()
-                              .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
-
-
-
-
-
-            if (selectedSurgery == null)
+            try
             {
-                _logger.LogWarning("Selected surgery is null for SurgeryID: {SurgeryID}", selectedId);
-                return NotFound();
+                var patient = await _context.Patients
+                    .Include(p => p.Suburbs)
+                        .ThenInclude(s => s.City)
+                            .ThenInclude(c => c.Province)
+                    .FirstOrDefaultAsync(p => p.PatientID == id);
+
+                if (patient == null)
+                {
+                    _logger.LogWarning($"Patient with ID {id} not found.");
+                    return NotFound($"Patient with ID {id} not found.");
+                }
+
+                var model = new Patient
+                {
+                    PatientID = patient.PatientID,
+                    Name = patient.Name ?? "",
+                    Surname = patient.Surname ?? "",
+                    Gender = patient.Gender ?? "",
+                    Email = patient.Email ?? "",
+                    ContactNo = patient.ContactNo ?? "",
+                    IDNo = patient.IDNo ?? "",
+                    AddressLine1 = patient.AddressLine1 ?? "",
+                    AddressLine2 = patient.AddressLine2 ?? "",
+                    DateOfBirth = patient.DateOfBirth,
+                    NextOfKinNo = patient.NextOfKinNo ?? "",
+                    SuburbID = patient.SuburbID,
+                    //CityID = patient.Suburbs?.CityID ?? 0,
+                    //ProvinceID = patient.Suburbs?.City?.ProvinceID ?? 0
+                };
+
+                await PopulateDropdownsAsync(model);
+
+                return View(model);
             }
-
-          
-            var model = new AdmissionVM
+            catch (Exception ex)
             {
-                Date = DateTime.Today,
-                Time = "AM" ,// Default to AM
-                PatientID= selectedSurgery.PatientID,
-                SurgeonID= selectedSurgery.SurgeonID,
-                AnaesthesiologistID = selectedSurgery.AnaesthesiologistID,
-
-            };
-            
-
-            return View(model);
+                _logger.LogError(ex, $"An error occurred while retrieving patient with ID {id}.");
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
         }
-        [HttpPost]
-        public async Task<IActionResult> Index(int id, AdmissionVM model)
+    
+
+        private async Task PopulateDropdownsAsync(Patient model)
         {
-            var patient = _context.Patients.Find(id);
-            if (patient == null)
-            {
-                return NotFound("Patient not found");
-            }
-
-            var bed = _context.Bed.Find(model.BedId);
-            if (bed == null)
-            {
-                return NotFound("Bed not found");
-            }
-
-            // Update patient's bed
-            patient.BedId = model.BedId;
-            _context.Patients.Update(patient);
-
-            // Create admission record
-            var admission = new Admission
-            {
-                PatientID = id,
-                Date = model.Date,
-                Time = model.Time,
-                SurgeonID = model.SurgeonID ?? 0,
-                AnaesthesiologistID = model.AnaesthesiologistID ?? 0,
-            };
-            _context.Admissions.Add(admission);
-
-            _context.SaveChanges();
-
-            return View("Patient assigned to bed and admission recorded successfully");
+            ViewBag.Provinces = await GetProvincesAsync();
+            ViewBag.Cities = await GetCitiesByProvinceAsync(model.Suburbs.City.ProvinceID);
+            ViewBag.Suburbs = await GetSuburbsByCityAsync(model.Suburbs.CityID);
         }
 
         [HttpGet]
-        public JsonResult GetBedss(int wardId)
+        public IActionResult EditPatientProfiles(int id)
         {
-            var beds = _context.Bed
-                .Where(b => b.WardId == wardId)
-                .Select(b => new { id = b.BedId, name = b.BedName })
-                .ToList();
-            return Json(beds);
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            var patientProfile = (from p in _context.Patients
+                                  join s in _context.Suburbs on p.SuburbID equals s.SuburbID into suburbJoin
+                                  from s in suburbJoin.DefaultIfEmpty()
+                                  join c in _context.Cities on s.CityID equals c.CityID into cityJoin
+                                  from c in cityJoin.DefaultIfEmpty()
+                                  join pr in _context.Provinces on c.ProvinceID equals pr.ProvinceID into provinceJoin
+                                  from pr in provinceJoin.DefaultIfEmpty()
+                                  where p.PatientID == id
+                                  select new PatientVM
+                                  {
+                                      PatientID = p.PatientID,
+                                      Name = p.Name ?? "",
+                                      Surname = p.Surname ?? "",
+                                      Gender = p != null ? p.Gender : "N/A",
+                                      Email = p != null ? p.Email : "N/A",
+                                      ContactNo = p != null ? p.ContactNo : "N/A",
+                                      IDNo = p != null ? p.IDNo : "N/A",
+                                      AddressLine1 = p != null ? p.AddressLine1 : "N/A",
+                                      AddressLine2 = p != null ? p.AddressLine2 : "N/A",
+                                      //DateOfBirth = p.DateOfBirth != null ? p.DateOfBirth : (DateTime?)null,
+                                      NextOfKinNo = p != null ? p.NextOfKinNo : "N/A",
+                                      ProvinceID = c.ProvinceID,
+                                      CityID = s.CityID,
+                                      SuburbID = p.SuburbID,
+                                      ProvinceName = pr != null ? pr.Name ?? "" : "",
+                                      CityName = c != null ? c.Name ?? "" : "",
+                                      SuburbName = s != null ? s.Name ?? "" : ""
+                                  }).FirstOrDefault();
+
+            if (patientProfile == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Provinces = _context.Provinces
+      .Select(p => new SelectListItem
+      {
+          Value = p.ProvinceID.ToString(),
+          Text = p.Name
+      })
+      .ToList();
+
+            ViewBag.Cities = patientProfile.ProvinceID != 0
+                ? _context.Cities.Where(c => c.ProvinceID == patientProfile.ProvinceID)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CityID.ToString(),
+                        Text = c.Name
+                    })
+                    .ToList()
+                : new List<SelectListItem>();
+
+            ViewBag.Suburbs = patientProfile.CityID != 0
+                ? _context.Suburbs.Where(s => s.CityID == patientProfile.CityID)
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.SuburbID.ToString(),
+                        Text = s.Name
+                    })
+                    .ToList()
+                : new List<SelectListItem>();
+
+
+            return View(patientProfile);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPatientProfiles(PatientVM viewModel)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            if (ModelState.IsValid)
+            {
+                var patientProfile = await _context.Patients.FindAsync(viewModel.PatientID);
+                if (patientProfile != null)
+                {
+                    patientProfile.Name = viewModel.Name;
+                    patientProfile.Suburbs.City.ProvinceID = viewModel.ProvinceID;
+                    patientProfile.Suburbs.CityID = viewModel.CityID;
+                    patientProfile.SuburbID = viewModel.SuburbID;
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("PatientDetails", new { id = patientProfile.PatientID });
+                }
+            }
+
+            ViewBag.Provinces = _context.Provinces.ToList();
+            ViewBag.Cities = _context.Cities.Where(c => c.ProvinceID == viewModel.ProvinceID).ToList();
+            ViewBag.Suburbs = _context.Suburbs.Where(s => s.CityID == viewModel.CityID).ToList();
+
+            return View(viewModel);
+        }
+
+        // Add these methods to handle AJAX requests for populating dropdowns
+        [HttpGet]
+        public JsonResult GetCities(int provinceId)
+        {
+            var cities = _context.Cities
+                .Where(c => c.ProvinceID == provinceId)
+                .Select(c => new { c.CityID, c.Name })
+                .ToList();
+            return Json(cities);
+        }
+
+        [HttpGet]
+        public JsonResult GetSuburbs(int cityId)
+        {
+            var suburbs = _context.Suburbs
+                .Where(s => s.CityID == cityId)
+                .Select(s => new { s.SuburbID, s.Name })
+                .ToList();
+            return Json(suburbs);
+        }
+    
+
+
     }
+
 }
+
 
         
        

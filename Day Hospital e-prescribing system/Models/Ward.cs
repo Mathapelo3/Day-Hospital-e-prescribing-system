@@ -11,7 +11,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int WardId { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "Ward is required.")]
         public string WardName { get; set; }
 
         [Required]

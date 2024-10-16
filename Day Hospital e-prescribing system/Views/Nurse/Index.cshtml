@@ -97,7 +97,7 @@
     </div>
      </div>
 
-<form asp-action="AdmitPatient" asp-controller="Nurse" method="post">
+<form asp-action="Index" method="post">
     <input type="hidden" asp-for="PatientID" />
             @Html.AntiForgeryToken()
     <div asp-validation-summary="All" class="text-danger"></div>
@@ -126,21 +126,27 @@
                             </div>
 <div>
     <label for="wardDropdown">Select Ward:</label>
-    <select id="wardDropdown">
+       <select id="wardDropdown" name="WardId" asp-for="WardId">
         <option value="">-- Select Ward --</option>
-       @foreach (var ward in Model.Ward)
+        @foreach (var ward in ViewBag.Wards)
         {
-            <option value="@ward.WardId">@ward.WardName (@ward.NumberOfBeds beds)</option>
+          <option value="@ward.Value">@ward.Text</option>
         }
     </select>
 </div>
 
 <div>
     <label for="bedDropdown">Select Bed:</label>
-    <select id="bedDropdown" disabled>
+        <select id="bedDropdown" name="BedId" asp-for="BedId" disabled>
         <option value="">-- Select Bed --</option>
     </select>
 </div>
+                    <div style="overflow:auto;">
+                        <div style="float:right;">
+                            <button type="button" id="prevBtn" onclick="location.href = '@Url.Action("AdmissionWizard","Nurse")'">Previous</button>
+                            <button type="submit" id="nextBtn">Next</button>
+                        </div>
+                    </div>
 </div>
 </div>
 </div>

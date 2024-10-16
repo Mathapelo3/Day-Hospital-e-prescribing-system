@@ -12,11 +12,7 @@
     </div>
     </div>
     <br />
-    <br />
-
-    <form asp-action="PatientsAd" method="get" class="form-inline mb-3">
-
-        <br />
+    <form asp-action="PatientsAd" method="get">
         @* <div class="input-group rounded">
         <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" />
         <span class="input-group-text border-0" id="search-addon">
@@ -56,8 +52,8 @@
                                                         <td>@item.Time</td>
                                                         <td>@item.WardName</td>
                                                         <td>@item.BedName</td>
-                                                <td>
-                                                    <a asp-action="SubmitPatientProfile" asp-route-selectedId="@item.PatientID" class="btn btn-primary">
+                                                    <td>
+                                                    <a asp-action="EditPatientProfiles" asp-route-id="@item.PatientID" class="btn btn-primary">
                                                         UPDATE PROFILE
                                                     </a>
                                                 </td>

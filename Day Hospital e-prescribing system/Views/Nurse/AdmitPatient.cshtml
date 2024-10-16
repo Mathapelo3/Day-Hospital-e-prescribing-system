@@ -109,6 +109,13 @@
                     <div class="card-header text-bold">
                         <strong> @Model.Name @Model.Surname</strong>
                     </div>
+                    <br />
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
                     <div class="card-body">
 
                         <div class="container-fluid">
@@ -116,6 +123,7 @@
                                 <div class="form-group col-6">
                                     <label for="startDate"> Date: </label>
                                     <input class="form-control" asp-for="Date" type="date" id="datePicker" />
+                                     <span class="text-danger" asp-validation-for="Date"></span>
                                 </div>
                                 <div class="form-group col-6">
                                     <label class="form-label">Select AM/PM:</label>
@@ -123,13 +131,19 @@
                                         <option value="AM" selected="@(Model.Time == "AM")">AM</option>
                                         <option value="PM" selected="@(Model.Time == "PM")">PM</option>
                                     </select>
+                                   <span class="text-danger" asp-validation-for="Time"></span>
                                 </div>
                             </div>
                     <div class="form-group col-md-6">
                         <label asp-for="WardId">Select Ward:</label>
-                        <br />
-                        @Html.DropDownList("WardId", ViewBag.Wards as SelectList, "Select Ward", new { id = "wardDropdown", @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.WardId, "", new { @class = "text-danger" })
+                        <select asp-for="WardId" class="form-control" id="wardDropdown">
+                            <option value="">Select Ward</option>
+                            @foreach (var item in ViewBag.Wards)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                        <span class="text-danger" asp-validation-for="WardName"></span>
                     </div>
                    
                     @if (bedSelectList != null)
@@ -143,6 +157,7 @@
                                     <option value="@bed.Value">@bed.Text</option>
                                 }
                             </select>
+                         
                         </div>
                     }
                     else
@@ -153,6 +168,7 @@
                             <select id="bedDropdown" asp-for="BedId" class="form-control">
                                 <option value="1">Select a ward first</option>
                             </select>
+                           
                         </div>
                     }
                         @Html.ValidationMessageFor(model => model.BedId, "", new { @class = "text-danger" })
