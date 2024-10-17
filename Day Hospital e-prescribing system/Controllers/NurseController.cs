@@ -784,13 +784,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
             new SqlParameter("@PatientID", SqlDbType.Int) { Value = model.PatientID },
             new SqlParameter("@ConditionName", SqlDbType.NVarChar, 50) { Value = (object)conditionName ?? DBNull.Value },
-            new SqlParameter("@AllergyName", SqlDbType.NVarChar, 50) { Value = (object)allergyName ?? DBNull.Value },
+            new SqlParameter("@Description", SqlDbType.NVarChar, 50) { Value = (object)allergyName ?? DBNull.Value },
             new SqlParameter("@MedicationName", SqlDbType.NVarChar, 50) { Value = (object)medicationName ?? DBNull.Value },
             successParam,
             errorMessageParam
         };
 
-                var sql = "EXEC dbo.AddConditionDetails @PatientID, @ConditionName, @AllergyName, @MedicationName, @Success OUTPUT, @ErrorMessage OUTPUT";
+                var sql = "EXEC dbo.AddConditionDetails @PatientID, @ConditionName, @Description, @MedicationName, @Success OUTPUT, @ErrorMessage OUTPUT";
 
                 await _context.Database.ExecuteSqlRawAsync(sql, parameters);
 
@@ -835,7 +835,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private async Task ReloadDropdownData(AddConditionsVM model)
         {
             model.Condition = await GetConditionsAsync();
-            model.Allergy = await GetAllergiesAsync();
+            model.Active_Ingredient = await GetAllergiesAsync();
             model.General_Medication = await GetMedicationsAsync();
         }
         private async Task<string> GetConditionNameById(string selectedCondition)
@@ -852,8 +852,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             if (int.TryParse(selectedAllergy, out int allergyId))
             {
-                var allergy = await _context.Allergies.FindAsync(allergyId);
-                return allergy?.Name;
+                var allergy = await _context.Active_Ingredient.FindAsync(allergyId);
+                return allergy?.Description;
             }
             return selectedAllergy;
         }
@@ -898,7 +898,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand("SELECT AllergyID, Name FROM Allergy", connection))
+                using (var command = new SqlCommand("SELECT Active_IngredientID, Description FROM Active_Ingredient", connection))
                 {
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -906,8 +906,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             allergies.Add(new SelectListItem
                             {
-                                Value = reader["AllergyID"].ToString(),
-                                Text = reader["Name"].ToString()
+                                Value = reader["Active_IngredientID"].ToString(),
+                                Text = reader["Description"].ToString()
                             });
                         }
                     }
@@ -974,7 +974,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 // No conditions found, handle accordingly
                 Debug.WriteLine("No conditions found for the patient.");
             }
-            var allergies = patient.Patient_Allergy.Select(pc => pc.Allergy).ToList();
+            var allergies = patient.Patient_Allergy.Select(pc => pc.Active_Ingredient).ToList();
             if (!conditions.Any())
             {
                 // No conditions found, handle accordingly
@@ -1234,9 +1234,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public async Task<ActionResult> RetakeVitals2(int id)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-
-
             try
             {
                 var model = new VitalsVM();
@@ -1258,8 +1255,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 model.PatientID = id;
                                 model.Name = reader["Name"].ToString();
                                 model.Surname = reader["Surname"].ToString();
-                                model.Weight = reader["Weight"] != DBNull.Value ? (string?)reader["Weight"] : null;
-                                model.Height = reader["Height"] != DBNull.Value ? (string?)reader["Height"] : null;
                             }
                             else
                             {
@@ -1268,24 +1263,36 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         }
                     }
 
-                    // Get vitals list
+                    // Get vitals list and most recent height, weight, and BMI
                     model.Vitals = new List<Patient_VitalsVM>();
-                    using (var command = new SqlCommand("sp_GetVitalsList", connection))
+                    using (var command = new SqlCommand("sp_GetVitalsListWithLatestHeightWeightBMI", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@PatientID", id);
 
                         using (var reader = await command.ExecuteReaderAsync())
                         {
                             while (await reader.ReadAsync())
                             {
-                                model.Vitals.Add(new Patient_VitalsVM
+                                var vital = new Patient_VitalsVM
                                 {
                                     Vital = reader["Vital"].ToString(),
-                                    Min = (string)reader["Min"],
-                                    Max = (string)reader["Max"],
-                                    Value = string.Empty,
-                                    Notes = string.Empty
-                                });
+                                    Min = reader["Min"].ToString(),
+                                    Max = reader["Max"].ToString(),
+                                    Normal = reader["Normal"].ToString(),
+                                    Value = reader["Vital"].ToString() == "BMI" ? reader["LatestValue"].ToString() : string.Empty
+                                };
+
+                                model.Vitals.Add(vital);
+
+                                if (reader["Vital"].ToString() == "Height")
+                                {
+                                    model.Height = reader["LatestValue"].ToString();
+                                }
+                                else if (reader["Vital"].ToString() == "Weight")
+                                {
+                                    model.Weight = reader["LatestValue"].ToString();
+                                }
                             }
                         }
                     }
@@ -1306,16 +1313,50 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpPost]
         public async Task<IActionResult> RetakeVitals2(VitalsVM model)
         {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
 
             if (!ModelState.IsValid)
             {
-                // Handle invalid model state
                 return View(model);
             }
 
             try
             {
+                // Check vitals and set alerts
+                List<string> alerts = new List<string>();
+                foreach (var vital in model.Vitals)
+                {
+                    if (!string.IsNullOrEmpty(vital.Value) && !string.IsNullOrEmpty(vital.Min) && !string.IsNullOrEmpty(vital.Max))
+                    {
+                        double value = double.Parse(vital.Value);
+                        double min = double.Parse(vital.Min);
+                        double max = double.Parse(vital.Max);
+
+                        switch (vital.Vital)
+                        {
+                            case "Blood Pressure Systolic":
+                                vital.Alert = value < 120 ? "Normal" : (value >= 140 ? "High" : "Elevated");
+                                break;
+                            case "Blood Pressure Diastolic":
+                                vital.Alert = value < 80 ? "Normal" : (value >= 90 ? "High" : "Elevated");
+                                break;
+                            case "BMI":
+                                vital.Alert = value < 18.5 ? "Underweight" : (value >= 25 ? "Overweight" : "Normal");
+                                break;
+                            case "Oxygen Saturation":
+                                vital.Alert = value < min ? "Low" : "Normal";
+                                break;
+                            default:
+                                vital.Alert = value < min ? "Low" : (value > max ? "High" : "Normal");
+                                break;
+                        }
+
+                        if (vital.Alert != "Normal")
+                        {
+                            alerts.Add($"{vital.Vital} is {vital.Alert}");
+                        }
+                    }
+                }
+
                 using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
                 {
                     await connection.OpenAsync();
@@ -1327,18 +1368,18 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         command.Parameters.AddWithValue("@PatientID", model.PatientID);
                         command.Parameters.AddWithValue("@Date", model.Date);
                         command.Parameters.AddWithValue("@Time", model.Time);
-                        command.Parameters.AddWithValue("@Notes", model.Notes);
                         command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
+                        command.Parameters.AddWithValue("@Notes", model.Notes ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Alert", string.Join(", ", alerts));
 
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            // Process the results if needed
-                            while (await reader.ReadAsync())
-                            {
-                                // Read and process each row
-                            }
-                        }
+                        await command.ExecuteNonQueryAsync();
                     }
+                }
+
+                // Store alerts in TempData to display as popup
+                if (alerts.Any())
+                {
+                    TempData["Alerts"] = string.Join("\n", alerts);
                 }
 
                 return RedirectToAction("DisplayVitalsPerPatient", new { model.PatientID });
@@ -1350,6 +1391,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return View(model);
             }
         }
+    
     
         public IActionResult RetakeVitals3()
         {
@@ -1848,12 +1890,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         // Move to next result set (allergies)
                         reader.NextResult();
                         // Read allergies
-                        viewModel.Allergies = new List<Allergy>();
+                        viewModel.Active_Ingredient = new List<Active_Ingredient>();
                         while (reader.Read())
                         {
-                            viewModel.Allergies.Add(new Allergy
+                            viewModel.Active_Ingredient.Add(new Active_Ingredient
                             {
-                                Name = reader.GetString(reader.GetOrdinal("AllergyName")),
+                                Description= reader.GetString(reader.GetOrdinal("Decsription")),
                             });
                         }
 
@@ -1910,8 +1952,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 model.PatientID = id;
                                 model.Name = reader["Name"].ToString();
                                 model.Surname = reader["Surname"].ToString();
-                                //model.Weight = reader["Weight"] != DBNull.Value ? (string?)reader["Weight"] : null;
-                                //model.Height = reader["Height"] != DBNull.Value ? (string?)reader["Height"] : null;
+                               
                             }
                             else
                             {
@@ -1932,9 +1973,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             {
                                 model.Vitals.Add(new Patient_VitalsVM
                                 {
-                                    Vital = reader["Vital"].ToString(),
-                                    Min = (string)reader["Min"],
-                                    Max = (string)reader["Max"],
+                                    Vital = reader["Vital"] != DBNull.Value ? reader["Vital"].ToString() : string.Empty,
+                                    Min = reader["Min"] != DBNull.Value ? reader["Min"].ToString() : string.Empty,
+                                    Max = reader["Max"] != DBNull.Value ? reader["Max"].ToString() : string.Empty,
+                                    Normal = reader["Normal"] != DBNull.Value ? reader["Normal"].ToString() : string.Empty,
                                     Value = string.Empty,
                                     Height=string.Empty,
                                     Weight=string.Empty,
@@ -1969,6 +2011,54 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             try
             {
+                if (!string.IsNullOrEmpty(model.Height) && !string.IsNullOrEmpty(model.Weight))
+                {
+                    double height = double.Parse(model.Height) / 100; // Convert cm to meters
+                    double weight = double.Parse(model.Weight);
+                    double bmi = weight / (height * height);
+                    var bmiVital = model.Vitals.FirstOrDefault(v => v.Vital == "BMI");
+                    if (bmiVital != null)
+                    {
+                        bmiVital.Value = bmi.ToString("F2");
+                    }
+                }
+
+                // Check vitals and set alerts
+                List<string> alerts = new List<string>();
+                foreach (var vital in model.Vitals)
+                {
+                    if (!string.IsNullOrEmpty(vital.Value) && !string.IsNullOrEmpty(vital.Min) && !string.IsNullOrEmpty(vital.Max))
+                    {
+                        double value = double.Parse(vital.Value);
+                        double min = double.Parse(vital.Min);
+                        double max = double.Parse(vital.Max);
+
+                        switch (vital.Vital)
+                        {
+                            case "Blood Pressure Systolic":
+                                vital.Alert = value < 120 ? "Normal" : (value >= 140 ? "High" : "Elevated");
+                                break;
+                            case "Blood Pressure Diastolic":
+                                vital.Alert = value < 80 ? "Normal" : (value >= 90 ? "High" : "Elevated");
+                                break;
+                            case "BMI":
+                                vital.Alert = value < 18.5 ? "Underweight" : (value >= 25 ? "Overweight" : "Normal");
+                                break;
+                            case "Oxygen Saturation":
+                                vital.Alert = value < min ? "Low" : "Normal";
+                                break;
+                            default:
+                                vital.Alert = value < min ? "Low" : (value > max ? "High" : "Normal");
+                                break;
+                        }
+
+                        if (vital.Alert != "Normal")
+                        {
+                            alerts.Add($"{vital.Vital} is {vital.Alert}");
+                        }
+                    }
+                }
+
                 using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
                 {
                     await connection.OpenAsync();
@@ -1984,11 +2074,19 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         command.Parameters.AddWithValue("@Weight", model.Weight ?? (object)DBNull.Value);
                         command.Parameters.AddWithValue("@VitalsData", JsonConvert.SerializeObject(model.Vitals));
                         command.Parameters.AddWithValue("@Notes", model.Notes);
-
+                        command.Parameters.AddWithValue("@Alert", string.Join(", ", alerts)); // Combine all alerts into one string
 
                         await command.ExecuteNonQueryAsync();
                     }
+
                 }
+
+                // Store alerts in TempData to display as popup
+                if (alerts.Any())
+                {
+                    TempData["Alerts"] = string.Join("\n", alerts);
+                }
+
 
                 return RedirectToAction("DisplayVitalsPerPatient", new { model.PatientID });
             }
@@ -1998,6 +2096,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 ModelState.AddModelError(string.Empty, "An error occurred while saving vitals data.");
                 return View(model);
             }
+          
         }
         [HttpGet]
         public async Task<IActionResult> DisplayVitalsPerPatient(int id)
@@ -2654,7 +2753,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 .ToList();
             return Json(suburbs);
         }
-    
+       
+
 
 
     }

@@ -26,6 +26,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string Value { get; set; }
 
         [StringLength(50)]
+        public string Alert { get; set; }
+
+        [StringLength(50)]
         public string Height { get; set; }
 
         [StringLength(50)]

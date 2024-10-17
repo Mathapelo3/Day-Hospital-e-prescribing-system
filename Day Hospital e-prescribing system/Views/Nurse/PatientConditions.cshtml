@@ -33,12 +33,12 @@
                                     <table id="allergiesTable" class="table table-bordered table-striped">
                                         <thead></thead>
                                         <tbody>
-                                            @if (Model.Allergies != null && Model.Allergies.Any())
+                                            @if (Model.Active_Ingredient != null && Model.Active_Ingredient.Any())
                                             {
-                                                foreach (var allergy in Model.Allergies)
+                                                foreach (var allergy in Model.Active_Ingredient)
                                                 {
                                                     <tr>
-                                                        <td>@allergy.Name</td>
+                                                        <td>@allergy.Description</td>
                                                     </tr>
                                                 }
                                             }
