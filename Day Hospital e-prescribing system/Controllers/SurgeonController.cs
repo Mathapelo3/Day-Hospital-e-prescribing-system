@@ -323,12 +323,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new NewPatientPrescriptionViewModel
             {
                 PatientList = _context.Patients
+                    .OrderBy(p => p.Surname)
                     .Select(p => new SelectListItem
                     {
                         Value = p.PatientID.ToString(),
                         Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
                     }).ToList(),
+
                 MedicationList = _context.DayHospitalMedication
+                    .OrderBy(m => m.MedicationName)
                     .Where(m => m.MedicationName != null)
                     .Select(m => new SelectListItem
                     {
@@ -386,12 +389,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private void PopulateDropdownLists(NewPatientPrescriptionViewModel model)
         {
             model.PatientList = _context.Patients
+                .OrderBy(p => p.Surname)
                 .Select(p => new SelectListItem
                 {
                     Value = p.PatientID.ToString(),
                     Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
                 }).ToList();
+
             model.MedicationList = _context.DayHospitalMedication
+                .OrderBy(m => m.MedicationName)
                 .Where(m => m.MedicationName != null)
                 .Select(m => new SelectListItem
                 {
@@ -505,7 +511,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 // Pre-set the SurgeonID from the logged-in user
                 SurgeonID = surgeonID,
+
                 PatientList = _context.Patients
+                    .OrderBy(p => p.Surname)
                     .Select(p => new SelectListItem
                     {
                         Value = p.PatientID.ToString(),
@@ -520,19 +528,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Text = $"{s.User.Name} {s.User.Surname}",
                         Selected = true
                     }).ToList(),
+
                 AnaesthesiologistList = _context.Anaesthesiologists
+                    .OrderBy(a => a.User.Surname)
                     .Select(a => new SelectListItem
                     {
                         Value = a.AnaesthesiologistID.ToString(),
                         Text = $"{a.User.Name} {a.User.Surname}"
                     }).ToList(),
+
                 TheatreList = _context.Theatres
+                    .OrderBy(t => t.Name)
                     .Select(t => new SelectListItem
                     {
                         Value = t.TheatreID.ToString(),
                         Text = t.Name
                     }).ToList(),
+
                 TreatmentCodeList = _context.TreatmentCodes
+                    .OrderBy(tc => tc.ICD_10_Code)
                     .Select(tc => new SelectListItem
                     {
                         Value = tc.TreatmentCodeID.ToString(),
@@ -626,6 +640,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 loggedInUserEmail).SurgeonID;
 
             model.PatientList = _context.Patients
+                .OrderBy(p => p.Surname)
                 .Select(p => new SelectListItem
                 {
                     Value = p.PatientID.ToString(),
@@ -643,6 +658,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }).ToList();
 
             model.AnaesthesiologistList = _context.Anaesthesiologists
+                .OrderBy(a => a.User.Surname)
                 .Select(a => new SelectListItem
                 {
                     Value = a.AnaesthesiologistID.ToString(),
@@ -650,6 +666,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }).ToList();
 
             model.TheatreList = _context.Theatres
+                .OrderBy(t => t.Name)
                 .Select(t => new SelectListItem
                 {
                     Value = t.TheatreID.ToString(),
@@ -657,6 +674,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }).ToList();
 
             model.TreatmentCodeList = _context.TreatmentCodes
+                .OrderBy(tc => tc.ICD_10_Code)
                 .Select(tc => new SelectListItem
                 {
                     Value = tc.TreatmentCodeID.ToString(),
