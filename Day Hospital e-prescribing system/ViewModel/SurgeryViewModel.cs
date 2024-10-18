@@ -9,9 +9,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class SurgeryViewModel
     {
-        [Required]
-        [DataType(DataType.Date)]
-        [DisplayName("Surgery Date")]
+        [Required(ErrorMessage = "Please select a date.")]
         public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Please select a time slot.")]
