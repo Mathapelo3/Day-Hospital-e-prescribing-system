@@ -10,7 +10,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         
         public int QtyReceived { get;set;}
 
-        public int QtyUsed { get; set; }
+        
 
         public int QtyLeft { get;set;}
 
