@@ -10,7 +10,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public NewPatientPrescriptionViewModel()
         {
             PatientList = new List<SelectListItem>();
-            SurgeonList = new List<SelectListItem>();
             MedicationList = new List<SelectListItem>();
             SelectedMedications = new List<MedicationItem>();
             Date = DateTime.Today;
@@ -19,10 +18,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [Required(ErrorMessage = "Please select a patient")]
         [Display(Name = "Patient")]
         public int SelectedPatientId { get; set; }
-
-        [Required(ErrorMessage = "Please select a surgeon")]
-        [Display(Name = "Surgeon")]
-        public int SelectedSurgeonId { get; set; }
 
         [Required(ErrorMessage = "Please enter a date")]
         [DataType(DataType.Date)]
@@ -39,19 +34,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [Display(Name = "Available Patients")]
         public IEnumerable<SelectListItem> PatientList { get; set; }
 
-        [Display(Name = "Available Surgeons")]
-        public IEnumerable<SelectListItem> SurgeonList { get; set; }
-
         [Display(Name = "Available Medications")]
         public IEnumerable<SelectListItem> MedicationList { get; set; }
-
-        //[Display(Name = "Patient Name")]
-        //public string PatientName { get; set; }
-
-        //[Display(Name = "Surgeon Name")]
-        //public string SurgeonName { get; set; }
-
-        //public int SurgeonId { get; set; }
 
         public class MedicationItem
         {
