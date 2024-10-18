@@ -718,11 +718,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             viewModel.Vitals.Add(new Vitals
                             {
-                                Vital = reader.GetString(reader.GetOrdinal("Vital")),
-                                Min = reader.GetString(reader.GetOrdinal("Min")),
-                                Max = reader.GetString(reader.GetOrdinal("Max"))
+                                Vital = reader.IsDBNull(reader.GetOrdinal("Vital")) ? null : reader.GetString(reader.GetOrdinal("Vital")),
+                                Min = reader.IsDBNull(reader.GetOrdinal("Min")) ? null : reader.GetString(reader.GetOrdinal("Min")),
+                                Max = reader.IsDBNull(reader.GetOrdinal("Max")) ? null : reader.GetString(reader.GetOrdinal("Max")),
                             });
                         }
+                        viewModel.Vitals = viewModel.Vitals.OrderBy(v => v.Vital).ToList();
 
                         // Move to next result set (allergies)
                         reader.NextResult();
@@ -732,10 +733,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             viewModel.Allergies.Add(new Allergy
                             {
-                                Name = reader.GetString(reader.GetOrdinal("AllergyName")),
-                                Description = reader.GetString(reader.GetOrdinal("AllergyDescription"))
+                                Name = reader.IsDBNull(reader.GetOrdinal("AllergyName")) ? null : reader.GetString(reader.GetOrdinal("AllergyName")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("AllergyDescription")) ? null : reader.GetString(reader.GetOrdinal("AllergyDescription"))
                             });
                         }
+                        viewModel.Allergies = viewModel.Allergies.OrderBy(a => a.Name)
+                                       .ThenByDescending(a => a.Description)
+                                       .ToList();
 
                         // Move to next result set (conditions)
                         reader.NextResult();
@@ -749,6 +753,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 ICD_10_Code = reader.GetString(reader.GetOrdinal("ICD_10_Code"))
                             });
                         }
+                        viewModel.Conditions = viewModel.Conditions.OrderBy(c => c.Name).ToList();
                     }
                 }
             }
