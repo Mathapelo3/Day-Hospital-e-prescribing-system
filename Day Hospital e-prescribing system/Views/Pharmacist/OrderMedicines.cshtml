@@ -49,7 +49,7 @@
                             <div class="col-sm-3">
                                 <button class="form-control " style="background-color: #268aab; color:#ffffff">Filter</button>
                             </div>
-                        </div>  
+                        </div>
                     </div>
                 </div>
             </div>
@@ -62,19 +62,17 @@
             <br />
             <div class="card">
                 <div class="card-header">
-                    <div class="row" style="justify-content:space-between" >
+                    <div class="row" style="justify-content:space-between">
                         <a style="background-color:#268aab; color:#ffffff" class="btn btn-info" asp-action="AddMedicine" asp-controller="Pharmacist">
                             Add Medicine
                         </a>
-                       
+
                     </div>
                 </div>
                 <div class="card-body">
-                    @if (Model != null && Model.Any())
-                    {
+                    
                         <div class="table-responsive">
                             <form asp-action="OrderMedicines" method="post">
-                                <!-- Wrap in a form -->
                                 <table id="patientsTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
@@ -83,23 +81,21 @@
                                             <th>Available Qty</th>
                                             <th>Re-Order Level</th>
                                             <th>Order Qty</th>
-                                            <th>Active Ingredients</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var item in Model)
+                                        @for (int index = 0; index < Model.Count(); index++)
                                         {
+                                            var item = Model.ElementAt(index); // Access item by index
                                             <tr>
                                                 <td>@item.MedicationName</td>
                                                 <td>@item.DosageForm</td>
-                                                <td class="@(item.QtyLeft < item.ReOrderLevel ? "red-bg" : "")">@item.QtyLeft</td>
+                                                <td class="@(item.IsBelowReorderLevel ? "red-bg" : "")">@item.QtyLeft</td>
                                                 <td>@item.ReOrderLevel</td>
                                                 <td>
-                                                    <input type="number" name="OrderQuantities" class="form-control" min="0" />
-                                                    <input type="hidden" name="StockIds" value="@item.StockID" />
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingredients</button>
+                                                    <!-- Hidden field for StockID -->
+                                                    <input type="hidden" name="medications[@index].StockID" value="@item.StockID" />
+                                                    <input type="number" class="form-control" name="medications[@index].Quantity" min="0" />
                                                 </td>
                                             </tr>
                                         }
@@ -109,6 +105,8 @@
                                     <button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">Order Medicine</button>
                                 </div>
                             </form>
+
+
                         </div>
                         <br />
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -116,26 +114,16 @@
                                 Back
                             </a>
                         </div>
-                    }
-                    else
-                    {
-                        <div>
-                            <h3 class="display-6 text-center text-bold" style="color:#268aab">No Hospital Medication found</h3>
-                            <br />
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                            <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
-                                Back
-                            </a>
-                        </div>
-                    }
+                    
+                        
+                    
                 </div>
 
             </div>
         </div>
-        
+
     </div>
-   
+
 </section>
 
 <style>
@@ -153,7 +141,7 @@
             var patientsData = [
                 { info: "2024-05-01 08:30", medication: "Anxiolytics", strength: "50mg", quantity: "100mg", status: "Ordered" },
                 {
-                     info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
+                    info: "2024-05-01 08:30", medication: "Analgesics", strength: "100mg", quantity: "200mg", status: "Dispensed"
                 },
                 // Add more patient data as needed
             ];

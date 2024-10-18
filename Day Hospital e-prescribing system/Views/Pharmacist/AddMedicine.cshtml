@@ -1,14 +1,12 @@
-﻿@{
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.AddMedicineViewModel
+
+@{
     ViewData["Title"] = "Index1";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
 
 <section class="content">
-
-  
-
-    <!-- Display patients -->
     <div class="row">
         <div class="col-md-12">
             <br />
@@ -20,89 +18,136 @@
                     <form asp-action="AddMedicine" method="post">
                         <div class="row">
                             <div class="col-md-3">
-                                <label for="inputState" class="form-label">Medicine type </label>
-                                <select id="medType" name="MedicationType" class="form-control" required>
-                                    <option value="">Select Type</option>
+                                <label asp-for="MedTypeId" class="form-label">Medicine Type</label>
+                                <select asp-for="MedTypeId" class="form-control" required>
+                                    <option value="">Select Medicine Type</option>
+                                    @if (ViewBag.MedicineType != null)
+                                    {
+                                        foreach (var type in ViewBag.MedicineType)
+                                        {
+                                            <option value="@type.MedTypeId">@type.DosageForm</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option disabled>No Medicine Types Available</option>
+                                    }
                                 </select>
                             </div>
 
-                        
                             <div class="col-md-3">
-                                <label class="form-label">Medicine Name</label>
-                                <input type="text" class="form-control" placeholder="Analgesics">
+                                <label asp-for="MedicationName" class="form-label">Medicine Name</label>
+                                <input asp-for="MedicationName" type="text" class="form-control" placeholder="Analgesics" required />
                             </div>
-                           
+
                             <div class="col-md-3">
-                                <label class="form-label">Schedule</label>
-                                <input type="date" class="form-control" placeholder="0">
-                                <br />
-                                <input type="date" class="form-control" placeholder="0">
+                                <label asp-for="Schedule" class="form-label">Schedule</label>
+                                <select asp-for="Schedule" class="form-control" required>
+                                    <option value="">Select Schedule</option>
+                                    @if (ViewBag.Schedule != null)
+                                    {
+                                        foreach (var schedule in ViewBag.Schedule)
+                                        {
+                                            <option value="@schedule.ScheduleId">@schedule.schedule</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option disabled>No Schedules Available</option>
+                                    }
+                                </select>
                             </div>
+
                             <div class="col-md-3">
-                                <label class="form-label">Re-Order Level</label>
-                                <input type="text" class="form-control" placeholder="">
+                                <label asp-for="ReOrderLevel" class="form-label">Re-Order Level</label>
+                                <input asp-for="ReOrderLevel" type="number" class="form-control" required />
                             </div>
-                            <div class="col-md-5">
-                                <label class="form-label">Active Ingerdients</label>
-                                <select id="activeIngredients" class="form-control" required>
-                                    <option value="">Select an active ingredient</option>
+                        </div>
+                        <br />
+                        <br />
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Active Ingredients</label>
+                                <select id="ActiveIngredientsDropdown" class="form-control">
+                                    <option value="">-- Select Active Ingredient --</option>
+                                    @if (ViewBag.ActiveIngredients != null)
+                                    {
+                                        foreach (var ingredient in ViewBag.ActiveIngredients)
+                                        {
+                                            <option value="@ingredient.Active_IngredientID">@ingredient.Description</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option disabled>No Active Ingredients Available</option>
+                                    }
                                 </select>
                                 <br />
                                 <label class="form-label">mg</label>
-                                <input type="text" class="form-control" placeholder="">
+                                <input id="mgInput" type="number" class="form-control" placeholder="Enter mg" />
+                                <input type="hidden" id="activeIngredientsList" name="ActiveIngredients" />
                             </div>
+
+                            <div class="col-md-3 align-content-center">
+                                <button type="button" class="btn btn-secondary" onclick="addIngredient()">Add Active Ingredient</button>
+                            </div>
+
                             <div class="col-md-5">
-                                <label class="form-label">Added ingredients</label>
-                                <textarea class="form-control" style="height: 100px" disabled></textarea>
+                                <label for="ingredientsTextarea">Added Active Ingredients (with mg)</label>
+                                <textarea id="ingredientsTextarea" name="ingredientsTextarea" class="form-control" rows="5" readonly></textarea>
                             </div>
-                            
-                            <br />
-                            
                         </div>
-                        <br />
+
                         <div class="d-grid gap-2 col-6 mx-auto">
-                            <button class="btn btn-info" type="button">Add Medicine</button>
-                            <button class="btn btn-danger" type="button">Cancel</button>
+                            <button class="btn btn-info" type="submit">Add Medicine</button>
+                            <button class="btn btn-danger" type="button" onclick="window.history.back()">Cancel</button>
                         </div>
                     </form>
+
+
 
                 </div>
             </div>
         </div>
     </div>
-
 </section>
+
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
-    $(document).ready(function () {
-        function loadSelectList(selector, url) {
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                success: function (data) {
-                    $(selector).empty();
-                    $.each(data, function (index, item) {
-                        $('<option>').val(item.Value).text(item.Text).appendTo(selector);
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error loading " + selector + ": ", xhr.responseText);
-                }
-            });
+    let activeIngredients = [];
+
+    function addIngredient() {
+        var ingredientDropdown = document.getElementById("ActiveIngredientsDropdown");
+        var selectedIngredient = ingredientDropdown.options[ingredientDropdown.selectedIndex];
+        var mg = document.getElementById("mgInput").value;
+
+        // Validate inputs
+        if (selectedIngredient.value === "" || mg === "") {
+            alert("Please select an active ingredient and enter the mg.");
+            return;
         }
 
-        loadSelectList('#medType', '@Url.Action("LoadMedicationType")');
-        loadSelectList('#activeIngredients', '@Url.Action("LoadActiveIngredients")');
+        // Append to the ingredients textarea
+        var ingredientsTextarea = document.getElementById("ingredientsTextarea");
+        ingredientsTextarea.value += selectedIngredient.text + " - " + mg + "mg\n";
 
-        $('#medType').change(function () {
-            var medTypeId = $(this).val();
-            if (medTypeId !== '') {
-                loadSelectList('#activeIngredients', '@Url.Action("LoadActiveIngredients")?medTypeId=' + medTypeId);
-            } else {
-                loadSelectList('#activeIngredients', '@Url.Action("LoadActiveIngredients")');
-            }
+        // Add to the active ingredients array
+        activeIngredients.push({
+            Active_IngredientID: selectedIngredient.value,
+            Strength: mg
         });
-    });
+
+        // Clear the input fields
+        ingredientDropdown.selectedIndex = 0;
+        document.getElementById("mgInput").value = "";
+    }
+
+    // Before form submission, populate the hidden field
+    document.querySelector('form').onsubmit = function () {
+        document.getElementById("activeIngredientsList").value = JSON.stringify(activeIngredients);
+    };
 </script>
+
 

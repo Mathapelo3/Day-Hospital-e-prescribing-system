@@ -39,7 +39,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<MedicationType> medicationType { get; set; }
         public DbSet<Rejected_Prescriptions> Rejected_Prescriptions { get; set; }
         public DbSet<DayHospitalMed_ActiveIngredients> dayHospitalMed_ActiveIngredients { get; set; }
-
+        public DbSet<Medication_Schedule> Medication_Schedule { get; set; }
+        public DbSet<OrderMedicine> OrderMedicines { get; set; }
 
         public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
@@ -139,6 +140,10 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany()
                 .HasForeignKey(p => p.MedicationID);
 
+            modelBuilder.Entity<OrderMedicine>()
+                .ToTable("OrderMedicine") // Specify the correct table name
+                .Property(o => o.StockID)
+                .HasColumnName("StockID");
 
             modelBuilder.Entity<PMedicationViewModel>().HasNoKey();
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();

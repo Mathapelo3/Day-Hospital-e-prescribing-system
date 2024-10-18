@@ -1,10 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Index1";
-    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
-}
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.OrderMedicineVM>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 @{
     ViewData["Title"] = "Index1";
@@ -14,8 +9,9 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<section>
 
+
+<section class="content">
 
     <div class="card">
         <div class="card-header">
@@ -24,123 +20,80 @@
                 *@
             </div>
             <br />
-            <h4 class=" display-6 text-center text-bold" style="color:#268aab">Medicine Orders</h4>
+            <h4 class=" display-6 text-center text-bold" style="color:#268aab">Add Stock</h4>
         </div>
     </div>
 
-    <div><br /></div>
+    <!-- Display patients -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach(var item in Model)
+            {
+                <div class="col-md-12">
 
-
-
-    <!--<div class="row">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <!-- Search bar -->
-    <!--<div class="input-group">
-            <input type="text" id="searchInput" class="form-control" placeholder="Patient...">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-    </div>-->
-            @* <div class="col-md-4">
-    <!-- Gender filter -->
-    <select class="form-control" id="genderFilter">
-    <option value="">All Genders</option>
-    <option value="Male">Male</option>
-    <option value="Female">Female</option>
-    </select>
-    </div>*@
-    <div class="col-md-12 justify-content-md-center">
-        
-
-        <div class="card">
-           
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <!-- Allergies -->
-                        <div class="card">
-                            
-                            <div class="card-body">
+                    <br />
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="color:#268aab">Medicine Name: @item.MedicationName </h3>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateMedicationQuantities" method="post">
                                 <div class="row">
-                                    <table class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col">Date</th>
-                                                <th scope="col">Medicine Name</th>
-                                                <th scope="col">Medicine Type</th>
-                                                <th scope="col">Qty Ordered</th>
-                                                <th scope="col">Order Status</th>
 
-                                                
 
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">1</th>
-                                                <th scope="row">05-05-2024</th>
-                                                <td>Napa Rapid 500mg </td>
-                                                <td>
-                                                   500
-                                                </td>
-                                                <td>Oral tablet</td>
-                                                <td class="bg-success">Recived</td>
 
-                                                
+                                    <div class="col-md-3">
+                                        <label for="inputState" class="form-label">Order Date </label>
+                                        <input type="text" class="form-control" placeholder="@item.Date.ToShortDateString()" disabled="disabled">
+                                        <input type="hidden" class="form-control" placeholder="@item.StockID" disabled="disabled">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Dosage Form</label>
+                                        <input type="text" class="form-control" placeholder="@item.DosageForm" disabled="disabled">
 
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">2</th>
-                                                <th scope="row">05-05-2024</th>
-                                                <td>Napa Rapid 500mg </td>
-                                                <td>
-                                                    500
-                                                </td>
-                                                <td>Oral tablet</td>
-                                                <td class="bg-warning">Ordered</td>
+                                    </div>
 
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ordered Qty</label>
+                                        <input type="text" class="form-control" placeholder="@item.Quantity" disabled="disabled">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="inputState" class="form-label">Current Qty </label>
+                                        <input type="text" class="form-control" placeholder="@item.QtyLeft" disabled="disabled">
+
+                                    </div>
+
+
+
+
                                 </div>
-                            </div>
+                                <br />
+                                <div class="d-grid gap-2 col-6 mx-auto">
+                                    <button class="btn btn-info" type="submit"> +Add Stock</button>
+
+                                </div>
+                                <br />
+                                <div class="col-md-3">
+                                    <label class="form-label">Updated Qty</label>
+                                    <input type="text" class="form-control " placeholder="@item.QtyReceived" disabled="disabled">
+
+                                </div>
+
+
+                            </form>
+
+
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+            <br />
+
+
         </div>
-    </div>
-    <div><br /></div>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-        <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
-    </div>
-
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item active" aria-current="page">
-                    <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-            </ul>
-        </nav>
-    </div>
-
-
-
-    <!-- Basic Pagination -->
-    <!-- End Basic Pagination -->
-    </div>
-
-
+    }
 
 </section>
 
