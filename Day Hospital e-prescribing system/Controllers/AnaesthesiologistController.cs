@@ -272,7 +272,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
-        public async Task<ActionResult> Prescriptions(int id)
+       
+        public async Task<ActionResult> Prescriptions(int id, DateTime? selectedDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             _logger.LogInformation("Prescriptions action called with id: {Id}", id);
@@ -285,6 +286,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@PatientID", id);
+
+                    // Add a parameter for the selected date if it's provided
+                    if (selectedDate.HasValue)
+                    {
+                        command.Parameters.AddWithValue("@SelectedDate", selectedDate.Value);
+                    }
 
                     await connection.OpenAsync();
 
@@ -309,12 +316,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     }
                 }
             }
+            // Pass a flag to the view if no prescriptions exist
+            ViewBag.IsPrescriptionEmpty = !model.Any();
 
+            // Pass the patient ID in ViewBag so it's available even if model is empty
+            ViewBag.PatientID = id;
             // Log the count of retrieved prescriptions
             _logger.LogInformation("Retrieved {Count} prescriptions for patient ID: {Id}", model.Count, id);
 
             return View(model);
         }
+       
         public IActionResult Orders(int id, DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
@@ -377,7 +389,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 _logger.LogError(ex, "An error occurred while retrieving orders for Patient ID: {PatientID}.", id);
                 return StatusCode(500, "Internal server error");
             }
-
+            // Pass the patient ID in ViewBag so it's available even if model is empty
+            ViewBag.PatientID = id;
             return View(orders);
         }
         
