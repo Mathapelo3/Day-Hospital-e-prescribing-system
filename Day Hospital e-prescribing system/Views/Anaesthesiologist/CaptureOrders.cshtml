@@ -98,6 +98,9 @@
                                             @Html.HiddenFor(m => m.SelectedMedications[i].MedicationName)
                                             @Html.HiddenFor(m => m.SelectedMedications[i].Quantity)
                                             @Model.SelectedMedications[i].MedicationName - @Model.SelectedMedications[i].Quantity
+                                           @*  <button type="button" class="removeMedication btn btn-link text-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>*@
                                         </li>
                                     }
                                 }
@@ -157,5 +160,15 @@
                 $('#medicationList').append(newItem);
             }
         });
+        //// Remove medication from the list
+        //$('#medicationList').on('click', '.removeMedication', function () {
+        //    $(this).closest('li').remove();
+
+        //    // Show "No medications selected yet" message if the list becomes empty
+        //    if ($('#medicationList li').length === 0) {
+        //        $('#noMedicationsMessage').show();
+        //    }
+        //});
+    
     });
 </script>

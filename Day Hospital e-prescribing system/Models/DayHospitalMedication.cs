@@ -20,7 +20,7 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public int Schedule {  get;set;}
 
-        public string DosageForm { get;set;}
+        
 
         public int MedTypeId { get; set; }
         [ForeignKey("MedTypeId")]
