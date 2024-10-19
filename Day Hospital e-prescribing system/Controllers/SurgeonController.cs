@@ -713,17 +713,18 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         // Move to next result set (vitals)
                         reader.NextResult();
                         // Read vitals
-                        viewModel.Vitals = new List<Vitals>();
+                        viewModel.Patient_Vitals = new List<Patient_Vitals>();
                         while (reader.Read())
                         {
-                            viewModel.Vitals.Add(new Vitals
+                            viewModel.Patient_Vitals.Add(new Patient_Vitals
                             {
-                                Vital = reader.IsDBNull(reader.GetOrdinal("Vital")) ? null : reader.GetString(reader.GetOrdinal("Vital")),
-                                Min = reader.IsDBNull(reader.GetOrdinal("Min")) ? null : reader.GetString(reader.GetOrdinal("Min")),
-                                Max = reader.IsDBNull(reader.GetOrdinal("Max")) ? null : reader.GetString(reader.GetOrdinal("Max")),
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Time = reader.GetTimeSpan(reader.GetOrdinal("Time")),
+                                Value =  reader.GetString(reader.GetOrdinal("Value"))
                             });
+
                         }
-                        viewModel.Vitals = viewModel.Vitals.OrderBy(v => v.Vital).ToList();
+                        viewModel.Patient_Vitals = viewModel.Patient_Vitals.OrderBy(v => v.Date).ToList();
 
                         // Move to next result set (allergies)
                         reader.NextResult();
