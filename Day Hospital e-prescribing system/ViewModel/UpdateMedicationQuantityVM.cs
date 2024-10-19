@@ -4,5 +4,7 @@
     {
         public int StockID { get; set; }
         public int Quantity { get; set; }
+
+        public bool IsStockUpdated { get; set; } = false;
     }
 }

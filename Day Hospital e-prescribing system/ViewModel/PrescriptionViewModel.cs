@@ -6,37 +6,27 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PrescriptionViewModel
     {
-        public PrescriptionViewModel()
-        {
-            PatientList = new List<SelectListItem>();
-            MedicationList = new List<SelectListItem>();
-        }
-
-        [Required]
+        [Key]
         public int PrescriptionID { get; set; }
-        public string Medication { get; set; }
-        public string Instruction { get; set; }
+        public string InstructionText { get; set; }  // This should match the column in the DB
         public DateTime Date { get; set; }
-        public string Quantity { get; set; }
+        public int Quantity { get; set; }
         public string Status { get; set; }
         public bool Urgency { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-
-        public string Surgeon { get; set; }
-        [Required]
+        public string MedicationName { get; set; }
+        public string SurgeonName { get; set; }
+        public string SurgeonSurname { get; set; }
+        public string PatientName { get; set; }
+        public string PatientSurname { get; set; }
+        public int SurgeonID { get; set; }
         public int PatientID { get; set; }
-        [Required]
-        public int SurgeryID { get; set; }
-        [Required]
-        public int MedicationID { get; set; }
+        public int StockID { get; set; }
+       
+    
 
-        public List<PrescriptionViewModel> Prescriptions { get; set; }
+      
 
-        public int SelectedPatientId { get; set; }
-        public IEnumerable<SelectListItem> PatientList { get; set; }
-        public IEnumerable<SelectListItem> MedicationList { get; set; }
-        public List<MedicationViewModel> SelectedMedications { get; set; } = new List<MedicationViewModel>();
     }
+
 }
 

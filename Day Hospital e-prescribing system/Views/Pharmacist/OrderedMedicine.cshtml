@@ -1,102 +1,98 @@
 ﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.OrderMedicineVM>
 
-
 @{
-    ViewData["Title"] = "Index1";
+    ViewData["Title"] = "Update Medication Quantities";
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
-
 <section class="content">
-
     <div class="card">
         <div class="card-header">
-            <div class="text-center ">
-                @*                <img src="~/Images/zoomedLogo (2).png" width="200" />
-                *@
-            </div>
-            <br />
-            <h4 class=" display-6 text-center text-bold" style="color:#268aab">Add Stock</h4>
+            <h4 class="display-6 text-center text-bold" style="color:#268aab">Update Medication Quantities</h4>
         </div>
     </div>
 
-    <!-- Display patients -->
     @if (Model != null && Model.Any())
     {
         <div class="row">
-            @foreach(var item in Model)
-            {
-                <div class="col-md-12">
-
-                    <br />
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 style="color:#268aab">Medicine Name: @item.MedicationName </h3>
-                        </div>
-                        <div class="card-body">
-                            <form asp-action="UpdateMedicationQuantities" method="post">
-                                <div class="row">
-
-
-
-                                    <div class="col-md-3">
-                                        <label for="inputState" class="form-label">Order Date </label>
-                                        <input type="text" class="form-control" placeholder="@item.Date.ToShortDateString()" disabled="disabled">
-                                        <input type="hidden" class="form-control" placeholder="@item.StockID" disabled="disabled">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Dosage Form</label>
-                                        <input type="text" class="form-control" placeholder="@item.DosageForm" disabled="disabled">
-
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label">Ordered Qty</label>
-                                        <input type="text" class="form-control" placeholder="@item.Quantity" disabled="disabled">
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label for="inputState" class="form-label">Current Qty </label>
-                                        <input type="text" class="form-control" placeholder="@item.QtyLeft" disabled="disabled">
-
-                                    </div>
-
-
-
-
-                                </div>
-                                <br />
-                                <div class="d-grid gap-2 col-6 mx-auto">
-                                    <button class="btn btn-info" type="submit"> +Add Stock</button>
-
-                                </div>
-                                <br />
-                                <div class="col-md-3">
-                                    <label class="form-label">Updated Qty</label>
-                                    <input type="text" class="form-control " placeholder="@item.QtyReceived" disabled="disabled">
-
-                                </div>
-
-
-                            </form>
-
+            <div class="col-md-12">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row" style="justify-content:space-between">
+                            <a style="background-color:#268aab; color:#ffffff" class="btn btn-info" asp-action="AddMedicine" asp-controller="Pharmacist">
+                                Add Medicine
+                            </a>
 
                         </div>
                     </div>
-                </div>
-            }
-            <br />
+                    <div class="card-body">
+                        @if (Model != null && Model.Any())
+                        {
+                            <div class="table-responsive">
+<!-- Wrap in a form -->
+                                    <table id="patientsTable" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Medicine Name</th>
+                                                <th>Dosage form </th>
+                                                
+                                                <th> Qty Ordered</th>
+                                                <th>Order Status</th>
+                                                <th>View Order</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>@item.Date.ToShortDateString()</td>
+                                                    <td>@item.MedicationName</td>
+                                                    <td> @item.DosageForm</td>
+                                                    <td>@item.Quantity</td>
+                                                    <td>@item.Status</td>
+                                                    <td>
+                                                    <form asp-action="GetOrderByStatus" method="post" style="display:inline;">
+                                                        <input type="hidden" name="name" value="@item.OrderId" />
+                                                            <button type="submit" class="btn" style="background-color:#268aab; color:#ffffff">View Order</button>
 
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    
+                                
+                            </div>
+                            <br />
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                                    Back
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                <h3 class="display-6 text-center text-bold" style="color:#268aab">No Hospital Medication found</h3>
+                                <br />
+                            </div>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                                    Back
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
 
         </div>
     }
-
 </section>
-
-
-
-
