@@ -19,11 +19,11 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string? SelectedMedication { get; set; }
 
         public IEnumerable<SelectListItem>? Condition { get; set; }
-        public IEnumerable<SelectListItem>? Allergy { get; set; }
+        public IEnumerable<SelectListItem>? Active_Ingredient{ get; set; }
         public IEnumerable<SelectListItem>? General_Medication { get; set; }
 
         public List<string>? Conditions { get; set; }
-        public List<string>? Allergies { get; set; }
+        public List<string>? Active_Ingredients { get; set; }
         public List<string>? General_Medications { get; set; }
     }
 }

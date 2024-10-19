@@ -105,7 +105,7 @@
             @TempData["SuccessMessage"]
         </div>
     }
-    <form asp-action="RetakeVitals2" method="post">
+    <form asp-action="SaveVitals" method="post">
         <input type="hidden" asp-for="PatientID" />
         <div class="card">
             <div class="body">
@@ -129,21 +129,34 @@
                                     <input type="time" asp-for="Time" class="form-control" />
                                     <span class="text-danger" asp-validation-for="Time"></span>
                                 </div>
+                              
                                 <div class="form-group col-md-12">
                                     @for (int i = 0; i < Model.Vitals.Count; i++)
                                     {
                                         <label>@Model.Vitals[i].Vital</label>
                                         <input type="hidden" asp-for="Vitals[i].VitalsID" />
-                                        <input type="text" asp-for="Vitals[i].Value" class="form-control" />
+                                        @if (Model.Vitals[i].Vital == "BMI")
+                                        {
+                                            <input type="text" asp-for="@Model.Vitals[i].Value" class="form-control" id="BMI" readonly />
+                                        }
+                                        else
+                                        {
+                                            <input type="text" asp-for="@Model.Vitals[i].Value" class="form-control" />
+                                        }
                                         <input type="hidden" asp-for="Vitals[i].Vital" />
-                                       @* <input type="hidden" asp-for="Vitals[i].Min" />
-                                        <input type="hidden" asp-for="Vitals[i].Max" />*@
                                         <span asp-validation-for="Vitals[i].Value" class="text-danger"></span>
                                         <small class="form-text text-muted">
-                                            Normal Range: @Model.Vitals[i].Min - @Model.Vitals[i].Max
+                                            Normal Range: @Model.Vitals[i].Min - @Model.Vitals[i].Max @Model.Vitals[i].Normal
                                         </small>
+                                        @*
+                                    @if (!string.IsNullOrEmpty(Model.Vitals[i].Alert))
+                                    {
+                                    <div class="alert @(Model.Vitals[i].Alert == "Normal" ? "alert-success" : "alert-danger")">
+                                    @Model.Vitals[i].Vital is @Model.Vitals[i].Alert
+                                    </div>
+                                    }*@
                                     }
-                                  
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="medicationList">Additional Notes:</label>
@@ -152,7 +165,7 @@
                                 </div>
                                 <div style="overflow:auto;">
                                     <div style="float:right;">
-                                            <input type="submit" value="Save" class="btn btn-primary" />
+                                        <input type="submit" value="Save" class="btn btn-primary" />
                                     </div>
                                 </div>
                             </div>
@@ -164,11 +177,46 @@
     </form>
 
     @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            $(document).ready(function () {
+                function calculateBMI() {
+                    var height = $('#Height').val();
+                    var weight = $('#Weight').val();
+                    if (height && weight) {
+                        var heightInMeters = height / 100;
+                        var bmi = (weight / (heightInMeters * heightInMeters)).toFixed(2);
+                        $('#BMI').val(bmi);
+                    } else {
+                        $('#BMI').val('');
+                    }
+                }
+
+                $('#Height, #Weight').on('input', calculateBMI);
+
+                var alerts = '@TempData["Alerts"]';
+                if (alerts) {
+                    Swal.fire({
+                        title: 'Vitals Alert',
+                        html: alerts.replace(/\n/g, '<br>'),
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        </script>
+    }
+
+
+
+
+
+  @*  @section Scripts {
         @{
             await Html.RenderPartialAsync("_ValidationScriptsPartial");
         }
     }
-
+*@
 
 
 

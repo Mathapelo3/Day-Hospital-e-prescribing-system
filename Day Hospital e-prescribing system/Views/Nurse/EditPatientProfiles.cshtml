@@ -1,6 +1,6 @@
 ﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientVM
 @{
-    ViewData["Title"] = "UpdatePatientProfile";
+    ViewData["Title"] = "EditPatientProfiles";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
 
@@ -27,7 +27,7 @@
                 <div class="form-group col-6">
                     <label class="control-label required">First Name:</label>
                     <input asp-for="@Model.Name" class="form-control" />
-                   @* <span asp-validation-for="Name" class="text-danger"></span>*@
+                    @* <span asp-validation-for="Name" class="text-danger"></span>*@
                 </div>
                 <div class="form-group col-6">
                     <label class="control-label required">Last Name:</label>
@@ -45,81 +45,83 @@
                     </select>
                     @* <span asp-validation-for="Gender" class="text-danger"></span>*@
                 </div>
-                <div class="form-group col-6">
-                    <label class="control-label required">Date Of Birth:</label>
-                    <input asp-for="DateOfBirth" class="form-control" id="idNumber" pattern="[0-9]*" placeholder="" type="date" />
-                    @*  <span asp-validation-for="DateOfBirth" class="text-danger"></span>*@
-                </div>
+               @* <div class="form-group col-6">
+                    <input asp-for="DateOfBirth" class="form-control" id="date" pattern="[0-9]*" type="date"
+                           value="@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("yyyy-MM-dd") : "")" />
+                </div>*@
             </div>
             <div class="row">
                 <div class="form-group col-6">
-                    <label class="control-label required">ID Number:</label>
+                    <label asp-for="IDNo" class="control-label required">ID Number:</label>
                     <input asp-for="IDNo" class="form-control" maxlength="13" placeholder="" />
                     @* <span asp-validation-for="IDNo" class="text-danger"></span>*@
                 </div>
                 <div class="form-group col-6">
-                    <label class="control-label required">Email:</label>
+                    <label asp-for="Email" class="control-label required">Email:</label>
                     <input asp-for="Email" class="form-control" placeholder="" />
                     @* <span asp-validation-for="Email" class="text-danger"></span>*@
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-6">
-                    <label class="control-label required">Province:</label>
+                    <label asp-for="Province" class="control-label required">Province:</label>
                     <select asp-for="ProvinceID" class="form-control" id="provinceId" asp-items="ViewBag.Provinces">
-                        <option value="">Select Province</option>
+                        <option value="0">Select Province</option>
                     </select>
                     <span asp-validation-for="ProvinceID" class="text-danger"></span>
+                </div> 
+                    <div class="form-group col-6">
+                        <label asp-for="CityName" class="control-label required">City:</label>
+                        <select asp-for="CityID" class="form-control" id="cityId" asp-items="ViewBag.Cities">
+                            <option value="0">Select City</option>
+                        </select>
+                        <span asp-validation-for="SuburbID" class="text-danger"></span>
+                    </div>
+                </div>
+               <div>
+                <div class="form-group col-6">
+                    <label asp-for="SuburbName" class="control-label required">Suburb:</label>
+                    <select asp-for="SuburbID" class="form-control" id="suburbId" asp-items="ViewBag.Suburbs">
+                        <option value="0">Select Suburb</option>
+                    </select>
+                    <span asp-validation-for="SuburbID" class="text-danger"></span>
                 </div>
                 <div class="row">
                     <div class="form-group col-6">
-                        <label class="control-label required">City:</label>
-                        <select asp-for="CityID" class="form-control" id="cityId" asp-items="ViewBag.Cities">
-                            <option value="">Select City</option>
-                        </select>
-                        <span asp-validation-for="SuburbID" class="text-danger"></span>
-                    </div>
+                        <label asp-for="AddressLine1" class="control-label required">Address Line 1:</label>
+                        <input asp-for="AddressLine1" class="form-control" placeholder="" />
+                        <span asp-validation-for="AddressLine1" class="text-danger"></span>
                     </div>
                     <div class="form-group col-6">
-                        <label class="control-label required">Suburb:</label>
-                        <select asp-for="SuburbID" class="form-control" id="suburbId" asp-items="ViewBag.Suburbs">
-                            <option value="">Select Suburb</option>
-                        </select>
-                        <span asp-validation-for="SuburbID" class="text-danger"></span>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-6">
-                            <label class="control-label required">Address Line 1:</label>
-                            <input asp-for="AddressLine1" class="form-control" placeholder="" />
-                            <span asp-validation-for="AddressLine1" class="text-danger"></span>
-                        </div>
-                        <div class="form-group col-6">
-                            <label class="control-label required">Address Line 2:</label>
-                            <input asp-for="AddressLine2" class="form-control" placeholder="" />
-                            <span asp-validation-for="AddressLine2" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-6">
-                            <label class="control-label required">Cell Number:</label>
-                            <input asp-for="ContactNo" class="form-control" placeholder="" />
-                            <span asp-validation-for="ContactNo" class="text-danger"></span>
-                        </div>
-                        <div class="form-group col-6">
-                            <label class="control-label required">Next of Kin Cell Number:</label>
-                            <input asp-for="NextOfKinNo" class="form-control" placeholder="" />
-                            <span asp-validation-for="NextOfKinNo" class="text-danger"></span>
-                        </div>
+                        <label asp-for="AddressLine2" class="control-label required">Address Line 2:</label>
+                        <input asp-for="AddressLine2" class="form-control" placeholder="" />
+                        <span asp-validation-for="AddressLine2" class="text-danger"></span>
                     </div>
                 </div>
-                 <div style="overflow:auto;">
-                                    <div style="float:right;">
-                                        <input type="submit" value="Save" class="btn btn-primary" />
-                                    </div>
-                                </div>
-        </form>
-    </div>
-</div>
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label asp-for="ContactNo" class="control-label required">Cell Number:</label>
+                        <input asp-for="ContactNo" class="form-control" placeholder="" />
+                        <span asp-validation-for="ContactNo" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="NextOfKinNo" class="control-label required">Next of Kin Cell Number:</label>
+                        <input asp-for="NextOfKinNo" class="form-control" placeholder="" />
+                        <span asp-validation-for="NextOfKinNo" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div style="overflow:auto;">
+                <div style="float:right;">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </div>
+            </form>
+            </div>
+            
+        
+    
+
 
 @section Scripts {
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/3.5.1/jquery.min.js"></script>
@@ -160,5 +162,6 @@
         });
     </script>
     }
+
 
 

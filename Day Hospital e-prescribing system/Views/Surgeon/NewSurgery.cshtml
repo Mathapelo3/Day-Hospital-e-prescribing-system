@@ -1,7 +1,6 @@
-﻿@using Day_Hospital_e_prescribing_system.ViewModel
-@model SurgeryViewModel
+﻿@model SurgeryViewModel
 @{
-    ViewData["Title"] = "New Surgery";
+    ViewData["Title"] = "NewSurgery";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
 }
 
@@ -23,12 +22,13 @@
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="form-group">
-                                <label asp-for="Date">Date:</label>
-                                <input asp-for="Date" class="form-control" type="date" />
+                                <label asp-for="Date" class="control-label"></label>
+                                <input type="date" class="form-control" asp-for="Date" />
                                 <span asp-validation-for="Date" class="text-danger"></span>
                             </div>
+
                             <div class="form-group">
-                                <label asp-for="Time">Time Slot:</label>
+                                <label asp-for="Time" class="control-label"></label>
                                 <select asp-for="Time" class="form-control">
                                     <option value="">---Select---</option>
                                     <option value="AM">AM</option>
@@ -36,59 +36,62 @@
                                 </select>
                                 <span asp-validation-for="Time" class="text-danger"></span>
                             </div>
+
                             <div class="form-group">
-                                <label asp-for="PatientID">Patient:</label>
+                                <label asp-for="PatientID" class="control-label"></label>
                                 <select asp-for="PatientID" asp-items="Model.PatientList" class="form-control">
-                                    <option value="">---Select---</option>
+                                    <option value="">-- Select Patient --</option>
                                 </select>
                                 <span asp-validation-for="PatientID" class="text-danger"></span>
                             </div>
+
+                            @* <div class="form-group">
+                                <label asp-for="SurgeonID" class="control-label"></label>
+                                <input type="text" class="form-control" value="@Model.SurgeonName" readonly />
+                                <input asp-for="SurgeonID" type="hidden" />
+                            </div> *@
+
                             <div class="form-group">
-                                <label asp-for="SurgeonID">Surgeon:</label>
-                                <select asp-for="SurgeonID" asp-items="Model.SurgeonList" class="form-control">
-                                    <option value="">---Select---</option>
-                                </select>
-                                <span asp-validation-for="SurgeonID" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="AnaesthesiologistID">Anaesthesiologist:</label>
+                                <label asp-for="AnaesthesiologistID" class="control-label"></label>
                                 <select asp-for="AnaesthesiologistID" asp-items="Model.AnaesthesiologistList" class="form-control">
-                                    <option value="">---Select---</option>
+                                    <option value="">-- Select Anaesthesiologist --</option>
                                 </select>
                                 <span asp-validation-for="AnaesthesiologistID" class="text-danger"></span>
                             </div>
+
                             <div class="form-group">
-                                <label asp-for="TheatreID">Theatre:</label>
+                                <label asp-for="TheatreID" class="control-label"></label>
                                 <select asp-for="TheatreID" asp-items="Model.TheatreList" class="form-control">
-                                    <option value="">---Select---</option>
+                                    <option value="">-- Select Theatre --</option>
                                 </select>
                                 <span asp-validation-for="TheatreID" class="text-danger"></span>
                             </div>
+
                             <div class="form-group">
-                                <label asp-for="SelectedTreatmentCodes">Treatment Codes:</label>
-                                <div class="input-group">
-                                    <select id="treatmentCodeSelect" class="form-control">
-                                        <option value="">---Select---</option>
-                                        @foreach (var item in Model.TreatmentCodeList)
-                                        {
-                                            <option value="@item.Value">@item.Text</option>
-                                        }
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-primary" id="addTreatmentCode">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
+                                <label asp-for="SelectedTreatmentCodes" class="control-label"></label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <select id="availableTreatmentCodes" class="form-control" size="10" multiple>
+                                            @foreach (var item in Model.TreatmentCodeList)
+                                            {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 d-flex flex-column justify-content-center">
+                                        <button type="button" id="addTreatmentCode" class="btn btn-primary mb-2">&gt;&gt;</button>
+                                        <button type="button" id="removeTreatmentCode" class="btn btn-danger">&lt;&lt;</button>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <select id="SelectedTreatmentCodes" class="form-control" size="10" multiple></select>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="SelectedTreatmentCodes">Treatment Codes:</label>
-                                <ul id="treatmentList" class="list-group">
-                                </ul>
+                                <div id="selectedCodesContainer"></div>
+                                <span asp-validation-for="SelectedTreatmentCodes" class="text-danger"></span>
                             </div>
                             <div class="text-center">
-                                <input type="submit" value="Add" class="btn text-bold btn-warning" />
-                                <a asp-action="Surgeries" asp-controller="Surgeon" class="btn btn-danger text-bold">Back</a>
+                                <input type="submit" value="Add" class="btn btn-warning text-bold" />
+                                <a asp-action="Dashboard" asp-controller="Surgeon" class="btn btn-danger text-bold">Back</a>
                             </div>
                         </form>
                     </div>
@@ -98,70 +101,39 @@
     </div>
 </section>
 
-@section Scripts {
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            var $select = $('#treatmentCodeSelect');
-            var $addButton = $('#addTreatmentCode');
-            var $selectedList = $('#treatmentList');
-            var $form = $('#newSurgeryForm');
-            var selectedCodes = [];
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-            $addButton.on('click', function () {
-                var selectedOption = $select.find('option:selected');
-                var codeId = selectedOption.val();
-                var codeText = selectedOption.text();
+<script>
+    $(document).ready(function () {
+        $('#addTreatmentCode').click(function () {
+            $('#availableTreatmentCodes option:selected').appendTo('#SelectedTreatmentCodes');
+            updateHiddenInputs();
+        });
 
-                if (codeId && !selectedCodes.includes(codeId)) {
-                    appendCodeToList(codeId, codeText);
-                    updateHiddenInput();
-                }
+        $('#removeTreatmentCode').click(function () {
+            $('#SelectedTreatmentCodes option:selected').appendTo('#availableTreatmentCodes');
+            updateHiddenInputs();
+        });
 
-                // Reset select to default option
-                $select.val('');
+        function updateHiddenInputs() {
+            $('#selectedCodesContainer').empty();
+            $('#SelectedTreatmentCodes option').each(function (index) {
+                var input = $('<input>')
+                    .attr('type', 'hidden')
+                    .attr('name', 'SelectedTreatmentCodes')
+                    .val($(this).val());
+                $('#selectedCodesContainer').append(input);
             });
+        }
 
-            function appendCodeToList(codeId, codeText) {
-                var li = $('<li>').addClass('list-group-item d-flex justify-content-between align-items-center')
-                    .html(codeText + '<button type="button" class="btn btn-danger btn-sm remove-code" data-id="' + codeId + '">Remove</button>');
-                $selectedList.append(li);
-
-                // Add code ID to selectedCodes array
-                selectedCodes.push(codeId);
-            }
-
-            $(document).on('click', '.remove-code', function () {
-                var codeId = $(this).data('id');
-                selectedCodes = selectedCodes.filter(id => id !== codeId);
-                $(this).parent().remove();
-                updateHiddenInput();
-            });
-
-            function updateHiddenInput() {
-                $form.find('input[name="SelectedTreatmentCodes"]').remove();
-                selectedCodes.forEach(function (codeId) {
-                    $('<input>').attr({
-                        type: 'hidden',
-                        name: 'SelectedTreatmentCodes',
-                        value: codeId
-                    }).appendTo($form);
-                });
-            }
-
-            $form.on('submit', function (e) {
-                if (!validateForm()) {
-                    e.preventDefault();
-                }
-            });
-
-            function validateForm() {
-                if (selectedCodes.length === 0) {
-                    alert("Please select at least one treatment code.");
-                    return false;
-                }
-                return true;
+        $('#newSurgeryForm').submit(function (e) {
+            if ($('#SelectedTreatmentCodes option').length === 0) {
+                e.preventDefault();
+                alert('Please select at least one treatment code.');
+            } else {
+                updateHiddenInputs();
             }
         });
-    </script>
-}
+
+    });
+</script>

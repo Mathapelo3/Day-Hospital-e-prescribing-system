@@ -40,7 +40,7 @@
                     <div class="card-header">
                         <form asp-action="AddVitals" method="post">
                             @Html.AntiForgeryToken()
-                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                           @* <div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
                             <div class="row">
                                 <div class="col-md-4 offset-md-1">
                             <div class="form-group">
@@ -49,18 +49,25 @@
                                 <span asp-validation-for="Vital" class="text-danger"></span>
                             </div>
                                 </div>
-                                    <div class="col-md-3 ">
+                                    <div class="col-md-2 ">
                             <div class="form-group">
                                 <label asp-for="Min" class="control-label">Min</label>
                                 <input asp-for="Min" class="form-control" />
-                                <span asp-validation-for="Min" class="text-danger"></span>
+      @*                          <span asp-validation-for="Min" class="text-danger"></span>*@
                             </div>
                                 </div>
-                                <div class="col-md-3 ">
+                                <div class="col-md-2 ">
                             <div class="form-group">
                                 <label asp-for="Max" class="control-label">Max</label>
                                 <input asp-for="Max" class="form-control" />
-                                <span asp-validation-for="Max" class="text-danger"></span>
+                               @* <span asp-validation-for="Max" class="text-danger"></span>*@
+                            </div>
+                                </div>
+                                 <div class="col-md-2 ">
+                            <div class="form-group">
+                                <label asp-for="Normal" class="control-label">Normal</label>
+                                <input asp-for="Normal" class="form-control" />
+                              @*  <span asp-validation-for="Max" class="text-danger"></span>*@
                             </div>
                                 </div>
                             </div>

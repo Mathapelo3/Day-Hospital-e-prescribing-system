@@ -8,11 +8,13 @@
         public string? Value { get; set; }
         public string? Min { get; set; }
         public string? Max { get; set; }
+        public string? Normal { get; set; }
         public DateTime Date { get; set; }
         public string? Height { get; set; }  
         public string? Weight { get; set; }
         public string? Time { get; set; }
         public string? Notes { get; set; }
+        public string? Alert { get; set; }
 
     }
 }

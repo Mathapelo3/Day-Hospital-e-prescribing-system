@@ -1,5 +1,5 @@
-﻿@using Day_Hospital_e_prescribing_system.ViewModel
-@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.SurgeryDetailsViewModel>
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.SurgeryDetailsViewModel>
+
 @{
     ViewData["Title"] = "Surgeries";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
@@ -19,6 +19,12 @@
         </div>
     </div>
     <br />
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
     <div class="row mb-3">
         <div class="col-md-8">
             <h5>Generate Report:</h5>
@@ -68,13 +74,14 @@
                     <th>Description</th>
                     <th>Theatre</th>
                     <th>Anesthesiologist</th>
+                    <th>Surgeon</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="6">No surgeries found for the selected date.</td>
+                        <td colspan="8">No surgeries found.</td>
                     </tr>
                 }
                 else
@@ -82,14 +89,14 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Date.Value.ToString("d") </td>
+                            <td>@item.Date?.ToString("d")</td>
                             <td>@(item.Time ?? " ")</td>
                             <td>@item.PatientName @item.PatientSurname</td>
                             <td>@item.ICD_10_Code</td>
                             <td>@item.Description</td>
                             <td>@item.TheatreName</td>
                             <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
-
+                            <td>@item.SurgeonName @item.SurgeonSurname</td>
                         </tr>
                     }
                 }

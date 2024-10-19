@@ -98,6 +98,12 @@
             <h3 class="display-6 text-primary text-center text-bold">VITALS</h3>
         </div>
     </div>
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
     <form asp-action="SaveVitals" method="post">
         <input type="hidden" asp-for="PatientID" />
         <div class="card">
@@ -122,31 +128,43 @@
                                     <input type="time" asp-for="Time" class="form-control" />
                                     <span class="text-danger" asp-validation-for="Time"></span>
                                 </div>
-                                <div class="row">
+                               @* <div class="row">
                                     <div class="form-group col-6">
-                                        <label for="startDate">Height:</label>
+                                        <label for="startDate">Height (cm):</label>
                                         <input type="number" asp-for="Height" class="form-control" />
                                         <span class="text-danger" asp-validation-for="Height"></span>
                                     </div>
                                     <div class="form-group col-6">
-                                        <label class="form-label">Weight:</label>
+                                        <label class="form-label">Weight (kg):</label>
                                         <input type="number" asp-for="Weight" class="form-control" />
                                         <span class="text-danger" asp-validation-for="Weight"></span>
-                                    </div>
+                                    </div>*@
                                 <div class="form-group col-md-12">
                                     @for (int i = 0; i < Model.Vitals.Count; i++)
                                     {
-                                        <label>@Model.Vitals[i].Vital</label>
-                                        <input type="hidden" asp-for="Vitals[i].VitalsID" />
-                                        <input type="text" asp-for="Vitals[i].Value" class="form-control" />
-                                        <input type="hidden" asp-for="Vitals[i].Vital" />
-                                        @* <input type="hidden" asp-for="Vitals[i].Min" />
-                                    <input type="hidden" asp-for="Vitals[i].Max" />*@
-                                        <span asp-validation-for="Vitals[i].Value" class="text-danger"></span>
-                                        <small class="form-text text-muted">
-                                            Normal Range: @Model.Vitals[i].Min - @Model.Vitals[i].Max
-                                        </small>
-                                    }
+                                            <label>@Model.Vitals[i].Vital</label>
+                                            <input type="hidden" asp-for="Vitals[i].VitalsID" />
+                                            @if (Model.Vitals[i].Vital == "BMI")
+                                            {
+                                                <input type="text" asp-for="Vitals[i].Value" class="form-control" id="BMI" readonly />
+                                            }
+                                            else
+                                            {
+                                                <input type="text" asp-for="Vitals[i].Value" class="form-control" />
+                                            }
+                                            <input type="hidden" asp-for="Vitals[i].Vital" />
+                                            <span asp-validation-for="Vitals[i].Value" class="text-danger"></span>
+                                            <small class="form-text text-muted">
+                                                Normal Range: @Model.Vitals[i].Min - @Model.Vitals[i].Max @Model.Vitals[i].Normal
+                                            </small>
+                                    @*
+                                        @if (!string.IsNullOrEmpty(Model.Vitals[i].Alert))
+                                        {
+                                            <div class="alert @(Model.Vitals[i].Alert == "Normal" ? "alert-success" : "alert-danger")">
+                                                @Model.Vitals[i].Vital is @Model.Vitals[i].Alert
+                                            </div>
+                                        }*@
+                                        }
 
                                 </div>
                                 <div class="form-group col-md-12">
@@ -167,9 +185,36 @@
         </div>
     </form>
 
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            $(document).ready(function () {
+                function calculateBMI() {
+                    var height = $('#Height').val();
+                    var weight = $('#Weight').val();
+                    if (height && weight) {
+                        var heightInMeters = height / 100;
+                        var bmi = (weight / (heightInMeters * heightInMeters)).toFixed(2);
+                        $('#BMI').val(bmi);
+                    } else {
+                        $('#BMI').val('');
+                    }
+                }
 
+                $('#Height, #Weight').on('input', calculateBMI);
 
-
+                var alerts = '@TempData["Alerts"]';
+                if (alerts) {
+                    Swal.fire({
+                        title: 'Vitals Alert',
+                        html: alerts.replace(/\n/g, '<br>'),
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        </script>
+    }
 
 
 

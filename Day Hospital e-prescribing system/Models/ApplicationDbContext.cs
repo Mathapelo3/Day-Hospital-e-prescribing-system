@@ -63,6 +63,8 @@ namespace Day_Hospital_e_prescribing_system.Models
 
         public DbSet<Province> Provinces { get; set; }
 
+        public DbSet<Administer_Medication> Administer_Medication { get; set; }
+
         public DbSet<PatientMHViewModel> PatientMHViewModel { get; set; }
         public DbSet<OrderViewModel> OrderViewModel { get; set; }
         public DbSet<SurgeryDetailsViewModel> SurgeryDetailsViewModel { get; set; }
@@ -74,6 +76,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<OrderReportDataViewModel> OrderReportDataViewModel { get; set; }
         public DbSet<SurgeryReportDataViewModel> SurgeryReportDataViewModel { get; set; }
         public DbSet<DispenseReportDataViewModel> PrescriptionReportDataViewModel { get; set; }
+
+        public DbSet <AdministerMedsReportVM> AdministerMedsReportVM { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -155,8 +159,10 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<APatientViewModel>().HasNoKey();
             modelBuilder.Entity<OrderReportDataViewModel>().HasNoKey();
             modelBuilder.Entity<SurgeryReportDataViewModel>().HasNoKey();
+            modelBuilder.Entity<AdministerMedsReportVM>().HasNoKey();
             modelBuilder.Entity<Patient>().ToTable("Patient");
             //base.OnModelCreating(modelBuilder);
+
 
         }
     }

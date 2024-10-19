@@ -12,13 +12,19 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string Vital { get; set; }
 
-        [Required]
+       
         [StringLength(50)]
-        public string Min { get; set; }
-        [Required]
+        public string? Min { get; set; }
+        
         [StringLength(50)]
-        public string Max { get; set; }
+        public string? Max { get; set; }
 
         
+        [StringLength(50)]
+        public string? Normal { get; set; }
+
+
+
+
     }
 }

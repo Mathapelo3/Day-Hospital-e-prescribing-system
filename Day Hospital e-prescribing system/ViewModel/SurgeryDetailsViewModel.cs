@@ -17,6 +17,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string? TheatreName { get; set; }
         public string? ICD_10_Code { get; set; }
         public string? Description { get; set; }
-
+        public int? SurgeonID { get; set; }
+        public string? SurgeonName { get; set; }
+        public string? SurgeonSurname { get; set; }
     }
 }

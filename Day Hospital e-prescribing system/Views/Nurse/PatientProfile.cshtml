@@ -1,0 +1,58 @@
+﻿@model PatientVM
+@{
+    ViewData["Title"] = "PatientProfile";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-4">Name</dt>
+            <dd class="col-sm-8">@Model.Name</dd>
+
+            <dt class="col-sm-4">Surname</dt>
+            <dd class="col-sm-8">@Model.Surname</dd>
+
+            <dt class="col-sm-4">Gender</dt>
+            <dd class="col-sm-8">@Model.Gender</dd>
+
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">@Model.Email</dd>
+
+            <dt class="col-sm-4">Contact No</dt>
+            <dd class="col-sm-8">@Model.ContactNo</dd>
+
+            <dt class="col-sm-4">ID Number</dt>
+            <dd class="col-sm-8">@Model.IDNo</dd>
+
+            <dt class="col-sm-4">Date of Birth</dt>
+            <dd class="col-sm-8">@Model.DateOfBirth</dd>
+
+            <dt class="col-sm-4">Next of Kin No</dt>
+            <dd class="col-sm-8">@Model.NextOfKinNo</dd>
+        </dl>
+    </div>
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-4">Address Line 1</dt>
+            <dd class="col-sm-8">@Model.AddressLine1</dd>
+
+            <dt class="col-sm-4">Address Line 2</dt>
+            <dd class="col-sm-8">@Model.AddressLine2</dd>
+
+            <dt class="col-sm-4">Suburb</dt>
+            <dd class="col-sm-8">@Model.SuburbName</dd>
+
+            <dt class="col-sm-4">City</dt>
+            <dd class="col-sm-8">@Model.CityName</dd>
+
+            <dt class="col-sm-4">Province</dt>
+            <dd class="col-sm-8">@Model.ProvinceName</dd>
+        </dl>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.PatientID" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+

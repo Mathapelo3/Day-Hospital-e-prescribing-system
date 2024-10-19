@@ -32,16 +32,25 @@
     <div><br></div>
 
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-4">
-                <!-- Calendar to select date -->
-                <div class="card">
-                    <div class="card-body">
-                        <input type="date" id="selectedDate" class="form-control">
+        <form method="get" action="@Url.Action("Prescriptions", "Anaesthesiologist")">
+            <input type="hidden" name="id" value="@ViewBag.PatientID" />
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Calendar to select date -->
+                    <div class="card">
+                        <div class="card-body">
+                            <input type="date" name="selectedDate" id="selectedDate" class="form-control" />
+                        </div>
                     </div>
                 </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-purple">Filter</button>
+                </div>
+                <div class="col-md-1 ml-auto">
+                    <a href="@Url.Action("Prescriptions", "Anaesthesiologist", new { id = ViewBag.PatientID })" class="btn btn-danger btn-block">Reset</a>
+                </div>
             </div>
-        </div>
+        </form>
 
         <!-- Display patients -->
         <div class="row">
@@ -55,19 +64,39 @@
                                     var patient = Model.First();
                                     <h3 class="card-title">@patient.PatientFullName</h3> <!-- Display patient name -->
                                 }
+                                
                             </div>
                             <div class="col-md-2 text-right">
-                                <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Medical History</a>
+                                <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-white"></a>
                             </div>
                             <div class="col-md-2 text-right">
-                            <a href="@Url.Action("Orders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Orders</a>
+                                @if (Model.Any())
+                                {
+                                    var patientID = Model.FirstOrDefault()?.PatientID;
+                                }
+                                else
+                                {
+                                    // Provide fallback if there are no prescriptions
+                                    var patientID = ViewBag.PatientID;
+                                }
+                                <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.Any() ? Model.FirstOrDefault()?.PatientID: ViewBag.PatientID })" class="btn btn-purple">Medical History</a>
                             </div>
                             <div class="col-md-2 text-right">
-                                <a href="@Url.Action("CaptureOrders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-purple">Order Form</a>
+                                <a href="@Url.Action("CaptureOrders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })"
+                                   class="btn btn-purple @(ViewBag.IsPrescriptionEmpty ? "disabled" : "")"
+                                   onclick="return showAlertIfEmpty(@ViewBag.IsPrescriptionEmpty)">Order Form</a>
+
+
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
+                        @if (!Model.Any())
+                        {
+                            <div class="alert alert-danger text-center">
+                                No prescriptions available. You cannot place an order.
+                            </div>
+                        }
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -110,3 +139,21 @@
         </div>
     </div>
 </section>
+<script>
+    $(document).ready(function () {
+        // Define the function to show alert
+        function showAlertIfEmpty(isEmpty) {
+            if (isEmpty) {
+                alert("Order cannot be placed because there are no prescriptions.");
+                return false; // Prevent button action if no prescriptions
+            }
+            return true; // Allow the action if prescriptions exist
+        }
+
+        // Attach the function to the button click event if necessary
+        $('.btn-purple').click(function () {
+            return showAlertIfEmpty(@ViewBag.IsPrescriptionEmpty);
+        });
+    });
+
+</script>
