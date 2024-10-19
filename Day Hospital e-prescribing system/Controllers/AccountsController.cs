@@ -234,6 +234,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 HttpContext.Session.SetString("Name", anaesthesiologistDetails.Name);
                 HttpContext.Session.SetString("Surname", anaesthesiologistDetails.Surname);
                 HttpContext.Session.SetString("Role", role);
+                HttpContext.Session.SetString("AnaesthesiologistID", anaesthesiologistDetails.AnaesthesiologistID.ToString());
             }
         }
 
