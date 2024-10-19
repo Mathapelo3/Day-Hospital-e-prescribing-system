@@ -13,7 +13,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string PatientName { get; set; }
         public string Surname { get; set; }
         public string Gender { get; set; }
+        public string PatientSurname { get; set; }
 
+        public int Qty { get; set; }
         public int StockID { get; set; }
         public string DayHospitalMedicationName { get; set; }
         public int MedicationID { get; set; }
@@ -37,6 +39,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public int HeartRate { get; set; }
         public string BloodPressure { get; set; }
         public int Oxygen { get; set; }
+        public bool IsSuccess { get; set; }
+
+
 
 
         //public DayHospitalMedicationVM DayHospitalMedication { get; set; }

@@ -16,6 +16,7 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using MailKit.Security;
+using System.Configuration;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -150,49 +151,21 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(model);
         }
 
-
-        //Prescriptions
-        public async Task<ActionResult> Prescriptions(DateTime? startDate, DateTime? endDate, string message)
+        //pRESCRIPRIONS
+        public async Task<ActionResult> Prescriptions(DateTime? startDate, string message)
         {
+            var sqlQuery = "EXEC GetPrescriptions @StartDate = {0}";
 
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-
-            ViewData["CurrentDate"] = startDate?.ToString("dd-MM-yyyy");
-
-
-            var prescriptionsQuery = from pr in _context.Prescriptions
-                                     join p in _context.Patients on pr.PatientID equals p.PatientID
-                                     join s in _context.Surgeons on pr.SurgeonID equals s.SurgeonID
-                                     join u in _context.Users on s.UserID equals u.UserID
-                                     join d in _context.DayHospitalMedication on pr.MedicationID equals d.StockID
-                                     where pr.Status != "Dispensed"
-                                     select new ViewModel.PrescriptionViewModel
-                                     {
-                                         PrescriptionID = pr.PrescriptionID,
-                                         Medication = d.MedicationName,
-                                         Instruction = pr.Instruction,
-                                         Date = pr.Date,
-                                         Quantity = pr.Quantity,
-                                         Status = pr.Status,
-                                         PatientID = pr.PatientID,
-                                         Name = $"{p.Name} {p.Surname}",
-                                         Surgeon = $"{u.Username} {u.Surname}",
-                                         Urgency = pr.Urgency
-
-                                     };
-
-            if (startDate.HasValue)
-            {
-                prescriptionsQuery = prescriptionsQuery.Where(pa => pa.Date.Date >= startDate.Value.Date);
-            }
-
-            var prescriptions = await prescriptionsQuery.ToListAsync();
+            var prescriptions = await _context.prescriptionViewModels
+                .FromSqlInterpolated($"EXEC GetPrescriptions @StartDate = {startDate ?? (object)DBNull.Value}")
+                .ToListAsync();
 
             ViewBag.SuccessMessage = message;
 
             return View(prescriptions);
-
         }
+
+
 
 
         [HttpGet]
@@ -208,6 +181,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             if (viewModel == null || !viewModel.Prescription.Any())
             {
                 return NotFound($"No prescription found with ID: {id}");
+            }
+
+            foreach (var prescription in viewModel.Prescription)
+            {
+                prescription.IsSuccess = prescription.Qty < prescription.QtyLeft; // Assuming these properties exist
             }
 
             _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
@@ -262,39 +240,32 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpPost]
-        public IActionResult DispensePrescription(int prescriptionId)
+        public async Task<ActionResult> DispensePrescription(int prescriptionId)
         {
-            try
+            // Define your connection string (assuming it's stored in a configuration)
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
             {
-                using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                // Open the connection
+                await connection.OpenAsync();
+
+                // Execute the stored procedure to dispense the prescription
+                var result = await connection.ExecuteAsync("EXECUTE DispensePrescription @PrescriptionID", new { PrescriptionID = prescriptionId });
+
+                // Optionally, check the result or handle any exceptions
+                if (result > 0) // Assuming a positive result indicates success
                 {
-                    connection.Open();
-
-                    var result = connection.Execute(@"EXECUTE DispensePrescription @PrescriptionID", new { PrescriptionID = prescriptionId });
-
-                    if (result > 0)
-                    {
-                        _logger.LogInformation($"Prescription {prescriptionId} dispatched successfully.");
-                        return RedirectToAction("Prescriptions,Pharmacist", new { id = prescriptionId });
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Failed to dispatch prescription.");
-                        return View("ViewPrescription", GetPatientPrescriptionWithRelatedData(prescriptionId));
-                    }
+                    // Redirect to the Prescriptions view after dispensing
+                    return RedirectToAction("Prescriptions", new { message = "Prescription dispensed successfully!" });
+                }
+                else
+                {
+                    // Handle the case where the dispensing was not successful
+                    ViewBag.Succsses = "Prescription dispensed successfully!n.";
+                    return RedirectToAction("Prescriptions", new { message = ViewBag.Succsses });
                 }
             }
-            catch (SqlException ex)
-            {
-                ModelState.AddModelError("", $"Database error occurred: {ex.Message}");
-                return View("ViewPrescription", GetPatientPrescriptionWithRelatedData(prescriptionId));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"An unexpected error occurred: {ex.Message}");
-                return View("ViewPrescription", GetPatientPrescriptionWithRelatedData(prescriptionId));
-            }
         }
+
 
 
         public async Task<ActionResult> AllPrescriptions(DateTime startDate, DateTime endDate)
@@ -440,35 +411,37 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult> OrderedMedicine()
+        public async Task<IActionResult> OrderedMedicine()
         {
-            var orderQuery = from om in _context.OrderMedicines
-                                  join dm in _context.DayHospitalMedication on om.StockID equals dm.StockID
-                                  join mt in _context.medicationType on dm.MedTypeId equals mt.MedTypeId
-                                  orderby om.Date ascending
-                                  select new ViewModel.OrderMedicineVM
-                                  {
-                                      OrderId = om.OrderId,
-                                      StockID = dm.StockID,
-                                      MedTypeId = dm.MedTypeId,
-                                      Date = om.Date,
-                                      MedicationName = dm.MedicationName,
-                                      DosageForm = mt.DosageForm,
-                                      Quantity = om.Quantity,
-                                      Status  = om.Status,
-                                      QtyReceived = dm.QtyReceived,
-                                      QtyLeft = dm.QtyLeft,
-                                      Urgency = om.Urgency
-                                      
-                                     
-                                  };
-
-            var orders = await orderQuery.ToListAsync();
+            var orders = await _context.orderMedicineVMs
+                .FromSqlRaw("EXEC GetOrderMedicines")
+                .ToListAsync();
 
             return View(orders);
-
-            
         }
+
+        public async Task<IActionResult> GetOrderByStatus(int orderId)
+        {
+            var orders = await _context.orderMedicineVMs
+                .FromSqlRaw("EXEC GetOrderByStatus @OrderId", new SqlParameter("@OrderId", orderId))
+                .ToListAsync();
+
+            var viewModel = orders.Select(o => new OrderMedicineViewModel
+            {
+                OrderId = o.OrderId,
+                Date = o.Date,
+                Quantity = o.Quantity,
+                Status = o.Status,
+                StockID = o.StockID,
+                MedicationName = o.MedicationName,
+                MedTypeId = o.MedTypeId,
+                DosageForm = o.DosageForm
+            }).ToList();
+
+            return View(viewModel);
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateMedicationQuantities(List<UpdateMedicationQuantityVM> medications)
@@ -480,23 +453,14 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             foreach (var medication in medications)
             {
-                // Find the corresponding medication in the database
-                var existingMedication = await _context.DayHospitalMedication.FindAsync(medication.StockID);
-
-                if (existingMedication != null)
-                {
-                    // Update QtyReceived and QtyLeft
-                    existingMedication.QtyReceived += medication.Quantity; // Increment QtyReceived by the ordered quantity
-                    existingMedication.QtyLeft += medication.Quantity;     // Increment QtyLeft by the ordered quantity
-                }
+                // Call your stored procedure to update quantities
+                var result = await _context.Database.ExecuteSqlRawAsync("EXEC UpdateMedicationQuantities @StockID, @Quantity", new { StockID = medication.StockID, Quantity = medication.Quantity });
             }
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
 
             // Redirect or return a response as needed
             return RedirectToAction("OrderedMedicine"); // Change to your desired action
         }
+
 
 
         public IActionResult NewStock()

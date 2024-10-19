@@ -70,9 +70,10 @@
                             <tbody>
                                 <tr class="@(item.Urgency ? "solved" : "")">
                                     <td>@item.Date.ToShortDateString()</td>
-                                    <td>@item.Medication</td>
-                                    <td>@item.Name</td>
-                                    <td>@item.Surgeon</td>
+                                    <td>@item.MedicationName</td>
+                                    <td>@item.PatientName @item.PatientSurname</td>
+
+                                    <td>DR @item.SurgeonSurname</td>
                                     <td>
                                         <a asp-controller="Pharmacist"
                                            asp-route-id="@item.PrescriptionID"
