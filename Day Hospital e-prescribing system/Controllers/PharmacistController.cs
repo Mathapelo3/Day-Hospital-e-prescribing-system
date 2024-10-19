@@ -436,10 +436,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 MedicationName = o.MedicationName,
                 MedTypeId = o.MedTypeId,
                 DosageForm = o.DosageForm
+              
+                
             }).ToList();
 
             return View(viewModel);
         }
+
 
 
 

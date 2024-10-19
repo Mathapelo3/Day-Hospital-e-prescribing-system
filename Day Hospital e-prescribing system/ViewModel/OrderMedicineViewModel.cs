@@ -10,8 +10,9 @@
         public string MedicationName { get; set; }
         public int MedTypeId { get; set; }
         public string DosageForm { get; set; }
-        public int QtyLeft { get; set; }
-        public int QtyReceived { get; set; }
-        public bool Urgency { get; set; }
+        public int QtyLeft { get; set; } // Ensure this property is present
+        public int QtyReceived { get; set; } // Include this if you want to access it
+        public string Urgency { get; set; } // Include this if you want to access it
     }
+
 }
