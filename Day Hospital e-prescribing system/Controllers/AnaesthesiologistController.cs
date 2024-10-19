@@ -94,6 +94,16 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewData["StartDate"] = startDate?.ToString("dd-MM-yyyy");
             ViewData["EndDate"] = endDate?.ToString("dd-MM-yyyy");
 
+            var anaesthesiologistIDString = HttpContext.Session.GetString("AnaesthesiologistID");
+            if (anaesthesiologistIDString == null)
+            {
+                _logger.LogError("AnaesthesiologistID is null in session.");
+                // Handle the null case, e.g., redirect to an error page or set a default value
+                return RedirectToAction("Login", "Accounts"); // Example redirect
+            }
+
+            int loggedInAnaesthesiologistID = int.Parse(anaesthesiologistIDString);
+
             var bookedPatients = from s in _context.Surgeries
                                  .Include(s => s.Surgery_TreatmentCodes)
                                  join p in _context.Patients on s.PatientID equals p.PatientID into patientGroup
@@ -114,6 +124,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                  from u in nurseUserGroup.DefaultIfEmpty()
                                  join us in _context.Users on su.UserID equals us.UserID into surgeonUserGroup
                                  from us in surgeonUserGroup.DefaultIfEmpty()
+                                     // Filter by AnaesthesiologistID
+                                 where s.AnaesthesiologistID == loggedInAnaesthesiologistID
                                  select new BookedPatientsViewModel
                                  {
                                      SurgeryID = s.SurgeryID,
@@ -478,16 +490,26 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<ActionResult> ViewOrders(DateTime? startDate, DateTime? endDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+            // Retrieve the AnaesthesiologistID from the session
+            var anaesthesiologistIDString = HttpContext.Session.GetString("AnaesthesiologistID");
+            if (anaesthesiologistIDString == null)
+            {
+                _logger.LogError("AnaesthesiologistID is null in session.");
+                return RedirectToAction("Login", "Accounts");
+            }
+            int loggedInAnaesthesiologistID = int.Parse(anaesthesiologistIDString);
 
             var parameters = new[] {
         new SqlParameter("@StartDate", startDate.HasValue ? startDate.Value : DBNull.Value),
-        new SqlParameter("@EndDate", endDate.HasValue ? endDate.Value : DBNull.Value)
+        new SqlParameter("@EndDate", endDate.HasValue ? endDate.Value : DBNull.Value),
+         new SqlParameter("@AnaesthesiologistID", loggedInAnaesthesiologistID)
     };
 
+            // Fetch orders linked to the logged-in anaesthesiologist
             var orders = await _context.OrderViewModel.FromSqlRaw(
-         "EXEC sp_GetOrdersWithoutAnaesthesiologistID @StartDate, @EndDate",
-         parameters
-     ).ToListAsync();
+                "EXEC sp_GetOrdersForAnaesthesiologist @StartDate, @EndDate, @AnaesthesiologistID",
+                parameters
+            ).ToListAsync();
 
             return View(orders);
         }
@@ -641,12 +663,27 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<ActionResult> MedicationRecords()
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var patients = await _context.Patients
+
+            // Retrieve the AnaesthesiologistID from the session
+            var anaesthesiologistIDString = HttpContext.Session.GetString("AnaesthesiologistID");
+            if (anaesthesiologistIDString == null)
+            {
+                _logger.LogError("AnaesthesiologistID is null in session.");
+                return RedirectToAction("Login", "Accounts");
+            }
+            int loggedInAnaesthesiologistID = int.Parse(anaesthesiologistIDString);
+
+            // Fetch patients who have orders linked to the logged-in anaesthesiologist and sort alphabetically
+    var patients = await _context.Orders
+        .Where(o => o.AnaesthesiologistID == loggedInAnaesthesiologistID) // Filter by AnaesthesiologistID
+        .Select(o => o.Patient) // Select the patient linked to the order
+        .Distinct() // Ensure unique patients
         .Select(p => new PatientDropDownViewModel
         {
             PatientID = p.PatientID,
             FullName = p.Name + " " + p.Surname
         })
+        .OrderBy(p => p.FullName) // Sort alphabetically
         .ToListAsync();
 
             var model = new PSPatientOrderViewModel
@@ -662,12 +699,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<IActionResult> MedicationRecords(PSPatientOrderViewModel model)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            var patients = await _context.Patients
+
+
+            // Retrieve the AnaesthesiologistID from the session
+    var anaesthesiologistIDString = HttpContext.Session.GetString("AnaesthesiologistID");
+            if (anaesthesiologistIDString == null)
+            {
+                _logger.LogError("AnaesthesiologistID is null in session.");
+                return RedirectToAction("Login", "Accounts");
+            }
+            int loggedInAnaesthesiologistID = int.Parse(anaesthesiologistIDString);
+
+            // Fetch patients who have orders linked to the logged-in anaesthesiologist and sort alphabetically
+            var patients = await _context.Orders
+                .Where(o => o.AnaesthesiologistID == loggedInAnaesthesiologistID) // Filter by AnaesthesiologistID
+                .Select(o => o.Patient) // Select the patient linked to the order
+                .Distinct() // Ensure unique patients
                 .Select(p => new PatientDropDownViewModel
                 {
                     PatientID = p.PatientID,
                     FullName = p.Name + " " + p.Surname
                 })
+                .OrderBy(p => p.FullName) // Sort alphabetically
                 .ToListAsync();
 
             model.Patients = patients;
