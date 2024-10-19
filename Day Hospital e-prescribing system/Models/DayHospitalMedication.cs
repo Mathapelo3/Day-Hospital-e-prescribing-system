@@ -10,11 +10,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         
         public int QtyReceived { get;set;}
 
-<<<<<<< HEAD
+
         //public int QtyUsed { get; set; }
-=======
+
         
->>>>>>> 00d482360770eca0b7920ad78edc9ea630c1e452
+
 
         public int QtyLeft { get;set;}
 
@@ -23,12 +23,6 @@ namespace Day_Hospital_e_prescribing_system.Models
         public string MedicationName { get;set;}
 
         public int Schedule {  get;set;}
-
-<<<<<<< HEAD
-        //public string DosageForm { get;set;}
-=======
-        
->>>>>>> 00d482360770eca0b7920ad78edc9ea630c1e452
 
         public int MedTypeId { get; set; }
         [ForeignKey("MedTypeId")]
