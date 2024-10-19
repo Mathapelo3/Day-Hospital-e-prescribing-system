@@ -59,8 +59,8 @@
                                                     foreach (var allergy in Model.Allergies)
                                                     {
                                                         <tr>
-                                                            <td>@allergy.Name</td>
-                                                            <td>@allergy.Description</td>
+                                                            <td>@(allergy?.Name ?? "N/A")</td>
+                                                            <td>@(allergy?.Description ?? "N/A")</td>
                                                         </tr>
                                                     }
                                                 }
