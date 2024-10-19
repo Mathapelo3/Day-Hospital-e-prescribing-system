@@ -1,53 +1,84 @@
-﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
+﻿@model IEnumerable<SurgeonPatientsViewModel>
 @{
-    ViewData["Title"] = "AdmittedPatients";
+    ViewData["Title"] = "Admitted Patients";
     Layout = "~/Views/Shared/SurgeonLayout.cshtml";
-    var items = ViewBag.Patient as IEnumerable<Patient>;
 }
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<style>
+    .spaced {
+        margin-left: 10px;
+    }
+</style>
+
 <section class="content">
     <div class="card">
         <div class="card-header">
-            <br />
             <h4 class="display-6 text-warning text-center text-bold">ADMITTED PATIENTS</h4>
         </div>
     </div>
-    <div class="container p-3 text-md-center">
-        <div class="col-md-4">
-            <!-- Search bar -->
-            <form asp-action="AdmittedPatients" method="get">
+    <br />
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <h5>Filter Table:</h5>
+            <form asp-action="AdmittedPatients" method="get" class="mb-3">
                 <div class="input-group">
-                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by ID Number">
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                           class="form-control" placeholder="Search by Name or ID Number">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
+                        <div>
+                            <a href="@Url.Action("AdmittedPatients", "Surgeon")" class="btn spaced btn-danger btn-block text-bold">Reset</a>
+                        </div>
                     </div>
                 </div>
             </form>
         </div>
-        <br />
-        @if (Model.Any())
+        <div class="col-md-5">
+            <br />
+            <h5> </h5>
+            <form asp-action="AdmittedPatients" method="get">
+                <div class="input-group">
+                    <input type="date" name="date" value="@ViewData["CurrentDate"]"
+                           class="form-control">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-warning text-bold">Filter</button>
+                        <div>
+                            <a href="@Url.Action("AdmittedPatients", "Surgeon")" class="btn spaced btn-danger btn-block text-bold">Reset</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="container p-3 text-md-center">
+        @if (Model != null && Model.Any())
         {
             <table id="patientsTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Patient Name</th>
-                        <th>Email Address</th>
-                        <th>Gender</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Patient</th>
                         <th>ID Number</th>
-                        <th>Status</th>
+                        <th>Ward</th>
+                        <th>Bed</th>
+                        <th>Assigned Nurse</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Name @item.Surname</td>
-                            <td>@item.Email</td>
-                            <td>@item.Gender</td>
+                            <td>@item.Date.ToShortDateString()</td>
+                            <td>@item.Time.ToString()</td>
+                            <td>@item.Patient</td>
                             <td>@item.IDNo</td>
-                            <td>@item.Status</td>
+                            <td>@item.WardName</td>
+                            <td>@item.BedName</td>
+                            <td>@item.Nurse</td>
                         </tr>
                     }
                 </tbody>
@@ -55,8 +86,30 @@
         }
         else
         {
-            <p>No patients to discharge.</p>
+            <div class="alert text-center" role="alert">
+                No admitted patients found.
+            </div>
         }
-        <button type="button" class="btn btn-danger text-bold" onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">Back</button>
+
+        <div class="mt-3">
+            <button type="button" class="btn btn-danger"
+                    onclick="location.href='@Url.Action("Dashboard", "Surgeon")'">
+                Back
+            </button>
+        </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#patientsTable').DataTable({
+                "responsive": true,
+                "lengthChange": true,
+                "autoWidth": false,
+                "pageLength": 10,
+                "order": [[0, "desc"], [1, "desc"]]
+            });
+        });
+    </script>
+}

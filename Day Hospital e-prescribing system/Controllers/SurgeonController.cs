@@ -21,6 +21,7 @@ using iText.Kernel.Pdf;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Dapper;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -787,30 +788,57 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
             return View(await patient.ToListAsync());
         }
-        public async Task<ActionResult> AdmittedPatients(string searchString)
+
+        [HttpGet]
+        public async Task<IActionResult> AdmittedPatients(string searchString = null, DateTime? date = null)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            ViewData["CurrentFilter"] = searchString;
-            var patient = from p in _context.Patients
-                          select new Patient
-                          {
-                              PatientID = p.PatientID,
-                              Name = p.Name ?? string.Empty,
-                              Surname = p.Surname ?? string.Empty,
-                              Email = p.Email ?? string.Empty,
-                              IDNo = p.IDNo ?? string.Empty,
-                              Gender = p.Gender ?? string.Empty,
-                              Status = p.Status ?? string.Empty
-                          };
-            if (!String.IsNullOrEmpty(searchString))
+
+            // Get the logged-in user's ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
             {
-                patient = patient.Where(p => p.IDNo.Contains(searchString) && p.Status == "Admitted");
+                return Unauthorized("User not authenticated");
             }
-            else
+
+            // Convert userId to int if necessary
+            int surgeonId;
+            if (!int.TryParse(userId, out surgeonId))
             {
-                patient = patient.Where(p => p.Status == "Admitted");
+                return BadRequest("Invalid user ID");
             }
-            return View(await patient.ToListAsync());
+
+            // Get the surgeon's ID based on the user ID
+            var surgeon = await _context.Surgeons
+                .FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
+
+            if (surgeon == null)
+            {
+                return NotFound("Surgeon not found");
+            }
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@SearchString", searchString);
+                parameters.Add("@Date", date);
+                parameters.Add("@SurgeonID", surgeonId);
+
+                var patients = await connection.QueryAsync<SurgeonPatientsViewModel>(
+                    "sp_SurgeonAdmittedPatients",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                // Store the current filter in ViewData for the view
+                ViewData["CurrentFilter"] = searchString;
+                ViewData["CurrentDate"] = date?.ToString("yyyy-MM-dd");
+
+                return View(patients);
+            }
         }
 
         //public IActionResult ConfirmTreatmentCodes()
