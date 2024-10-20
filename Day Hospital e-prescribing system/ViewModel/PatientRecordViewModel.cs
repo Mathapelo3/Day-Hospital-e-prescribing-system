@@ -7,13 +7,13 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string IDNo { get; set; }
         public Patient? Patient { get; set; }
         public List<Allergy> Allergies { get; set; } = new List<Allergy>();
-        public List<Vitals> Vitals { get; set; } = new List<Vitals>();
+        public List<Patient_Vitals> Patient_Vitals { get; set; } = new List<Patient_Vitals>();
         public List<Condition> Conditions { get; set; } = new List<Condition>();
 
         public PatientRecordViewModel()
         {
             Allergies = new List<Allergy>();
-            Vitals = new List<Vitals>();
+            Patient_Vitals = new List<Patient_Vitals>();
             Conditions = new List<Condition>();
         }
     }

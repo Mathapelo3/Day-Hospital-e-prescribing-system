@@ -39,7 +39,8 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<MedicationType> medicationType { get; set; }
         public DbSet<Rejected_Prescriptions> Rejected_Prescriptions { get; set; }
         public DbSet<DayHospitalMed_ActiveIngredients> dayHospitalMed_ActiveIngredients { get; set; }
-
+        public DbSet<Medication_Schedule> Medication_Schedule { get; set; }
+        public DbSet<OrderMedicine> OrderMedicines { get; set; }
 
         public DbSet<General_Medication> General_Medication { get; set; }
         public DbSet<Surgery_TreatmentCode> Surgery_TreatmentCodes { get; set; }
@@ -75,6 +76,9 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<OrderReportDataViewModel> OrderReportDataViewModel { get; set; }
         public DbSet<SurgeryReportDataViewModel> SurgeryReportDataViewModel { get; set; }
         public DbSet<DispenseReportDataViewModel> PrescriptionReportDataViewModel { get; set; }
+        public DbSet<PrescriptionVM> prescriptionVMs { get; set; }
+        public DbSet<PrescriptionViewModel> prescriptionViewModels { get; set; }
+        public DbSet<OrderMedicineVM> orderMedicineVMs { get; set; }    
 
         public DbSet<AdministeredMedDetails> AdministeredMedDetails { get; set; }
         public DbSet <AdministerMedsReportVM> AdministerMedsReportVM { get; set; }
@@ -144,10 +148,15 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany()
                 .HasForeignKey(p => p.MedicationID);
 
+            modelBuilder.Entity<OrderMedicine>()
+                .ToTable("OrderMedicine") // Specify the correct table name
+                .Property(o => o.StockID)
+                .HasColumnName("StockID");
 
             modelBuilder.Entity<PMedicationViewModel>().HasNoKey();
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();
             modelBuilder.Entity<PAllergyViewModel>().HasNoKey();
+            modelBuilder.Entity<OrderMedicineViewModel>().HasNoKey();
             //base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<PatientMHViewModel>().HasNoKey();
             modelBuilder.Entity<OrderViewModel>().HasNoKey();

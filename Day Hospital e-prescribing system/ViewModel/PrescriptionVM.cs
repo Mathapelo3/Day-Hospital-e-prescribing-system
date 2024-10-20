@@ -1,7 +1,10 @@
-﻿namespace Day_Hospital_e_prescribing_system.ViewModel
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PrescriptionVM
     {
+        [Key]
         public int PrescriptionID { get; set; }
         public string Instruction { get; set; }
         public DateTime Date { get; set; }
@@ -17,5 +20,6 @@
         public int PatientID { get; set; }
         public int MedicationID { get; set; }
         public string Medication { get; set; }
+        
     }
 }

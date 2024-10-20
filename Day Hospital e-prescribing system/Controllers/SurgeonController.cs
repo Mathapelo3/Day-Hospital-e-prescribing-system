@@ -21,6 +21,7 @@ using iText.Kernel.Pdf;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Dapper;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -248,46 +249,65 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
-        public IActionResult AllPrescriptions(DateTime? filterDate)
+        public async Task<IActionResult> AllPrescriptions(DateTime? filterDate)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            // Get the logged-in user's ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User not authenticated");
+            }
+
+            // Convert userId to int
+            if (!int.TryParse(userId, out int surgeonId))
+            {
+                return BadRequest("Invalid user ID");
+            }
+
+            // Get the surgeon's ID based on the user ID
+            var surgeon = await _context.Surgeons
+                .FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
+            if (surgeon == null)
+            {
+                return NotFound("Surgeon not found");
+            }
+
+            // Execute the stored procedure and manually map the results
             var prescriptions = new List<AllPrescriptionsViewModel>();
 
-            using (var connection = _context.Database.GetDbConnection())
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
             {
-                connection.Open();
-                using (var command = connection.CreateCommand())
+                command.CommandText = "GetPrescriptionsForAllPatients";
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@FilterDate", SqlDbType.Date) { Value = (object)filterDate ?? DBNull.Value });
+                command.Parameters.Add(new SqlParameter("@SurgeonID", SqlDbType.Int) { Value = surgeon.SurgeonID });
+
+                await _context.Database.OpenConnectionAsync();
+
+                using (var result = await command.ExecuteReaderAsync())
                 {
-                    command.CommandText = "GetPrescriptionsForAllPatients";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@FilterDate";
-                    parameter.Value = filterDate.HasValue ? (object)filterDate.Value.Date : DBNull.Value;
-                    command.Parameters.Add(parameter);
-
-                    using (var reader = command.ExecuteReader())
+                    while (await result.ReadAsync())
                     {
-                        while (reader.Read())
+                        prescriptions.Add(new AllPrescriptionsViewModel
                         {
-                            prescriptions.Add(new AllPrescriptionsViewModel
-                            {
-                                PrescriptionID = reader.GetInt32(reader.GetOrdinal("PrescriptionID")),
-                                PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
-                                SurgeonID = reader.GetInt32(reader.GetOrdinal("SurgeonID")),
-                                StockID = reader.IsDBNull(reader.GetOrdinal("StockID")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("StockID")),
-                                PatientName = reader.GetString(reader.GetOrdinal("PatientName")),
-                                PatientSurname = reader.GetString(reader.GetOrdinal("PatientSurname")),
-                                SurgeonName = reader.IsDBNull(reader.GetOrdinal("SurgeonName")) ? null : reader.GetString(reader.GetOrdinal("SurgeonName")),
-                                SurgeonSurname = reader.IsDBNull(reader.GetOrdinal("SurgeonSurname")) ? null : reader.GetString(reader.GetOrdinal("SurgeonSurname")),
-                                MedicationName = reader.IsDBNull(reader.GetOrdinal("MedicationName")) ? null : reader.GetString(reader.GetOrdinal("MedicationName")),
-                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
-                                InstructionText = reader.IsDBNull(reader.GetOrdinal("InstructionText")) ? null : reader.GetString(reader.GetOrdinal("InstructionText")),
-                                Quantity = reader.IsDBNull(reader.GetOrdinal("Quantity")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("Quantity")),
-                                Status = reader.GetString(reader.GetOrdinal("Status")),
-                                Urgency = reader.GetBoolean(reader.GetOrdinal("Urgency"))
-                            });
-                        }
+                            PrescriptionID = result.GetInt32(result.GetOrdinal("PrescriptionID")),
+                            PatientID = result.GetInt32(result.GetOrdinal("PatientID")),
+                            SurgeonID = result.GetInt32(result.GetOrdinal("SurgeonID")),
+                            StockID = result.IsDBNull(result.GetOrdinal("StockID")) ? null : (int?)result.GetInt32(result.GetOrdinal("StockID")),
+                            PatientName = result.GetString(result.GetOrdinal("PatientName")),
+                            PatientSurname = result.GetString(result.GetOrdinal("PatientSurname")),
+                            SurgeonName = result.GetString(result.GetOrdinal("SurgeonName")),
+                            SurgeonSurname = result.GetString(result.GetOrdinal("SurgeonSurname")),
+                            MedicationName = result.IsDBNull(result.GetOrdinal("MedicationName")) ? null : result.GetString(result.GetOrdinal("MedicationName")),
+                            Date = result.GetDateTime(result.GetOrdinal("Date")),
+                            InstructionText = result.IsDBNull(result.GetOrdinal("InstructionText")) ? null : result.GetString(result.GetOrdinal("InstructionText")),
+                            Quantity = result.GetInt32(result.GetOrdinal("Quantity")),
+                            Status = result.GetString(result.GetOrdinal("Status")),
+                            Urgency = result.GetBoolean(result.GetOrdinal("Urgency"))
+                        });
                     }
                 }
             }
@@ -295,6 +315,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.FilterDate = filterDate;
             return View(prescriptions);
         }
+    
 
         [HttpGet]
         public IActionResult NewPrescription()
@@ -303,12 +324,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var viewModel = new NewPatientPrescriptionViewModel
             {
                 PatientList = _context.Patients
+                    .OrderBy(p => p.Surname)
                     .Select(p => new SelectListItem
                     {
                         Value = p.PatientID.ToString(),
                         Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
                     }).ToList(),
+
                 MedicationList = _context.DayHospitalMedication
+                    .OrderBy(m => m.MedicationName)
                     .Where(m => m.MedicationName != null)
                     .Select(m => new SelectListItem
                     {
@@ -366,12 +390,15 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private void PopulateDropdownLists(NewPatientPrescriptionViewModel model)
         {
             model.PatientList = _context.Patients
+                .OrderBy(p => p.Surname)
                 .Select(p => new SelectListItem
                 {
                     Value = p.PatientID.ToString(),
                     Text = $"{p.Name} {p.Surname} - ({p.IDNo})"
                 }).ToList();
+
             model.MedicationList = _context.DayHospitalMedication
+                .OrderBy(m => m.MedicationName)
                 .Where(m => m.MedicationName != null)
                 .Select(m => new SelectListItem
                 {
@@ -485,7 +512,9 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 // Pre-set the SurgeonID from the logged-in user
                 SurgeonID = surgeonID,
+
                 PatientList = _context.Patients
+                    .OrderBy(p => p.Surname)
                     .Select(p => new SelectListItem
                     {
                         Value = p.PatientID.ToString(),
@@ -500,19 +529,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         Text = $"{s.User.Name} {s.User.Surname}",
                         Selected = true
                     }).ToList(),
+
                 AnaesthesiologistList = _context.Anaesthesiologists
+                    .OrderBy(a => a.User.Surname)
                     .Select(a => new SelectListItem
                     {
                         Value = a.AnaesthesiologistID.ToString(),
                         Text = $"{a.User.Name} {a.User.Surname}"
                     }).ToList(),
+
                 TheatreList = _context.Theatres
+                    .OrderBy(t => t.Name)
                     .Select(t => new SelectListItem
                     {
                         Value = t.TheatreID.ToString(),
                         Text = t.Name
                     }).ToList(),
+
                 TreatmentCodeList = _context.TreatmentCodes
+                    .OrderBy(tc => tc.ICD_10_Code)
                     .Select(tc => new SelectListItem
                     {
                         Value = tc.TreatmentCodeID.ToString(),
@@ -606,6 +641,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 loggedInUserEmail).SurgeonID;
 
             model.PatientList = _context.Patients
+                .OrderBy(p => p.Surname)
                 .Select(p => new SelectListItem
                 {
                     Value = p.PatientID.ToString(),
@@ -623,6 +659,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }).ToList();
 
             model.AnaesthesiologistList = _context.Anaesthesiologists
+                .OrderBy(a => a.User.Surname)
                 .Select(a => new SelectListItem
                 {
                     Value = a.AnaesthesiologistID.ToString(),
@@ -630,6 +667,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }).ToList();
 
             model.TheatreList = _context.Theatres
+                .OrderBy(t => t.Name)
                 .Select(t => new SelectListItem
                 {
                     Value = t.TheatreID.ToString(),
@@ -637,6 +675,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 }).ToList();
 
             model.TreatmentCodeList = _context.TreatmentCodes
+                .OrderBy(tc => tc.ICD_10_Code)
                 .Select(tc => new SelectListItem
                 {
                     Value = tc.TreatmentCodeID.ToString(),
@@ -675,16 +714,18 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         // Move to next result set (vitals)
                         reader.NextResult();
                         // Read vitals
-                        viewModel.Vitals = new List<Vitals>();
+                        viewModel.Patient_Vitals = new List<Patient_Vitals>();
                         while (reader.Read())
                         {
-                            viewModel.Vitals.Add(new Vitals
+                            viewModel.Patient_Vitals.Add(new Patient_Vitals
                             {
-                                Vital = reader.GetString(reader.GetOrdinal("Vital")),
-                                Min = reader.GetString(reader.GetOrdinal("Min")),
-                                Max = reader.GetString(reader.GetOrdinal("Max"))
+                                Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                                Time = reader.GetTimeSpan(reader.GetOrdinal("Time")),
+                                Value =  reader.GetString(reader.GetOrdinal("Value"))
                             });
+
                         }
+                        viewModel.Patient_Vitals = viewModel.Patient_Vitals.OrderBy(v => v.Date).ToList();
 
                         // Move to next result set (allergies)
                         reader.NextResult();
@@ -694,10 +735,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                         {
                             viewModel.Allergies.Add(new Allergy
                             {
-                                Name = reader.GetString(reader.GetOrdinal("AllergyName")),
-                                Description = reader.GetString(reader.GetOrdinal("AllergyDescription"))
+                                Name = reader.IsDBNull(reader.GetOrdinal("AllergyName")) ? null : reader.GetString(reader.GetOrdinal("AllergyName")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("AllergyDescription")) ? null : reader.GetString(reader.GetOrdinal("AllergyDescription"))
                             });
                         }
+                        viewModel.Allergies = viewModel.Allergies.OrderBy(a => a.Name)
+                                       .ThenByDescending(a => a.Description)
+                                       .ToList();
 
                         // Move to next result set (conditions)
                         reader.NextResult();
@@ -711,6 +755,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                 ICD_10_Code = reader.GetString(reader.GetOrdinal("ICD_10_Code"))
                             });
                         }
+                        viewModel.Conditions = viewModel.Conditions.OrderBy(c => c.Name).ToList();
                     }
                 }
             }
@@ -743,30 +788,57 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
             return View(await patient.ToListAsync());
         }
-        public async Task<ActionResult> AdmittedPatients(string searchString)
+
+        [HttpGet]
+        public async Task<IActionResult> AdmittedPatients(string searchString = null, DateTime? date = null)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            ViewData["CurrentFilter"] = searchString;
-            var patient = from p in _context.Patients
-                          select new Patient
-                          {
-                              PatientID = p.PatientID,
-                              Name = p.Name ?? string.Empty,
-                              Surname = p.Surname ?? string.Empty,
-                              Email = p.Email ?? string.Empty,
-                              IDNo = p.IDNo ?? string.Empty,
-                              Gender = p.Gender ?? string.Empty,
-                              Status = p.Status ?? string.Empty
-                          };
-            if (!String.IsNullOrEmpty(searchString))
+
+            // Get the logged-in user's ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
             {
-                patient = patient.Where(p => p.IDNo.Contains(searchString) && p.Status == "Admitted");
+                return Unauthorized("User not authenticated");
             }
-            else
+
+            // Convert userId to int if necessary
+            int surgeonId;
+            if (!int.TryParse(userId, out surgeonId))
             {
-                patient = patient.Where(p => p.Status == "Admitted");
+                return BadRequest("Invalid user ID");
             }
-            return View(await patient.ToListAsync());
+
+            // Get the surgeon's ID based on the user ID
+            var surgeon = await _context.Surgeons
+                .FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
+
+            if (surgeon == null)
+            {
+                return NotFound("Surgeon not found");
+            }
+
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@SearchString", searchString);
+                parameters.Add("@Date", date);
+                parameters.Add("@SurgeonID", surgeonId);
+
+                var patients = await connection.QueryAsync<SurgeonPatientsViewModel>(
+                    "sp_SurgeonAdmittedPatients",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                // Store the current filter in ViewData for the view
+                ViewData["CurrentFilter"] = searchString;
+                ViewData["CurrentDate"] = date?.ToString("yyyy-MM-dd");
+
+                return View(patients);
+            }
         }
 
         //public IActionResult ConfirmTreatmentCodes()

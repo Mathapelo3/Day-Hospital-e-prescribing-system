@@ -12,6 +12,7 @@
         public string SurgeonFullName { get; set; }
         public string PatientFullName { get; set; }
 
+       
         public int PatientID { get; set; }
 
     }

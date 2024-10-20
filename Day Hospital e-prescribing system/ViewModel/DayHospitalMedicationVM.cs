@@ -17,12 +17,17 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
         public string MedicationName { get;set;}
 
+        public int Quantity { get;set;}
+
         public int Schedule {  get;set;}
 
         public int MedTypeId { get;set;}
         public string DosageForm { get; set; }
 
         public bool IsBelowReorderLevel { get; set; }
+
+        public int[] StockIDs { get; set; }
+        public int[] OrderQuantities { get; set; }
 
         public MedicationType MedicationType { get; set; }
         public List<MedicationType> MedicationTypes { get; set; }

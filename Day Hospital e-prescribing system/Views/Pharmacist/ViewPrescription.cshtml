@@ -34,7 +34,7 @@
                         <div class="card" id="container">
 
                                 <div class="card-header">
-                                    <h5 style="color:#268aab">@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.Surname Prescription</h5>
+                                    <h5 style="color:#268aab">@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.PatientSurname Prescription</h5>
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                         <form asp-action="PatientPrescriptions" asp-route-id="@Model.Prescription.FirstOrDefault()?.PatientID" asp-controller="Pharmacist">
                                             <button type="submit" class="btn btn-info"> Patient's Prescription History</button>
@@ -63,7 +63,7 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label">Patient Name: </label>
-                                            <lable>@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.Surname</lable>
+                                            <lable>@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.PatientSurname</lable>
                                         </div>
 
                                         <div class="col-md-2">
@@ -82,7 +82,7 @@
                                                     <th>Instructions</th>
                                                     <th>Quantity</th>
                                                     <th>Available Quantity</th>
-                                                    <th>Refills</th>
+                                                    
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -92,11 +92,14 @@
                                                     {
                                                         <tr>
 
-                                                            <td>@(prescription.DayHospitalMedicationName ?? "N/A")</td>
+                                                            <td>@(prescription.MedicationName ?? "N/A")</td>
                                                             <td>@Html.Raw(prescription.InstructionText)</td>
-                                                            <td>@(prescription.Quantity ?? "N/A")</td>
-                                                            <td class="bg-success">@((prescription.QtyLeft).ToString())</td>
-                                                            <td>0</td>
+                                                            
+                                                            <td >@((prescription.Qty).ToString())</td>
+                                                            <td class="@(prescription.IsSuccess ? "bg-success" : "bg-danger")">
+                                                                @prescription.QtyLeft
+                                                            </td>
+                                                            
                                                         </tr>
                                                     }
                                                 }
@@ -150,7 +153,7 @@
                                             {
                                                 <tr class="allergy-row blinking-allergy">
                                                     <form asp-route-id="AllergyID" asp-action="" asp-controller="Pharmacist">
-                                                    <td>@allergy.AllergyName</td>
+                                                        <td>@(allergy.AllergyName)</td>
                                                     </form>
 
                                                 </tr>
