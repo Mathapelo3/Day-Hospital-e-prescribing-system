@@ -88,9 +88,13 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<PatientAllergiesViewModel> PatientAllergiesVM { get; set; }
         public DbSet<PatientConditionsViewModel> PatientConditions { get; set; }
         public DbSet<PatientVitalsViewModel> PatientVitals { get; set; }
+<<<<<<< HEAD
+        public DbSet<PatientMedicationVM> PatientMedications { get; set; }      
+=======
         public DbSet<PatientMedicationVM> PatientMedications { get; set; }
-        public DbSet<PatientPrescription> PatientPrescription { get; set; }
+        //public DbSet<PatientPrescription> PatientPrescription { get; set; }
       
+>>>>>>> 50b450fffa12f427938853778c20405ae9867eaa
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
