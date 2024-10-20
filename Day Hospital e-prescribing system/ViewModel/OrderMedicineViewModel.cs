@@ -1,7 +1,10 @@
-﻿namespace Day_Hospital_e_prescribing_system.ViewModel
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class OrderMedicineViewModel
     {
+        [Key]
         public int OrderId { get; set; }
         public DateTime Date { get; set; }
         public int Quantity { get; set; }

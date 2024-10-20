@@ -113,7 +113,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditHospitalRecord(EditHospitalRecordViewModel viewModel)
         {
-
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             try
             {
                 _logger.LogInformation("Starting to update hospital record with ID {id}", viewModel.HospitalRecordID);
@@ -184,6 +184,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSuburbDetails(int suburbID)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             var suburb = await _context.Suburbs
                 .Include(s => s.City)
                 .ThenInclude(c => c.Province)
@@ -205,6 +206,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult AddMedicalProfessional()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             if (!User.Identity.IsAuthenticated)
             {
                 // Redirect to the login page or display an error message
@@ -222,7 +224,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddMedicalProfessional([Bind("Name,Surname,Email,ContactNo,HCRNo,Username,HashedPassword,RoleId")] RegisterViewModel model)
         {
-
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             model.Roles = GetRoles(); // Ensure Roles is repopulated
 
             _logger.LogInformation("RoleId selected: {RoleId}", model.RoleId);
@@ -384,6 +386,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [HttpGet]
         public IActionResult EditMedicalProfessional(int id)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             if (!User.Identity.IsAuthenticated)
             {
                 // Redirect to the login page or display an error message
@@ -417,6 +420,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditMedicalProfessional([Bind("UserID,Name,Surname,Email,ContactNo,HCRNo,Username")] EditRegisterViewModel model)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             if (ModelState.IsValid)
             {
                 var user = _context.Users.Find(model.UserID);
@@ -563,6 +567,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCondition(ConditionViewModel model)
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             if (ModelState.IsValid)
             {
                 try
@@ -716,10 +721,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
         public IActionResult AddMedicationInteraction()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
         public IActionResult MedicationInteractionRecords()
         {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
         }
     }

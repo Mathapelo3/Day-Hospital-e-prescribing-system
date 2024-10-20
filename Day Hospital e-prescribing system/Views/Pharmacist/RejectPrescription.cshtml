@@ -1,0 +1,176 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientPrescriptionWithRelatedDataVM
+
+
+@{
+    ViewData["Title"] = "Patient Prescription";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
+
+<html>
+<head>
+    <link rel="stylesheet" href="print.css" type="text/css" media="print" />
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <section class="content">
+
+
+
+        <!-- Display patients -->
+        <div class="row">
+            @*Patient's Prescription*@
+            <div class="col-md-7">
+                <img src="~/images/cybermedlogo.png" style="display:none" alt="Company Logo" id="logo" />
+                <hr style="display:none" id="logo" />
+                <br />
+                <!-- Button trigger modal -->
+                @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                Launch static backdrop modal
+                </button>*@
+                <!-- Modal -->
+
+                <div class="card" id="container">
+
+                    <div class="card-header">
+                        <h5 style="color:#268aab">@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.PatientSurname Prescription</h5>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <form asp-action="PatientPrescriptions" asp-route-id="@Model.Prescription.FirstOrDefault()?.PatientID" asp-controller="Pharmacist">
+                                <button type="submit" class="btn btn-info"> Patient's Prescription History</button>
+
+                            </form>
+                        </div>
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="inputState" class="form-label">Prescription No: </label>
+                                <lable type="text">Pres2024043020</lable>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="inputState" class="form-label">Date</label>
+                                <lable type="date">@Model.Prescription.FirstOrDefault()?.Date.ToString("yyyy-MM-dd")</lable>
+                            </div>
+
+                        </div>
+
+                        <br />
+                        <div class="row" style="justify-content:space-between">
+
+                            <div class="col-md-4">
+                                <label class="form-label">Patient Name: </label>
+                                <lable>@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.PatientSurname</lable>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Gender</label>
+                                <lable>@Model.Prescription.FirstOrDefault()?.Gender</lable>
+                            </div>
+                        </div>
+                        <hr />
+                        <br />
+                        <div class="row" id="presTable">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+
+                                        <th>Medication Name</th>
+                                        <th>Instructions</th>
+                                        <th>Quantity</th>
+                                        <th>Available Quantity</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Prescription != null)
+                                    {
+                                        foreach (var prescription in Model.Prescription)
+                                        {
+                                            <tr>
+
+                                                <td>@(prescription.MedicationName ?? "N/A")</td>
+                                                <td>@Html.Raw(prescription.InstructionText)</td>
+
+                                                <td>@((prescription.Qty).ToString())</td>
+                                                <td class="@(prescription.IsSuccess ? "bg-success" : "bg-danger")">
+                                                    @prescription.QtyLeft
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+
+
+                                </tbody>
+                            </table>
+
+                            <br />
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                
+                                <form asp-action="RejectPrescription" asp-controller="Pharmacist" method="post">
+                                    <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
+                                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                        Reject Prescription
+                                    </button>
+                                </form>
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <h5 style="color:#268aab">Patient Allergies</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+
+                                    <th scope="col">Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allergyTableBody">
+                                @if (Model.Allergies != null && Model.Allergies.Any())
+                                {
+                                    @foreach (var allergy in Model.Allergies)
+                                    {
+                                        <tr class="allergy-row blinking-allergy">
+                                            <form asp-route-id="AllergyID" asp-action="" asp-controller="Pharmacist">
+                                            <td>@(allergy.AllergyName)</td>
+                                            </form>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>Patient has no allergies recorded.</td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+
+
+        </div>
+    </section>
+
+</body>
+</html>

@@ -1,4 +1,5 @@
 ﻿using Day_Hospital_e_prescribing_system.ViewModel;
+using Day_Hospital_e_prescribing_system.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Permissions;
 using WebApplication27.Models;
@@ -83,6 +84,14 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<AdministeredMedDetails> AdministeredMedDetails { get; set; }
         public DbSet <AdministerMedsReportVM> AdministerMedsReportVM { get; set; }
 
+
+        public DbSet<PatientPrescriptionVM> PrescriptionVM { get; set; }
+        public DbSet<PatientAllergiesViewModel> PatientAllergiesVM { get; set; }
+        public DbSet<PatientConditionsViewModel> PatientConditions { get; set; }
+        public DbSet<PatientVitalsViewModel> PatientVitals { get; set; }
+
+
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -119,6 +128,8 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Patient_Vitals>()
        .HasKey(m => new { m.PatientID, m.VitalsID });
 
+
+
             // Configuring relationships
             modelBuilder.Entity<Patient>()
                 .HasMany(p => p.Patient_Allergy)
@@ -130,11 +141,7 @@ namespace Day_Hospital_e_prescribing_system.Models
                 .WithMany(p => p.Patient_Allergy)
                 .HasForeignKey(pa => pa.PatientID);
 
-            modelBuilder.Entity<Patient_Allergy>()
-                .HasOne(pa => pa.Allergy)
-                .WithMany(p => p.Patient_Allergy)
-                .HasForeignKey(pa => pa.AllergyID);
-
+          
             modelBuilder.Entity<Prescription>()
             .HasKey(p => p.PrescriptionID);
 
@@ -157,6 +164,11 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();
             modelBuilder.Entity<PAllergyViewModel>().HasNoKey();
             modelBuilder.Entity<OrderMedicineViewModel>().HasNoKey();
+            modelBuilder.Entity<PatientPrescriptionVM>().HasNoKey();
+
+
+
+
             //base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<PatientMHViewModel>().HasNoKey();
             modelBuilder.Entity<OrderViewModel>().HasNoKey();

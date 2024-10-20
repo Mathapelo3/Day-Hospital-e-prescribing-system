@@ -304,7 +304,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             MedicationName = result.IsDBNull(result.GetOrdinal("MedicationName")) ? null : result.GetString(result.GetOrdinal("MedicationName")),
                             Date = result.GetDateTime(result.GetOrdinal("Date")),
                             InstructionText = result.IsDBNull(result.GetOrdinal("InstructionText")) ? null : result.GetString(result.GetOrdinal("InstructionText")),
-                            Quantity = result.GetInt32(result.GetOrdinal("Quantity")),
+                            Quantity = result.IsDBNull(result.GetOrdinal("Quantity")) ? null : (int?)result.GetInt32(result.GetOrdinal("Quantity")),
                             Status = result.GetString(result.GetOrdinal("Status")),
                             Urgency = result.GetBoolean(result.GetOrdinal("Urgency"))
                         });
@@ -345,6 +345,27 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> CheckAllergy(int patientId, int stockId)
+        {
+            var parameter = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC dbo.AllergyCheckForSurgeon @PatientID, @StockID, @AlertMessage OUT",
+                new SqlParameter("@PatientID", patientId),
+                new SqlParameter("@StockID", stockId),
+                parameter
+            );
+
+            string alertMessage = parameter.Value == DBNull.Value ? null : (string)parameter.Value;
+
+            return Json(new { hasAllergy = !string.IsNullOrEmpty(alertMessage), message = alertMessage });
+        }
+
+        // Modify your existing NewPrescription action
+        [HttpPost]
         public async Task<IActionResult> NewPrescription(NewPatientPrescriptionViewModel model)
         {
             if (!ModelState.IsValid)
@@ -362,9 +383,32 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     return View(model);
                 }
 
-                var medicationData = JsonConvert.SerializeObject(model.SelectedMedications);
+                // Check for allergies one final time before saving
+                foreach (var medication in model.SelectedMedications)
+                {
+                    var parameter = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
 
-                // Get the logged-in surgeon's ID
+                    await _context.Database.ExecuteSqlRawAsync(
+                        "EXEC dbo.AllergyCheckForSurgeon @PatientID, @StockID, @AlertMessage OUT",
+                        new SqlParameter("@PatientID", model.SelectedPatientId),
+                        new SqlParameter("@StockID", medication.StockID),
+                        parameter
+                    );
+
+                    string alertMessage = parameter.Value == DBNull.Value ? null : (string)parameter.Value;
+                    if (!string.IsNullOrEmpty(alertMessage))
+                    {
+                        ModelState.AddModelError(string.Empty,
+                            $"Cannot proceed: {alertMessage}");
+                        PopulateDropdownLists(model);
+                        return View(model);
+                    }
+                }
+
+                var medicationData = JsonConvert.SerializeObject(model.SelectedMedications);
                 var surgeonId = GetLoggedInSurgeonId();
 
                 await _context.Database.ExecuteSqlRawAsync(

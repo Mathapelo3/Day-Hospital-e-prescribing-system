@@ -160,6 +160,14 @@
                 $('#medicationList').append(newItem);
             }
         });
+        // Check if there's an allergy warning in TempData
+    $(document).ready(function () {
+        var allergyAlert = '@TempData["AllergyAlert"]';
+
+        if (allergyAlert) {
+            alert(allergyAlert); // Show an alert to the user
+        }
+        });
         //// Remove medication from the list
         //$('#medicationList').on('click', '.removeMedication', function () {
         //    $(this).closest('li').remove();

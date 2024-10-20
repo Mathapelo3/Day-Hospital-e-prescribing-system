@@ -1,9 +1,11 @@
 ﻿using Day_Hospital_e_prescribing_system.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PatientPrescriptionVM
     {
+        
         public int PrescriptionID { get; set; }
         public string InstructionText { get; set; }
         public DateTime Date { get; set; }
@@ -44,12 +46,14 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
 
 
-        //public DayHospitalMedicationVM DayHospitalMedication { get; set; }
+       
 
         public Patient? Patient { get; set; }
         public List<Allergy> Allergies { get; set; } = new List<Allergy>();
         public List<Vitals> Vitals { get; set; } = new List<Vitals>();
         public List<Condition> Conditions { get; set; } = new List<Condition>();
+
+     
 
         public PatientPrescriptionVM()
         {
