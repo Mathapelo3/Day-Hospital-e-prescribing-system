@@ -17,6 +17,7 @@ using System.Security.Claims;
 using System.Text;
 using MailKit.Security;
 using System.Configuration;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -193,43 +194,39 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(viewModel);
         }
 
-
         private PatientPrescriptionWithRelatedDataVM GetPatientPrescriptionWithRelatedData(int id)
         {
             try
             {
-                var prescriptions = _connection.Query<PatientPrescriptionVM>(
-                    "GetPatientPrescriptionByPrescriptionID",
-                    new { PrescriptionID = id },
-                    commandType: CommandType.StoredProcedure);
+                // Retrieve the prescription details
+                var prescriptions = _context.PrescriptionVM
+                    .FromSqlRaw("EXEC GetPatientPrescriptionByPrescriptionID @PrescriptionID = {0}", id)
+                    .ToList();
 
-                var allergies = _connection.Query<PatientAllergiesViewModel>(
-                    "GetPatientAllergiesByPrescriptionID",
-                    new { PrescriptionID = id },
-                    commandType: CommandType.StoredProcedure);
+                // Ensure we have a valid prescription
+                if (prescriptions == null || !prescriptions.Any())
+                {
+                    throw new Exception($"No prescriptions found for ID: {id}");
+                }
 
-                var conditions = _connection.Query<PatientConditionsViewModel>(
-                    "GetPatientConditionsByPrescriptionID",
-                    new { PrescriptionID = id },
-                    commandType: CommandType.StoredProcedure);
+                // Get the allergy alert message
+                //var allergyAlertMessage = GetAllergyAlert(id);
 
-                var vitals = _connection.Query<PatientVitalsViewModel>(
-                    "GetPatientVitalsByPrescriptionID",
-                    new { PrescriptionID = id },
-                    commandType: CommandType.StoredProcedure);
+                // Retrieve other related data using stored procedures
+                var conditions = _context.PatientConditions
+                    .FromSqlRaw("EXEC GetPatientConditionsByPrescriptionID @PrescriptionID = {0}", id)
+                    .ToList();
 
-                var medication = _connection.Query<PatientMedicationVM>(
-                    "GetPatientMedicationByPrescriptionID",
-                    new { PrescriptionID = id },
-                    commandType: CommandType.StoredProcedure);
+                var vitals = _context.PatientVitals
+                    .FromSqlRaw("EXEC GetPatientVitalsByPrescriptionID @PrescriptionID = {0}", id)
+                    .ToList();
 
                 return new PatientPrescriptionWithRelatedDataVM
                 {
                     Prescription = prescriptions,
-                    Allergies = allergies,
                     Conditions = conditions,
-                    Vitals = vitals,
-                    Medications = medication
+                    Vitals = vitals
+                    /*AllergyAlert = allergyAlertMessage */// Set the alert message here
                 };
             }
             catch (Exception ex)
@@ -238,6 +235,31 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 throw;
             }
         }
+
+        //private string GetAllergyAlert(int prescriptionId)
+        //{
+        //    // Retrieve the active ingredient IDs for the medications prescribed
+        //    var activeIngredientIDs = _context.dayHospitalMed_ActiveIngredients
+        //        .Where(a => a.StockID == prescriptionId) // Adjust condition based on your logic
+        //        .Select(a => a.Active_IngredientID)
+        //        .ToList();
+
+        //    // Retrieve the active ingredient IDs for the patient's allergies
+        //    var allergyActiveIngredientIDs = _context.Patient_Allergy
+        //        .Where(a => a.PatientID == prescriptionId) // Adjust condition based on your logic
+        //        .Select(a => a.Active_IngredientID)
+        //        .ToList();
+
+        //    // Check for any matches between the two lists
+        //    var hasAllergy = activeIngredientIDs.Intersect(allergyActiveIngredientIDs).Any();
+
+        //    return hasAllergy
+        //        ? "Alert: Patient has an allergy to one or more active ingredients in the medication."
+        //        : "No allergies found for the active ingredients in the medication.";
+        //}
+
+
+
 
         [HttpPost]
         public async Task<ActionResult> DispensePrescription(int prescriptionId)
@@ -291,11 +313,34 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return File(reportStream, "application/pdf", "OrderReport.pdf");
         }
 
-
-        public IActionResult RejectPrescription()
+        [HttpGet]
+        public IActionResult RejectPrescription(int? id = null)
         {
-            return PartialView("_RejectPrescriptionPartialView");
+            if (!id.HasValue)
+            {
+                return NotFound("No prescription ID provided.");
+            }
+
+            var viewModel = GetPatientPrescriptionWithRelatedData(id.Value);
+
+            // Check if the viewModel is null or has no prescriptions
+            if (viewModel == null || viewModel.Prescription == null || !viewModel.Prescription.Any())
+            {
+                return NotFound($"No prescription found with ID: {id}");
+            }
+
+            // This block assumes you want to perform some action on each prescription.
+            foreach (var prescription in viewModel.Prescription)
+            {
+                // Example logic, modify as needed
+                prescription.IsSuccess = prescription.Qty < prescription.QtyLeft; // Assuming these properties exist
+            }
+
+            _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
+
+            return View(viewModel);
         }
+
 
         public IActionResult ListDispensedPrescriptions()
         {
@@ -325,70 +370,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<IActionResult> OrderMedicines(MedicationOrderListVM model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Loop through the medications and insert only those with a valid Quantity
-            foreach (var medication in model.Medications)
-            {
-                // Check if Quantity has a value and is greater than 0
-                if (medication.Quantity.HasValue && medication.Quantity.Value > 0)
-                {
-                    var orderMedicine = new OrderMedicine
-                    {
-                        Date = DateTime.Now,            // Auto-generate the date
-                        Urgency = true,                 // Set urgency to true
-                        Quantity = medication.Quantity.Value, // Correctly access the Value
-                        Status = "Ordered",             // Set status to "Ordered"
-                        StockID = medication.StockID    // Use the StockID from the form
-                    };
-
-                    // Add the new order to the database context
-                    _context.OrderMedicines.Add(orderMedicine);
-                }
-            }
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            // Redirect to the desired page after processing
-            return RedirectToAction("PharmacistDashboard");
-        }
-
-
-
-        //private async Task<IActionResult> GetMedicationView()
-        //{
-        //    var medicationQuery = from dm in _context.DayHospitalMedication
-        //                          join mt in _context.medicationType on dm.MedTypeId equals mt.MedTypeId
-        //                          orderby dm.MedicationName ascending
-        //                          select new DayHospitalMedicationVM
-        //                          {
-        //                              StockID = dm.StockID,
-        //                              MedTypeId = dm.MedTypeId,
-        //                              MedicationName = dm.MedicationName,
-        //                              QtyLeft = dm.QtyLeft,
-        //                              ReOrderLevel = dm.ReOrderLevel,
-        //                              DosageForm = mt.DosageForm,
-        //                              IsBelowReorderLevel = dm.QtyLeft < dm.ReOrderLevel
-        //                          };
-
-        //    var medications = await medicationQuery.ToListAsync();
-
-        //    // Return the combined view model as an IActionResult
-        //    var viewModel = new OrderMedicinesViewModel
-        //    {
-        //        Medications = medications,
-        //        Order = new OrderMedicineVM() // Initialize a new order model
-        //    };
-
-        //    return View("OrderMedicines", viewModel); // Return the view with the combined view model
-        //}
+        
 
 
 
@@ -420,11 +402,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(orders);
         }
 
-        public async Task<IActionResult> GetOrderByStatus(int orderId)
+        [HttpGet]
+        public async Task<IActionResult> GetOrderByStatus(int? id = null)
         {
+            // Check if orderId is null
+            if (id == null)
+            {
+                // Handle the case where no orderId is provided (return empty view or all orders)
+                Console.WriteLine("OrderId is null.");
+                return View(new List<OrderMedicineViewModel>()); // Or handle appropriately
+            }
+
+            // If orderId is not null, run the SQL query
             var orders = await _context.orderMedicineVMs
-                .FromSqlRaw("EXEC GetOrderByStatus @OrderId", new SqlParameter("@OrderId", orderId))
+                .FromSqlRaw("EXEC GetOrderByStatus @OrderId", new SqlParameter("@OrderId", id.Value))
                 .ToListAsync();
+
+            if (!orders.Any())
+            {
+                Console.WriteLine($"No orders found for OrderId: {id}");
+            }
+            else
+            {
+                Console.WriteLine($"Found {orders.Count} orders for OrderId: {id}");
+            }
 
             var viewModel = orders.Select(o => new OrderMedicineViewModel
             {
@@ -435,14 +436,18 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 StockID = o.StockID,
                 MedicationName = o.MedicationName,
                 MedTypeId = o.MedTypeId,
-                DosageForm = o.DosageForm
-              
-                
+                DosageForm = o.DosageForm,
+                QtyLeft = o.QtyLeft,
+                QtyReceived = o.QtyReceived
             }).ToList();
+
+            if (!viewModel.Any())
+            {
+                Console.WriteLine("No data in viewModel.");
+            }
 
             return View(viewModel);
         }
-
 
 
 
@@ -456,12 +461,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             foreach (var medication in medications)
             {
-                // Call your stored procedure to update quantities
-                var result = await _context.Database.ExecuteSqlRawAsync("EXEC UpdateMedicationQuantities @StockID, @Quantity", new { StockID = medication.StockID, Quantity = medication.Quantity });
+                var result = await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC UpdateMedicationQuantities @StockID, @Quantity",
+                    new SqlParameter("@StockID", medication.StockID),
+                    new SqlParameter("@Quantity", medication.Quantity));
             }
 
-            // Redirect or return a response as needed
-            return RedirectToAction("OrderedMedicine"); // Change to your desired action
+            return RedirectToAction("OrderedMedicine");
         }
 
 

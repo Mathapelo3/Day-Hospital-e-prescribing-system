@@ -10,5 +10,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public IEnumerable<PatientConditionsViewModel> Conditions { get; set; }
         public IEnumerable<PatientVitalsViewModel> Vitals { get; set; }
         public IEnumerable<PatientMedicationVM> Medications { get; set; }
+
+        public string AllergyAlert { get; set; }
     }
 }

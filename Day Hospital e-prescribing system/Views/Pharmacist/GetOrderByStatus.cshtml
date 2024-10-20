@@ -5,60 +5,91 @@
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
-<h2>Orders by Status</h2>
+
 
 <section class="content">
     <div class="row">
         <div class="col-md-8">
             <div class="card" id="container">
-                <div class="card-header">
-                    <h5 style="color:#268aab">View Order</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Quantity</th>
-                                <th>Status</th>
-                                <th>Medication Name</th>
-                                <th>Dosage Form</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null && Model.Any())
-                            {
-                                foreach (var order in Model)
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var order in Model)
+                    {
+                        <div class="card-header">
+                            <h5 style="color:#268aab" >View Order</h5>
+                            <div class="row">
+                                <label class="d-grid gap-2 d-md-flex justify-content-md-end @(order.Status == "Ordered" ? "red-bg" : order.Status == "Received" ? "green-bg" : "") ">@order.Status</label>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Date</div>
+                                <div class="col-lg-9 col-md-8">@order.Date.ToShortDateString()</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Medicine Name</div>
+                                <div class="col-lg-9 col-md-8">@order.MedicationName</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Quantity</div>
+                                <div class="col-lg-9 col-md-8">@order.Quantity</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Dosage Form</div>
+                                <div class="col-lg-9 col-md-8">@order.DosageForm</div>
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+                                @if (order.Status == "Ordered")
                                 {
-                                    <tr>
-                                        <td>@order.Date.ToShortDateString()</td>
-                                        <td>@order.Quantity</td>
-                                        <td>@order.Status</td>
-                                        <td>@order.MedicationName</td>
-                                        <td>@order.DosageForm</td>
-                                        <td>
-                                            @if (order.Status == "Ordered")
-                                            {
-                                                <form asp-action="OrderMedication" method="post" style="display:inline;">
-                                                    <input type="hidden" name="orderId" value="@order.OrderId" />
-                                                    <button type="submit" class="btn btn-primary">Order</button>
-                                                </form>
-                                            }
-                                        </td>
-                                    </tr>
+                                    var orderList = Model.ToList();
+
+                                    @for (int i = 0; i < Model.Count(); i++)
+                                    {
+                                        <form asp-action="UpdateMedicationQuantities" method="post" style="display:inline;">
+                                            <input type="hidden" name="medications[@i].StockID" value="@orderList[i].StockID" />
+                                            <input type="hidden" name="medications[@i].Quantity" value="@orderList[i].Quantity" />
+                                            <button type="submit" class="btn btn-info"> +Add Stock</button>
+                                        </form>
+                                    }
+
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="6" class="text-center">No orders found.</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </div>
+                            <br />
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="@Url.Action("OrderedMedicine", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                                    Back
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">No orders found.</td>
+                    </tr>
+                }
             </div>
         </div>
     </div>
 </section>
+
+<style>
+    .red-bg {
+        background-color: red; /* Color for "Ordered" status */
+        color: white; /* Optional: change text color for better readability */
+    }
+
+    .green-bg {
+        background-color: green; /* Color for "Received" status */
+        color: white; /* Optional: change text color for better readability */
+    }
+
+</style>
+
