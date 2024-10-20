@@ -344,6 +344,28 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(viewModel);
         }
 
+        // Add this to your SurgeonController
+        [HttpPost]
+        public async Task<IActionResult> CheckAllergy(int patientId, int stockId)
+        {
+            var parameter = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC dbo.AllergyCheckForSurgeon @PatientID, @StockID, @AlertMessage OUT",
+                new SqlParameter("@PatientID", patientId),
+                new SqlParameter("@StockID", stockId),
+                parameter
+            );
+
+            string alertMessage = parameter.Value == DBNull.Value ? null : (string)parameter.Value;
+
+            return Json(new { hasAllergy = !string.IsNullOrEmpty(alertMessage), message = alertMessage });
+        }
+
+        // Modify your existing NewPrescription action
         [HttpPost]
         public async Task<IActionResult> NewPrescription(NewPatientPrescriptionViewModel model)
         {
@@ -362,9 +384,32 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     return View(model);
                 }
 
-                var medicationData = JsonConvert.SerializeObject(model.SelectedMedications);
+                // Check for allergies one final time before saving
+                foreach (var medication in model.SelectedMedications)
+                {
+                    var parameter = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
 
-                // Get the logged-in surgeon's ID
+                    await _context.Database.ExecuteSqlRawAsync(
+                        "EXEC dbo.AllergyCheckForSurgeon @PatientID, @StockID, @AlertMessage OUT",
+                        new SqlParameter("@PatientID", model.SelectedPatientId),
+                        new SqlParameter("@StockID", medication.StockID),
+                        parameter
+                    );
+
+                    string alertMessage = parameter.Value == DBNull.Value ? null : (string)parameter.Value;
+                    if (!string.IsNullOrEmpty(alertMessage))
+                    {
+                        ModelState.AddModelError(string.Empty,
+                            $"Cannot proceed: {alertMessage}");
+                        PopulateDropdownLists(model);
+                        return View(model);
+                    }
+                }
+
+                var medicationData = JsonConvert.SerializeObject(model.SelectedMedications);
                 var surgeonId = GetLoggedInSurgeonId();
 
                 await _context.Database.ExecuteSqlRawAsync(
