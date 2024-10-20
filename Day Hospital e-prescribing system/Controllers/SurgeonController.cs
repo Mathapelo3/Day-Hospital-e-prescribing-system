@@ -344,7 +344,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(viewModel);
         }
 
-        // Add this to your SurgeonController
         [HttpPost]
         public async Task<IActionResult> CheckAllergy(int patientId, int stockId)
         {
