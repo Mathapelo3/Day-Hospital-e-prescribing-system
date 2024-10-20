@@ -1028,7 +1028,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     Body = body,
                     IsBodyHtml = true,  // Set to true if the body is in HTML format
                 };
-                mailMessage.To.Add("s219865345@mandela.ac.za");
+                mailMessage.To.Add("nicky.mostert@nmmu.ac.za");
 
                 // Configure the SMTP client
                 using (var smtpClient = new SmtpClient(smtpHost, smtpPort))

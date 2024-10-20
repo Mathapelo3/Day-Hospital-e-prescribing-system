@@ -15,8 +15,8 @@
             public string Status { get; set; }
             public bool Urgency { get; set; }
             public string MedicationName { get; set; }
-            //public string SurgeonName { get; set; }
-            //public string SurgeonSurname { get; set; }
+            
+             
         }
     }
 
