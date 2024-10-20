@@ -91,6 +91,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<PatientVitalsViewModel> PatientVitals { get; set; }
 
 
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
