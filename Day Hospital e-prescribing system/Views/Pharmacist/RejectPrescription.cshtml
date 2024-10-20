@@ -114,9 +114,7 @@
                                 
                                 <form asp-action="RejectPrescription" asp-controller="Pharmacist" method="post">
                                     <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
-                                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                                        Reject Prescription
-                                    </button>
+                                    <button class="btn btn-danger" type="submit">Reject Prescription</button>
                                 </form>
 
 
@@ -163,6 +161,76 @@
 
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5">
+                    <br />
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 style="color:#268aab">Contra-Indications</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                
+                                <tbody id="allergyTableBody">
+                                    @if (Model.Allergies != null && Model.Allergies.Any())
+                                    {
+                                        @foreach (var allergy in Model.Allergies)
+                                        {
+                                            <tr class="allergy-row blinking-allergy">
+                                                <form asp-route-id="AllergyID" asp-action="" asp-controller="Pharmacist">
+                                                <td>@(allergy.AllergyName)</td>
+                                                </form>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>Patient has no allergies recorded.</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <br />
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 style="color:#268aab">Medication Interaction</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                               
+                                <tbody id="allergyTableBody">
+                                    @if (Model.Allergies != null && Model.Allergies.Any())
+                                    {
+                                        @foreach (var allergy in Model.Allergies)
+                                        {
+                                            <tr class="allergy-row blinking-allergy">
+                                                <form asp-route-id="AllergyID" asp-action="" asp-controller="Pharmacist">
+                                                <td>@(allergy.AllergyName)</td>
+                                                </form>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>Patient has no allergies recorded.</td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

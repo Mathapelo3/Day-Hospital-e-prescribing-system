@@ -105,9 +105,8 @@
                                 </p>
                             </a>
                         </li>
-
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AllPrescriptions","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
                                     All PRESCRIPTIONS
@@ -116,8 +115,19 @@
                             </a>
 
                         </li>
+
                         <li class="nav-item">
                             <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p>
+                                    PRESCRIBED PRESCRIPTIONS
+                                    <i class="right fas fa-angle-down"></i>
+                                </p>
+                            </a>
+
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("UrgentPrescriptions","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
                                     URGENT PRESCRIPTIONS
@@ -126,31 +136,22 @@
                             </a>
 
                         </li>
+                        
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("OrderMedicines","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
-                                    ADMISSION RECORDS
+                                    ORDER STOCK
                                     <i class="right fas fa-angle-down"></i>
                                 </p>
                             </a>
 
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("OrderedMedicine","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
-                                    AVAILABLE STOCK
-                                    <i class="right fas fa-angle-down"></i>
-                                </p>
-                            </a>
-
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <p>
-                                    RECIVED STOCK
+                                    ORDERED STOCK
                                     <i class="right fas fa-angle-down"></i>
                                 </p>
                             </a>
@@ -158,7 +159,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions", "Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("MedicineList", "Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
                                     MEDICINE LIST
@@ -169,28 +170,19 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AddMedicine","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
-                                    DAILY LOGS
+                                    Add Medication
                                     <i class="right fas fa-angle-down"></i>
                                 </p>
                             </a>
 
                         </li>
 
+                        
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <p>
-                                    MEDICATION RECORDS
-                                    <i class="right fas fa-angle-down"></i>
-                                </p>
-                            </a>
-
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AllPrescriptions","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
                                     STOCK REPORT
@@ -200,16 +192,11 @@
 
                         </li>
                         </br>
-                        @*<li class="nav-item">
-                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                        <button type="submit" class="nav-link btn btn-link text-red">Logout</button>
-                        </form>
-                        </li>*@
-                        @using (Html.BeginForm("Logout", "Nurse", FormMethod.Post, new { @class = "logout-form" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link text-red logout-button">Logout</button>
-                        }
+                        <li class="nav-item">
+                            <form asp-controller="Accounts" asp-action="Logout" method="post" class="form-inline">
+                                <button type="submit" class="nav-link btn btn-link text-warning">Logout</button>
+                            </form>
+                        </li>
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->

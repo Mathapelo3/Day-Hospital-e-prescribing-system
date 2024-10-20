@@ -1,5 +1,4 @@
-﻿
-using Dapper;
+﻿using Dapper;
 using Day_Hospital_e_prescribing_system.Helper;
 using Day_Hospital_e_prescribing_system.Models;
 using Day_Hospital_e_prescribing_system.ViewModel;
@@ -18,7 +17,11 @@ using System.Text;
 using MailKit.Security;
 using System.Configuration;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
-
+using iText.Kernel.Pdf;
+using iText.Layout.Element;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
     public class PharmacistController : Controller
@@ -31,7 +34,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly CommonHelper _helper;
         private IDbConnection _connection;
         private readonly PharmacistReportGenerator _pharmacistReportGenerator;
-        
+
         public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, PharmacistReportGenerator pharmacistReportGenerator, IDbConnection connection)
         {
             _context = context;
@@ -82,10 +85,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(medications);
         }
 
-        public IActionResult ReceiveMedicine()
-        {
-            return View();
-        }
+     
 
         [HttpGet]
         public IActionResult AddMedicine()
@@ -159,6 +159,32 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             var prescriptions = await _context.prescriptionViewModels
                 .FromSqlInterpolated($"EXEC GetPrescriptions @StartDate = {startDate ?? (object)DBNull.Value}")
+                .ToListAsync();
+
+            ViewBag.SuccessMessage = message;
+
+            return View(prescriptions);
+        }
+
+        public async Task<ActionResult> UrgentPrescriptions(DateTime? startDate, string message)
+        {
+            var sqlQuery = "EXEC UrgentPrescriptions @StartDate = {0}";
+
+            var prescriptions = await _context.prescriptionViewModels
+                .FromSqlInterpolated($"EXEC UrgentPrescriptions @StartDate = {startDate ?? (object)DBNull.Value}")
+                .ToListAsync();
+
+            ViewBag.SuccessMessage = message;
+
+            return View(prescriptions);
+        }
+
+        public async Task<ActionResult> AllPrescriptions(DateTime? startDate, string message)
+        {
+            var sqlQuery = "EXEC AllPrescriptions @Status = {0}";
+
+            var prescriptions = await _context.prescriptionViewModels
+                .FromSqlInterpolated($"EXEC AllPrescriptions @StartDate = {startDate ?? (object)DBNull.Value}")
                 .ToListAsync();
 
             ViewBag.SuccessMessage = message;
@@ -286,48 +312,48 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult> AllPrescriptions(DateTime? startDate, DateTime? endDate)
+        //{
 
-        [HttpGet]
-        public async Task<ActionResult> AllPrescriptions(DateTime? startDate, DateTime? endDate)
-        {
-            ViewBag.Username = HttpContext.Session.GetString("Username");
-            // Get the logged-in user's ID
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    ViewBag.Username = HttpContext.Session.GetString("Username");
+        //    // Get the logged-in user's ID
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User not authenticated");
-            }
+        //    if (string.IsNullOrEmpty(userId))
+        //    {
+        //        return Unauthorized("User not authenticated");
+        //    }
 
-            // Convert userId to int if necessary
-            int surgeonId;
-            if (!int.TryParse(userId, out surgeonId))
-            {
-                return BadRequest("Invalid user ID");
-            }
+        //    // Convert userId to int if necessary
+        //    int surgeonId;
+        //    if (!int.TryParse(userId, out surgeonId))
+        //    {
+        //        return BadRequest("Invalid user ID");
+        //    }
 
-            // Get the surgeon's ID based on the user ID
-            var surgeon = await _context.Surgeons
-                .FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
+        //    // Get the surgeon's ID based on the user ID
+        //    var surgeon = await _context.Surgeons
+        //        .FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
 
-            if (surgeon == null)
-            {
-                return NotFound("Surgeon not found");
-            }
+        //    if (surgeon == null)
+        //    {
+        //        return NotFound("Surgeon not found");
+        //    }
 
-            // Call the stored procedure
-            var surgeryDetails = await _context.Set<PrescriptionViewModel>().FromSqlRaw(
-                "EXEC [dbo].[GetDispensaryReportData] @StartDate, @EndDate",
-                new SqlParameter("@StartDate", startDate ?? (object)DBNull.Value),
-                new SqlParameter("@EndDate", endDate ?? (object)DBNull.Value)
-              
-            ).ToListAsync();
+        //    // Call the stored procedure
+        //    var surgeryDetails = await _context.Set<PrescriptionViewModel>().FromSqlRaw(
+        //        "EXEC [dbo].[GetDispensaryReportData] @StartDate, @EndDate",
+        //        new SqlParameter("@StartDate", startDate ?? (object)DBNull.Value),
+        //        new SqlParameter("@EndDate", endDate ?? (object)DBNull.Value)
 
-            ViewBag.StartDate = startDate;
-            ViewBag.EndDate = endDate;
+        //    ).ToListAsync();
 
-            return View(surgeryDetails);
-        }
+        //    ViewBag.StartDate = startDate;
+        //    ViewBag.EndDate = endDate;
+
+        //    return View(surgeryDetails);
+        //}
 
         [HttpGet]
         public IActionResult PharmacistReportGenerator(DateTime startDate, DateTime endDate)
@@ -351,6 +377,36 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             // Return the PDF file
             return File(reportStream, "application/pdf", "SurgeriesReport.pdf");
+        }
+
+
+
+
+
+
+
+
+
+        private byte[] GeneratePdfReport(List<DispenseReportDataViewModel> reportData)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                var pdfWriter = new PdfWriter(memoryStream);
+                var pdfDocument = new PdfDocument(pdfWriter);
+                var document = new Document(pdfDocument);
+
+                document.Add(new Paragraph("Dispensary Report").SetFontSize(20));
+
+                foreach (var item in reportData)
+                {
+                    document.Add(new Paragraph($"{item.Date.ToShortDateString()} - {item.PatientName} {item.PatientSurname} - {item.SurgeonName} - {item.MedicationName} - {item.Quantity} - {item.Status} "));
+                }
+
+                document.Close();
+
+                // Return the byte array of the PDF document
+                return memoryStream.ToArray();
+            }
         }
 
         [HttpGet]
@@ -379,6 +435,33 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
 
             return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> RejectPrescription(int prescriptionId)
+        {
+            // Define your connection string (assuming it's stored in a configuration)
+            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                // Open the connection
+                await connection.OpenAsync();
+
+                // Execute the stored procedure to dispense the prescription
+                var result = await connection.ExecuteAsync("EXECUTE DispensePrescription @PrescriptionID", new { PrescriptionID = prescriptionId });
+
+                // Optionally, check the result or handle any exceptions
+                if (result > 0) // Assuming a positive result indicates success
+                {
+                    // Redirect to the Prescriptions view after dispensing
+                    return RedirectToAction("Prescriptions", new { message = "Prescription dispensed successfully!" });
+                }
+                else
+                {
+                    // Handle the case where the dispensing was not successful
+                    ViewBag.Succsses = "Prescription dispensed successfully!n.";
+                    return RedirectToAction("Prescriptions", new { message = ViewBag.Succsses });
+                }
+            }
         }
 
 
@@ -522,15 +605,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View();
         }
 
-        public IActionResult Admission()
-        {
-            return View();
-        }
-
-        public IActionResult MedicineLogs()
-        {
-            return View();
-        }
+       
 
     }
 }

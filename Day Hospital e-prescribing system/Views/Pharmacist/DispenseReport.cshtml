@@ -1,0 +1,94 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.DispenseReportViewModel
+
+@{
+    ViewData["Title"] = "Dispense Report";
+}
+
+<section class="content">
+
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @ViewBag.SuccessMessage
+                    </div>
+                }
+            </div>
+            <br />
+            <h4 style="color:#268aab"> Prescriptions</h4>
+            <br />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h5>Generate Report:</h5>
+           
+            <form asp-action="DispenseReport" method="post">
+                <div class="form-group">
+                    <label asp-for="StartDate"></label>
+                    <input asp-for="StartDate" class="form-control" type="date" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EndDate"></label>
+                    <input asp-for="EndDate" class="form-control" type="date" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+                <a asp-action="DownloadDispensaryReport" asp-route-startDate="@Model.StartDate" asp-route-endDate="@Model.EndDate" class="btn btn-success">Download PDF</a>
+            </form>
+        </div>
+
+    </div>
+    <div style="text-align:end">
+        <button type="button" class="btn btn-info text-sm text-bold" onclick="location.href='@Url.Action("Prescriptions", "Pharmacist")'">
+            Dispense Prescriptions
+        </button>
+    </div>
+
+
+    <!-- Display Prescriptions -->
+    <div class="card-body">
+        @if (Model.ReportData != null && Model.ReportData.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Name</th>
+                        <th>Patient Surname</th>
+                        <th>Medication Name</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Surgeon Name</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ReportData)
+                    {
+                        <tr>
+                            <td>@item.Date.ToShortDateString()</td>
+                            <td>@item.PatientName</td>
+                            <td>@item.PatientSurname</td>
+                            <td>@item.MedicationName</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Status</td>
+                            <td>@item.SurgeonName</td>
+                             <!-- Make sure you include this if you need it -->
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No report data available.</p>
+        }
+    </div>
+
+
+
+</section>
