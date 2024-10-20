@@ -304,7 +304,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             MedicationName = result.IsDBNull(result.GetOrdinal("MedicationName")) ? null : result.GetString(result.GetOrdinal("MedicationName")),
                             Date = result.GetDateTime(result.GetOrdinal("Date")),
                             InstructionText = result.IsDBNull(result.GetOrdinal("InstructionText")) ? null : result.GetString(result.GetOrdinal("InstructionText")),
-                            Quantity = result.GetInt32(result.GetOrdinal("Quantity")),
+                            Quantity = result.IsDBNull(result.GetOrdinal("Quantity")) ? null : (int?)result.GetInt32(result.GetOrdinal("Quantity")),
                             Status = result.GetString(result.GetOrdinal("Status")),
                             Urgency = result.GetBoolean(result.GetOrdinal("Urgency"))
                         });
