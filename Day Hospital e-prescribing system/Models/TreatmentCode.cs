@@ -17,10 +17,10 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public string ICD_10_Code { get; set; }
 
-        [Required]
-        public int Surgery_TreatmentCodeID { get; set; }
-        // Navigation property
-        [ForeignKey("Surgery_TreatmentCode")]
-        public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }
+        //[Required]
+        //public int Surgery_TreatmentCodeID { get; set; }
+        //// Navigation property
+        //[ForeignKey("Surgery_TreatmentCode")]
+        //public virtual Surgery_TreatmentCode Surgery_TreatmentCodes { get; set; }
     }
 }

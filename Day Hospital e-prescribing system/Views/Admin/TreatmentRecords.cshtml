@@ -1,0 +1,90 @@
+﻿@using Day_Hospital_e_prescribing_system.Models
+@model IEnumerable<Day_Hospital_e_prescribing_system.Models.TreatmentCode>
+
+@{
+    ViewData["Title"] = "Treatment Records";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+
+    var codes = ViewBag.Code as IEnumerable<TreatmentCode>;
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+    .text-dark-green {
+        color: darkgreen;
+    }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+</style>
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center">
+                <!-- Place for the hospital logo if needed -->
+            </div>
+            <br />
+            <h4 class="display-6 text-dark-green text-center text-bold">TREATMENT RECORDS</h4>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th style="width:20%">Treatment Code</th>
+                                        <th>Description</th>
+                                        <th style="width:10%">Action</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var code in codes)
+                                {
+                                    <tbody>
+                                        <tr>
+                                            <td>@code.ICD_10_Code</td>
+                                            <td>@code.Description</td>
+                                            <td>
+                                                <a asp-action="EditTreatment" asp-route-id="@code.TreatmentCodeID" class="btn btn-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-dark-green" onclick="location.href='@Url.Action("AddTreatment", "Admin")'">
+                                Add Treatment
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("AdminDashboard", "Admin")'">Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
