@@ -21,8 +21,17 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         [ForeignKey("PatientID")]
         public int PatientID { get; set; }
 
+        // Represents the name of the allergy
         public string AllergyName { get; set; }
 
+        // Represents the description of the active ingredient
         public string Active_IngredientDescription { get; set; }
+
+        // Additional properties for the procedure logic
+        public bool ShouldTriggerAlert { get; set; } = false;
+
+        // Optional: Property to hold Medication IDs if needed
+        public List<int> MedicationIDs { get; set; } = new List<int>();
     }
+
 }

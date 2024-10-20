@@ -6,7 +6,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PatientMedicationVM
     {
-       
+        [Key]
         public int Patient_MedicationID { get; set; }
 
       
