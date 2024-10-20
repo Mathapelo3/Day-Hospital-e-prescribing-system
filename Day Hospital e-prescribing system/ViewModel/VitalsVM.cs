@@ -16,6 +16,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string? Notes { get; set; } = string.Empty;
         public List<Patient_VitalsVM> Vitals { get; set; }
         public Patient? Patient { get; set; }
+        public int NurseID { get; set; }
+
 
 
     }

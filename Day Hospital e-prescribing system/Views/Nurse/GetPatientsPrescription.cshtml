@@ -1,10 +1,9 @@
 ﻿@using Day_Hospital_e_prescribing_system.ViewModel
 @model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.BookedSurgeriesVM>
 @{
-    ViewData["Title"] = "GetBookedSurgeries";
+    ViewData["Title"] = "GetPatientsPrescription";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
-
 <!DOCTYPE html>
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -122,8 +121,8 @@
                                 <label for="startDate" class="mr-2">Search Date:</label>
                                 <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
                             </div>
-                         @*   <div class="form-group mr-2">
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                            @*   <div class="form-group mr-2">
+                            <button type="submit" class="btn btn-primary">Filter</button>
                             </div>*@
 
                             <br />
@@ -137,7 +136,7 @@
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Patient</th>
-                                       @* <th>Treatment Code</th>*@
+                                        @* <th>Treatment Code</th>*@
                                         <th>Theatre</th>
                                         <th>Anesthesiologist</th>
                                         <th>Surgeon</th>
@@ -159,23 +158,27 @@
                                                 <td>@item.Date.ToString("dd/MM/yyyy")</td>
                                                 <td>@item.Time</td>
                                                 <td>@item.PatientName @item.PatientSurname</td>
-                                               @* <td>
-                                                    @if (item.SurgeryCodes != null && item.SurgeryCodes.Any())
-                                                    {
-                                                        @string.Join(", ", item.SurgeryCodes)
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>No treatment codes</span>
-                                                    }
-                                                </td>*@
+                                                @* <td>
+                                        @if (item.SurgeryCodes != null && item.SurgeryCodes.Any())
+                                        {
+                                        @string.Join(", ", item.SurgeryCodes)
+                                        }
+                                        else
+                                        {
+                                        <span>No treatment codes</span>
+                                        }
+                                        </td>*@
                                                 <td>@item.TheatreName</td>
                                                 <td>@item.AnaesthesiologistName @item.AnaesthesiologistSurname</td>
                                                 <td>@item.SurgeonName @item.SurgeonSurname</td>
                                                 <td>
-                                                    <a asp-action="Prescriptions" asp-route-selectedId="@item.PatientID" class="btn btn-primary">
-                                                        ADMIT
-                                                    </a>
+                                                    @if (item != null)
+                                                    {
+                                                        <a asp-action="Prescription" asp-route-selectedId="@item.PatientID" class="btn btn-primary">
+                                                            View Prescription
+                                                        </a>
+                                                    }
+
                                                 </td>
 
                                             </tr>
@@ -268,4 +271,6 @@
     </body>
 </div>
 </html>
+
+
 

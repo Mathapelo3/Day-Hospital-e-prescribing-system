@@ -17,11 +17,11 @@ namespace Day_Hospital_e_prescribing_system.Models
         [StringLength(50)]
         public TimeSpan Time { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Notes are required.")]
         [StringLength(200)]
         public string Notes { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Values are required.")]
         [StringLength(50)]
         public string Value { get; set; }
 

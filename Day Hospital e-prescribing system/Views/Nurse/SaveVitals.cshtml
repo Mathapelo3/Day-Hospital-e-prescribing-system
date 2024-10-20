@@ -112,7 +112,7 @@
                     @Model.Name @Model.Surname
                 </div>
                 @Html.AntiForgeryToken()
-                <div asp-validation-summary="All" class="text-danger"></div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="card">
                     <div class="card-header">
                         <div class="text-center"></div>
@@ -130,13 +130,13 @@
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-6">
-                                        <label for="startDate">Height (cm):</label>
-                                        <input type="number" asp-for="Height" class="form-control" />
+                                        <label for="startDate">Height (m):</label>
+                                        <input type="text" asp-for="Height" class="form-control" />
                                         <span class="text-danger" asp-validation-for="Height"></span>
                                     </div>
                                     <div class="form-group col-6">
                                         <label class="form-label">Weight (kg):</label>
-                                        <input type="number" asp-for="Weight" class="form-control" />
+                                        <input type="text" asp-for="Weight" class="form-control" />
                                         <span class="text-danger" asp-validation-for="Weight"></span>
                                     </div>
                                 <div class="form-group col-md-12">
@@ -146,7 +146,7 @@
                                             <input type="hidden" asp-for="Vitals[i].VitalsID" />
                                             @if (Model.Vitals[i].Vital == "BMI")
                                             {
-                                                <input type="text" asp-for="Vitals[i].Value" class="form-control" id="BMI" readonly />
+                                                <input type="text" asp-for="Vitals[i].Value" class="form-control" id="BMI" readonly value="@Model.Vitals[i].Value" />
                                             }
                                             else
                                             {

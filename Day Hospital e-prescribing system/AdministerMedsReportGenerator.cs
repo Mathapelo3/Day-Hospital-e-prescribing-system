@@ -30,7 +30,7 @@ namespace Day_Hospital_e_prescribing_system
                 _logger.LogInformation($"Executing stored procedure with StartDate: {startDate}, EndDate: {endDate}");
 
                 var meds = _context.AdministerMedsReportVM
-                    .FromSqlInterpolated($"EXEC AdministerMedsReport @StartDate = {startDate}, @EndDate = {endDate}")
+                    .FromSqlInterpolated($"EXEC GetMedsReportData @StartDate = {startDate}, @EndDate = {endDate}")
                     .ToList();
 
                 _logger.LogInformation($"Retrieved {meds.Count} order(s) from the database.");
@@ -98,8 +98,8 @@ namespace Day_Hospital_e_prescribing_system
                             .ToList();
 
                         // Create the table for order data (without borders except for the header)
-                        var table1 = new Table(UnitValue.CreatePercentArray(new float[] { 20, 20, 20, 10 }))
-                            .SetWidth(UnitValue.CreatePercentValue(70)); // Set table width to 70%
+                        var table1 = new Table(UnitValue.CreatePercentArray(new float[] { 20, 20, 20, 20, 20 }))
+                            .SetWidth(UnitValue.CreatePercentValue(100)); // Set table width to 70%
 
                         // Define the border for the bottom of the header row
                         var bottomBorder = new SolidBorder(1); // You can adjust the thickness here
@@ -157,7 +157,7 @@ namespace Day_Hospital_e_prescribing_system
                         document.Add(summaryTitle);
 
                         // Create the second table with medication summary
-                        var table2 = new Table(UnitValue.CreatePercentArray(new float[] { 30, 10 }))
+                        var table2 = new Table(UnitValue.CreatePercentArray(new float[] { 30, 30 }))
                             .SetWidth(UnitValue.CreatePercentValue(30)); // Set table width to 30%
 
                         // Define the border for the bottom of the header row
