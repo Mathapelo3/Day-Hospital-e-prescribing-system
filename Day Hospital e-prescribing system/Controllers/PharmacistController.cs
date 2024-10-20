@@ -184,7 +184,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var sqlQuery = "EXEC AllPrescriptions @Status = {0}";
 
             var prescriptions = await _context.prescriptionViewModels
-                .FromSqlInterpolated($"EXEC AllPrescriptions @StartDate = {startDate ?? (object)DBNull.Value}")
+                .FromSqlInterpolated($"EXEC AllPrescriptions @Status = {startDate ?? (object)DBNull.Value}")
                 .ToListAsync();
 
             ViewBag.SuccessMessage = message;
