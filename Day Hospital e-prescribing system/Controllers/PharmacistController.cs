@@ -330,6 +330,30 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
         [HttpGet]
+        public IActionResult PharmacistReportGenerator(DateTime startDate, DateTime endDate)
+        {
+            var surgeonName = HttpContext.Session.GetString("Name");
+            var surgeonSurname = HttpContext.Session.GetString("Surname");
+
+            if (string.IsNullOrEmpty(surgeonName) || string.IsNullOrEmpty(surgeonSurname))
+            {
+                _logger.LogWarning("Surgeon name or surname could not be retrieved from the session.");
+                return BadRequest("Unable to retrieve surgeon details.");
+            }
+
+            var reportStream = _pharmacistReportGenerator.GenerateDispensaryReport(startDate, endDate, surgeonName, surgeonSurname);
+
+            // Ensure the stream is not disposed prematurely
+            if (reportStream == null || reportStream.Length == 0)
+            {
+                return NotFound(); // Or handle as appropriate
+            }
+
+            // Return the PDF file
+            return File(reportStream, "application/pdf", "SurgeriesReport.pdf");
+        }
+
+        [HttpGet]
         public IActionResult RejectPrescription(int? id = null)
         {
             if (!id.HasValue)
