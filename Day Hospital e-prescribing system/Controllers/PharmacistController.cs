@@ -198,36 +198,37 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             try
             {
-                // Retrieve the prescription details
-                var prescriptions = _context.PrescriptionVM
-                    .FromSqlRaw("EXEC GetPatientPrescriptionByPrescriptionID @PrescriptionID = {0}", id)
-                    .ToList();
-
-                // Ensure we have a valid prescription
-                if (prescriptions == null || !prescriptions.Any())
-                {
-                    throw new Exception($"No prescriptions found for ID: {id}");
-                }
-
-                // Get the allergy alert message
-                //var allergyAlertMessage = GetAllergyAlert(id);
-
-                // Retrieve other related data using stored procedures
-                var conditions = _context.PatientConditions
-                    .FromSqlRaw("EXEC GetPatientConditionsByPrescriptionID @PrescriptionID = {0}", id)
-                    .ToList();
-
-                var vitals = _context.PatientVitals
-                    .FromSqlRaw("EXEC GetPatientVitalsByPrescriptionID @PrescriptionID = {0}", id)
-                    .ToList();
-
+                var prescriptions = _connection.Query<PatientPrescriptionVM>(
+                    "GetPatientPrescriptionByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+                var allergies = _connection.Query<PatientAllergiesViewModel>(
+                    "GetPatientAllergiesByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+                var conditions = _connection.Query<PatientConditionsViewModel>(
+                    "GetPatientConditionsByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+                var vitals = _connection.Query<PatientVitalsViewModel>(
+                    "GetPatientVitalsByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
+                var medication = _connection.Query<PatientMedicationVM>(
+                    "GetPatientMedicationByPrescriptionID",
+                    new { PrescriptionID = id },
+                    commandType: CommandType.StoredProcedure);
                 return new PatientPrescriptionWithRelatedDataVM
                 {
                     Prescription = prescriptions,
+                    Allergies = allergies,
                     Conditions = conditions,
-                    Vitals = vitals
+                    Vitals = vitals,
+                    Medications = medication
+                   
                     /*AllergyAlert = allergyAlertMessage */// Set the alert message here
                 };
+            
             }
             catch (Exception ex)
             {
@@ -236,28 +237,25 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
         }
 
-        //private string GetAllergyAlert(int prescriptionId)
-        //{
-        //    // Retrieve the active ingredient IDs for the medications prescribed
-        //    var activeIngredientIDs = _context.dayHospitalMed_ActiveIngredients
-        //        .Where(a => a.StockID == prescriptionId) // Adjust condition based on your logic
-        //        .Select(a => a.Active_IngredientID)
-        //        .ToList();
+        [HttpPost]
+        public async Task<IActionResult> CheckAllergy(int patientId, int stockId)
+        {
+            var parameter = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
+            {
+                Direction = ParameterDirection.Output
+            };
 
-        //    // Retrieve the active ingredient IDs for the patient's allergies
-        //    var allergyActiveIngredientIDs = _context.Patient_Allergy
-        //        .Where(a => a.PatientID == prescriptionId) // Adjust condition based on your logic
-        //        .Select(a => a.Active_IngredientID)
-        //        .ToList();
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC dbo.AllergyCheckForSurgeon @PatientID, @StockID, @AlertMessage OUT",
+                new SqlParameter("@PatientID", patientId),
+                new SqlParameter("@StockID", stockId),
+                parameter
+            );
 
-        //    // Check for any matches between the two lists
-        //    var hasAllergy = activeIngredientIDs.Intersect(allergyActiveIngredientIDs).Any();
+            string alertMessage = parameter.Value == DBNull.Value ? null : (string)parameter.Value;
 
-        //    return hasAllergy
-        //        ? "Alert: Patient has an allergy to one or more active ingredients in the medication."
-        //        : "No allergies found for the active ingredients in the medication.";
-        //}
-
+            return Json(new { hasAllergy = !string.IsNullOrEmpty(alertMessage), message = alertMessage });
+        }
 
 
 
@@ -289,28 +287,46 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         }
 
 
-
-        public async Task<ActionResult> AllPrescriptions(DateTime startDate, DateTime endDate)
+        [HttpGet]
+        public async Task<ActionResult> AllPrescriptions(DateTime? startDate, DateTime? endDate)
         {
-            var pharmacistName = HttpContext.Session.GetString("Name");
-            var pharmacistSurname = HttpContext.Session.GetString("Surname");
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            // Get the logged-in user's ID
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(pharmacistName) || string.IsNullOrEmpty(pharmacistSurname))
+            if (string.IsNullOrEmpty(userId))
             {
-                _logger.LogWarning("Anesthesiologist name or surname could not be retrieved from the session.");
-                return BadRequest("Unable to retrieve anesthesiologist details.");
+                return Unauthorized("User not authenticated");
             }
 
-            var reportStream = _pharmacistReportGenerator.GenerateDispensaryReport(startDate, endDate, pharmacistSurname, pharmacistSurname);
-
-            // Ensure the stream is not disposed prematurely
-            if (reportStream == null || reportStream.Length == 0)
+            // Convert userId to int if necessary
+            int surgeonId;
+            if (!int.TryParse(userId, out surgeonId))
             {
-                return NotFound(); // Or handle as appropriate
+                return BadRequest("Invalid user ID");
             }
 
-            // Return the PDF file
-            return File(reportStream, "application/pdf", "OrderReport.pdf");
+            // Get the surgeon's ID based on the user ID
+            var surgeon = await _context.Surgeons
+                .FirstOrDefaultAsync(s => s.SurgeonID == surgeonId);
+
+            if (surgeon == null)
+            {
+                return NotFound("Surgeon not found");
+            }
+
+            // Call the stored procedure
+            var surgeryDetails = await _context.Set<PrescriptionViewModel>().FromSqlRaw(
+                "EXEC [dbo].[GetDispensaryReportData] @StartDate, @EndDate",
+                new SqlParameter("@StartDate", startDate ?? (object)DBNull.Value),
+                new SqlParameter("@EndDate", endDate ?? (object)DBNull.Value)
+              
+            ).ToListAsync();
+
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
+
+            return View(surgeryDetails);
         }
 
         [HttpGet]

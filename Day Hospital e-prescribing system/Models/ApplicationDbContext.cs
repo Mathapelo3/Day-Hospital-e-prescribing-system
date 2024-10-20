@@ -84,13 +84,13 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<AdministeredMedDetails> AdministeredMedDetails { get; set; }
         public DbSet <AdministerMedsReportVM> AdministerMedsReportVM { get; set; }
 
+
         public DbSet<PatientPrescriptionVM> PrescriptionVM { get; set; }
         public DbSet<PatientAllergiesViewModel> PatientAllergiesVM { get; set; }
         public DbSet<PatientConditionsViewModel> PatientConditions { get; set; }
         public DbSet<PatientVitalsViewModel> PatientVitals { get; set; }
-        public DbSet<PatientMedicationVM> PatientMedications { get; set; }
-        //public DbSet<PatientPrescription> PatientPrescription { get; set; }
-      
+        public DbSet<PatientMedicationVM> PatientMedications { get; set; }  
+
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -163,7 +163,9 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();
             modelBuilder.Entity<PAllergyViewModel>().HasNoKey();
             modelBuilder.Entity<OrderMedicineViewModel>().HasNoKey();
+            
 
+            
 
 
             //base.OnModelCreating(modelBuilder);

@@ -1,0 +1,129 @@
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel>
+
+<section class="content">
+
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center ">
+                @if (ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @ViewBag.SuccessMessage
+                    </div>
+                }
+            </div>
+            <br />
+            <h4 style="color:#268aab">List Of Prescriptions</h4>
+            <br />
+        </div>
+    </div>
+    <div class="row">
+        <form asp-action="Prescriptions" asp-controller="Pharmacist" method="get" class="form-inline mb-3">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Select Date</label>
+                        <input type="date" class="col-sm-5 form-control" />
+                        <div class="col-sm-3">
+                            <button class="form-control " style="background-color: #268aab; color:#ffffff">Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+
+
+    <!-- Display Prescriptions -->
+    <div class="card-body">
+
+
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row">
+
+                <table class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Medicine</th>
+                            <th scope="col">Patient Name</th>
+                            <th scope="col">Surgeon</th>
+                            <th scope="col">Action</th>
+
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model)
+                    {
+                        <tbody>
+                            <tr class="@(item.Urgency ? "solved" : "")">
+                                <td>@item.Date.ToShortDateString()</td>
+                                <td>@item.MedicationName</td>
+                                <td>@item.PatientName @item.PatientSurname</td>
+
+                                <td>DR @item.SurgeonSurname</td>
+                                <td>
+                                    <a asp-controller="Pharmacist"
+                                       asp-route-id="@item.PrescriptionID"
+                                       asp-action="ViewPrescription"
+                                       class="btn btn-info">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    }
+                </table>
+                <div><br /></div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div>
+                <h3 class=" display-6 text-center text-bold" style="color:#268aab">No undispensed prescriptions found</h3>
+
+                <br />
+            </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                    Back
+                </a>
+            </div>
+
+
+        }
+
+
+
+
+
+
+    </div>
+
+
+
+</section>
+
+
+<style>
+    tr.solved td {
+        background-color: #d62828;
+        color: white;
+    }
+
+    }
+
+    tr.unsolved td {
+        background-color: #FF3333;
+        color: black;
+    }
+</style>
