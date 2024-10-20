@@ -92,7 +92,7 @@ namespace Day_Hospital_e_prescribing_system.Models
         public DbSet<PatientMedicationVM> PatientMedications { get; set; }      
 =======
         public DbSet<PatientMedicationVM> PatientMedications { get; set; }
-        //public DbSet<PatientPrescription> PatientPrescription { get; set; }
+        public DbSet<PatientPrescription> PatientPrescription { get; set; }
       
 >>>>>>> 50b450fffa12f427938853778c20405ae9867eaa
 
