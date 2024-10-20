@@ -84,27 +84,48 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    // Function to check for allergies
-    async function checkAllergy(patientId, stockId) {
-        try {
-            const response = await fetch('/Surgeon/CheckAllergy', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify({ patientId, stockId })
-            });
+    document.getElementById('addMedication').addEventListener('click', function () {
+        var select = document.getElementById('medicationSelect');
+        var option = select.options[select.selectedIndex];
+        var quantity = document.getElementById('quantityInput').value;
+        var instruction = document.getElementById('instructionInput').value;
+        var medicationList = document.getElementById('medicationList');
 
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error checking allergies:', error);
-            return { hasAllergy: false, message: null };
+        if (option && option.value && quantity && instruction) {
+            var li = document.createElement('li');
+            var index = medicationList.children.length;
+
+            li.innerHTML = `
+                    ${option.text} - ${quantity} - ${instruction}
+                    <input type="hidden" name="SelectedMedications[${index}].StockID" value="${option.value}" />
+                    <input type="hidden" name="SelectedMedications[${index}].MedicationName" value="${option.text}" />
+                    <input type="hidden" name="SelectedMedications[${index}].Quantity" value="${quantity}" />
+                    <input type="hidden" name="SelectedMedications[${index}].Instruction" value="${instruction}" />
+                    <button type="button" class="btn btn-danger btn-sm float-right remove-medication">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+            li.className = 'list-group-item';
+            medicationList.appendChild(li);
+
+            // Clear inputs after adding
+            select.selectedIndex = 0;
+            document.getElementById('quantityInput').value = '';
+            document.getElementById('instructionInput').value = '';
+        } else {
+            alert('Please select a medication and provide quantity and instruction.');
         }
-    }
+    });
 
-    // Function to update medication indices
+    // Event delegation for remove buttons
+    document.getElementById('medicationList').addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-medication') || e.target.closest('.remove-medication')) {
+            e.target.closest('li').remove();
+            updateMedicationIndices();
+        }
+    });
+
     function updateMedicationIndices() {
         var medicationItems = document.querySelectorAll('#medicationList li');
         medicationItems.forEach((item, index) => {
@@ -116,141 +137,4 @@
             });
         });
     }
-
-    // Add Medication Button Click Handler
-    document.getElementById('addMedication').addEventListener('click', async function () {
-        var select = document.getElementById('medicationSelect');
-        var patientSelect = document.getElementById('SelectedPatientId');
-        var option = select.options[select.selectedIndex];
-        var quantity = document.getElementById('quantityInput').value;
-        var instruction = document.getElementById('instructionInput').value;
-        var medicationList = document.getElementById('medicationList');
-
-        // Validate patient selection
-        if (!patientSelect.value) {
-            alert('Please select a patient first.');
-            patientSelect.focus();
-            return;
-        }
-
-        // Validate medication inputs
-        if (!option || !option.value) {
-            alert('Please select a medication.');
-            select.focus();
-            return;
-        }
-
-        if (!quantity) {
-            alert('Please enter a quantity.');
-            document.getElementById('quantityInput').focus();
-            return;
-        }
-
-        if (!instruction) {
-            alert('Please enter instructions.');
-            document.getElementById('instructionInput').focus();
-            return;
-        }
-
-        // Check for allergies before adding medication
-        const allergyCheck = await checkAllergy(patientSelect.value, option.value);
-
-        if (allergyCheck.hasAllergy) {
-            alert(allergyCheck.message);
-            select.focus();
-            return;
-        }
-
-        // Create new medication list item
-        var li = document.createElement('li');
-        var index = medicationList.children.length;
-
-        li.innerHTML = `
-                ${option.text} - ${quantity} - ${instruction}
-                <input type="hidden" name="SelectedMedications[${index}].StockID" value="${option.value}" />
-                <input type="hidden" name="SelectedMedications[${index}].MedicationName" value="${option.text}" />
-                <input type="hidden" name="SelectedMedications[${index}].Quantity" value="${quantity}" />
-                <input type="hidden" name="SelectedMedications[${index}].Instruction" value="${instruction}" />
-                <button type="button" class="btn btn-danger btn-sm float-right remove-medication">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-
-        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        medicationList.appendChild(li);
-
-        // Clear inputs after adding
-        select.selectedIndex = 0;
-        document.getElementById('quantityInput').value = '';
-        document.getElementById('instructionInput').value = '';
-    });
-
-    // Remove Medication Button Click Handler
-    document.getElementById('medicationList').addEventListener('click', function (e) {
-        if (e.target.classList.contains('remove-medication') || e.target.closest('.remove-medication')) {
-            e.target.closest('li').remove();
-            updateMedicationIndices();
-        }
-    });
-
-    // Form Submit Handler
-    document.getElementById('prescriptionForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        var patientId = document.getElementById('SelectedPatientId').value;
-        var medications = document.querySelectorAll('#medicationList li input[name$="].StockID"]');
-
-        if (!patientId) {
-            alert('Please select a patient.');
-            return;
-        }
-
-        if (medications.length === 0) {
-            alert('Please add at least one medication to the prescription.');
-            return;
-        }
-
-        // Check all medications for allergies one final time
-        for (let medication of medications) {
-            const allergyCheck = await checkAllergy(patientId, medication.value);
-            if (allergyCheck.hasAllergy) {
-                alert(`Cannot submit prescription: ${allergyCheck.message}`);
-                return;
-            }
-        }
-
-        // If all checks pass, submit the form
-        this.submit();
-    });
-
-    // Patient Selection Change Handler
-    document.getElementById('SelectedPatientId').addEventListener('change', function () {
-        // Clear medication list when patient changes
-        document.getElementById('medicationList').innerHTML = '';
-        // Reset medication selection
-        document.getElementById('medicationSelect').selectedIndex = 0;
-        // Clear quantity and instruction inputs
-        document.getElementById('quantityInput').value = '';
-        document.getElementById('instructionInput').value = '';
-    });
-
-    // Initialize date field to today if empty
-    window.addEventListener('load', function () {
-        var dateField = document.querySelector('input[type="date"]');
-        if (!dateField.value) {
-            var today = new Date().toISOString().split('T')[0];
-            dateField.value = today;
-        }
-    });
-
-    // Optional: Add input validation for quantity
-    document.getElementById('quantityInput').addEventListener('input', function (e) {
-        // Remove any non-numeric characters
-        this.value = this.value.replace(/[^\d]/g, '');
-
-        // Ensure the value is positive
-        if (this.value <= 0) {
-            this.value = '';
-        }
-    });
 </script>
