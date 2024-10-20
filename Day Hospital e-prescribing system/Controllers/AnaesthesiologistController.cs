@@ -453,6 +453,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     _logger.LogError("Logged-in user's email is null or empty.");
                     // Handle the error or return an error message
+                    return RedirectToAction("Login", "Accounts");
                 }
                 var anaesthesiologistID = _helper.GetAnaesthesiologistByEmail("SELECT a.AnaesthesiologistID, a.UserID, u.Username, u.Name, u.Surname FROM Anaesthesiologist a INNER JOIN [User ] u ON a.UserID = u.UserID WHERE u.Email = @Email", loggedInUserEmail).AnaesthesiologistID;
 
@@ -461,6 +462,34 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     foreach (var selectedMedication in model.SelectedMedications)
                     {
+                        var alertMessageParam = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+
+                        // Call stored procedure to check for allergies
+                        await _context.Database.ExecuteSqlRawAsync(
+                            "EXEC CheckAllergyBeforeOrder @PatientID, @StockID, @AlertMessage OUTPUT",
+                            new SqlParameter("@PatientID", model.PatientID),
+                            new SqlParameter("@StockID", selectedMedication.StockID),
+                            alertMessageParam
+                        );
+
+                        // Retrieve the allergy alert message
+                        string alertMessage = alertMessageParam.Value as string;
+
+                        if (!string.IsNullOrEmpty(alertMessage))
+                        {
+                            // If an allergy is detected, add it to the model state and return the form
+                            ModelState.AddModelError("", alertMessage);
+
+                            // Clear selected medications and re-populate the medication dropdown
+                            model.SelectedMedications = new List<SPMedicationViewModel>();
+                            model.DayHospitalMedication = new SelectList(await _context.DayHospitalMedication.ToListAsync(), "StockID", "MedicationName");
+
+                            return View(model); // Show the view again with the allergy warning
+                        }
+
                         // Call the stored procedure or use EF to add each selected medication
                         _context.Database.ExecuteSqlRaw("EXEC InsertOrder @Date, @Quantity, @Status, @Urgency, @Administered, @QAdministered, @Notes, @PatientID, @AnaesthesiologistID, @StockID",
                             new SqlParameter("@Date", model.Date),
