@@ -19,6 +19,7 @@
                 <div class="card">
                     <div class="card-body">
                         <form id="prescriptionForm" method="post" asp-action="NewPrescription" asp-controller="Surgeon">
+                            <div id="alertContainer" class="mb-3"></div>
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -84,6 +85,33 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+    // Function to show alert
+    function showAlert(message, type = 'warning') {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+        // Clear any existing alerts
+        alertContainer.innerHTML = '';
+        alertContainer.appendChild(alertDiv);
+
+        // Scroll to alert
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Optional: Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentElement) {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }
+        }, 5000);
+    }
+
     // Function to check for allergies
     async function checkAllergy(patientId, stockId) {
         try {
@@ -104,7 +132,6 @@
         }
     }
 
-    // Function to update medication indices
     function updateMedicationIndices() {
         var medicationItems = document.querySelectorAll('#medicationList li');
         medicationItems.forEach((item, index) => {
@@ -117,7 +144,6 @@
         });
     }
 
-    // Add Medication Button Click Handler
     document.getElementById('addMedication').addEventListener('click', async function () {
         var select = document.getElementById('medicationSelect');
         var patientSelect = document.getElementById('SelectedPatientId');
@@ -128,26 +154,26 @@
 
         // Validate patient selection
         if (!patientSelect.value) {
-            alert('Please select a patient first.');
+            showAlert('Please select a patient first.', 'info');
             patientSelect.focus();
             return;
         }
 
         // Validate medication inputs
         if (!option || !option.value) {
-            alert('Please select a medication.');
+            showAlert('Please select a medication.', 'info');
             select.focus();
             return;
         }
 
         if (!quantity) {
-            alert('Please enter a quantity.');
+            showAlert('Please enter a quantity.', 'info');
             document.getElementById('quantityInput').focus();
             return;
         }
 
         if (!instruction) {
-            alert('Please enter instructions.');
+            showAlert('Please enter instructions.', 'info');
             document.getElementById('instructionInput').focus();
             return;
         }
@@ -156,7 +182,7 @@
         const allergyCheck = await checkAllergy(patientSelect.value, option.value);
 
         if (allergyCheck.hasAllergy) {
-            alert(allergyCheck.message);
+            showAlert(allergyCheck.message, 'danger');
             select.focus();
             return;
         }
@@ -179,21 +205,22 @@
         li.className = 'list-group-item d-flex justify-content-between align-items-center';
         medicationList.appendChild(li);
 
+        showAlert('Medication added successfully!', 'success');
+
         // Clear inputs after adding
         select.selectedIndex = 0;
         document.getElementById('quantityInput').value = '';
         document.getElementById('instructionInput').value = '';
     });
 
-    // Remove Medication Button Click Handler
     document.getElementById('medicationList').addEventListener('click', function (e) {
         if (e.target.classList.contains('remove-medication') || e.target.closest('.remove-medication')) {
             e.target.closest('li').remove();
             updateMedicationIndices();
+            showAlert('Medication removed.', 'info');
         }
     });
 
-    // Form Submit Handler
     document.getElementById('prescriptionForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
@@ -201,12 +228,12 @@
         var medications = document.querySelectorAll('#medicationList li input[name$="].StockID"]');
 
         if (!patientId) {
-            alert('Please select a patient.');
+            showAlert('Please select a patient.', 'warning');
             return;
         }
 
         if (medications.length === 0) {
-            alert('Please add at least one medication to the prescription.');
+            showAlert('Please add at least one medication to the prescription.', 'warning');
             return;
         }
 
@@ -214,7 +241,7 @@
         for (let medication of medications) {
             const allergyCheck = await checkAllergy(patientId, medication.value);
             if (allergyCheck.hasAllergy) {
-                alert(`Cannot submit prescription: ${allergyCheck.message}`);
+                showAlert(`Cannot submit prescription: ${allergyCheck.message}`, 'danger');
                 return;
             }
         }
@@ -223,18 +250,14 @@
         this.submit();
     });
 
-    // Patient Selection Change Handler
     document.getElementById('SelectedPatientId').addEventListener('change', function () {
-        // Clear medication list when patient changes
         document.getElementById('medicationList').innerHTML = '';
-        // Reset medication selection
         document.getElementById('medicationSelect').selectedIndex = 0;
-        // Clear quantity and instruction inputs
         document.getElementById('quantityInput').value = '';
         document.getElementById('instructionInput').value = '';
+        showAlert('Patient changed. Previous medications cleared.', 'info');
     });
 
-    // Initialize date field to today if empty
     window.addEventListener('load', function () {
         var dateField = document.querySelector('input[type="date"]');
         if (!dateField.value) {
@@ -243,12 +266,8 @@
         }
     });
 
-    // Optional: Add input validation for quantity
     document.getElementById('quantityInput').addEventListener('input', function (e) {
-        // Remove any non-numeric characters
         this.value = this.value.replace(/[^\d]/g, '');
-
-        // Ensure the value is positive
         if (this.value <= 0) {
             this.value = '';
         }
