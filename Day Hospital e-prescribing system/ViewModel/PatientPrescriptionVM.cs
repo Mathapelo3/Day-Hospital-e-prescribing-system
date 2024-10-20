@@ -5,7 +5,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 {
     public class PatientPrescriptionVM
     {
-        [Key]
+        
         public int PrescriptionID { get; set; }
         public string InstructionText { get; set; }
         public DateTime Date { get; set; }
@@ -46,7 +46,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
 
 
 
-        //public DayHospitalMedicationVM DayHospitalMedication { get; set; }
+       
 
         public Patient? Patient { get; set; }
         public List<Allergy> Allergies { get; set; } = new List<Allergy>();

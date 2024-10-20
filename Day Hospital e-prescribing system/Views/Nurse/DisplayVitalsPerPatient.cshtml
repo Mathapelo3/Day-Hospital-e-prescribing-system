@@ -121,14 +121,14 @@
                                         <table id="allergiesTable" class="table table-bordered table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th>Weight</th>
-                                                    <th>Height</th>
+                                                    <th>Weight (kg)</th>
+                                                    <th>Height (m)</th>
                                                 </tr>
                                             </thead>
                                             <tbody readonly>
                                                     <tr>
-                                                    <td>@(Model.Patient_Vitals?.Weight?? "Not added")</td>
-                                                    <td>@(Model.Patient_Vitals?.Height ?? "Not added")</td>
+                                                    <td>@(Model.Weight ?? "Not added")</td>
+                                                    <td>@(Model.Height ?? "Not added")</td>
                                                     </tr>
                                             </tbody>
                                         </table>

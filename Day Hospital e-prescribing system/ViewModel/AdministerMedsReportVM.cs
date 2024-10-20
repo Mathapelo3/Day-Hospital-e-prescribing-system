@@ -8,8 +8,8 @@
         public string Surname { get; set; }
         public string MedicationName { get; set; }
         public string Quantity { get; set; }
-        public string Instruction { get; set; }
+        //public string Instruction { get; set; }
 
-        public string Administer { get; set; }
+        //public string Administer { get; set; }
     }
 }

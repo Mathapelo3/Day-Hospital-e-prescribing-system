@@ -152,7 +152,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private async Task SignInNurse(string email, string role)
         {
             var nurseDetails = _helper.GetNurseByEmail(@"
-                SELECT n.NurseID, n.UserID, u.Username 
+                SELECT n.NurseID, n.UserID, u.Username, u.Name, u.Surname 
                 FROM Nurse n
                 INNER JOIN [User] u ON n.UserID = u.UserID
                 WHERE u.Email = @Email", email);
@@ -162,6 +162,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 {
                     new Claim(ClaimTypes.Email, email),
                     new Claim(ClaimTypes.NameIdentifier, nurseDetails.NurseID.ToString()),
+                     new Claim(ClaimTypes.Name, $" {nurseDetails.Name} {nurseDetails.Surname}"),
                     new Claim("Role", role),
                     new Claim("NurseID", nurseDetails.NurseID.ToString())
                 };
@@ -173,7 +174,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
                 HttpContext.Session.SetString("Email", email);
                 HttpContext.Session.SetString("Username", nurseDetails.Username);
+                HttpContext.Session.SetString("Name", nurseDetails.Name);
+                HttpContext.Session.SetString("Surname", nurseDetails.Surname);
                 HttpContext.Session.SetString("Role", role);
+                HttpContext.Session.SetString("NurseID", nurseDetails.NurseID.ToString());
             }
         }
 

@@ -128,6 +128,8 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<Patient_Vitals>()
        .HasKey(m => new { m.PatientID, m.VitalsID });
 
+
+
             // Configuring relationships
             modelBuilder.Entity<Patient>()
                 .HasMany(p => p.Patient_Allergy)
@@ -162,9 +164,9 @@ namespace Day_Hospital_e_prescribing_system.Models
             modelBuilder.Entity<PConditionViewModel>().HasNoKey();
             modelBuilder.Entity<PAllergyViewModel>().HasNoKey();
             modelBuilder.Entity<OrderMedicineViewModel>().HasNoKey();
-            
+            modelBuilder.Entity<PatientPrescriptionVM>().HasNoKey();
 
-            
+
 
 
             //base.OnModelCreating(modelBuilder);

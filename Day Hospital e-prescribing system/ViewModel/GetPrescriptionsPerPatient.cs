@@ -1,6 +1,6 @@
 ﻿namespace Day_Hospital_e_prescribing_system.ViewModel
 {
-    public class PatientPrescriptionViewModel
+    public class GetPrescriptionsPerPatient
     {
         public string PatientName { get; set; }
         public string PatientSurname { get; set; }
@@ -15,9 +15,8 @@
             public string Status { get; set; }
             public bool Urgency { get; set; }
             public string MedicationName { get; set; }
-            
-             
+            //public string SurgeonName { get; set; }
+            //public string SurgeonSurname { get; set; }
         }
     }
-
 }

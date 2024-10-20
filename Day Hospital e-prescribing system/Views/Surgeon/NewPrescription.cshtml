@@ -21,7 +21,6 @@
                         <form id="prescriptionForm" method="post" asp-action="NewPrescription" asp-controller="Surgeon">
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
                             <div class="form-group">
                                 <label asp-for="SelectedPatientId">Patient:</label>
                                 <select asp-for="SelectedPatientId" asp-items="Model.PatientList" class="form-control">

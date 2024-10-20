@@ -1,0 +1,131 @@
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PPrescriptionViewModel>
+@{
+    ViewData["Title"] = "GetAllPatientPrescriptions";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+<div class="container-fluid">
+    <form method="get" action="@Url.Action("Prescriptions", "Anaesthesiologist")">
+        <input type="hidden" name="id" value="@ViewBag.PatientID" />
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Calendar to select date -->
+                <div class="card">
+                    <div class="card-body">
+                        <input type="date" name="selectedDate" id="selectedDate" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-purple">Filter</button>
+            </div>
+            <div class="col-md-1 ml-auto">
+                <a href="@Url.Action("Prescriptions", "Anaesthesiologist", new { id = ViewBag.PatientID })" class="btn btn-danger btn-block">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Display patients -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-5">
+                            @if (Model.Any())
+                            {
+                                var patient = Model.First();
+                                <h3 class="card-title">@patient.PatientFullName</h3> <!-- Display patient name -->
+                            }
+
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })" class="btn btn-white"></a>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            @if (Model.Any())
+                            {
+                                var patientID = Model.FirstOrDefault()?.PatientID;
+                            }
+                            else
+                            {
+                                // Provide fallback if there are no prescriptions
+                                var patientID = ViewBag.PatientID;
+                            }
+                            <a href="@Url.Action("MedicalHistory", "Anaesthesiologist", new { id = Model.Any() ? Model.FirstOrDefault()?.PatientID: ViewBag.PatientID })" class="btn btn-purple">Medical History</a>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <a href="@Url.Action("CaptureOrders", "Anaesthesiologist", new { id = Model.FirstOrDefault()?.PatientID })"
+                               class="btn btn-purple @(ViewBag.IsPrescriptionEmpty ? "disabled" : "")"
+                               onclick="return showAlertIfEmpty(@ViewBag.IsPrescriptionEmpty)">Order Form</a>
+
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-danger text-center">
+                            No prescriptions available. You cannot place an order.
+                        </div>
+                    }
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Medication</th>
+                                    <th>Instruction</th>
+
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+
+                                    <th>Urgency</th>
+                                    <th>Surgeon</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+
+
+                                        <td>@item.Date.ToShortDateString()</td>
+                                        <td>@item.MedicationName</td>
+                                        <td>@item.Instruction</td>
+
+                                        <td>@item.Quantity</td>
+                                        <td>@item.Status</td>
+                                        <td>@(item.Urgency ? "Urgent" : "Non-Urgent")</td>
+
+                                        <td>@item.SurgeonFullName</td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<script>
+    $(document).ready(function () {
+        // Define the function to show alert
+        function showAlertIfEmpty(isEmpty) {
+            if (isEmpty) {
+                alert("Order cannot be placed because there are no prescriptions.");
+                return false; // Prevent button action if no prescriptions
+            }
+            return true; // Allow the action if prescriptions exist
+        }
+
+        // Attach the function to the button click event if necessary
+        $('.btn-purple').click(function () {
+            return showAlertIfEmpty(@ViewBag.IsPrescriptionEmpty);
+        });
+    });
+
+</script>
