@@ -1,6 +1,6 @@
 ﻿@model Day_Hospital_e_prescribing_system.ViewModel.PatientVM
 @{
-    ViewData["Title"] = "Discharge";
+    ViewData["Title"] = "DischargeGet";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
 
@@ -91,29 +91,20 @@
 <div class="card">
     <div class="card-header">
         <div class="text-center ">
-            <h3 class="display-6 text-primary text-center text-bold">DISCHARGE</h3>
+            <h3 class="display-6 text-primary text-center text-bold">ADMINISTER MEDICATION</h3>
         </div>
     </div>
 
     <div class="card-body">
-        @if (TempData["Message"] != null)
+        @if (!string.IsNullOrEmpty(TempData["Message"] as string))
         {
             <div class="alert alert-success">
                 @TempData["Message"]
             </div>
         }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["Error"]
-            </div>
-        }
-        <form asp-action="DischargeConfirm" asp-controller="Nurse" method="post">
-            <input type="hidden" asp-for="PatientID" />
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="All" class="text-danger"></div>
-@*
-            <input asp-for="@Model.PatientID" hidden />*@
+        <form asp-action="Discharge" asp-controller="Nurse">
+
+            <input asp-for="@Model.PatientID" hidden />
             <div class="row">
                 @*<p class="fw-bold">Personal Details:</p>*@
                 <div class="form-group col-6">
@@ -140,23 +131,14 @@
                     @* <span asp-validation-for="Email" class="text-danger"></span>*@
                 </div>
             </div>
-            <div class="form-group">
-                <input type="submit" class="btn btn-primary" />
-            </div>
         </form>
-       @* <form asp-action="Discharge">
+        <form asp-action="Discharge">
             <input type="hidden" asp-for="PatientID" />
-            <input type="submit" value="Discharge" class="btn btn-primary" /> 
-           
-        </form>*@
+            <input type="submit" value="Discharge" class="btn btn-primary" /> |
+            @* <a asp-action="Index">Back to List</a>*@
+        </form>
     </div>
 
-    @if (ViewBag.ErrorMessage != null)
-    {
-        <div class="alert alert-warning">
-            @ViewBag.ErrorMessage
-        </div>
-    }
 
 
 

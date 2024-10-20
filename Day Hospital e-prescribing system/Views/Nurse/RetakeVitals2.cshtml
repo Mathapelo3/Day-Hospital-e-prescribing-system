@@ -99,10 +99,10 @@
             <h3 class="display-6 text-primary text-center text-bold">VITALS</h3>
         </div>
     </div>
-    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    @if (!string.IsNullOrEmpty(TempData["Alerts"] as string))
     {
         <div class="alert alert-success">
-            @TempData["SuccessMessage"]
+            @TempData["Alerts"]
         </div>
     }
     <form asp-action="SaveVitals" method="post">

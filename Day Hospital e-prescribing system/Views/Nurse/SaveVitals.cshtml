@@ -98,10 +98,10 @@
             <h3 class="display-6 text-primary text-center text-bold">VITALS</h3>
         </div>
     </div>
-    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    @if (!string.IsNullOrEmpty(TempData["Alerts"] as string))
     {
         <div class="alert alert-success">
-            @TempData["SuccessMessage"]
+            @TempData["Alerts"]
         </div>
     }
     <form asp-action="SaveVitals" method="post">
@@ -128,7 +128,7 @@
                                     <input type="time" asp-for="Time" class="form-control" />
                                     <span class="text-danger" asp-validation-for="Time"></span>
                                 </div>
-                               @* <div class="row">
+                                <div class="row">
                                     <div class="form-group col-6">
                                         <label for="startDate">Height (cm):</label>
                                         <input type="number" asp-for="Height" class="form-control" />
@@ -138,7 +138,7 @@
                                         <label class="form-label">Weight (kg):</label>
                                         <input type="number" asp-for="Weight" class="form-control" />
                                         <span class="text-danger" asp-validation-for="Weight"></span>
-                                    </div>*@
+                                    </div>
                                 <div class="form-group col-md-12">
                                     @for (int i = 0; i < Model.Vitals.Count; i++)
                                     {

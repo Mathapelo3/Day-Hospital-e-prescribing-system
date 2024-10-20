@@ -1,0 +1,64 @@
+﻿@model IEnumerable<Day_Hospital_e_prescribing_system.Models.Patient>
+@{
+    ViewData["Title"] = "DischargedPatient";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <div class="text-center ">
+            <h3 class="display-6 text-primary text-center text-bold">DISCHARGED PATIENTS</h3>
+        </div>
+    </div>
+</div>
+<br />
+</div>
+<div class="container p-3 text-md-center">
+    <div class="col-md-4">
+        <!-- Search bar -->
+        <form asp-action="DischargePatient" method="get">
+            <div class="input-group">
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by Name">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br />
+    @if (Model.Any())
+    {
+        <table id="patientsTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Email Address</th>
+                    <th>Gender</th>
+                    <th>ID Number</th>
+                   @* <th>Action</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name @item.Surname</td>
+                        <td>@item.Email</td>
+                        <td>@item.Gender</td>
+                        <td>@item.IDNo</td>
+                       @* <td>
+                            <a asp-action="Discharged" asp-route-id="@item.PatientID" class="btn btn-warning">
+                                Discharge
+                            </a>
+                        </td>*@
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No discharged patients to view.</p>
+    }
+

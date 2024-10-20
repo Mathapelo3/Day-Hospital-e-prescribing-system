@@ -36,8 +36,8 @@
                                             <thead>
                                                 <tr>
                                                     <th>Patient Name</th>
-                                                    <th>Date</th>
-                                                    <th>Time</th>
+                                                   @* <th>Date</th>
+                                                    <th>Time</th>*@
                                                     <th>Ward</th>
                                                     <th>Bed</th>
 
@@ -48,13 +48,13 @@
                                                 {
                                                     <tr>
                                                         <td>@item.Name @item.Surname</td>
-                                                        <td>@item.Date.ToString("dd/MM/yyyy")</td>
-                                                        <td>@item.Time</td>
+                                                       @* <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                                                        <td>@item.Time</td>*@
                                                         <td>@item.WardName</td>
                                                         <td>@item.BedName</td>
                                                     <td>
-                                                    <a asp-action="EditPatientProfiles" asp-route-id="@item.PatientID" class="btn btn-primary">
-                                                        UPDATE PROFILE
+                                                    <a asp-action="Discharge" asp-route-id="@item.PatientID" class="btn btn-primary">
+                                                        DISCHARGE
                                                     </a>
                                                 </td>
                                                     </tr>

@@ -1,0 +1,54 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.DischargeVM
+@{
+    ViewData["Title"] = "UpdatePatientStatus";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+<h2>Discharge Patient</h2>
+
+@*<form id="dischargeForm" asp-action="UpdatePatientStatus" method="post">
+    <div class="form-group">
+        <label asp-for="PatientID" class="control-label">Patients</label>
+        <select asp-for="PatientID" class="form-control small-dropdown" asp-items="@(new SelectList(Model.Patients, "PatientID", "FullName"))">
+            <option value="">-- Select Patient --</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Discharge Patient</button>
+</form>*@
+
+<div id="result" class="mt-3"></div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#dischargeForm').submit(function (e) {
+                e.preventDefault();
+                var patientId = $('#PatientID').val();
+                if (!patientId) {
+                    $('#result').html('<div class="alert alert-danger">Please select a patient.</div>');
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("UpdatePatientStatus", "Nurse")',
+                    type: 'POST',
+                    data: { patientId: patientId, status: $('#statusSelect').val() },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#result').html('<div class="alert alert-success">' + response.message + '</div>');
+                            // Remove the discharged patient from the dropdown
+                            $('#PatientID option:selected').remove();
+                            // Clear the dropdown after discharging
+                            $('#PatientID').val('');
+                        } else {
+                            $('#result').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function () {
+                        $('#result').html('<div class="alert alert-danger">An error occurred while processing your request.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+}
+

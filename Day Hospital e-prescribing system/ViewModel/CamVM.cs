@@ -1,4 +1,5 @@
 ﻿using Day_Hospital_e_prescribing_system.Models;
+using static Day_Hospital_e_prescribing_system.ViewModel.CamVM;
 
 namespace Day_Hospital_e_prescribing_system.ViewModel
 {
@@ -6,23 +7,34 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
     {
         public Patient? Patient { get; set; }
         public int PatientID { get; set; }  
-        public string IDNo { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public List<Active_Ingredient> Active_Ingredient { get; set; }
-        public List<General_Medication> General_Medication { get; set; }
-        public List<Condition> Conditions { get; set; }
-        public List<Vitals> Vitals { get; set; }
+        public List<ActiveIngredientViewModel> Active_Ingredients { get; set; }
+        public List<ConditionViewModel> Conditions { get; set; }
+        public List<MedicationViewModel> General_Medications { get; set; }
 
         // Constructor to initialize lists
         public CamVM()
         {
-            Active_Ingredient = new List<Active_Ingredient>();
-            General_Medication = new List<General_Medication>();
-            Conditions = new List<Condition>();
-            Vitals = new List<Vitals>();
+            Active_Ingredients = new List<ActiveIngredientViewModel>();
+            Conditions = new List<ConditionViewModel>();
+            General_Medications = new List<MedicationViewModel>();
         }
 
-      
+        public class ActiveIngredientViewModel
+        {
+            public string Active_IngredientDescription { get; set; }
+        }
+
+        public class ConditionViewModel
+        {
+            public string ConditionName { get; set; }
+        }
+
+        public class MedicationViewModel
+        {
+            public string MedicationName { get; set; }
+        }
+
     }
 }

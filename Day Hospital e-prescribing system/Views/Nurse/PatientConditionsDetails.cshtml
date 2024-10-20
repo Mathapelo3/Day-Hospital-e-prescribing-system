@@ -1,0 +1,128 @@
+﻿@model Day_Hospital_e_prescribing_system.ViewModel.CamVM
+@{
+    ViewData["Title"] = "PatientConditionsDetails";
+    Layout = "~/Views/Shared/NurseLayout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="text-center ">
+            <h3 class="display-6 text-primary text-center text-bold">CONDITIONS, ALLERGIES, MEDICATION</h3>
+        </div>
+    </div>
+    <body>
+        <br />
+        <br />
+        <form asp-action="PatientConditionsDetails" asp-controller="Nurse" method="get">
+
+
+            <div class="card">
+                <div class="card-header text-bold">
+                    <h4 class="card-title"> @(Model.Patient?.Name ?? "N/A") @(Model.Patient?.Surname ?? "N/A")</h4>
+                </div>
+            </div>
+
+            <!-- Allergies -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title text-bold">Allergies</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="allergiesTable" class="table table-bordered table-striped">
+                                    <thead></thead>
+                                    <tbody>
+                                        @if (Model.Active_Ingredients != null && Model.Active_Ingredients.Any())
+                                        {
+                                            foreach (var allergy in Model.Active_Ingredients)
+                                            {
+                                                <tr>
+                                                    <td>@allergy.Active_IngredientDescription</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr><td>No allergies added.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Current Medication -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title text-bold">Current Medication</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="medicationTable" class="table table-bordered table-striped">
+                                    <thead></thead>
+                                    <tbody>
+                                        @if (Model.General_Medications != null && Model.General_Medications.Any())
+                                        {
+                                            foreach (var medication in Model.General_Medications)
+                                            {
+                                                <tr>
+                                                    <td>@medication.MedicationName</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr><td>No medication added.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Conditions -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title text-bold">Conditions</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="conditionsTable" class="table table-bordered table-striped">
+                                    <thead></thead>
+                                    <tbody>
+                                        @if (Model.Conditions != null && Model.Conditions.Any())
+                                        {
+                                            foreach (var condition in Model.Conditions)
+                                            {
+                                                <tr>
+                                                    <td>@condition.ConditionName</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr><td>No conditions added.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                @*<button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Condition2", "Nurse", new { id = Model.IDNo })'">
+                ADD
+                </button>*@
+
+
+            </div>
+        </form>
+    </body>
+</div>
+
+
+

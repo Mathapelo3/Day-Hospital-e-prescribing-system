@@ -3,7 +3,7 @@
     ViewData["Title"] = "PatientConditions";
     Layout = "~/Views/Shared/NurseLayout.cshtml";
 }
-<div class="card">
+@*<div class="card">
     <div class="card-header">
         <div class="text-center ">
             <h3 class="display-6 text-primary text-center text-bold">CONDITIONS, ALLERGIES, MEDICATION</h3>
@@ -11,13 +11,13 @@
     </div>
     <body>
         <br />
-        <br />
-        <form asp-action="PatientConditions" asp-controller="Nurse" method="get">
+        <br />*@
+       @* <form asp-action="PatientConditions" asp-controller="Nurse" method="get">
 
 
             <div class="card">
                 <div class="card-header text-bold">
-                    @(Model.Patient?.Name ?? "Not applicable") @(Model.Patient?.Surname ?? "Not applicable")
+                    <h4 class="card-title text-bold">  @(Model.Patient?.Name ?? "N/A") @(Model.Patient?.Surname ?? "N/A")</h4>
                 </div>
                 </div>
 
@@ -117,9 +117,9 @@
     ADD
 </button>*@
 
-
+@*
             </div>
         </form>
     </body>
-</div>
+</div>*@
 

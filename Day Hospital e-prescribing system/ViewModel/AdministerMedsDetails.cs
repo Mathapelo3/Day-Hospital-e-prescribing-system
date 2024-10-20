@@ -1,6 +1,6 @@
 ﻿namespace Day_Hospital_e_prescribing_system.ViewModel
 {
-    public class AdministeredMedsVM
+    public class AdministeredMedDetails
     {
         public string MedicationName { get; set; }
         public string Quantity { get; set; }
@@ -12,8 +12,8 @@
 
         public string Instruction { get; set; }
 
-        public int PatientID { get; set; }
-        public int MedicationID { get; set; }
-        public int PrescriptionID { get; set; }
+        //public int PatientID { get; set; }
+        //public int MedicationID { get; set; }
+        //public int PrescriptionID { get; set; }
     }
 }

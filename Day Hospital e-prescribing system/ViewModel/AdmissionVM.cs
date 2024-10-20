@@ -43,7 +43,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string? SurgeonSurname { get; set; }
 
         //public virtual Bed Beds { get; set; }
-        public bool  IsAvailable { get; set; }
+        public bool?  IsAvailable { get; set; }
 
         //public string TreatmentCode { get; set; }
         public string? ICD_10_Code { get; set; }
@@ -70,14 +70,14 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
       public List<Ward> Wards { get; set; } = new List<Ward>();
 
 
-        [Required(ErrorMessage = "Surgeon ID is required.")]
+        //[Required(ErrorMessage = "Surgeon ID is required.")]
         public int SurgeonID { get; set; }
         // Navigation property
         //[ForeignKey("SurgeonID")]
         //public virtual Surgeon Surgeons { get; set; }
 
 
-        [Required(ErrorMessage = "Anaesthesiologist ID is required.")]
+        //[Required(ErrorMessage = "Anaesthesiologist ID is required.")]
         public int AnaesthesiologistID { get; set; }
         public int NurseID { get; set; }
 

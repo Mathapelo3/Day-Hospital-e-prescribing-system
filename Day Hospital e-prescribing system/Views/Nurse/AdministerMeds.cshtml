@@ -90,9 +90,10 @@
         </div>
     </div>
     <form asp-action="AdministerMeds" method="post">
+        <input type="hidden" asp-for="PatientID" />
          <input type="hidden" asp-for="PrescriptionID" />
-       
-      @*  <input  asp-for="PrescriptionID" value="@Model.PrescriptionID" />*@
+        <input type="hidden" asp-for="NurseID" />
+        @*  <input  asp-for="PrescriptionID" value="@Model.PrescriptionID" />*@
         <div class="card">
             <div class="body">
                 <div class="card-header text-bold">

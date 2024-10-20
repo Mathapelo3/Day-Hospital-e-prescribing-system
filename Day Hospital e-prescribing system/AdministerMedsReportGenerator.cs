@@ -127,7 +127,7 @@ namespace Day_Hospital_e_prescribing_system
                               
                                 // Remove borders for all other cells
                                 table1.AddCell(new Cell().Add(new Paragraph("")).SetBorder(Border.NO_BORDER));
-                                table1.AddCell(new Cell().Add(new Paragraph($"{med.PatientName} {med.PatientSurname}")).SetBorder(Border.NO_BORDER));
+                                table1.AddCell(new Cell().Add(new Paragraph($"{med.PatientName} {med.Surname}")).SetBorder(Border.NO_BORDER));
                                 table1.AddCell(new Cell().Add(new Paragraph(med.MedicationName)).SetBorder(Border.NO_BORDER));
                                 table1.AddCell(new Cell().Add(new Paragraph(med.Quantity)).SetBorder(Border.NO_BORDER));
                                 table1.AddCell(new Cell().Add(new Paragraph(med.Time.ToString(@"hh\:mm"))).SetBorder(Border.NO_BORDER));
