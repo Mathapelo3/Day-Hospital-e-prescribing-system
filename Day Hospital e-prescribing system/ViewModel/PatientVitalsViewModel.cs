@@ -7,7 +7,7 @@ namespace Day_Hospital_e_prescribing_system.ViewModels
 {
     public class PatientVitalsViewModel
     {
-        
+        [Key]
         [Required]
         public int PrescriptionID { get; set; }
         public DateTime Date { get; set; }
