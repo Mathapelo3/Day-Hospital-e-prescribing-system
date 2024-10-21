@@ -94,7 +94,7 @@
 <div class="card">
     <div class="card-header">
         <div class="text-center ">
-            <h3 class="display-6 text-primary text-center text-bold">BOOKED PATIENTS</h3>
+            <h3 class="display-6 text-primary text-center text-bold">PATIENTS VITALS</h3>
         </div>
     </div>
     <body>
@@ -112,19 +112,20 @@
 
 
 
-            <div class="card">
-                <div class="card-header">
-                    <div class="text-center ">
-                    </div>
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="form-group mr-2">
-                                <label for="startDate" class="mr-2">Search Date:</label>
-                                <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-md-10">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <h4></h4>
+                                    </div>
+                                    <div class="col-md-12 text-right">
+                                        <a type="button" onclick="location.href = '@Url.Action("Dashboard","Nurse")'" class="btn btn-danger">BACK</a>
+                                    </div>
+                                </div>
                             </div>
-                            @*   <div class="form-group mr-2">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            </div>*@
 
                             <br />
                             <br />

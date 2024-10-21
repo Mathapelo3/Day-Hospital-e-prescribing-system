@@ -121,8 +121,8 @@
 
             </div>
             <div class="text-center">
-                <input type="submit" value="Add" class="btn btn-primary text-bold" />
-                <a asp-action="Dashboard" asp-controller="Surgeon" class="btn btn-danger text-bold">Back</a>
+               @* <button type="button" onclick="location.href='@Url.Action("Codition2", new { id = Model.PatientID })'">ADD</button>*@
+                <a asp-action="PatientsWChronics" asp-controller="Nurse" class="btn btn-danger text-bold">BACK</a>
             </div>
         </form>
       

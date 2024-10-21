@@ -174,11 +174,14 @@
                                 }
                             </tbody>
                         </table>
-                                                        <div style="overflow:auto;">
+                                                        <div class="text-center">
+                                                            <button type="button" onclick="location.href='@Url.Action("RetakeVitals2", new { id = Model.PatientID })'">Retake</button>
+                                                        </div>
+                                                       @* <div style="overflow:auto;">
                                                             <div style="float:right;">
                                                                 <button type="button" onclick="location.href='@Url.Action("RetakeVitals2", new { id = Model.PatientID })'">Retake</button>
                                                             </div>
-                                                        </div>
+                                                        </div>*@
                     </div>
                 </div>
             </div>
