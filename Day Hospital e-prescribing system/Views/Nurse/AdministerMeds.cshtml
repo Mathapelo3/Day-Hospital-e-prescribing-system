@@ -89,6 +89,12 @@
             <h3 class="display-6 text-primary text-center text-bold">ADMINISTER MEDICATION</h3>
         </div>
     </div>
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
     <form asp-action="AdministerMeds" method="post">
         <input type="hidden" asp-for="PatientID" />
          <input type="hidden" asp-for="PrescriptionID" />
@@ -120,7 +126,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-3">
                                     <label for="medication">Medication:</label>
-                                    <input type="text" value="@Model.Medication" readonly class="form-control" />
+                                    <input type="text" value="@Model.Instruction" readonly class="form-control" />
                                 </div>
 
                                   <div class="form-group col-md-3">

@@ -21,8 +21,10 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string? Name { get; set; }
         public string? Surname { get; set; }
 
-        [Required(ErrorMessage = "Administer status is required.")]
+        [Required(ErrorMessage = "Administer is required.")]
         public string Administer { get; set; }
+
+        public string Instruction { get; set; }
 
 
 
