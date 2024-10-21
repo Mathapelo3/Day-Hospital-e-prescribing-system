@@ -33,16 +33,17 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         private readonly IConfiguration _config;
         private readonly CommonHelper _helper;
         private IDbConnection _connection;
-        private readonly PharmacistReportGenerator _pharmacistReportGenerator;
+        private readonly PharmacistReportGenerator _reportGenerator;
 
-        public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, PharmacistReportGenerator pharmacistReportGenerator, IDbConnection connection)
+
+        public PharmacistController(ApplicationDbContext context, ILogger<PharmacistController> logger, IConfiguration config, PharmacistReportGenerator reportGenerator, IDbConnection connection)
         {
             _context = context;
             _logger = logger;
             _config = config;
-            _pharmacistReportGenerator = pharmacistReportGenerator;
-            _helper = new CommonHelper(_config);
-            _connection = connection;   
+            _reportGenerator = reportGenerator;
+            _helper = new CommonHelper(_config); // Consider changing this to dependency injection
+            _connection = connection;
         }
 
         public IActionResult Index()
@@ -166,7 +167,65 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(prescriptions);
         }
 
-        public async Task<ActionResult> UrgentPrescriptions(DateTime? startDate, string message)
+        [HttpGet]
+        public async Task<IActionResult> GetDispensaryReport(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                _connection.Open();
+
+                var reportData = await _connection.QueryAsync<DispenseReportDataViewModel>(
+                    "GetDispensaryReportData",
+                    new { StartDate = startDate, EndDate = endDate },
+                    commandType: CommandType.StoredProcedure
+                );
+
+                if (!reportData.Any())
+                {
+                    ViewBag.SuccessMessage = "No data found for the given date range.";
+                    return View(reportData); // Return the empty model to the view
+                }
+
+                // Return the model to the view
+                return View(reportData);
+            }
+            catch (Exception ex)
+            {
+                // Handle the error
+                _logger.LogError(ex, "Error retrieving dispensary report data.");
+                return StatusCode(500, "Internal server error");
+            }
+            finally
+            {
+                if (_connection.State == ConnectionState.Open)
+                {
+                    _connection.Close();
+                }
+            }
+        }
+
+        [HttpPost]
+        public IActionResult PharmacistReportGenerator(DateTime startDate, DateTime endDate, string pharmacistName, string pharmacistSurname)
+        {
+            try
+            {
+                _logger.LogInformation("Generating report from {StartDate} to {EndDate} for {PharmacistName} {PharmacistSurname}", startDate, endDate, pharmacistName, pharmacistSurname);
+
+                // Generate the report and get the MemoryStream
+                var reportStream = _reportGenerator.GenerateDispensaryReport(startDate, endDate, pharmacistName, pharmacistSurname);
+
+                // Return the PDF as a file download
+                return File(reportStream.ToArray(), "application/pdf", "PharmacistReport.pdf");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while generating the pharmacist report.");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+        public async Task<ActionResult> DispensePrescriptions(DateTime? startDate, string message)
         {
             var sqlQuery = "EXEC UrgentPrescriptions @StartDate = {0}";
 
@@ -179,109 +238,210 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View(prescriptions);
         }
 
-        public async Task<ActionResult> AllPrescriptions(DateTime? startDate, string message)
+        public async Task<ActionResult> AllPrescriptions(string status, string message, int page = 1, int pageSize = 10)
         {
-            var sqlQuery = "EXEC AllPrescriptions @Status = {0}";
-
+            // Retrieve all prescriptions using the stored procedure
             var prescriptions = await _context.prescriptionViewModels
-                .FromSqlInterpolated($"EXEC AllPrescriptions @Status = {startDate ?? (object)DBNull.Value}")
-                .ToListAsync();
+                .FromSqlInterpolated($"EXEC AllPrescriptions @Status = {status ?? (object)DBNull.Value}")
+                .ToListAsync(); // Fetch the data into a List
 
+            // Pagination: calculate the number of records to skip based on the current page and page size
+            var skip = (page - 1) * pageSize;
+
+            // Perform pagination in-memory
+            var paginatedPrescriptions = prescriptions.Skip(skip).Take(pageSize).ToList();
+
+            // Get the total count of prescriptions for pagination info
+            var totalCount = prescriptions.Count;
+
+            // Calculate total pages
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Pass pagination data to the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
             ViewBag.SuccessMessage = message;
 
-            return View(prescriptions);
+            return View(paginatedPrescriptions);
         }
+
+
+
 
 
 
 
         [HttpGet]
-        public IActionResult ViewPrescription(int? id = null)
+        public async Task<IActionResult> ViewPrescription(int? id = null)
         {
+            // Check if the prescription ID is provided
             if (!id.HasValue)
             {
                 return NotFound("No prescription ID provided.");
             }
 
-            var viewModel = GetPatientPrescriptionWithRelatedData(id.Value);
+            // Fetch prescription data along with allergies and conditions
+            var viewModel = await GetPatientPrescriptionWithRelatedData(id.Value);
 
+            // Check if the view model is null or has no prescriptions
             if (viewModel == null || !viewModel.Prescription.Any())
             {
                 return NotFound($"No prescription found with ID: {id}");
             }
 
+            // Check if each prescription is successful based on quantities
             foreach (var prescription in viewModel.Prescription)
             {
-                prescription.IsSuccess = prescription.Qty < prescription.QtyLeft; // Assuming these properties exist
+                prescription.IsSuccess = prescription.Qty < prescription.QtyLeft; // Adjust as necessary
             }
 
+            // Log alert messages directly from the view model
+            if (!string.IsNullOrEmpty(viewModel.AllergyAlert))
+            {
+                _logger.LogInformation($"Allergy Alert Value: {viewModel.AllergyAlert}");
+            }
+
+            if (!string.IsNullOrEmpty(viewModel.ContraIndicationAlert))
+            {
+                _logger.LogInformation($"Contra Indication Alert Value: {viewModel.ContraIndicationAlert}");
+            }
+
+            // Log the retrieval of the prescription details
             _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
 
+            // Return the view with the populated view model
             return View(viewModel);
         }
 
-        private PatientPrescriptionWithRelatedDataVM GetPatientPrescriptionWithRelatedData(int id)
+
+
+        // Existing method to get allergy alert messages
+        private string GetAllergyAlertMessage(IEnumerable<PatientAllergiesViewModel> allergies)
+        {
+            if (allergies == null || !allergies.Any())
+                return null;
+
+            var alertMessages = allergies.Select(a => a.AllergyName);
+            var message = "Warning: The selected medication contains the following active ingredients that the patient is allergic to: " + string.Join(", ", alertMessages);
+
+            // Log the generated allergy alert message
+            _logger.LogInformation($"Generated Allergy Alert: {message}");
+            return message;
+        }
+
+        private string GetContraIndicationAlertMessage(IEnumerable<PatientConditionsViewModel> conditions)
+        {
+            if (conditions == null || !conditions.Any())
+                return null;
+
+            var alertMessages = conditions.Select(c => c.ConditionName);
+            var message = "Warning: The following conditions may cause conflicts with the prescribed medication: " + string.Join(", ", alertMessages);
+
+            // Log the generated contraindication alert message
+            _logger.LogInformation($"Generated Contraindication Alert: {message}");
+            return message;
+        }
+
+        private async Task<PatientPrescriptionWithRelatedDataVM> GetPatientPrescriptionWithRelatedData(int id)
         {
             try
             {
-                var prescriptions = _connection.Query<PatientPrescriptionVM>(
+                // Retrieve prescriptions
+                var prescriptions = await _connection.QueryAsync<PatientPrescriptionVM>(
                     "GetPatientPrescriptionByPrescriptionID",
                     new { PrescriptionID = id },
                     commandType: CommandType.StoredProcedure);
-                var allergies = _connection.Query<PatientAllergiesViewModel>(
-                    "GetPatientAllergiesByPrescriptionID",
-                    new { PrescriptionID = id },
+
+                // Check if there are any prescriptions
+                if (prescriptions == null || !prescriptions.Any())
+                {
+                    return null; // Early return if no prescriptions found
+                }
+
+                // Retrieve PatientID and StockID from the first prescription
+                var patientId = prescriptions.First().PatientID;
+                var stockId = prescriptions.First().StockID;
+
+                // Allergy alert logic
+                var allergyAlertParams = new DynamicParameters();
+                allergyAlertParams.Add("@PatientID", patientId);
+                allergyAlertParams.Add("@StockID", stockId);
+                allergyAlertParams.Add("@AlertMessage", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
+
+                // Call the Allergy Alert stored procedure
+                await _connection.ExecuteAsync(
+                    "AllergyAlertForPrescription",
+                    allergyAlertParams,
                     commandType: CommandType.StoredProcedure);
-                var conditions = _connection.Query<PatientConditionsViewModel>(
+
+                var allergyAlertValue = allergyAlertParams.Get<string>("@AlertMessage");
+                _logger.LogInformation($"Allergy Alert Value: {allergyAlertValue}"); // Log the allergy alert value
+
+                // Check if the allergy alert is null or empty
+                if (string.IsNullOrEmpty(allergyAlertValue))
+                {
+                    _logger.LogWarning($"No allergy alert found for PatientID: {patientId} and StockID: {stockId}");
+                }
+
+                // Contraindication alert logic
+                var contraIndicationAlertParams = new DynamicParameters();
+                contraIndicationAlertParams.Add("@PatientID", patientId);
+                contraIndicationAlertParams.Add("@StockID", stockId);
+                contraIndicationAlertParams.Add("@AlertMessage", dbType: DbType.String, size: 255, direction: ParameterDirection.Output);
+
+                // Call the Contraindication Alert stored procedure
+                await _connection.ExecuteAsync(
+                    "ContraIndicationAllertForPrescription",
+                    contraIndicationAlertParams,
+                    commandType: CommandType.StoredProcedure);
+
+                var contraIndicationAlertValue = contraIndicationAlertParams.Get<string>("@AlertMessage");
+                _logger.LogInformation($"Contra Indication Alert Value: {contraIndicationAlertValue}"); // Log the contraindication alert value
+
+                // Check if the contraindication alert is null or empty
+                if (string.IsNullOrEmpty(contraIndicationAlertValue))
+                {
+                    _logger.LogWarning($"No contraindication alert found for PatientID: {patientId} and StockID: {stockId}");
+                }
+
+                // Retrieve other related data as needed
+                var conditions = await _connection.QueryAsync<PatientConditionsViewModel>(
                     "GetPatientConditionsByPrescriptionID",
                     new { PrescriptionID = id },
                     commandType: CommandType.StoredProcedure);
-                var vitals = _connection.Query<PatientVitalsViewModel>(
+
+                var vitals = await _connection.QueryAsync<PatientVitalsViewModel>(
                     "GetPatientVitalsByPrescriptionID",
                     new { PrescriptionID = id },
                     commandType: CommandType.StoredProcedure);
-                var medication = _connection.Query<PatientMedicationVM>(
+
+                var medication = await _connection.QueryAsync<PatientMedicationVM>(
                     "GetPatientMedicationByPrescriptionID",
                     new { PrescriptionID = id },
                     commandType: CommandType.StoredProcedure);
+
+                // Return the complete view model with alerts
                 return new PatientPrescriptionWithRelatedDataVM
                 {
                     Prescription = prescriptions,
-                    Allergies = allergies,
+                    Allergies = new List<PatientAllergiesViewModel>(), // Placeholder for allergies, implement as needed
                     Conditions = conditions,
                     Vitals = vitals,
-                    Medications = medication
-                   
-                    /*AllergyAlert = allergyAlertMessage */// Set the alert message here
+                    Medications = medication,
+                    AllergyAlert = allergyAlertValue,
+                    ContraIndicationAlert = contraIndicationAlertValue // Set the contraindication alert
                 };
-            
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error retrieving patient prescription details for ID: {id}");
                 throw;
             }
+
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CheckAllergy(int patientId, int stockId)
-        {
-            var parameter = new SqlParameter("@AlertMessage", SqlDbType.NVarChar, -1)
-            {
-                Direction = ParameterDirection.Output
-            };
 
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC dbo.AllergyCheckForSurgeon @PatientID, @StockID, @AlertMessage OUT",
-                new SqlParameter("@PatientID", patientId),
-                new SqlParameter("@StockID", stockId),
-                parameter
-            );
-
-            string alertMessage = parameter.Value == DBNull.Value ? null : (string)parameter.Value;
-
-            return Json(new { hasAllergy = !string.IsNullOrEmpty(alertMessage), message = alertMessage });
-        }
 
 
 
@@ -310,6 +470,29 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     return RedirectToAction("Prescriptions", new { message = ViewBag.Succsses });
                 }
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectPrescription(int prescriptionId)
+        {
+            try
+            {
+                // Call the stored procedure to reject the prescription
+                await _connection.ExecuteAsync(
+                    "RejectPrescription",
+                    new { PrescriptionID = prescriptionId },
+                    commandType: CommandType.StoredProcedure
+                );
+
+                _logger.LogInformation($"Prescription {prescriptionId} rejected successfully.");
+                return RedirectToAction("Prescriptions"); // Redirect to the appropriate view after rejection
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error rejecting Prescription {prescriptionId}: {ex.Message}");
+                return View("Error");
+            }
+
         }
 
         //[HttpGet]
@@ -355,32 +538,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         //    return View(surgeryDetails);
         //}
 
-        [HttpGet]
-        public IActionResult PharmacistReportGenerator(DateTime startDate, DateTime endDate)
-        {
-            var surgeonName = HttpContext.Session.GetString("Name");
-            var surgeonSurname = HttpContext.Session.GetString("Surname");
-
-            if (string.IsNullOrEmpty(surgeonName) || string.IsNullOrEmpty(surgeonSurname))
-            {
-                _logger.LogWarning("Surgeon name or surname could not be retrieved from the session.");
-                return BadRequest("Unable to retrieve surgeon details.");
-            }
-
-            var reportStream = _pharmacistReportGenerator.GenerateDispensaryReport(startDate, endDate, surgeonName, surgeonSurname);
-
-            // Ensure the stream is not disposed prematurely
-            if (reportStream == null || reportStream.Length == 0)
-            {
-                return NotFound(); // Or handle as appropriate
-            }
-
-            // Return the PDF file
-            return File(reportStream, "application/pdf", "SurgeriesReport.pdf");
-        }
-
-
-
+       
+        
 
 
 
@@ -409,60 +568,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult RejectPrescription(int? id = null)
-        {
-            if (!id.HasValue)
-            {
-                return NotFound("No prescription ID provided.");
-            }
+       
 
-            var viewModel = GetPatientPrescriptionWithRelatedData(id.Value);
 
-            // Check if the viewModel is null or has no prescriptions
-            if (viewModel == null || viewModel.Prescription == null || !viewModel.Prescription.Any())
-            {
-                return NotFound($"No prescription found with ID: {id}");
-            }
-
-            // This block assumes you want to perform some action on each prescription.
-            foreach (var prescription in viewModel.Prescription)
-            {
-                // Example logic, modify as needed
-                prescription.IsSuccess = prescription.Qty < prescription.QtyLeft; // Assuming these properties exist
-            }
-
-            _logger.LogInformation($"Retrieved patient prescription details for ID: {id}");
-
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> RejectPrescription(int prescriptionId)
-        {
-            // Define your connection string (assuming it's stored in a configuration)
-            using (var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-            {
-                // Open the connection
-                await connection.OpenAsync();
-
-                // Execute the stored procedure to dispense the prescription
-                var result = await connection.ExecuteAsync("EXECUTE DispensePrescription @PrescriptionID", new { PrescriptionID = prescriptionId });
-
-                // Optionally, check the result or handle any exceptions
-                if (result > 0) // Assuming a positive result indicates success
-                {
-                    // Redirect to the Prescriptions view after dispensing
-                    return RedirectToAction("Prescriptions", new { message = "Prescription dispensed successfully!" });
-                }
-                else
-                {
-                    // Handle the case where the dispensing was not successful
-                    ViewBag.Succsses = "Prescription dispensed successfully!n.";
-                    return RedirectToAction("Prescriptions", new { message = ViewBag.Succsses });
-                }
-            }
-        }
+     
 
 
         public IActionResult ListDispensedPrescriptions()

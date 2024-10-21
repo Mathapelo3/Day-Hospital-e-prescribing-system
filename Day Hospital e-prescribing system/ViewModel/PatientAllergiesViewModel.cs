@@ -22,7 +22,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public int PatientID { get; set; }
 
         // Represents the name of the allergy
-        public string AllergyName { get; set; }
+        public string? AllergyName { get; set; }
+        public string Description { get; set; }
 
         // Represents the description of the active ingredient
         public string Active_IngredientDescription { get; set; }

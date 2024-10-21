@@ -5,12 +5,7 @@
     Layout = "~/Views/Shared/PharmacistLayout.cshtml";
 }
 
-@if (!string.IsNullOrEmpty(Model.AllergyAlert))
-{
-    <div class="alert alert-warning">
-        @Model.AllergyAlert
-    </div>
-}
+
 
 <html>
     <head>
@@ -42,10 +37,10 @@
                                 <div class="card-header">
                                     <h5 style="color:#268aab">@Model.Prescription.FirstOrDefault()?.PatientName @Model.Prescription.FirstOrDefault()?.PatientSurname Prescription</h5>
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <form asp-action="PatientPrescriptions" asp-route-id="@Model.Prescription.FirstOrDefault()?.PatientID" asp-controller="Pharmacist">
+                                        @* <form asp-action="PatientPrescriptions" asp-route-id="@Model.Prescription.FirstOrDefault()?.PatientID" asp-controller="Pharmacist">
                                             <button type="submit" class="btn btn-info"> Patient's Prescription History</button>
 
-                                        </form>
+                                        </form> *@
                                     </div>
                                 </div>
 
@@ -115,20 +110,24 @@
                                         </table>
 
                                         <br />
-                                    <div class="d-grid gap-2 col-6">
-                                                <form asp-action="DispensePrescription" asp-controller="Pharmacist" method="post">
-                                                    <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
-                                                    <button class="btn btn-info" type="submit">Dispense Prescription</button>
-                                                </form>
-                                                <a asp-action="RejectPrescription" asp-route-id="@Model.Prescription.FirstOrDefault()?.PrescriptionID" asp-controller="Pharmacist" class="btn btn-danger">
-                                                     Reject Prescription
-                                                   
-                                                </a>
-                                            
-                                       
-                                        
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 justify-content-md-start">
+                                        <form asp-action="DispensePrescription" asp-controller="Pharmacist" method="post">
+                                            <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
+                                            <button class="btn btn-info" type="submit">Dispense Prescription</button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-4 justify-content-md-start">
+                                        <form asp-action="RejectPrescription" method="post">
+                                            <input type="hidden" name="prescriptionId" value="@Model.Prescription.FirstOrDefault()?.PrescriptionID" />
+                                            <button type="submit" class="btn btn-danger">Reject Prescription</button>
+                                        </form>
 
                                     </div>
+
+                                    
                                 </div>
                             </div>                 
                         </div>
@@ -136,33 +135,53 @@
                     @*<button onclick="window.print();return false;">Print this page</button>*@
 
                     @*Patient Allergies*@
-                   <div class="col-md-4">
-                        <br />
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 style="color:#268aab">Patient Allergies</h5>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-
-                                            <th scope="col">Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="allergyTableBody">
+                <div class="col-md-4">
+                <br />
+                <div class="card">
+                    <div class="card-header">
+                        <h5 style="color:#268aab">Patient Alerts</h5>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
                                         @if (!string.IsNullOrEmpty(Model.AllergyAlert))
                                         {
                                             <div class="alert alert-warning">
                                                 @Model.AllergyAlert
                                             </div>
                                         }
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                        else
+                                        {
+                                            <p>No allergy alerts found.</p>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(Model.ContraIndicationAlert))
+                                        {
+                                            <div class="alert alert-danger">
+                                                @Model.ContraIndicationAlert
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <p>No contraindication alerts found.</p>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+
+            </div>
+
+
+                
+
             
             
             </div>

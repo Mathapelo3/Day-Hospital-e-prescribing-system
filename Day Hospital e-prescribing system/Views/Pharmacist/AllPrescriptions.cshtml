@@ -1,8 +1,15 @@
 ﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel>
 
+@{
+    ViewData["Title"] = "Prescriptions";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
 <section class="content">
 
-    <div class="card">
+  <div class="row">
+        <div class="col-md-12">
+            <div class="card">
         <div class="card-header">
             <div class="text-center ">
                 @if (ViewBag.SuccessMessage != null)
@@ -13,12 +20,13 @@
                 }
             </div>
             <br />
-            <h4 style="color:#268aab"> Prescriptions</h4>
+            <h4 style="color:#268aab">All Prescriptions</h4>
             <br />
         </div>
     </div>
+  </div>
     <div class="row mb-3">
-        <div class="col-md-8">
+        <div class="col-md-6">
             <h5>Generate Report:</h5>
             <form asp-action="PharmacistReportGenerator" method="get" class="form-inline mb-3">
                 <div class="form-group mr-2">
@@ -29,11 +37,11 @@
                     <label for="endDate" class="mr-2">End Date:</label>
                     <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
                 </div>
-                <button type="submit" class="btn btn-warning text-bold">Generate</button>
+                <button type="submit" class="btn btn-info text-bold">Generate</button>
             </form>
         </div>
 
-        <div class="col-md-12">
+        <div class="col-md-6">
             <h5>Filter Table:</h5>
             <form asp-action="AllPrescriptions" method="get" class="form-inline mb-3">
                 <div class="form-group mr-2">
@@ -44,7 +52,7 @@
                     <label for="endDate" class="mr-2">End Date:</label>
                     <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
                 </div>
-                <button type="submit" class="btn btn-warning text-bold">Filter</button>
+                <button type="submit" class="btn btn-info text-bold">Filter</button>
                 <div>
                     <a href="@Url.Action("AllPrescriptions", "Pharmacist")" class="btn spaced btn-danger btn-block text-bold">Reset</a>
                 </div>
@@ -52,84 +60,106 @@
         </div>
 
     </div>
-    <div style="text-align:end">
-        <button type="button" class="btn btn-info text-sm text-bold" onclick="location.href='@Url.Action("Prescriptions", "Pharmacist")'">
-            Dispense Prescriptions
-        </button>
-    </div>
+    
 
 
     <!-- Display Prescriptions -->
-    <div class="card-body">
-
-
-
-        @if (Model != null && Model.Any())
-        {
-            <div class="row">
-
-                <table class="table table-bordered table-striped">
-
-                    <thead>
-                        <tr>
-                            <th scope="col">Date</th>
-                            <th scope="col">Medicine</th>
-                            <th scope="col">Patient Name</th>
-                            <th scope="col">Surgeon</th>
-                            <th scope="col">Action</th>
-
-                        </tr>
-                    </thead>
-                    @foreach (var item in Model)
-                    {
-                        <tbody>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="row">
+                    <table class="table table-bordered table-striped">
+                        <thead>
                             <tr>
-                                <td>@item.Date.ToShortDateString()</td>
-                                <td>@item.MedicationName</td>
-                                <td>@item.PatientName @item.PatientSurname</td>
-
-                                <td>DR @item.SurgeonSurname</td>
-                                <td>
-                                    <a asp-controller="Pharmacist"
-                                       asp-route-id="@item.PrescriptionID"
-                                       asp-action="ViewPrescription"
-                                       class="btn btn-info">
-                                        View Prescription
-                                    </a>
-                                </td>
+                                <th scope="col">Date</th>
+                                <th scope="col">Patient Name</th>
+                                <th scope="col">Surgeon</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="@(item.Urgency ? "solved" : "")">
+                                    <td>@item.Date.ToShortDateString()</td>
+                                    <td>@item.PatientName @item.PatientSurname</td>
+                                    <td>DR @item.SurgeonSurname</td>
+                                    <td> @item.Status</td>
+                                    @if (item.Status == "Prescribed")
+                                    {
+                                        <td>
+                                            <a asp-controller="Pharmacist"
+                                               asp-route-id="@item.PrescriptionID"
+                                               asp-action="ViewPrescription"
+                                               class="btn btn-info">
+                                                Dispense Prescription
+                                            </a>
+                                        </td>
+                                    
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <a asp-controller="Pharmacist"
+                                               asp-route-id="@item.PrescriptionID"
+                                               asp-action="ViewPrescription"
+                                               class="btn btn-info">
+                                                View Prescription
+                                            </a>
+                                        </td>
 
+                                    }
+
+                                    
+                                </tr>
+                            }
                         </tbody>
-                    }
-                </table>
-                <div><br /></div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                    <button type="submit" class="btn btn-info" style="background-color:#268aab; color:#ffffff">Back</button>
+                    </table>
                 </div>
-            </div>
-        }
-        else
-        {
-            <div>
-                <h3 class=" display-6 text-center text-bold" style="color:#268aab">No undispensed prescriptions found</h3>
 
-                <br />
-            </div>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
-                    Back
-                </a>
-            </div>
+                <!-- Pagination Controls -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("AllPrescriptions", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("AllPrescriptions", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("AllPrescriptions", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
 
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                        Back
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <h3 class="display-6 text-center text-bold" style="color:#268aab">No undispensed prescriptions found</h3>
+                    <br />
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="@Url.Action("PharmacistDashboard", "Pharmacist")" class="btn btn-info" style="background-color:#268aab; color:#ffffff">
+                        Back
+                    </a>
+                </div>
+            }
+        </div>
 
-        }
-
-
-
-
-
-
-    </div>
 
 
 
