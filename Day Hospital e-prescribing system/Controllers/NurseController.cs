@@ -1145,10 +1145,10 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                             if (await reader.ReadAsync())
                             {
                                 model.PrescriptionID = (int)reader["PrescriptionID"];
-                                model.Medication = reader["Medication"]?.ToString() ?? string.Empty;
+                                model.Instruction = reader["Instruction"]?.ToString() ?? string.Empty;
                                 model.Quantity = reader["Quantity"]?.ToString() ?? string.Empty;
-                                _logger.LogInformation("Prescription info retrieved: ID {PrescriptionID}, Medication {Medication}, Quantity {Quantity}",
-                                    model.PrescriptionID, model.Medication, model.Quantity);
+                                _logger.LogInformation("Prescription info retrieved: ID {PrescriptionID}, Instruction {Instruction}, Quantity {Quantity}",
+                                    model.PrescriptionID, model.Instruction, model.Quantity);
                             }
                             else
                             {
@@ -1525,15 +1525,16 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             var patientPrescript = _context.Administer_Medication
                              .Include(s => s.Prescription)
                               .ThenInclude(s => s.Patient)
+                              //.Where(s => s.Prescription.Patient.PatientID == id)
                              .Select(s => new AdministeredMedsVM
                              {
                                  PrescriptionID = s.PrescriptionID,
                                  PatientID = s.Prescription.Patient.PatientID,
-                                 MedicationID = s.Prescription.MedicationID,
+                                 //MedicationID = s.Prescription.MedicationID,
                                  PatientName = s.Prescription.Patient.Name,
                                  Surname = s.Prescription.Patient.Surname,
                                  Instruction = s.Prescription.Instruction,
-                                 MedicationName = s.Prescription.Medication.Name,
+                                 //MedicationName = s.Prescription.Medication.Name,
                                  Time = s.Time,
                                  Date = s.Date,
                                  Quantity = s.Prescription.Quantity,
@@ -3506,6 +3507,71 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View(patientAd);
         }
+        public async Task<ActionResult> AllPrescriptions(string searchString, DateTime? startDate, DateTime? endDate)
+        {
+            _logger.LogInformation("AllPrescriptions action started");
+
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["StartDate"] = startDate?.ToString("dd-MM-yyyy");
+            ViewData["EndDate"] = endDate?.ToString("dd-MM-yyyy");
+
+            var prescriptions = from p in _context.Prescriptions
+                                join pat in _context.Patients on p.PatientID equals pat.PatientID
+                                join s in _context.Surgeons on p.SurgeonID equals s.SurgeonID
+                                //join m in _context.Medication on p.MedicationID equals m.MedicationID
+                                join u in _context.Users on s.UserID equals u.UserID
+                                select new PrescriptionVM
+                                {
+                                    PrescriptionID = p.PrescriptionID,
+                                    PatientID = p.PatientID,
+                                    Instruction = p.Instruction,
+                                    Date = p.Date,
+                                    Quantity = p.Quantity,
+                                    Status = p.Status,
+                                    Urgency = p.Urgency,
+                                    PatientName = pat.Name + " " + pat.Surname,
+                                    SurgeonName = u.Name + " " + u.Surname,
+                                    //MedicationName = m.Name ?? "",
+                                };
+
+            _logger.LogInformation($"Querying database for all prescriptions. Search string: {searchString}, Start date: {startDate}, End date: {endDate}");
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                prescriptions = prescriptions.Where(p =>
+                    p.PatientName.Contains(searchString) ||
+                    p.SurgeonName.Contains(searchString) ||
+                    p.MedicationName.Contains(searchString));
+                _logger.LogInformation($"Applying search filter: {searchString}");
+            }
+
+            if (startDate.HasValue)
+            {
+                prescriptions = prescriptions.Where(p => p.Date.Date >= startDate.Value.Date);
+                _logger.LogInformation($"Applying start date filter: {startDate}");
+            }
+
+            if (endDate.HasValue)
+            {
+                prescriptions = prescriptions.Where(p => p.Date.Date <= endDate.Value.Date);
+                _logger.LogInformation($"Applying end date filter: {endDate}");
+            }
+
+            prescriptions = prescriptions.OrderByDescending(p => p.Date);
+
+            var result = await prescriptions.ToListAsync();
+            //_logger.LogInformation($"Retrieved {result.Count} prescriptions");
+
+            //if (result.Count == 0)
+            //{
+            //    _logger.LogWarning("No prescriptions found");
+            //}
+
+            return View(result);
+        }
+
     }
 }
 

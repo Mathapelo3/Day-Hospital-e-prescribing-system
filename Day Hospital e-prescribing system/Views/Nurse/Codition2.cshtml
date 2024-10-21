@@ -125,6 +125,7 @@
                                     <div class="card-header">
                                         <h4 class="card-title text-bold">Allergies</h4>
                                     </div>
+
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <table id="allergiesTable" class="table table-bordered table-striped">
@@ -199,7 +200,10 @@
                  
                     <div style="overflow:auto;">
                         <div style="float:right;">
-                            @*  <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>*@
+                    <div class="text-center">
+                        <input type="submit" value="Add" class="btn btn-primary text-bold" />
+                        <a asp-action="PatientsWChronics" asp-controller="Nurse" class="btn btn-danger text-bold">BACK</a>
+                    </div>
                             <button type="submit">ADD</button>
                         </div>
                     </div>

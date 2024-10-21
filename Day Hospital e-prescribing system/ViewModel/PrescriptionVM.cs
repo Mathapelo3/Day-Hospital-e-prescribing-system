@@ -20,6 +20,9 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public int PatientID { get; set; }
         public int MedicationID { get; set; }
         public string Medication { get; set; }
-        
+        public string PatientName { get; set; }
+        //public string SurgeonName { get; set; }
+
+
     }
 }
