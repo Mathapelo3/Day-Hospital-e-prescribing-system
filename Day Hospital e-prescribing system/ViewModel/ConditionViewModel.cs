@@ -7,11 +7,11 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
     {
         public int ConditionID { get; set; }
 
-        [Required(ErrorMessage = "The Description field is required.")]
+        [Required(ErrorMessage = "Please add ICD Code.")]
         [StringLength(255)]
         public string ICD_10_Code { get; set; }
 
-        [Required(ErrorMessage = "The Name field is required.")]
+        [Required(ErrorMessage = "Please add condition name.")]
         [StringLength(50)]
         public string Name { get; set; }
     }

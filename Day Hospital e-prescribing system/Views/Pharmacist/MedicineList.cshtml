@@ -94,10 +94,7 @@
                                                 <td>@item.DosageForm</td>
                                                 <td class="@(item.QtyLeft < item.ReOrderLevel ? "red-bg" : "")">@item.QtyLeft</td>
                                                 <td>@item.ReOrderLevel</td>
-                                                <td>
-                                                    <input type="number" name="OrderQuantities" class="form-control" min="0" />
-                                                    <input type="hidden" name="StockIds" value="@item.StockID" />
-                                                </td>
+                                                
                                                 <td>
                                                     <button type="button" class="btn" style="background-color:#268aab; color:#ffffff">View Active Ingredients</button>
                                                 </td>

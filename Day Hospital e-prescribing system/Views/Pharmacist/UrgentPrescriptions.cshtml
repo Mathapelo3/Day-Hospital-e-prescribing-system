@@ -1,5 +1,12 @@
 ﻿@model IEnumerable<Day_Hospital_e_prescribing_system.ViewModel.PrescriptionViewModel>
 
+
+@{
+    ViewData["Title"] = "Prescriptions";
+    Layout = "~/Views/Shared/PharmacistLayout.cshtml";
+}
+
+
 <section class="content">
 
     <div class="card">
@@ -13,50 +20,28 @@
                 }
             </div>
             <br />
-            <h4 style="color:#268aab"> Prescriptions</h4>
+            <h4 style="color:#268aab">List Of Prescriptions</h4>
             <br />
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <h5>Generate Report:</h5>
-            <form asp-action="PharmacistReportGenerator" method="get" class="form-inline mb-3">
-                <div class="form-group mr-2">
-                    <label for="startDate" class="mr-2">Start Date:</label>
-                    <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
-                </div>
-                <div class="form-group mr-2">
-                    <label for="endDate" class="mr-2">End Date:</label>
-                    <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
-                </div>
-                <button type="submit" class="btn btn-warning text-bold">Generate</button>
-            </form>
-        </div>
+    <div class="row">
+        <form asp-action="Prescriptions" asp-controller="Pharmacist" method="get" class="form-inline mb-3">
+            <div class="card">
+                <div class="card-body">
 
-        <div class="col-md-12">
-            <h5>Filter Table:</h5>
-            <form asp-action="AllPrescriptions" method="get" class="form-inline mb-3">
-                <div class="form-group mr-2">
-                    <label for="startDate" class="mr-2">Start Date:</label>
-                    <input type="date" name="startDate" id="startDate" class="form-control" value="@ViewData["StartDate"]" />
+                    <div class="row mb-3">
+                        <label class="col-sm-4 col-form-label">Select Date</label>
+                        <input type="date" class="col-sm-5 form-control" />
+                        <div class="col-sm-3">
+                            <button class="form-control " style="background-color: #268aab; color:#ffffff">Filter</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group mr-2">
-                    <label for="endDate" class="mr-2">End Date:</label>
-                    <input type="date" name="endDate" id="endDate" class="form-control" value="@ViewData["EndDate"]" />
-                </div>
-                <button type="submit" class="btn btn-warning text-bold">Filter</button>
-                <div>
-                    <a href="@Url.Action("AllPrescriptions", "Pharmacist")" class="btn spaced btn-danger btn-block text-bold">Reset</a>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
 
     </div>
-    <div style="text-align:end">
-        <button type="button" class="btn btn-info text-sm text-bold" onclick="location.href='@Url.Action("Prescriptions", "Pharmacist")'">
-            Dispense Prescriptions
-        </button>
-    </div>
+
 
 
     <!-- Display Prescriptions -->
@@ -83,7 +68,7 @@
                     @foreach (var item in Model)
                     {
                         <tbody>
-                            <tr>
+                            <tr class="@(item.Urgency ? "solved" : "")">
                                 <td>@item.Date.ToShortDateString()</td>
                                 <td>@item.MedicationName</td>
                                 <td>@item.PatientName @item.PatientSurname</td>
@@ -137,15 +122,15 @@
 
 
 <style>
-    tr.solved td {
-        background-color: #d62828;
-        color: white;
+        tr.solved td {
+            background-color: #d62828;
+            color: white;
     }
+        }
 
-    }
-
-    tr.unsolved td {
-        background-color: #FF3333;
-        color: black;
-    }
+        tr.unsolved td {
+            background-color: #FF3333;
+             color: black;
+        }
 </style>
+

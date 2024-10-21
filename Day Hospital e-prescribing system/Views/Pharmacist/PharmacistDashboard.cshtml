@@ -41,7 +41,7 @@
                     </div>
                     <h5 class="text-bold">PRESCRIBED PRESCRIPTIONS</h5>
                     <p class="card-text text-secondary">View urgent prescriptions.</p>
-                    <button type="button" class="btn btn-outline-info position-relative" onclick="location.href = '@Url.Action("Index","SubHeadTimetable")'" class="btn btn-outline-info">
+                    <button type="button" class="btn btn-outline-info position-relative" onclick="location.href = '@Url.Action("Prescriptions","Pharmacist")'" class="btn btn-outline-info">
                         View
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                             3
@@ -57,9 +57,9 @@
                     <div>
                         <br />
                     </div>
-                    <h5 class="text-bold">DAILY ADMISSION RECORDS</h5>
+                    <h5 class="text-bold">Add Medication</h5>
                     <p class="card-text text-secondary">View daily admission records.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Create","EducatorAssignReport")'" class="btn btn-outline-info">View</button>
+                    <button type="button" onclick="location.href = '@Url.Action("AddMedicine","Pharmacist")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@
                     </div>
                     <h5 class="text-bold">MEDICINE lIST</h5>
                     <p class="card-text text-secondary">Manage types of medicine.</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
+                    <button type="button" onclick="location.href = '@Url.Action("MedicineList","Pharmacist")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
         </div>
@@ -86,9 +86,9 @@
                     <div>
                         <br />
                     </div>
-                    <h5 class="text-bold">Orderd Medicine</h5>
+                    <h5 class="text-bold">Ordered Medicine</h5>
                     <p class="card-text text-secondary">Recived Stock</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","TutorAssign")'" class="btn btn-outline-info">View</button>
+                    <button type="button" onclick="location.href = '@Url.Action("OrderMedicines","Pharmacist")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
         </div> 
@@ -100,9 +100,9 @@
                     <div>
                         <br />
                     </div>
-                    <h5 class="text-bold">STOCK REPORT</h5>
+                    <h5 class="text-bold">Generate PDF</h5>
                     <p class="card-text text-secondary">Inventory details</p>
-                    <button type="button" onclick="location.href = '@Url.Action("Index","StudyMaterial")'" class="btn btn-outline-info">View</button>
+                    <button type="button" onclick="location.href = '@Url.Action("AllPrescriptions","Pharmacist")'" class="btn btn-outline-info">View</button>
                 </div>
             </div>
         </div>

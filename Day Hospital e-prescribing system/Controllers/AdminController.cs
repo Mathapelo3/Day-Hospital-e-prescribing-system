@@ -14,6 +14,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Day_Hospital_e_prescribing_system.Helper;
+using iText.StyledXmlParser.Jsoup.Parser;
 
 namespace Day_Hospital_e_prescribing_system.Controllers
 {
@@ -728,6 +729,120 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
             return View();
+        }
+
+        public IActionResult TreatmentRecords()
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            var code = _context.TreatmentCodes.ToList().OrderBy(c => c.ICD_10_Code);
+            ViewBag.Code = code;
+
+            return View();
+        }
+        public IActionResult AddTreatment()
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTreatment(TreatmentCodeViewModel model)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var code = new TreatmentCode
+                    {
+                        ICD_10_Code = model.ICD_10_Code,
+                        Description = model.Description
+                    };
+
+                    _context.Add(code);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Treatment added successfully.");
+                    return RedirectToAction("TreatmentRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while adding treatment: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
+        }
+        public async Task<IActionResult> EditTreatment(int? id)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var code = await _context.TreatmentCodes.FindAsync(id);
+            if (code == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new TreatmentCodeViewModel
+            {
+                TreatmentCodeID = code.TreatmentCodeID,
+                ICD_10_Code = code.ICD_10_Code,
+                Description = code.Description
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditTreatment(int id, TreatmentCodeViewModel model)
+        {
+            if (id != model.TreatmentCodeID)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var code = await _context.TreatmentCodes.FindAsync(id);
+                    if (code == null)
+                    {
+                        return NotFound();
+                    }
+
+                    code.ICD_10_Code = model.ICD_10_Code;
+                    code.Description = model.Description;
+
+                    _context.Update(code);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Treatment record updated successfully.");
+                    return RedirectToAction("TreatmentRecords", "Admin");
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "An error occurred while updating the condition record: {Message}", ex.Message);
+                    ModelState.AddModelError("", "Unable to save changes.");
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Model state is invalid. Errors: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            }
+
+            return View(model);
         }
     }
 }

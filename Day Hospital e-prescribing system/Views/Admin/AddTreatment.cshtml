@@ -1,0 +1,76 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Day_Hospital_e_prescribing_system.ViewModel
+@model Day_Hospital_e_prescribing_system.ViewModel.TreatmentCodeViewModel
+@{
+    ViewData["Title"] = "Add Treatment";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+<style>
+    .text-dark-green {
+        color: darkgreen;
+    }
+
+    .btn-outline-darkgreen {
+        color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-outline-darkgreen:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+
+    .btn-dark-green {
+        color: white;
+        background-color: darkgreen;
+        border-color: darkgreen;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: darkgreen;
+            border-color: darkgreen;
+        }
+</style>
+<section class="content">
+    <div class="card">
+        <div class="card-header">
+            <div class="text-center">
+                <!-- Place for the hospital logo if needed -->
+            </div>
+            <br />
+            <h4 class="display-6 text-dark-green text-center text-bold">ADD NEW TREATMENT CODE</h4>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form asp-action="AddTreatment" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group col-12">
+                                <label asp-for="ICD_10_Code" class="control-label">ICD-10 Code:</label>
+                                <input asp-for="ICD_10_Code" class="form-control" />
+                                <span asp-validation-for="ICD_10_Code" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-12">
+                                <label asp-for="Description" class="control-label">Description:</label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="row">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-dark-green">Add</button>
+                                    <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("TreatmentRecords", "Admin")'">Back</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
