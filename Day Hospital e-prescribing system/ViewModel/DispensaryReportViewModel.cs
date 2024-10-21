@@ -1,13 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace Day_Hospital_e_prescribing_system.ViewModel
+﻿namespace Day_Hospital_e_prescribing_system.ViewModel
 {
-    public class DispenseReportDataViewModel
+    public class DispensaryReportViewModel
     {
-
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PrescriptionID { get; set; }
         public int PatientID { get; set; }
         public int SurgeonID { get; set; }
@@ -19,11 +13,8 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public string MedicationName { get; set; }
         public DateTime Date { get; set; }
         public string InstructionText { get; set; }
-        public string Quantity { get; set; }
+        public int Quantity { get; set; }
         public string Status { get; set; }
         public string Urgency { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
     }
-
 }

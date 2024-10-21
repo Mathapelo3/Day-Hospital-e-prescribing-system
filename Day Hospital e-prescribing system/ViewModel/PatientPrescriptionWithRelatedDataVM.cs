@@ -12,5 +12,6 @@ namespace Day_Hospital_e_prescribing_system.ViewModel
         public IEnumerable<PatientMedicationVM> Medications { get; set; }
 
         public string AllergyAlert { get; set; }
+        public string ContraIndicationAlert { get; set; }
     }
 }

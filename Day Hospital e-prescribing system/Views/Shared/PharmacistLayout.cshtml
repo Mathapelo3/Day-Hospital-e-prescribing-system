@@ -74,7 +74,7 @@
                     </div>
                     <div class="info">
                         <span class="d-block text-white">
-                            Welcome,Williams @ViewBag.Username
+                            Welcome, @ViewBag.Username
                         </span>
                     </div>
                 </div>
@@ -182,10 +182,10 @@
 
                         
                         <li class="nav-item">
-                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("AllPrescriptions","Pharmacist")'">
+                            <a href="#" class="nav-link" onclick="location.href = '@Url.Action("GetDispensaryReport","Pharmacist")'">
                                 <i class="nav-icon fas fa-cog"></i>
                                 <p>
-                                    STOCK REPORT
+                                    GENERATE REPORT
                                     <i class="right fas fa-angle-down"></i>
                                 </p>
                             </a>
@@ -194,7 +194,7 @@
                         </br>
                         <li class="nav-item">
                             <form asp-controller="Accounts" asp-action="Logout" method="post" class="form-inline">
-                                <button type="submit" class="nav-link btn btn-link text-warning">Logout</button>
+                                <button type="submit" class="nav-link btn btn-link text-info">Logout</button>
                             </form>
                         </li>
                     </ul>
