@@ -6,90 +6,8 @@
     var bedSelectList = ViewBag.Bed as SelectList;
 }
 
-<!DOCTYPE html>
-<html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<style>
-    * {
-        box-sizing: border-box;
-    }
 
-    body {
-        background-color: #f1f1f1;
-    }
 
-    #regForm {
-        background-color: #ffffff;
-        margin: 100px auto;
-        font-family: Raleway;
-        padding: 40px;
-        width: 70%;
-        min-width: 300px;
-    }
-
-    h1 {
-        text-align: center;
-    }
-
-    input {
-        padding: 10px;
-        width: 100%;
-        font-size: 17px;
-        font-family: Raleway;
-        border: 1px solid #aaaaaa;
-    }
-
-        /* Mark input boxes that gets an error on validation: */
-        input.invalid {
-            background-color: #ffdddd;  
-        }
-
-    /* Hide all steps by default: */
-    .tab {
-        display: none;
-    }
-
-    button {
-        background-color: #007bff;
-        color: #ffffff;
-        border: none;
-        padding: 10px 20px;
-        font-size: 17px;
-        font-family: Raleway;
-        cursor: pointer;
-    }
-
-        button:hover {
-            opacity: 0.8;
-        }
-
-    #prevBtn {
-        background-color: #bbbbbb;
-    }
-
-    /* Make circles that indicate the steps of the form: */
-    .step {
-        height: 15px;
-        width: 15px;
-        margin: 0 2px;
-        background-color: #bbbbbb;
-        border: none;
-        border-radius: 50%;
-        display: inline-block;
-        opacity: 0.5;
-    }
-
-        .step.active {
-            opacity: 1;
-        }
-
-        /* Mark the steps that are finished and valid: */
-        .step.finish {
-            background-color: #04AA6D;
-        }
-</style>
 <div class="card">
     <div class="card-header">
         <div class="text-center ">
@@ -240,31 +158,35 @@
 
             <!-- Circles which indicates the steps of the form: -->
 @section Scripts {
-    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#wardDropdown').change(function () {
                 var wardId = $(this).val();
                 if (wardId) {
                     $.getJSON('@Url.Action("GetBeds", "Nurse")', { wardId: wardId }, function (beds) {
-                        var $bedDropdown = $('#bedDropdown');
-                        $bedDropdown.empty();
-                        $bedDropdown.append('<option value="">Select a bed</option>');
-                        $.each(beds, function (i, bed) {
-                            $bedDropdown.append($('<option>', {
-                                value: bed.value,
-                                text: bed.text
-                            }));
-                        });
+                        var bedDropdown = $('#bedDropdown');
+                        bedDropdown.empty();
+                        bedDropdown.append('<option value="">Select a bed</option>');
+                        if (beds && beds.length > 0) {
+                            $.each(beds, function (i, bed) {
+                                bedDropdown.append($('<option>', {
+                                    value: bed.value,
+                                    text: bed.text
+                                }));
+                            });
+                        } else {
+                            bedDropdown.append('<option value="">No available beds</option>');
+                        }
+                    }).fail(function () {
+                        $('#bedDropdown').empty()
+                            .append('<option value="">Error loading beds</option>');
                     });
                 } else {
-                    $('#bedDropdown').empty().append('<option value="">Select a ward first</option>');
+                    $('#bedDropdown')
+                        .empty()
+                        .append('<option value="">Select a ward first</option>');
                 }
             });
         });
-
     </script>
-
-
-
 }

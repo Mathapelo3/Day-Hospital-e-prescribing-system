@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using System.Data;
 using System.Diagnostics;
@@ -1615,6 +1616,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return ward;
         }
+         
         [HttpGet]
         public async Task<IActionResult> AdmitPatient(int selectedId)
         {
@@ -1629,13 +1631,12 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             }
 
             // Convert userId to int if necessary
-            int nurseId;
-            if (!int.TryParse(userId, out nurseId))
+            if (!int.TryParse(userId, out int nurseId))
             {
                 return BadRequest("Invalid user ID");
             }
 
-            // Get the surgeon's ID based on the user ID
+            // Get the nurse's ID based on the user ID
             var nurse = await _context.Nurses
                 .FirstOrDefaultAsync(s => s.NurseID == nurseId);
 
@@ -1643,19 +1644,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             {
                 return NotFound("Nurse not found");
             }
-            //var treatmentCode = GetTreatmentCode();
-
-            var treatmentCode = GetTreatmentCode();
 
             var selectedSurgery = await _context.Surgeries
-                                .Include(s => s.Patients)
-                                //.Include(s => s.Surgery_TreatmentCodes)
-                                .DefaultIfEmpty()
-                                .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
-
-
-
-
+                                    .Include(s => s.Patients)
+                                    .DefaultIfEmpty()
+                                    .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
 
             if (selectedSurgery == null)
             {
@@ -1669,39 +1662,34 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return NotFound();
             }
 
-            //var surgery_treatmentCode = selectedSurgery.Surgery_TreatmentCodes?.Description;
-            var bedSelectList = new SelectList(_context.Bed, "BedId", "BedName");
-            ViewBag.Bed = bedSelectList;
+            // Populate ViewBag.Wards
+            ViewBag.Wards = new SelectList(
+                await _context.Ward
+                    .Select(w => new
+                    {
+                        WardId = w.WardId,
+                        WardName = $"{w.WardName} ({w.NumberOfBeds} beds)"
+                    })
+                    .ToListAsync(),
+                "WardId",
+                "WardName"
+            );
 
             var model = new AdmissionVM
             {
-                //BedId = 0,
                 Date = DateTime.Now,
                 Time = DateTime.Now.ToString("tt"),
-                //TreatmentCode = treatmentCode,
                 SurgeryID = selectedSurgery.SurgeryID,
                 PatientID = selectedSurgery.PatientID,
                 Name = selectedSurgery.Patients.Name ?? "Unknown",
                 Surname = selectedSurgery.Patients.Surname ?? "Unknown",
-                //SurgeonID = selectedSurgery.SurgeonID,
-                //AnaesthesiologistID = selectedSurgery.AnaesthesiologistID ?? 0,
-                NurseID = nurseId,
-                //Description = selectedSurgery.Surgery_TreatmentCodes.Description
-
+                NurseID = nurseId
             };
 
-            ViewBag.Wards = new SelectList(_context.Ward.Select(w => new
-            {
-                WardId = w.WardId,
-                WardName = $"{w.WardName} ({w.NumberOfBeds} beds)"
-            }).ToList(), "WardId", "WardName");
-            ViewBag.Bed = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"); // Initially empty, will be populated on ward selection
-                                                                                               //ViewBag.TreatmentCodes = new SelectList(_context.Ward.ToList(), "Surgery_TreatmentCodeID", "Description");
-
-            model.NurseID = nurseId;
+            // Initialize empty bed dropdown
+            ViewBag.Bed = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
 
             return View(model);
-
         }
 
 
@@ -1710,7 +1698,6 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<IActionResult> AdmitPatient(AdmissionVM model, int selectedId)
         {
             _logger.LogInformation("AdmitPatient POST method called with selectedId: {SelectedId}", selectedId);
-
 
             ViewBag.Username = HttpContext.Session.GetString("Username");
 
@@ -1721,79 +1708,192 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                 return Unauthorized("User not authenticated");
             }
 
-            int nurseId;
-            if (!int.TryParse(userId, out nurseId))
+            if (!int.TryParse(userId, out int nurseId))
             {
                 return BadRequest("Invalid user ID");
             }
+            // Always populate ViewBag.Wards before returning View
+            ViewBag.Wards = new SelectList(
+                await _context.Ward
+                    .Select(w => new
+                    {
+                        WardId = w.WardId,
+                        WardName = $"{w.WardName} ({w.NumberOfBeds} beds)"
+                    })
+                    .ToListAsync(),
+                "WardId",
+                "WardName"
+            );
 
-            var nurse = await _context.Nurses.FirstOrDefaultAsync(s => s.NurseID == nurseId);
-            if (nurse == null)
+            // If WardId is selected, populate beds for that ward
+            if (model.WardId > 0)
             {
-                return NotFound("Nurse not found");
+                ViewBag.Bed = new SelectList(
+                    await _context.Bed
+                        .Where(b => b.WardId == model.WardId && b.IsAvailable)
+                        .Select(b => new
+                        {
+                            BedId = b.BedId,
+                            BedName = b.BedName
+                        })
+                        .ToListAsync(),
+                    "BedId",
+                    "BedName"
+                );
             }
+            else
+            {
+                ViewBag.Bed = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
+            }
+
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _logger.LogInformation("Fetching surgery with ID: {SelectedId}", selectedId);
+                // 1. Validate bed exists and is available in selected ward
+                var bedValidationQuery = @"
+            SELECT COUNT(1) 
+            FROM Bed b 
+            WHERE b.BedId = @BedId 
+            AND b.WardId = @WardId
+            AND b.IsAvailable = 1";
 
-                var selectedSurgery = await _context.Surgeries
-                    .Include(s => s.Patients)
-                    .FirstOrDefaultAsync(s => s.SurgeryID == selectedId);
-
-                if (selectedSurgery == null)
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
                 {
-                    _logger.LogWarning("Surgery not found for SurgeryID: {SurgeryID}", selectedId);
-                    return NotFound("Surgery not found.");
+                    command.CommandText = bedValidationQuery;
+                    command.Transaction = transaction.GetDbTransaction();
+
+                    command.Parameters.Add(new SqlParameter("@BedId", model.BedId));
+                    command.Parameters.Add(new SqlParameter("@WardId", model.WardId));
+
+                    await _context.Database.OpenConnectionAsync();
+                    var result = (int)await command.ExecuteScalarAsync();
+
+                    if (result == 0)
+                    {
+                        ModelState.AddModelError("BedId", "Selected bed is either invalid or already occupied.");
+                        return View(model);
+                    }
                 }
 
-                if (selectedSurgery.Patients == null)
+                // 2. Update bed status to unavailable
+                var updateBedQuery = @"
+            UPDATE Bed 
+            SET IsAvailable = 0
+            WHERE BedId = @BedId";
+
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
                 {
-                    _logger.LogWarning("Patient not found for SurgeryID: {SurgeryID}", selectedId);
-                    return NotFound("Patient not found.");
+                    command.CommandText = updateBedQuery;
+                    command.Transaction = transaction.GetDbTransaction();
+                    command.Parameters.Add(new SqlParameter("@BedId", model.BedId));
+                    await command.ExecuteNonQueryAsync();
                 }
 
-                var patient = selectedSurgery.Patients;
-                _logger.LogInformation("Found patient with ID: {PatientID} for SurgeryID: {SurgeryID}", patient.PatientID, selectedSurgery.SurgeryID);
+                // 3. Update Patient's bed assignment and status
+                var updatePatientQuery = @"
+            UPDATE Patient 
+            SET BedId = @BedId,
+                Status = 'Admitted'
+            WHERE PatientID = @PatientID";
 
-                // Ensure the selected Bed exists and is in the selected Ward
-                var selectedBed = await _context.Bed
-                    .Include(b => b.Wards)
-                    .FirstOrDefaultAsync(b => b.BedId == model.BedId);
-
-                if (selectedBed == null || selectedBed.Wards.WardId != model.WardId)
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
                 {
-                    _logger.LogWarning("Invalid bed selection: BedId {BedId}, WardId {WardId}", model.BedId, model.WardId);
-                    ModelState.AddModelError("BedId", "Invalid bed selection.");
-                    return View(model);
+                    command.CommandText = updatePatientQuery;
+                    command.Transaction = transaction.GetDbTransaction();
+                    command.Parameters.Add(new SqlParameter("@BedId", model.BedId));
+                    command.Parameters.Add(new SqlParameter("@PatientID", model.PatientID));
+                    await command.ExecuteNonQueryAsync();
                 }
 
-                // Update BedId in Patient table
-                patient.BedId = model.BedId;
-                _context.Update(patient);
+                // 4. Insert admission record
+                var admissionInsertQuery = @"
+            INSERT INTO Admission (
+                Date, 
+                Time, 
+                PatientID, 
+                NurseID
+            ) 
+            VALUES (
+                @Date, 
+                @Time, 
+                @PatientID, 
+                @NurseID
+            )";
 
-                // SQL Insert Query for Admission
-                var admissionInsertQuery = $@"
-            INSERT INTO Admissions (Date, Time, PatientID, NurseID) 
-            VALUES ('{model.Date}', '{model.Time}', {selectedSurgery.PatientID}, {model.NurseID})
-        ";
-                await _context.Database.ExecuteSqlRawAsync(admissionInsertQuery);
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = admissionInsertQuery;
+                    command.Transaction = transaction.GetDbTransaction();
+                    command.Parameters.Add(new SqlParameter("@Date", model.Date));
+                    command.Parameters.Add(new SqlParameter("@Time", model.Time));
+                    command.Parameters.Add(new SqlParameter("@PatientID", model.PatientID));
+                    command.Parameters.Add(new SqlParameter("@NurseID", nurseId));
+                    await command.ExecuteNonQueryAsync();
+                }
 
-                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
                 TempData["SuccessMessage"] = "Patient successfully admitted.";
-                return RedirectToAction("AdmitPatient");
+                return RedirectToAction("AdmissionWizard");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                _logger.LogError(ex, "An error occurred while admitting the patient.");
-                return BadRequest("An error occurred while admitting the patient.");
+
+                // If there's an error, attempt to reset the bed status
+                try
+                {
+                    var rollbackBedQuery = @"
+                UPDATE Bed 
+                SET IsAvailable = 1
+                WHERE BedId = @BedId";
+
+                    using (var command = _context.Database.GetDbConnection().CreateCommand())
+                    {
+                        command.CommandText = rollbackBedQuery;
+                        command.Parameters.Add(new SqlParameter("@BedId", model.BedId));
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception rollbackEx)
+                {
+                    _logger.LogError(rollbackEx, "Error during bed status rollback: {Error}", rollbackEx.Message);
+                }
+
+                _logger.LogError(ex, "An error occurred while admitting the patient: {Error}", ex.Message);
+                ModelState.AddModelError("", "An error occurred while admitting the patient.");
+                return View(model);
+            }
+            finally
+            {
+                if (_context.Database.GetDbConnection().State == System.Data.ConnectionState.Open)
+                {
+                    await _context.Database.GetDbConnection().CloseAsync();
+                }
             }
         }
+        [HttpGet]
+        public async Task<JsonResult> GetBeds(int wardId)
+        {
+            try
+            {
+                var beds = await _context.Bed
+                    .Where(b => b.WardId == wardId && b.IsAvailable)
+                    .Select(b => new
+                    {
+                        value = b.BedId.ToString(),
+                        text = b.BedName
+                    })
+                    .ToListAsync();
 
+                return Json(beds);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching beds for ward {WardId}: {Error}", wardId, ex.Message);
+                return Json(new List<object>());
+            }
+        }
 
         private async Task<int> GetBedIdByName(string selectedBed)
         {
@@ -1859,13 +1959,13 @@ namespace Day_Hospital_e_prescribing_system.Controllers
 
             return View();
         }
-        [HttpGet]
-        public JsonResult GetBeds(int wardId)
-        {
-            var beds = GetBedsForWard(wardId);
-            return Json(beds);
+        //[HttpGet]
+        //public JsonResult GetBeds(int wardId)
+        //{
+        //    var beds = GetBedsForWard(wardId);
+        //    return Json(beds);
 
-        }
+        //}
         private List<SelectListItem> GetBedsForWard(int wardId)
         {
             var beds = new List<SelectListItem>();
@@ -2518,56 +2618,53 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             return View("PatientProfile", model);
         }
 
-        public async Task<IActionResult> SubmitPatientProfile(PatientVM model, int provinceId)
+        public async Task<IActionResult> SubmitPatientProfile(PatientVM model)
         {
             if (ModelState.IsValid)
             {
-                var pateint = await _context.Patients
-           .Include(p => p.Suburbs)
-           .ThenInclude(s => s.City)
-           .FirstOrDefaultAsync(p => p.PatientID == model.PatientID);
-
-                if (pateint == null)
+                var patient = await _context.Patients.FindAsync(model.PatientID);
+                if (patient == null)
                 {
                     return NotFound();
                 }
 
-                //pateint.PatientID = model.PatientID;
-                pateint.Name = model.Name;
-                pateint.Surname = model.Surname;
-                pateint.Gender = model.Gender;
-                pateint.Email = model.Email;
-                pateint.ContactNo = model.ContactNo;
-                pateint.IDNo = model.IDNo;
-                pateint.AddressLine1 = model.AddressLine1;
-                pateint.AddressLine2 = model.AddressLine2;
-                //pateint.DateOfBirth = model.DateOfBirth;
-                pateint.NextOfKinNo = model.NextOfKinNo;
-                pateint.SuburbID = model.SuburbID;
-                //pateint.Suburbs.CityID = model.CityID;
-                //pateint.Suburbs.City.ProvinceID = model.ProvinceID;
+                patient.Name = model.Name ?? patient.Name;
+                patient.Surname = model.Surname ?? patient.Surname;
+                patient.Gender = model.Gender ?? patient.Gender;
+                patient.Email = model.Email ?? patient.Email;
+                patient.ContactNo = model.ContactNo ?? patient.ContactNo;
+                patient.IDNo = model.IDNo ?? patient.IDNo;
+                patient.AddressLine1 = model.AddressLine1 ?? patient.AddressLine1;
+                patient.AddressLine2 = model.AddressLine2 ?? patient.AddressLine2;
+                //patient.DateOfBirth = model.DateOfBirth.HasValue ? model.DateOfBirth.Value : patient.DateOfBirth;
+                patient.NextOfKinNo = model.NextOfKinNo ?? patient.NextOfKinNo;
+                patient.SuburbID = model.SuburbID != 0 ? model.SuburbID : patient.SuburbID;
 
-                // Update related entities if necessary
-                if (pateint.Suburbs != null)
+                // Update the related Suburb and City entities
+                var suburb = await _context.Suburbs.FindAsync(patient.SuburbID);
+                if (suburb != null)
                 {
-                    pateint.Suburbs.CityID = model.CityID;
-                    if (pateint.Suburbs.City != null)
-                    {
-                        pateint.Suburbs.City.ProvinceID = model.ProvinceID;
-                    }
+                    suburb.CityID = model.CityID != 0 ? model.CityID : suburb.CityID;
+                    _context.Suburbs.Update(suburb);
                 }
 
-                _context.Patients.Update(pateint);
+                var city = await _context.Cities.FindAsync(suburb?.CityID ?? 0);
+                if (city != null)
+                {
+                    city.ProvinceID = model.ProvinceID != 0 ? model.ProvinceID : city.ProvinceID;
+                    _context.Cities.Update(city);
+                }
+
+                _context.Patients.Update(patient);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("PatientProfile", "Nurse");
+                return RedirectToAction("EditPatientProfiles", new { id = patient.PatientID });
             }
 
             // If we got this far, something failed, redisplay form
             ViewBag.Provinces = await GetProvincesAsync();
             ViewBag.Cities = await GetCitiesByProvinceAsync(model.ProvinceID);
             ViewBag.Suburbs = await GetSuburbsByCityAsync(model.CityID);
-
-            return View(model);
+            return View("EditPatientProfiles", model);
         }
         public async Task<IActionResult> PatientProfile(int id)
         {
@@ -2783,10 +2880,16 @@ namespace Day_Hospital_e_prescribing_system.Controllers
             ViewBag.Suburbs = await GetSuburbsByCityAsync(model.Suburbs.CityID);
         }
 
+
+
         [HttpGet]
         public IActionResult EditPatientProfiles(int id)
         {
+            _logger.LogInformation("GET EditPatientProfiles called with PatientID: {PatientID}", id);
+
             ViewBag.Username = HttpContext.Session.GetString("Username");
+
+            _logger.LogInformation("Fetching patient profile for PatientID: {PatientID}", id);
 
             var patientProfile = (from p in _context.Patients
                                   join s in _context.Suburbs on p.SuburbID equals s.SuburbID into suburbJoin
@@ -2807,7 +2910,7 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                       IDNo = p != null ? p.IDNo : "N/A",
                                       AddressLine1 = p != null ? p.AddressLine1 : "N/A",
                                       AddressLine2 = p != null ? p.AddressLine2 : "N/A",
-                                      //DateOfBirth = p.DateOfBirth != null ? p.DateOfBirth : (DateTime?)null,
+                                      DateOfBirth = p.DateOfBirth != default(DateTime) ? p.DateOfBirth : (DateTime?)null,
                                       NextOfKinNo = p != null ? p.NextOfKinNo : "N/A",
                                       ProvinceID = c.ProvinceID,
                                       CityID = s.CityID,
@@ -2815,10 +2918,11 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                                       ProvinceName = pr != null ? pr.Name ?? "" : "",
                                       CityName = c != null ? c.Name ?? "" : "",
                                       SuburbName = s != null ? s.Name ?? "" : ""
-                                  }).FirstOrDefault();
+                                  }).FirstOrDefault(p => p.PatientID == id);
 
             if (patientProfile == null)
             {
+                _logger.LogWarning("No patient profile found for PatientID: {PatientID}", id);
                 return NotFound();
             }
 
@@ -2826,7 +2930,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
       .Select(p => new SelectListItem
       {
           Value = p.ProvinceID.ToString(),
-          Text = p.Name
+          Text = p.Name,
+          Selected = p.ProvinceID == patientProfile.ProvinceID
       })
       .ToList();
 
@@ -2835,7 +2940,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     .Select(c => new SelectListItem
                     {
                         Value = c.CityID.ToString(),
-                        Text = c.Name
+                        Text = c.Name,
+                        Selected = c.CityID == patientProfile.CityID
                     })
                     .ToList()
                 : new List<SelectListItem>();
@@ -2845,7 +2951,8 @@ namespace Day_Hospital_e_prescribing_system.Controllers
                     .Select(s => new SelectListItem
                     {
                         Value = s.SuburbID.ToString(),
-                        Text = s.Name
+                        Text = s.Name,
+                        Selected = s.SuburbID == patientProfile.SuburbID
                     })
                     .ToList()
                 : new List<SelectListItem>();
@@ -2859,25 +2966,187 @@ namespace Day_Hospital_e_prescribing_system.Controllers
         public async Task<IActionResult> EditPatientProfiles(PatientVM viewModel)
         {
             ViewBag.Username = HttpContext.Session.GetString("Username");
-            if (ModelState.IsValid)
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var patientProfile = await _context.Patients.FindAsync(viewModel.PatientID);
-                if (patientProfile != null)
+                if (!ModelState.IsValid)
                 {
-                    patientProfile.Name = viewModel.Name;
-                    patientProfile.Suburbs.City.ProvinceID = viewModel.ProvinceID;
-                    patientProfile.Suburbs.CityID = viewModel.CityID;
-                    patientProfile.SuburbID = viewModel.SuburbID;
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("PatientProfile", new { id = patientProfile.PatientID });
+                    await PopulateLocationDropdowns(viewModel);
+                    return View(viewModel);
                 }
+
+                var patientProfile = await _context.Patients
+                    .Include(p => p.Suburbs)
+                        .ThenInclude(s => s.City)
+                    .FirstOrDefaultAsync(p => p.PatientID == viewModel.PatientID);
+
+                if (patientProfile == null)
+                {
+                    return NotFound();
+                }
+
+                patientProfile.Name = string.IsNullOrEmpty(viewModel.Name) ? "" : viewModel.Name;
+                patientProfile.Surname = string.IsNullOrEmpty(viewModel.Surname) ? "" : viewModel.Surname;
+                patientProfile.Gender = string.IsNullOrEmpty(viewModel.Gender) ? "N/A" : viewModel.Gender;
+                patientProfile.Email = string.IsNullOrEmpty(viewModel.Email) ? "N/A" : viewModel.Email;
+
+                // Handle DateTime null value explicitly
+                if (viewModel.DateOfBirth.HasValue && viewModel.DateOfBirth.Value != default(DateTime))
+                {
+                    patientProfile.DateOfBirth = viewModel.DateOfBirth.Value;
+                }
+                // Don't update DateOfBirth if the new value is null or default
+
+                patientProfile.ContactNo = string.IsNullOrEmpty(viewModel.ContactNo) ? "N/A" : viewModel.ContactNo;
+                patientProfile.IDNo = string.IsNullOrEmpty(viewModel.IDNo) ? "N/A" : viewModel.IDNo;
+                patientProfile.AddressLine1 = string.IsNullOrEmpty(viewModel.AddressLine1) ? "N/A" : viewModel.AddressLine1;
+                patientProfile.AddressLine2 = string.IsNullOrEmpty(viewModel.AddressLine2) ? "N/A" : viewModel.AddressLine2;
+                patientProfile.NextOfKinNo = string.IsNullOrEmpty(viewModel.NextOfKinNo) ? "N/A" : viewModel.NextOfKinNo;
+                patientProfile.SuburbID = viewModel.SuburbID;
+
+                _context.Update(patientProfile);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                TempData["SuccessMessage"] = "Patient profile updated successfully.";
+                return RedirectToAction(nameof(PatientProfile), new { id = patientProfile.PatientID });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error updating patient profile for PatientID: {PatientID}. Error: {Error}",
+                    viewModel.PatientID, ex.Message);
+                ModelState.AddModelError("", "An error occurred while saving the changes. Please try again.");
+                await PopulateLocationDropdowns(viewModel);
+                return View(viewModel);
+            }
+        }
+
+        // Helper method for populating dropdowns
+        private async Task PopulateLocationDropdowns(PatientVM viewModel)
+        {
+            ViewBag.Provinces = await _context.Provinces
+                .Select(p => new SelectListItem
+                {
+                    Value = p.ProvinceID.ToString(),
+                    Text = p.Name,
+                    Selected = p.ProvinceID == viewModel.ProvinceID
+                })
+                .ToListAsync();
+
+            if (viewModel.ProvinceID != 0)
+            {
+                ViewBag.Cities = await _context.Cities
+                    .Where(c => c.ProvinceID == viewModel.ProvinceID)
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.CityID.ToString(),
+                        Text = c.Name,
+                        Selected = c.CityID == viewModel.CityID
+                    })
+                    .ToListAsync();
+            }
+            else
+            {
+                ViewBag.Cities = new List<SelectListItem>();
             }
 
-            ViewBag.Provinces = _context.Provinces.ToList();
-            ViewBag.Cities = _context.Cities.Where(c => c.ProvinceID == viewModel.ProvinceID).ToList();
-            ViewBag.Suburbs = _context.Suburbs.Where(s => s.CityID == viewModel.CityID).ToList();
+            if (viewModel.CityID != 0)
+            {
+                ViewBag.Suburbs = await _context.Suburbs
+                    .Where(s => s.CityID == viewModel.CityID)
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.SuburbID.ToString(),
+                        Text = s.Name,
+                        Selected = s.SuburbID == viewModel.SuburbID
+                    })
+                    .ToListAsync();
+            }
+            else
+            {
+                ViewBag.Suburbs = new List<SelectListItem>();
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPatientProfiless(PatientVM viewModel)
+        {
+            ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            return View(viewModel);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    await PopulateLocationDropdowns(viewModel);
+                    return View(viewModel);
+                }
+
+                // Prepare parameters for SQL query
+                var parameters = new[]
+                {
+            new SqlParameter("@PatientID", SqlDbType.Int) { Value = viewModel.PatientID },
+            new SqlParameter("@Name", SqlDbType.NVarChar) { Value = (object)viewModel.Name ?? DBNull.Value },
+            new SqlParameter("@Surname", SqlDbType.NVarChar) { Value = (object)viewModel.Surname ?? DBNull.Value },
+            new SqlParameter("@Gender", SqlDbType.NVarChar) { Value = (object)viewModel.Gender ?? "N/A" },
+            new SqlParameter("@Email", SqlDbType.NVarChar) { Value = (object)viewModel.Email ?? "N/A" },
+            new SqlParameter("@DateOfBirth", SqlDbType.DateTime) {
+                Value = (viewModel.DateOfBirth.HasValue && viewModel.DateOfBirth.Value != default(DateTime))
+                    ? (object)viewModel.DateOfBirth.Value
+                    : DBNull.Value
+            },
+            new SqlParameter("@ContactNo", SqlDbType.NVarChar) { Value = (object)viewModel.ContactNo ?? "N/A" },
+            new SqlParameter("@IDNo", SqlDbType.NVarChar) { Value = (object)viewModel.IDNo ?? "N/A" },
+            new SqlParameter("@AddressLine1", SqlDbType.NVarChar) { Value = (object)viewModel.AddressLine1 ?? "N/A" },
+            new SqlParameter("@AddressLine2", SqlDbType.NVarChar) { Value = (object)viewModel.AddressLine2 ?? "N/A" },
+            new SqlParameter("@NextOfKinNo", SqlDbType.NVarChar) { Value = (object)viewModel.NextOfKinNo ?? "N/A" },
+            new SqlParameter("@SuburbID", SqlDbType.Int) { Value = viewModel.SuburbID }
+        };
+
+                // SQL update query
+                const string updateQuery = @"
+            UPDATE Patient 
+            SET Name = @Name,
+                Surname = @Surname,
+                Gender = @Gender,
+                Email = @Email,
+                DateOfBirth = CASE 
+                    WHEN @DateOfBirth IS NULL THEN DateOfBirth 
+                    ELSE @DateOfBirth 
+                END,
+                ContactNo = @ContactNo,
+                IDNo = @IDNo,
+                AddressLine1 = @AddressLine1,
+                AddressLine2 = @AddressLine2,
+                NextOfKinNo = @NextOfKinNo,
+                SuburbID = @SuburbID
+            WHERE PatientID = @PatientID;
+
+            SELECT @@ROWCOUNT;";  // Return number of rows affected
+
+                // Execute the update query
+                var rowsAffected = await _context.Database.ExecuteSqlRawAsync(updateQuery, parameters);
+
+                if (rowsAffected == 0)
+                {
+                    throw new Exception($"No patient found with ID {viewModel.PatientID}");
+                }
+
+                await transaction.CommitAsync();
+                TempData["SuccessMessage"] = "Patient profile updated successfully.";
+                return RedirectToAction(nameof(EditPatientProfiles), new { id = viewModel.PatientID });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error updating patient profile for PatientID: {PatientID}. Error: {Error}",
+                    viewModel.PatientID, ex.Message);
+                ModelState.AddModelError("", "An error occurred while saving the changes. Please try again.");
+                await PopulateLocationDropdowns(viewModel);
+                return View(viewModel);
+            }
         }
 
         // Add these methods to handle AJAX requests for populating dropdowns
